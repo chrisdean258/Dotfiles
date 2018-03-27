@@ -1,0 +1,42 @@
+##################################################################
+#
+#         .zsh_files/.zsh.aliases file
+#
+#         Read in every time a new interactive zsh is started.
+#         Defines some useful aliases.
+#
+##################################################################
+
+alias RM='rm -f'
+
+alias c='clear'
+alias ls="ls --color=auto " # color ls is cool
+alias la="ls -la"
+alias ll="ls -lh"
+alias lla="ls -lah"
+alias view="vim -R"
+alias l='less'
+
+##################################################################
+
+alias cd..='cd ..'
+alias ..='cd ..'
+
+alias bak='bak'; bak() { cp $1 $1.bak; }
+alias restore='restore'; restore() { cp $1.bak $1; }
+
+alias notes=". notes"
+
+alias cd='cdls'
+cdls() {
+	builtin cd "$@"
+	RESULT=$?
+	if [ "$RESULT" -eq 0 ]; then
+		ls
+	fi
+}
+
+lc()
+{
+	ls --color=yes $* | cat
+}
