@@ -47,6 +47,7 @@
 	:set showcmd
 	:set wildmenu
 	:set hlsearch incsearch
+	:set backspace=eol,indent,start
 	:filetype plugin indent on
 	:filetype plugin on
 
