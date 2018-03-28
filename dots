@@ -4,32 +4,42 @@ base=$HOME/git/Dotfiles
 
 
 if ! [ -d $base ]; then
+	tput bold
 	echo please set the base in $0
+	tput sgr0
 	exit 1
 fi
 
 if ! [ $# -ge 1 ]; then
+	tput bold
 	echo "Please specify either deploy or save"
+	tput sgr0
 	exit 1
 fi
 
 shell=`basename $SHELL`
 cd $base
 
+tput bold
 echo git pull
+tput sgr0
 git pull
 
 if [ "$1" == "deploy" ]
 then
 	for file in ${base}/${shell}/*; do
 		basefile=`basename $file`
+		tput bold
 		echo cp $file ~/.$basefile
+		tput sgr0
 		cp $file ~/.$basefile
 	done
 
 	for file in ${base}/universal/*; do
 		basefile=`basename $file`
+		tput bold
 		echo cp $file ~/.$basefile
+		tput sgr0
 		cp $file ~/.$basefile
 	done
 
@@ -37,20 +47,30 @@ elif [ "$1" == "save" ]
 then
 	for file in ${base}/${shell}/*; do
 		basefile=`basename $file`
+		tput bold
 		echo cp ~/.$basefile $file 
+		tput sgr0
 		cp ~/.$basefile $file 
 	done
 
 	for file in ${base}/universal/*; do
 		basefile=`basename $file`
+		tput bold
 		echo cp ~/.$basefile $file
+		tput sgr0
 		cp ~/.$basefile $file
 	done
 
+	tput bold
 	echo git add $shell
+	tput sgr0
 	git add $shell
+	tput bold
 	echo git add universal
+	tput sgr0
 	git add universal
-	echo git commit -m "$shell
-	git commit -m "$shell
+	tput bold
+	echo git commit -m "\"$shell\""
+	tput sgr0
+	git commit -m "$shell"
 fi
