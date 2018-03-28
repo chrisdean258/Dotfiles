@@ -2,6 +2,9 @@
 
 base=$HOME/git/Dotfiles
 
+if [ -d ~/bin ]; then
+	cp $base/dots ~/bin/dots
+fi
 
 if ! [ -d $base ]; then
 	echo please set the base in $0
