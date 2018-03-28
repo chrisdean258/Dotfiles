@@ -4,16 +4,12 @@ base=$HOME/git/Dotfiles
 
 
 if ! [ -d $base ]; then
-	tput bold
 	echo please set the base in $0
-	tput sgr0
 	exit 1
 fi
 
 if ! [ $# -ge 1 ]; then
-	tput bold
 	echo "Please specify either deploy or save"
-	tput sgr0
 	exit 1
 fi
 
