@@ -52,3 +52,13 @@ j()
 }
 
 export -f j
+
+vimrc()
+{
+	cd ~/git/vimrc
+	git pull
+	cp vimrc ~/.vimrc
+	cd -
+}
+
+export -f vimrc

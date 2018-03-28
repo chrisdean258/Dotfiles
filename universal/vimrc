@@ -160,7 +160,7 @@
 
 	:command! MakeTags !ctags -R
 	:command! Unicode set encoding=utf-8
-
+	
 	:cabbrev unicode Unicode
 
 " }}}
@@ -201,7 +201,6 @@
 	:  autocmd FileType cpp    :nnoremap <silent><buffer> \mc :call MakeConstructor_Cpp()<CR>O
 	:  autocmd FileType c      :autocmd CursorMoved,CursorMovedI <buffer> call HighlightAfterColumn(80)
 	:  autocmd FileType cpp    :autocmd CursorMoved,CursorMovedI <buffer> call HighlightAfterColumn(80)
-	:  autocmd BufNewFile *.cs :execute "normal! iclass ".expand('%')[:-4]."\n{\n}\<esc>O_\<BS>"
 	:augroup END
 	" }}}
 
@@ -244,7 +243,7 @@
 	:  autocmd!
 	:  autocmd FileType vim :nnoremap <silent><buffer><localleader>\ :call CommentBL('" ', "")<CR>
 	:  autocmd FileType vim :setlocal foldmethod=marker
-	:  autocmd FileType vim :inoremap <silent><buffer><tab> <C-R>=CleverTab()<CR>
+	:  autocmd FileType vim :inoremap <buffer><tab> <C-R>=CleverTab()<CR>
 	:augroup END
 	" }}}
 
@@ -294,7 +293,7 @@
 	:autocmd BufRead,BufNewFile *.notes* :setlocal spell
 	:autocmd BufRead,BufNewFile *.notes* :setlocal spelllang=en
 	" :autocmd BufWrite *.notes.md :call NotesMDFormat()
-	:autocmd BufRead,BufNewFile *.notes.md :cabbrev markdown call NotesMDFormat()
+	:autocmd BufRead,BufNewFile *.notes.md :cabbrev md call NotesMDFormat()
 	:augroup END
 	" }}}
 
@@ -489,7 +488,7 @@
 		:  let line = getline('.')
 		:  for starting in allowable_starts
 		:    if line =~ '^\s*' . starting . ' '
-		:      if line =~ '^\s*' . starting .' \s*$'
+		:      if line =~ '^\s*' . starting .' $'
 		:        return "\<esc>^C"
 		:      endif
 		:      if a:in == "o"
@@ -499,8 +498,8 @@
 		:      endif
 		:    endif
 		:  endfor
-		:  if line =~ '^\s*\d\+\. '
-		:    if line =~ '^\s*\d\+\. \s*$'
+		:  if line =~ '^\s*\d\d*\. '
+		:    if line =~ '^\s*\d\d*\. $'
 		:      return "\<esc>^C"
 		:    endif
 		:    if a:in == "o"
@@ -512,7 +511,7 @@
 		:  return a:in
 		endfunction
 		" }}}
-
+		
 		function! MDTabReplacement()
 		"  {{{
 		:  let allowable_starts = [ '>', '\*', '-', '+', '|' ]
@@ -528,7 +527,7 @@
 		:  let lineabove = lineabove[indention:]
 		:  let indent = stridx(lineabove, ' ') + 1
 		:
-		:  echom
+		:  echom 
 		:  if indent == 0
 		:    let indent = 2
 		:  endif
@@ -575,7 +574,7 @@
 		:  normal! mq
 		:  normal! H
 		:  normal! mm
-
+		
 		:  normal! `>
 		:  let col1 = col('.')
 		:  let row1 = line('.')
