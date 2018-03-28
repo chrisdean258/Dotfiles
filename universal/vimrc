@@ -47,6 +47,7 @@
 	:set showcmd
 	:set wildmenu
 	:set hlsearch incsearch
+	:set backspace=eol,indent,start
 	:filetype plugin indent on
 	:filetype plugin on
 
@@ -176,7 +177,7 @@
 	:  autocmd FileType c                             :nnoremap <silent><buffer><localleader>\ :call CommentBL('\/\*', '\*\/')<CR>
 	:  autocmd FileType c,cpp,javascript,java,perl,cs :nnoremap <buffer>; mqA<C-R>=AppendSemicolon()<CR><esc>`q
 	:  autocmd FileType c,cpp,javascript,java,perl,cs :nnoremap <silent><buffer><localleader>s :silent call SplitIf()<CR>
-	:  autocmd FileType c,cpp,javascript,java,perl,cs :inoremap <buffer>{} {<CR>}<esc>O
+	:  autocmd FileType c,cpp,javascript,java,perl,cs :inoremap <buffer>{} {<CR>}<esc>
 	:  autocmd FileType c,cpp,javascript,java,perl,cs :inoremap <buffer><tab> <C-R>=CleverTab()<CR>
 	:  autocmd FileType c,cpp,javascript,java,perl,cs :setlocal cindent
 	:  autocmd FileType c,cpp,javascript,java,perl,cs :setlocal nofoldenable
