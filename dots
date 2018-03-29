@@ -24,7 +24,7 @@ echo git pull
 tput sgr0
 git pull
 
-if [ "$1" == "deploy" ]
+if [ "$1" == "deploy" ] || [ "$1" == "pull" ] || [ "$1" == "get" ]
 then
 	for file in ${base}/${shell}/*; do
 		basefile=`basename $file`
@@ -42,7 +42,7 @@ then
 		cp $file ~/.$basefile
 	done
 
-elif [ "$1" == "save" ]
+elif [ "$1" == "save" ] || [ "$1" == "push" ]
 then
 	for file in ${base}/${shell}/*; do
 		basefile=`basename $file`
@@ -72,4 +72,8 @@ then
 	echo git commit -m "\"$shell\""
 	tput sgr0
 	git commit -m "$shell"
+	tput bold
+	echo git push
+	tput sgr0
+	git push
 fi
