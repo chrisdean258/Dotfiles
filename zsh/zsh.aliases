@@ -68,10 +68,10 @@ j()
 
 	if [ "$JUMP"="$OLD_JUMP" ] && [[ $PWD == *$JUMP ]] 
 	then
-		cd `find ~ -type d -name "*$1" 2> /dev/null | tee /dev/stdout | grep -A 1 -m 1 "$PWD" | tail -1` && pwd | sed "s|$HOME|~|g" && ls
+		builtin cd `find ~ -type d -not -path '*/\.*' -iname "*$1" 2> /dev/null | tee /dev/stdout | grep -A 1 -m 1 "$PWD" | tail -1` && pwd && ls
 	else
-		builtin cd `find ~ -type d -not -path '*/\.*'  -name "*$1" 2> /dev/null | grep "$1$" | grep -v "^$PWD$" | head -1` && pwd | sed "s|$HOME|~|g" && ls
-		#builtin cd `find ~ -type d -name "*$1" 2> /dev/null | grep "$1$" | grep -v "^$PWD$" | head -1` && pwd | sed "s|$HOME|~|g" && ls
+		builtin cd `find ~ -type d -not -path '*/\.*' -iname "*$1" 2> /dev/null | grep -v "^$PWD$" | head -1` && pwd && ls
 	fi
 }
+
 
