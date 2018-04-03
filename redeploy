@@ -2,7 +2,6 @@
 
 set -e
 
-cd
 mkdir $HOME/bin
 mkdir $HOME/git
 mkdir $HOME/.ssh
@@ -12,7 +11,7 @@ sudo apt-get install vim
 sudo apt-get install git
 sudo apt-get install curl
 
-cd .ssh
+cd $HOME/.ssh
 ssh-keygen
 cat id_rsa.pub
 
@@ -22,7 +21,18 @@ tput sgr0
 
 r
 
+git clone git@github.com:chrisdean258/school.git
+
 cd $HOME/git
-git clone 
+
+git clone git@github.com:chrisdean258/vimrc.git
+git clone git@github.com:chrisdean258/Dotfiles.git
 
 
+$HOME/git/Dotfiles/dots deploy
+
+cd $HOME/.ssh
+
+vim config
+
+cat id_rsa.pub | ssh hydra "cat >> ~/.ssh/authorized_keys"
