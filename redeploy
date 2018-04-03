@@ -1,0 +1,28 @@
+#!/bin/bash
+
+set -e
+
+cd
+mkdir $HOME/bin
+mkdir $HOME/git
+mkdir $HOME/.ssh
+mkdir $HOME/documents
+
+sudo apt-get install vim
+sudo apt-get install git
+sudo apt-get install curl
+
+cd .ssh
+ssh-keygen
+cat id_rsa.pub
+
+tput bold
+echo "add this to your github"
+tput sgr0
+
+r
+
+cd $HOME/git
+git clone 
+
+
