@@ -67,6 +67,10 @@
 	:let g:syntastic_check_on_wq = 0
         :let g:syntastic_cpp_compiler = "g++"
         :let g:syntastic_cpp_compiler_options = "-std=c++1z"
+	:let g:syntastic_check_on_open = 0
+	:let g:syntastic_check_on_wq = 0
+	:let g:syntastic_python_checkers = ['python']
+
 
 " }}}
 
@@ -161,7 +165,7 @@
 
 	:command! MakeTags !ctags -R
 	:command! Unicode set encoding=utf-8
-	
+
 	:cabbrev unicode Unicode
 
 " }}}
@@ -177,7 +181,7 @@
 	:  autocmd FileType c                             :nnoremap <silent><buffer><localleader>\ :call CommentBL('\/\*', '\*\/')<CR>
 	:  autocmd FileType c,cpp,javascript,java,perl,cs :nnoremap <buffer>; mqA<C-R>=AppendSemicolon()<CR><esc>`q
 	:  autocmd FileType c,cpp,javascript,java,perl,cs :nnoremap <silent><buffer><localleader>s :silent call SplitIf()<CR>
-	:  autocmd FileType c,cpp,javascript,java,perl,cs :inoremap <buffer>{} {<CR>}<esc>
+	:  autocmd FileType c,cpp,javascript,java,perl,cs :inoremap <buffer>{} {<CR>}<esc>O
 	:  autocmd FileType c,cpp,javascript,java,perl,cs :inoremap <buffer><tab> <C-R>=CleverTab()<CR>
 	:  autocmd FileType c,cpp,javascript,java,perl,cs :setlocal cindent
 	:  autocmd FileType c,cpp,javascript,java,perl,cs :setlocal nofoldenable
@@ -229,7 +233,7 @@
 	:  autocmd!
 	:  autocmd FileType python,matlab,shell,sh,bash  :nnoremap <silent><buffer><localleader>\ :call CommentBL('#', '')<CR>
 	:  autocmd FileType python,matlab,shell,sh,bash  :inoremap <buffer><tab> <C-R>=CleverTab()<CR>
-	:  autocmd FileType python  :inoremap <buffer><BS> <C-R>=ExpandedTabBackSpace()<CR>
+	:  autocmd FileType python  :inoremap <silent><buffer><BS> <C-R>=ExpandedTabBackSpace()<CR>
 	:  autocmd FileType python  :setlocal tabstop=4
 	:  autocmd FileType python  :setlocal softtabstop=0
 	:  autocmd FileType python  :setlocal shiftwidth=4
@@ -512,7 +516,7 @@
 		:  return a:in
 		endfunction
 		" }}}
-		
+
 		function! MDTabReplacement()
 		"  {{{
 		:  let allowable_starts = [ '>', '\*', '-', '+', '|' ]
@@ -528,7 +532,7 @@
 		:  let lineabove = lineabove[indention:]
 		:  let indent = stridx(lineabove, ' ') + 1
 		:
-		:  echom 
+		:  echom
 		:  if indent == 0
 		:    let indent = 2
 		:  endif
@@ -575,7 +579,7 @@
 		:  normal! mq
 		:  normal! H
 		:  normal! mm
-		
+
 		:  normal! `>
 		:  let col1 = col('.')
 		:  let row1 = line('.')
