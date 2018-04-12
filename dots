@@ -1,79 +1,23 @@
 #!/bin/bash
+dir=`basename $PWD`
+up=".."
 
-base=$HOME/git/Dotfiles
-
-if [ -d ~/bin ]; then
-	cp $base/dots ~/bin/dots
-fi
-
-if ! [ -d $base ]; then
-	echo please set the base in $0
-	exit 1
-fi
-
-if ! [ $# -ge 1 ]; then
-	echo "Please specify either deploy or save"
-	exit 1
-fi
-
-shell=`basename $SHELL`
-cd $base
+while ! echo "$dir" | grep "[0-9]" &>/dev/null && ! [ -d ${up}/.git ]; do
+	dir=$(basename $(realpath $up))/$dir
+	up=$up"/.."
+done
 
 tput bold
-echo git pull
+echo git add .
 tput sgr0
-git pull
+git add .
 
-if [ "$1" == "deploy" ] || [ "$1" == "pull" ] || [ "$1" == "get" ]
-then
-	for file in ${base}/${shell}/*; do
-		basefile=`basename $file`
-		tput bold
-		echo cp $file ~/.$basefile
-		tput sgr0
-		cp $file ~/.$basefile
-	done
+tput bold
+echo git commit -m "\"$dir\" notes"
+tput sgr0
+git commit -m "$dir notes"
 
-	for file in ${base}/universal/*; do
-		basefile=`basename $file`
-		tput bold
-		echo cp $file ~/.$basefile
-		tput sgr0
-		cp $file ~/.$basefile
-	done
-
-elif [ "$1" == "save" ] || [ "$1" == "push" ]
-then
-	for file in ${base}/${shell}/*; do
-		basefile=`basename $file`
-		tput bold
-		echo cp ~/.$basefile $file 
-		tput sgr0
-		cp ~/.$basefile $file 
-	done
-
-	for file in ${base}/universal/*; do
-		basefile=`basename $file`
-		tput bold
-		echo cp ~/.$basefile $file
-		tput sgr0
-		cp ~/.$basefile $file
-	done
-
-	tput bold
-	echo git add $shell
-	tput sgr0
-	git add $shell
-	tput bold
-	echo git add universal
-	tput sgr0
-	git add universal
-	tput bold
-	echo git commit -m "\"$shell\""
-	tput sgr0
-	git commit -m "$shell"
-	tput bold
-	echo git push
-	tput sgr0
-	git push
-fi
+tput bold
+echo git push
+tput sgr0
+git push
