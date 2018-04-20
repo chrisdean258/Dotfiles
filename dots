@@ -28,52 +28,71 @@ if [ "$1" == "deploy" ] || [ "$1" == "pull" ] || [ "$1" == "get" ]
 then
 	for file in ${base}/${shell}/*; do
 		basefile=`basename $file`
-		tput bold
-		echo cp $file ~/.$basefile
-		tput sgr0
-		cp $file ~/.$basefile
+		if ! diff ${file} ~/.${basefile} &>/dev/null; then
+			tput bold
+			echo cp $file ~/.$basefile
+			tput sgr0
+			cp $file ~/.$basefile
+		fi
 	done
 
 	for file in ${base}/universal/*; do
 		basefile=`basename $file`
-		tput bold
-		echo cp $file ~/.$basefile
-		tput sgr0
-		cp $file ~/.$basefile
+		if ! diff ${file} ~/.${basefile} &>/dev/null; then
+			tput bold
+			echo cp $file ~/.$basefile
+			tput sgr0
+			cp $file ~/.$basefile
+		fi
 	done
 
 elif [ "$1" == "save" ] || [ "$1" == "push" ]
 then
+	comment=""
+
 	for file in ${base}/${shell}/*; do
 		basefile=`basename $file`
-		tput bold
-		echo cp ~/.$basefile $file 
-		tput sgr0
-		cp ~/.$basefile $file 
+		if ! diff ${file} ~/.${basefile} &>/dev/null; then
+			comment="$comment $shell:$basefile "
+			tput bold
+			echo cp ~/.$basefile $file 
+			tput sgr0
+			cp ~/.$basefile $file 
+		fi
 	done
 
 	for file in ${base}/universal/*; do
 		basefile=`basename $file`
-		tput bold
-		echo cp ~/.$basefile $file
-		tput sgr0
-		cp ~/.$basefile $file
+		if ! diff ${file} ~/.${basefile} &>/dev/null; then
+			comment="$comment universal:$basefile "
+			tput bold
+			echo cp ~/.$basefile $file
+			tput sgr0
+			cp ~/.$basefile $file
+		fi
 	done
 
-	tput bold
-	echo git add $shell
-	tput sgr0
-	git add $shell
-	tput bold
-	echo git add universal
-	tput sgr0
-	git add universal
-	tput bold
-	echo git commit -m "\"$shell\""
-	tput sgr0
-	git commit -m "$shell"
-	tput bold
-	echo git push
-	tput sgr0
-	git push
+	if ! [ -z "$comment" ]; then
+		tput bold
+		echo git add $shell
+		tput sgr0
+		git add $shell
+		tput bold
+		echo git add universal
+		tput sgr0
+		git add universal
+		tput bold
+		echo git commit -m "\"$comment\""
+		tput sgr0
+		git commit -m "$shell"
+		tput bold
+		echo git push
+		tput sgr0
+		git push
+	else
+		tput bold
+		echo "Nothing to commit"
+		tput sgr0
+	fi
+
 fi
