@@ -55,6 +55,26 @@ j()
 
 export -f j
 
+jj()
+{
+	if [ $# -eq 0 ]; then
+		builtin cd ~ && ls
+		return
+	fi
+
+	OLD_JUMP=$JUMP
+	JUMP=$1
+
+	if [ "$JUMP"="$OLD_JUMP" ] && [[ $PWD == *$JUMP ]] 
+	then
+		builtin cd `find . -type d -name "*$1" 2> /dev/null | grep -v "\/\." | tee /dev/stdout | grep -A 1 -m 1 "$PWD" | tail -1` && pwd | sed "s|$HOME|~|g" && ls
+	else
+		builtin cd `find . -type d -name "*$1" 2> /dev/null | grep -v "\/\." | grep "$1$" | grep -v "^$PWD$" | head -1` && pwd | sed "s|$HOME|~|g" && ls
+	fi
+}
+
+export -f jj
+
 vimrc()
 {
 	builtin cd ~/git/vimrc
