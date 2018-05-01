@@ -248,7 +248,7 @@
 	:  autocmd FileType html,php :setlocal expandtab
 	:  autocmd FileType html,php :setlocal wrap
 	:  autocmd FileType html,php :setlocal linebreak
-	:  if exits("+breakindent")
+	:  if exists("+breakindent")
 	:    autocmd FileType html,php :setlocal breakindent
 	:  endif
 	:  autocmd FileType html,php :nnoremap <silent><buffer><localleader>\ :call CommentBL('\<!--', '-->')<CR>
