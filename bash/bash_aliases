@@ -8,6 +8,9 @@ alias bashrc=". ~/.bashrc"
 
 alias python="python3"
 
+alias xcut="xclip -sel clip"
+alias xpaste="xclip -o -sel clip"
+
 cdls()
 {
 	builtin cd $@ && ls

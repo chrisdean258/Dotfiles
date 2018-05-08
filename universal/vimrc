@@ -26,7 +26,7 @@
 	:set smartindent
 	:set showcmd
 	:set wildmenu
-	:set incsearch
+	:set incsearch hlsearch
 	:set backspace=eol,indent,start
 	:filetype plugin indent on
 	:filetype plugin on
