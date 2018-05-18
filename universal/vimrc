@@ -87,6 +87,8 @@
 	:let g:syntastic_check_on_wq = 0
         :let g:syntastic_cpp_compiler = "g++"
         :let g:syntastic_cpp_compiler_options = "-std=c++1z"
+
+	:let g:syntastic_python_checkers = [ 'python' ]
 " }}}
 
 " UNVIVERSAL MAPPINGS {{{
@@ -188,6 +190,14 @@
 
 " AUTOCMD GROUPS  {{{
 "_______________________________________________________________________________________________________
+
+	" Universal
+	" {{{
+	:augroup Universal
+	:autocmd!
+	:autocmd BufNewFile * :autocmd BufWritePost * : if getline(1) =~ '#!/' | silent !chmod +x % | endif
+	:augroup END
+	" }}}
 
 	" Option Autocmds
 	" {{{
