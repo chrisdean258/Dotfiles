@@ -1,0 +1,64 @@
+#!/bin/bash
+-()
+{
+	builtin cd -
+}
+export -f -
+
+j()
+{
+	if [ $# -eq 0 ]; then
+		builtin cd ~ && ls
+		return
+	fi
+
+	OLD_JUMP=$JUMP
+	JUMP=$1
+
+	if [ "$JUMP"="$OLD_JUMP" ] && [[ $PWD == *$JUMP ]] 
+	then
+		builtin cd `find ~ -type d -name "*$1" 2> /dev/null | grep -v "\/\." | tee /dev/stdout | grep -A 1 -m 1 "$PWD" | tail -1` && pwd | sed "s|$HOME|~|g" && ls
+	else
+		builtin cd `find ~ -type d -name "*$1" 2> /dev/null | grep -v "\/\." | grep "$1$" | grep -v "^$PWD$" | head -1` && pwd | sed "s|$HOME|~|g" && ls
+	fi
+}
+
+export -f j
+
+jj()
+{
+	if [ $# -eq 0 ]; then
+		builtin cd ~ && ls
+		return
+	fi
+
+	OLD_JUMP=$JUMP
+	JUMP=$1
+
+	if [ "$JUMP"="$OLD_JUMP" ] && [[ $PWD == *$JUMP ]] 
+	then
+		builtin cd `find . -type d -name "*$1" 2> /dev/null | grep -v "\/\." | tee /dev/stdout | grep -A 1 -m 1 "$PWD" | tail -1` && pwd | sed "s|$HOME|~|g" && ls
+	else
+		builtin cd `find . -type d -name "*$1" 2> /dev/null | grep -v "\/\." | grep "$1$" | grep -v "^$PWD$" | head -1` && pwd | sed "s|$HOME|~|g" && ls
+	fi
+}
+
+export -f jj
+
+aj()
+{
+	pattern=".*$(echo "$@" | sed "s/\s\+/.*\/.*/g").*"
+	if [ $# -eq 0 ] && ! [ -z "$(echo $PWD | grep "$OLD_JUMP")" ] 
+	then
+		to=$(cat ~/.jmp/to.txt |
+		grep "${OLD_JUMP}" | 
+		awk '{a[$0] += int(sqrt(++i)) }; END { for(k in a) print a[k] " " k; for(k in a) { print 0 " " k; break; } } ' | 
+		sort -rn | grep -A 1 $PWD | head -2 | tail -1 | cut -d " " -f 2)
+	else
+		to=$(cat ~/.jmp/to.txt | grep "${pattern}" | awk '{a[$0] += int(sqrt(++i)); if(a[$0] > max) { max = a[$0]; maxele = $0;} }; END { print maxele  }')
+	fi
+	OLD_JUMP="$PATTERN"
+	cd $to
+}
+
+export -f aj
