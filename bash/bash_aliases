@@ -15,7 +15,10 @@ alias open="xdg-open"
 
 cdls()
 {
-	builtin cd $@ && ls && echo `realpath .` >> ~/.jmp/to.txt
+	builtin cd $@ &&
+		ls &&
+		echo `realpath .` >> ~/.jmp/to.txt && 
+		sed -i 1d ~/.jmp/to.txt
 }
 
 alias cat="catdir"
