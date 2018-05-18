@@ -11,6 +11,8 @@ alias python="python3"
 alias xcut="xclip -sel clip"
 alias xpaste="xclip -o -sel clip"
 
+alias open="xdg-open"
+
 cdls()
 {
 	builtin cd $@ && ls && echo `realpath .` >> ~/.jmp/to.txt

@@ -47,18 +47,37 @@ export -f jj
 
 aj()
 {
-	pattern=".*$(echo "$@" | sed "s/\s\+/.*\/.*/g").*"
-	if [ $# -eq 0 ] && ! [ -z "$(echo $PWD | grep "$OLD_JUMP")" ] 
+	jmps="$HOME/.jmp/to.txt"
+	if [ $# -ne 0 ]
 	then
-		to=$(cat ~/.jmp/to.txt |
-		grep "${OLD_JUMP}" | 
-		awk '{a[$0] += int(sqrt(++i)) }; END { for(k in a) print a[k] " " k; for(k in a) { print 0 " " k; break; } } ' | 
-		sort -rn | grep -A 1 $PWD | head -2 | tail -1 | cut -d " " -f 2)
-	else
-		to=$(cat ~/.jmp/to.txt | grep "${pattern}" | awk '{a[$0] += int(sqrt(++i)); if(a[$0] > max) { max = a[$0]; maxele = $0;} }; END { print maxele  }')
+		pattern=".*$(echo "$@" | sed "s/\s\+/.*\/.*/g")[^\/]*$"
 	fi
-	OLD_JUMP="$PATTERN"
-	cd $to
+
+	if [ -z $(echo $PWD | grep "$pattern") ]
+	then
+		new_dir=$(
+			tac $jmps |
+			grep -v "^$PWD$" |
+			grep "$pattern" |
+			awk '{ if (!a[$0]++) print $0 }' |
+			head -1
+		)
+	else
+		new_dir=$(
+			tac $jmps |
+			grep "$pattern" |
+			awk '{ if (!a[$0]++) print $0 }' |
+			awk '{ print $0; if(!a) a = $0 }; END { print a }' |
+			grep -m 1 -A 1 "^$PWD$" |
+			tail -1
+		)
+		
+	fi
+
+	if ! [ -z "$new_dir" ]
+	then 
+		builtin cd $new_dir
+	fi
 }
 
 export -f aj
