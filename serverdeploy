@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -e
-
 mkdir $HOME/bin
 mkdir $HOME/git
 mkdir $HOME/.ssh
