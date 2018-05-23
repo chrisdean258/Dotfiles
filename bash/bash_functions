@@ -43,9 +43,16 @@ j()
 			temp=$(mktemp)
 			mv $jmps $temp
 			grep -v "$new_dir" $temp > $jmps
-			aj
+			rm $temp
+			j
 		fi
 	fi
 }
 
 export -f j
+
+jsetup()
+{
+	mkdir -p $HOME/.jmp
+	find $HOME -type d -not -path "*/\.*" > $HOME/.jpm/to.txt
+}

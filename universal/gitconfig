@@ -10,3 +10,6 @@
 	ci = commit
 	co = checkout
 	rh = reset --hard
+	ignore = update-index --skip-worktree
+	unignore = update-index --no-skip-worktree
+	ignored = !git ls-files -v | grep \"^S\"

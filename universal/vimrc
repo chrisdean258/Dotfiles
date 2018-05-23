@@ -38,10 +38,10 @@
 	:set laststatus=1
 
 	" Comment out this group for auto commenting
-	:setlocal formatoptions-=cro
 	:setlocal nofoldenable
 	:setlocal foldtext=MyFold()
 
+	:set tag=./tags,./TAGS,tags,TAGSs,../tags,../../tags
 " }}}
 
 " HIGHLIGHT SETTINGS {{{
@@ -86,7 +86,8 @@
 
 	:let g:syntastic_check_on_wq = 0
         :let g:syntastic_cpp_compiler = "g++"
-        :let g:syntastic_cpp_compiler_options = "-std=c++1z"
+        :let g:syntastic_cpp_compiler_options = "-std=c++98 -Wall -Wextra"
+	:let g:syntastic_cpp_include_dirs = [ "../../include", "../../include/utils/" , "../../eo/include" ]
 
 	:let g:syntastic_python_checkers = [ 'python' ]
 " }}}
@@ -99,8 +100,12 @@
 	:let maplocalleader = '\'
 
 	" insert a single char
-	:nnoremap s i <esc>r
-	:nnoremap S a <esc>r
+	" :nnoremap s i <esc>r
+	" :nnoremap S a <esc>r
+	:nnoremap <silent><expr>s SingleInsert("i")
+	:nnoremap <silent><expr>S SingleInsert("a")
+	:nnoremap <silent>s<F12> <nop>
+	:nnoremap <silent>S<F12> <nop>
 
 	" key mapping
 	:nnoremap j gj
@@ -184,8 +189,6 @@
 	:command! MakeTags !ctags -R
 	:command! Unicode set encoding=utf-8
 	:command! S %s
-	:command! A 'a,.s
-
 " }}}
 
 " AUTOCMD GROUPS  {{{
@@ -196,6 +199,7 @@
 	:augroup Universal
 	:autocmd!
 	:autocmd BufNewFile * :autocmd BufWritePost * : if getline(1) =~ '#!/' | silent !chmod +x % | endif
+	:autocmd BufRead *    :setlocal formatoptions-=cro
 	:augroup END
 	" }}}
 
@@ -233,6 +237,7 @@
 	:  autocmd!
 	:  autocmd FileType cpp    :iabbrev <buffer> nstd using namespace std;<CR>
 	:  autocmd FileType c,cpp  :iabbrev <buffer> #i #include
+	:  autocmd FileType c,cpp  :iabbrev <buffer> #I #include
 	:  autocmd FileType c,cpp  :iabbrev <buffer> cahr char
 	:  autocmd FileType cpp    :iabbrev <buffer> enld endl
 	:  autocmd FileType c,cpp  :iabbrev <buffer> main <C-R>=MainAbbrev()<CR>
@@ -555,7 +560,11 @@
 
 		:function! HighlightAfterColumn(col)
 		" {{{
-		:  exe 'match LongLine /\%'.line('.').'l\%>'.(a:col).'v./'
+		:  if getline('.') !~ 'printf'
+		:    exe 'match LongLine /\%'.line('.').'l\%>'.(a:col).'v./'
+		:  else
+		:    exe 'match LongLine /\%'.line('.').'l\%>'.(500).'v./'
+		:  endif
 		:endfunction
 		" }}}
 
@@ -714,16 +723,18 @@
 		:endfunction
 		" }}}
 
-		:function! SingleInsert()
-		:  let l:char = GetChar()
-		:  execute "normal! a\b\ea" . l:char
+		:function! SingleInsert(how)
+
+		:  return a:how . GetChar() . CleverEsc()
 		:endfunction
 
 		:function! GetChar()
+		" {{{
 		:  while getchar(1) == 0
 		:  endwhile
 		:  return nr2char(getchar())
 		:endfunction
+		" }}}
 
 	" }}}
 " }}}
