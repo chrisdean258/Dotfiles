@@ -56,3 +56,10 @@ jsetup()
 	mkdir -p $HOME/.jmp
 	find $HOME -type d -not -path "*/\.*" > $HOME/.jmp/to.txt
 }
+
+=()
+{
+	echo "$@" | bc
+}
+
+export -f =
