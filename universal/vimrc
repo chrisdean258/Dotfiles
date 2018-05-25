@@ -572,7 +572,7 @@
 		" {{{
 		:  let l:window = winsaveview()
 		:  if Text('.') =~ ';$'
-		:    execute "normal! A\b"
+		" :    execute "normal! A\b"
 		:  else
 		:    execute "normal! A;"
 		:  endif
