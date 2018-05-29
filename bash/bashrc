@@ -122,6 +122,10 @@ if ! shopt -oq posix; then
   fi
 fi
 
+if [ -f ~/.git-completion.bash ]; then
+	source ~/.git-completion.bash
+fi
+
 PATH=$PATH:$HOME/bin
 PATH=$PATH:.
 set -o vi
