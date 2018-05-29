@@ -89,7 +89,9 @@
         :let g:syntastic_cpp_compiler_options = "-std=c++98 -Wall -Wextra"
 	:let g:syntastic_cpp_include_dirs = [ "../../include", "../../include/utils/" , "../../eo/include" ]
 
-	:let g:syntastic_python_checkers = [ 'python' ]
+	" :let g:syntastic_python_checkers = [ 'python' ]
+	let g:syntastic_quiet_messages = { "type": "style" }
+
 " }}}
 
 " UNVIVERSAL MAPPINGS {{{
@@ -193,12 +195,15 @@
 
 " AUTOCMD GROUPS  {{{
 "_______________________________________________________________________________________________________
+ " {{{
+:if has("autocmd")
+" }}}
 
 	" Universal
 	" {{{
 	:augroup Universal
 	:autocmd!
-	:autocmd BufNewFile * :autocmd BufWritePost * : if getline(1) =~ '#!/' | silent !chmod +x % | endif
+	:autocmd BufNewFile * :autocmd BufWritePost * :call IfScript()
 	:autocmd BufRead *    :setlocal formatoptions-=cro
 	:augroup END
 	" }}}
@@ -220,7 +225,7 @@
 	" {{{
 	:augroup c_style
 	:  autocmd!
-	:  autocmd FileType c,cpp,javascript,java,perl,cs :nnoremap <silent><buffer><localleader>\ :call CommentBL('\/\/', '')<CR>
+	:  autocmd FileType c,cpp,javascript,java,perl,cs :nnoremap <silent><buffer><localleader>\ :call CommentBL('\/\/')<CR>
 	:  autocmd FileType c,cpp,javascript,java,perl,cs :nnoremap <silent><buffer><localleader>s :silent call SplitIf()<CR>
 	:  autocmd FileType c,cpp,javascript,java,perl,cs :nnoremap <silent><buffer>; :call AppendSemicolon()<CR>
 	:  autocmd FileType c,cpp,javascript,java,perl,cs :inoremap <buffer>{} {<CR>}<esc>O
@@ -277,7 +282,7 @@
 	" {{{
 	:augroup python_
 	:autocmd!
-	:autocmd FileType python,matlab,shell,sh,bash  :nnoremap <silent><buffer><localleader>\ :call CommentBL('#', '')<CR>
+	:autocmd FileType python,matlab,shell,sh,bash  :nnoremap <silent><buffer><localleader>\ :call CommentBL('#')<CR>
 	:autocmd FileType python,matlab,shell,sh,bash  :inoremap <expr><buffer><tab> CleverTab()
 	:autocmd FileType python  :setlocal tabstop=4
 	:autocmd FileType python  :setlocal expandtab
@@ -292,7 +297,7 @@
 	" {{{
 	:augroup vim_
 	:autocmd!
-	:autocmd FileType vim :nnoremap <silent><buffer><localleader>\ :call CommentBL('" ', "")<CR>
+	:autocmd FileType vim :nnoremap <silent><buffer><localleader>\ :call CommentBL('" ')<CR>
 	:autocmd FileType vim :setlocal foldmethod=marker
 	:autocmd FileType vim :setlocal foldenable
 	:autocmd FileType vim :setlocal foldtext=MyFold()
@@ -309,6 +314,7 @@
 	:autocmd Filetype markdown :inoremap <silent><buffer><localleader>s <esc>:call SpellReplace()<CR>a
 	:autocmd Filetype markdown :nnoremap <expr><silent><buffer>o MDNewline("o")
 	:autocmd Filetype markdown :nnoremap <silent><buffer><localleader>s :call SpellReplace()<CR>
+	:autocmd FileType markdown :nnoremap <silent><buffer><localleader>\ :call CommentBL('- ')<CR>
 	:autocmd Filetype markdown :setlocal wrap
 	:if exists("+breakindent")
 	:  autocmd Filetype markdown :setlocal breakindent
@@ -339,9 +345,13 @@
 	" {{{
 	:augroup Assembly
 	:autocmd!
-	:autocmd BufRead,BufNewFile *.S :nnoremap <silent><buffer><localleader>\ :call CommentBL('\/\/', '')<CR>
+	:autocmd BufRead,BufNewFile *.S :nnoremap <silent><buffer><localleader>\ :call CommentBL('\/\/')<CR>
 	:augroup END
 	" }}}
+
+" {{{
+:endif
+" }}}
 " }}}
 
 " FUNCTIONS {{{
@@ -426,6 +436,7 @@
 		:  return Strip(LineBeforeCursor())
 		:endfunction
 		" }}}
+
 	" }}}
 
 	" HTML/Markdown
@@ -606,8 +617,9 @@
 
 	" Universally used function
 	" {{{
-		:function! CommentBL(start, end) range
+		:function! CommentBL(start,...) range
 		" {{{
+		:  let a:end = get(a:, 1, "")
 		:  let l:window = winsaveview()
 		:  execute "silent ".a:firstline.",".a:lastline.'s/\v^(\s*)(.)/\1'.a:start.'\2/e'
 		:  execute "silent ".a:firstline.",".a:lastline.'s/\v^(\s*)'.a:start.a:start.'/\1/e'
@@ -724,9 +736,10 @@
 		" }}}
 
 		:function! SingleInsert(how)
-
+		" {{{
 		:  return a:how . GetChar() . CleverEsc()
 		:endfunction
+		"}}}
 
 		:function! GetChar()
 		" {{{
@@ -735,6 +748,17 @@
 		:  return nr2char(getchar())
 		:endfunction
 		" }}}
+
+		:function! IfScript()
+		" {{{
+		:  if getline(1) =~ '^#!/'
+		:    let perm = getfperm(expand("%"))
+		:    let perm = perm[:1] . "x" . perm[3:]
+		:    call setfperm(expand("%"), perm)
+		:  endif
+		:endfunction
+		" }}}
+
 
 	" }}}
 " }}}
