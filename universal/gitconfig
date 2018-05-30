@@ -17,3 +17,6 @@
 	tool = vimdiff
 [core]
 	editor = vim
+	excludesfile = /home/chris/.gitignore_global
+[init]
+	templatedir = /home/chris/.git_template

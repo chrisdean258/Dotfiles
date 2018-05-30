@@ -59,6 +59,11 @@
 	:highlight tablinesel ctermfg=DarkGrey guifg=DarkGrey
 	:highlight tabline ctermfg=black guifg=black
 
+	" Settings for spell
+	:highlight spellrare None
+	:highlight spellcap None
+	:highlight spelllocal None
+
 	" Unhighlight the next two lines if you cant see your tabline
 	" :highlight tabline ctermfg=DarkGrey guifg=DarkGrey
 	" :highlight tablinesel ctermfg=Grey guifg=Grey
@@ -316,6 +321,7 @@
 	:autocmd Filetype markdown :nnoremap <silent><buffer><localleader>s :call SpellReplace()<CR>
 	:autocmd FileType markdown :nnoremap <silent><buffer><localleader>\ :call CommentBL('- ')<CR>
 	:autocmd Filetype markdown :setlocal wrap
+	:autocmd Filetype markdown :setlocal linebreak
 	:if exists("+breakindent")
 	:  autocmd Filetype markdown :setlocal breakindent
 	:endif
@@ -479,7 +485,7 @@
 
 		function! MDNewline(in)
 		"  {{{
-		:  let l:allowable_starts = [ '>', '\*', '-', '+', '|' ]
+		:  let l:allowable_starts = [ '>', '\*', '-', '+', ]
 		:  let l:line = Text('.')
 		:  for starting in l:allowable_starts
 		:    if l:line =~ '^' . starting . '\s*$'
