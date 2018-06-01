@@ -99,7 +99,7 @@
 
 " }}}
 
-" UNVIVERSAL MAPPINGS {{{
+" UNIVERSAL MAPPINGS {{{
 "_______________________________________________________________________________________________________
 
 	"mapleader
@@ -141,7 +141,7 @@
 	:nnoremap <leader>O O<esc>
 
 
-	" clear higlighting from search
+	" clear highlighting from search
 	:nnoremap <silent><c-L> :nohlsearch<CR><c-L>
 
 	" mapping for jumping to error
@@ -175,6 +175,12 @@
 
 	" Getting rid of pesky popup window
 	:nnoremap q: :
+
+	" Pasting from clipboard
+	:nnoremap <leader>p "+p
+	:nnoremap <leader>P "+P
+
+	" TODO The yanking operations
 
 " }}}
 
@@ -252,7 +258,7 @@
 	:  autocmd FileType cpp    :iabbrev <buffer> enld endl
 	:  autocmd FileType c,cpp  :iabbrev <buffer> main <C-R>=MainAbbrev()<CR>
 	:  autocmd FileType c      :autocmd CursorMoved,CursorMovedI <buffer> call HighlightAfterColumn(80)
-	:  autocmd FileType cpp    :autocmd CursorMoved,CursorMovedI <buffer> call HighlightAfterColumn(80)
+	:  autocmd FileType cpp    :autocmd CursorMoved,CursorMovedI <buffer> call HighlightAfterColumn(100)
 	:augroup END
 	" }}}
 
@@ -577,7 +583,7 @@
 
 		:function! HighlightAfterColumn(col)
 		" {{{
-		:  if getline('.') !~ 'printf'
+		:  if getline('.') !~ 'printf' && getline('.') !~ '[^=]*<<[^=]*'
 		:    exe 'match LongLine /\%'.line('.').'l\%>'.(a:col).'v./'
 		:  else
 		:    exe 'match LongLine /\%'.line('.').'l\%>'.(500).'v./'
