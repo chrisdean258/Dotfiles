@@ -94,7 +94,7 @@
         :let g:syntastic_cpp_compiler_options = "-std=c++98 -Wall -Wextra"
 	:let g:syntastic_cpp_include_dirs = [ "../../include", "../../include/utils/" , "../../eo/include" ]
 
-	" :let g:syntastic_python_checkers = [ 'python' ]
+	:let g:syntastic_python_checkers = [ 'python' ]
 	let g:syntastic_quiet_messages = { "type": "style" }
 
 " }}}
@@ -198,10 +198,13 @@
 	:cabbrev WQ wq
 	:cabbrev jk SyntasticReset
 	:cabbrev unicode Unicode
+	:cabbrev S %s
+	:cabbrev a 'a,.
 
 	:command! MakeTags !ctags -R
 	:command! Unicode set encoding=utf-8
-	:command! S %s
+	:command! Net :call ProcessNetwork()
+
 " }}}
 
 " AUTOCMD GROUPS  {{{
@@ -360,6 +363,12 @@
 	:autocmd BufRead,BufNewFile *.S :nnoremap <silent><buffer><localleader>\ :call CommentBL('\/\/')<CR>
 	:augroup END
 	" }}}
+
+	" Make
+	:augroup c_style
+	:  autocmd FileType make :inoremap <expr><buffer><tab> CleverTab()
+	:  autocmd FileType make :nnoremap <silent><buffer><localleader>\ :call CommentBL('#')<CR>
+	:augroup END
 
 " {{{
 :endif
@@ -770,8 +779,14 @@
 		:  endif
 		:endfunction
 		" }}}
+	" }}}
 
-
+	" Process Network
+	" {{{
+	:function! ProcessNetwork()
+	:  g/^N/:let a = join(split(getline('.'))[6:]) | execute ':%s/'.a.'/'.join(split(getline('.'))[1:3]).'/g'
+	:  g/^N/:call setline('.',join(split(getline('.'))[0:5]))
+	:endfunction
 	" }}}
 " }}}
 

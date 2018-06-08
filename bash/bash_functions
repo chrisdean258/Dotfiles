@@ -59,7 +59,7 @@ jsetup()
 
 =()
 {
-	echo "$@" | bc
+	echo "$@" | bc -l
 }
 
 export -f =
