@@ -13,19 +13,19 @@ j()
 		pattern=".*$(echo "$@" | sed "s/\s\+/.*\/.*/g")[^\/]*$"
 	fi
 
-	if [ -z $(echo $PWD | grep "$pattern") ]
+	if [ -z $(echo $PWD | grep -i "$pattern") ]
 	then
 		new_dir=$(
 		tac $jmps |
 		grep -v "^$PWD$" |
-		grep "$pattern" |
+		grep -i "$pattern" |
 		awk '{ if (!a[$0]++) print $0 }' |
 		head -1
 		)
 	else
 		new_dir=$(
 		tac $jmps |
-		grep "$pattern" |
+		grep -i "$pattern" |
 		awk '{ if (!a[$0]++) print $0 }' |
 		awk '{ print $0; if(!a) a = $0 }; END { print a }' |
 		grep -m 1 -A 1 "^$PWD$" |
