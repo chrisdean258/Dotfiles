@@ -129,4 +129,4 @@ fi
 PATH=$PATH:$HOME/bin
 PATH=$PATH:.
 set -o vi
-
+PROMPT_COMMAND='rv=$?; [ $rv -ne 0 ] && echo -n "$(tput setaf 1)[$rv] "'

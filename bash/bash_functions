@@ -1,6 +1,5 @@
 #!/bin/bash
--()
-{
+-() {
 	builtin cd -
 }
 export -f -
@@ -42,9 +41,9 @@ j()
 		else
 			temp=$(mktemp)
 			mv $jmps $temp
-			grep -v "$new_dir" $temp > $jmps
+			grep -v "^$new_dir$" $temp > $jmps
 			rm $temp
-			j
+			j "$@"
 		fi
 	fi
 }
@@ -59,7 +58,22 @@ jsetup()
 
 =()
 {
-	echo "$@" | bc -l
+	sed "s/x/*/g " <<< "$@" | bc -l
 }
 
 export -f =
+
+vj()
+{
+	if [ $# -ne 0 ]
+	then
+		pattern=".*$(echo "$@" | sed "s/\s\+/.*\/.*/g")[^\/]*$"
+	fi
+
+	file=""
+	file=$(find $dir | grep -i "$pattern" | awk '{ a=$0; print gsub(/\//,""), a }' | sort -n -s | cut -d" " -f2- | head -1)
+
+	if [ -f "$file" ]; then
+		/usr/bin/vim $file
+	fi
+}

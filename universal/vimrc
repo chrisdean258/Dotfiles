@@ -181,6 +181,7 @@
 	:nnoremap <leader>P "+P
 
 	" TODO The yanking operations
+	:nnoremap Y y$
 
 " }}}
 
@@ -199,7 +200,8 @@
 	:cabbrev jk SyntasticReset
 	:cabbrev unicode Unicode
 	:cabbrev S %s
-	:cabbrev a 'a,.
+	:cabbrev a 'a,.s
+	:cabbrev $ .,$s
 
 	:command! MakeTags !ctags -R
 	:command! Unicode set encoding=utf-8
@@ -784,6 +786,7 @@
 	" Process Network
 	" {{{
 	:function! ProcessNetwork()
+	:  w! temp
 	:  g/^N/:let a = join(split(getline('.'))[6:]) | execute ':%s/'.a.'/'.join(split(getline('.'))[1:3]).'/g'
 	:  g/^N/:call setline('.',join(split(getline('.'))[0:5]))
 	:endfunction
