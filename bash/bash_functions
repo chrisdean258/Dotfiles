@@ -21,7 +21,6 @@ j()
 		awk '{ if (!a[$0]++) print $0 }' |
 		head -1
 		)
-		echo "case sensetive $new_dir"
 		if [ -z "$new_dir" ]; then
 			new_dir=$(
 			tac $jmps |
@@ -31,7 +30,6 @@ j()
 			head -1
 			)
 		fi
-		echo "case insensetive $new_dir"
 	else
 		new_dir=$(
 		tac $jmps |
