@@ -1,6 +1,6 @@
 #!/bin/bash
 -() {
-	builtin cd -
+builtin cd -
 }
 export -f -
 
@@ -17,10 +17,19 @@ j()
 		new_dir=$(
 		tac $jmps |
 		grep -v "^$PWD$" |
-		grep -i "$pattern" |
+		grep "$pattern" |
 		awk '{ if (!a[$0]++) print $0 }' |
 		head -1
 		)
+		if [ -z "$new_dir" ]; then
+			new_dir=$(
+			tac $jmps |
+			grep -v "^$PWD$" |
+			grep -i "$pattern" |
+			awk '{ if (!a[$0]++) print $0 }' |
+			head -1
+			)
+		fi
 	else
 		new_dir=$(
 		tac $jmps |
@@ -73,7 +82,7 @@ vi()
 	file=""
 	file=$(find $dir | grep "$pattern" | xargs file | grep -i "text" | cut -d ":" -f 1 | awk '{ a=$0; print gsub(/\//,""), a }' | sort -n -s | cut -d" " -f2- | head -1)
 	[ -z "$file" ] && \
-	file=$(find $dir | grep -i "$pattern" | xargs file | grep -i "text" | cut -d ":" -f 1 | awk '{ a=$0; print gsub(/\//,""), a }' | sort -n -s | cut -d" " -f2- | head -1)
+		file=$(find $dir | grep -i "$pattern" | xargs file | grep -i "text" | cut -d ":" -f 1 | awk '{ a=$0; print gsub(/\//,""), a }' | sort -n -s | cut -d" " -f2- | head -1)
 
 	if [ -f "$file" ]; then
 		/usr/bin/vim $file
