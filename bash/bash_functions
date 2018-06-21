@@ -63,7 +63,7 @@ jsetup()
 
 export -f =
 
-vj()
+vi()
 {
 	if [ $# -ne 0 ]
 	then
@@ -71,7 +71,9 @@ vj()
 	fi
 
 	file=""
-	file=$(find $dir | grep -i "$pattern" | awk '{ a=$0; print gsub(/\//,""), a }' | sort -n -s | cut -d" " -f2- | head -1)
+	file=$(find $dir | grep "$pattern" | xargs file | grep -i "text" | cut -d ":" -f 1 | awk '{ a=$0; print gsub(/\//,""), a }' | sort -n -s | cut -d" " -f2- | head -1)
+	[ -z "$file" ] && \
+	file=$(find $dir | grep -i "$pattern" | xargs file | grep -i "text" | cut -d ":" -f 1 | awk '{ a=$0; print gsub(/\//,""), a }' | sort -n -s | cut -d" " -f2- | head -1)
 
 	if [ -f "$file" ]; then
 		/usr/bin/vim $file
