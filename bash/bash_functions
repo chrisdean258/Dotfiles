@@ -1,8 +1,8 @@
 #!/bin/bash
--() {
-builtin cd -
+-()
+{
+	builtin cd -
 }
-export -f -
 
 j()
 {
@@ -57,8 +57,6 @@ j()
 	fi
 }
 
-export -f j
-
 jsetup()
 {
 	mkdir -p $HOME/.jmp
@@ -69,8 +67,6 @@ jsetup()
 {
 	sed "s/x/*/g " <<< "$@" | bc -l
 }
-
-export -f =
 
 vi()
 {

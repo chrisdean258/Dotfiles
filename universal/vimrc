@@ -92,10 +92,14 @@
 	:let g:syntastic_check_on_wq = 0
         :let g:syntastic_cpp_compiler = "g++"
         :let g:syntastic_cpp_compiler_options = "-std=c++98 -Wall -Wextra"
-	:let g:syntastic_cpp_include_dirs = [ "../../include", "../../include/utils/" , "../../eo/include" ]
+	:let g:syntastic_cpp_include_dirs = [ "../../include", "../../include/utils/" , "../../eo/include", "../../eo/gengraph/include" ]
 
 	:let g:syntastic_python_checkers = [ 'python' ]
-	let g:syntastic_quiet_messages = { "type": "style" }
+	:let g:syntastic_always_populate_loc_list = 1
+	" :let g:syntastic_auto_loc_list = 1
+	:let g:syntastic_loc_list_height= 3
+	:let g:syntastic_quiet_messages = { "type": "style" }
+
 
 " }}}
 
@@ -145,8 +149,11 @@
 	:nnoremap <silent><c-L> :nohlsearch<CR><c-L>
 
 	" mapping for jumping to error
-	:nnoremap <silent><A-up>   :lnext<CR>
-	:nnoremap <silent><A-down> :lprev<CR>
+	:nnoremap <silent><A-up>    :lnext<CR>
+	:nnoremap <silent><A-down>  :lprev<CR>
+	:nnoremap <silent><A-left>  :lfirst<CR>
+	:nnoremap <silent><A-right> :llast<CR>
+
 
 	" Clever Tab
 	:inoremap <S-tab> <c-x><c-f>
@@ -206,6 +213,8 @@
 	:command! MakeTags !ctags -R
 	:command! Unicode set encoding=utf-8
 	:command! Net :call ProcessNetwork()
+	:command! Fold :setlocal foldenable | setlocal foldmethod=syntax
+	:command! SError let g:syntastic_auto_loc_list = 1 | SyntasticCheck
 
 " }}}
 
@@ -226,7 +235,7 @@
 
 	" Option Autocmds
 	" {{{
-	:if exists("#OptionSet")
+	:if exists("##OptionSet")
 	:augroup Options
 	:autocmd!
 	:autocmd OptionSet relativenumber :let &number=&relativenumber
@@ -648,6 +657,22 @@
 		:  execute "silent ".a:firstline.",".a:lastline.'s/\v^(\s*)'.a:start.a:start.'/\1/e'
 		:  execute "silent ".a:firstline.",".a:lastline.'s/$/'. a:end
 		:  execute "silent ".a:firstline.",".a:lastline.'s/'. a:end . a:end . '$//e'
+		:  call winrestview(l:window)
+		:  nohlsearch
+		:endfunction
+		" }}}
+
+		:function! Comment() range
+		" {{{
+		:  let l:window = winsaveview()
+		:  let l:row = line(a:firstline)
+		:  let l:comments = split(&commentstring, "%s")
+		:  let l:begin = l:comments[0]
+		:  let l:end = len(l:comments) > 2 ? l:comments[1] : ""
+		:  while l:row <= line(a:lastline)
+		:    let l:line = getline(l:row)
+		:    let l:row += 1
+		:  endwhile
 		:  call winrestview(l:window)
 		:  nohlsearch
 		:endfunction
