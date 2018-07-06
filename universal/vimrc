@@ -147,6 +147,10 @@
 
 	" clear highlighting from search
 	:nnoremap <silent><c-L> :nohlsearch<CR><c-L>
+	:nnoremap n :set hlsearch<cr>n
+	:nnoremap N :set hlsearch<cr>N
+	:nnoremap / :set hlsearch<cr>/
+	:nnoremap ? :set hlsearch<cr>?
 
 	" mapping for jumping to error
 	:nnoremap <silent><A-up>    :lnext<CR>
@@ -230,6 +234,7 @@
 	:autocmd!
 	:autocmd BufNewFile * :autocmd BufWritePost * :call IfScript()
 	:autocmd BufRead *    :setlocal formatoptions-=cro
+	:autocmd cursorhold * set nohlsearch
 	:augroup END
 	" }}}
 
@@ -731,7 +736,7 @@
 
 		:function! RemoveTrailingWhitespace_AU()
 		" {{{
-		:  autocmd BufRead,BufWrite * :silent call RemoveTrailingWhitespace()
+		:  autocmd BufRead,BufWrite <buffer> :silent call RemoveTrailingWhitespace()
 		:endfunction
 		" }}}
 

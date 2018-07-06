@@ -13,6 +13,8 @@ alias xpaste="xclip -o -sel clip"
 
 alias open="xdg-open"
 
+alias make="make -j$(nproc)"
+
 cdls()
 {
 	builtin cd $@ &&
