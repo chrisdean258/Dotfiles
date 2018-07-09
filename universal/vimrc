@@ -151,6 +151,8 @@
 	:nnoremap N :set hlsearch<cr>N
 	:nnoremap / :set hlsearch<cr>/
 	:nnoremap ? :set hlsearch<cr>?
+	:nnoremap # :set hlsearch<cr>#
+	:nnoremap * :set hlsearch<cr>*
 
 	" mapping for jumping to error
 	:nnoremap <silent><A-up>    :lnext<CR>
