@@ -6,3 +6,5 @@ set keymap vi-insert
 TAB:menu-complete
 "jk": "\e"
 "\b": "\eBdwa"
+"\C-[[A": history-search-backward
+"\C-[[B": history-search-forward
