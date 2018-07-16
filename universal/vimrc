@@ -45,6 +45,8 @@
 	:set splitbelow
 
 	:set tag=./tags,./TAGS,tags,TAGSs,../tags,../../tags
+	set tags+=./tags;$HOME
+	set tags+=./.tags;$HOME
 " }}}
 
 " HIGHLIGHT SETTINGS {{{
@@ -217,9 +219,9 @@
 	:cabbrev unicode Unicode
 	:cabbrev S %s
 	:cabbrev a 'a,.s
-	:cabbrev $ .,$s
+	:cabbrev $$ .,$s
 
-	:command! MakeTags !ctags -R
+	:command! MakeTags !ctags -Rf .tags
 	:command! Unicode set encoding=utf-8
 	:command! Net :call ProcessNetwork()
 	:command! Fold :setlocal foldenable | setlocal foldmethod=syntax
@@ -624,8 +626,11 @@
 		:function! AppendSemicolon()
 		" {{{
 		:  let l:window = winsaveview()
-		:  if Text('.') =~ ';$'
-		" :    execute "normal! A\b"
+		:  let l:text = Text('.')
+		:  if l:text =~ ';$'
+		:    if l:text =~ '^if\s*(.*)\s*;$' || l:text =~ '^for\s*(.*)\s*;$' 
+		:      execute "normal! A\b"
+		:    endif
 		:  else
 		:    execute "normal! A;"
 		:  endif

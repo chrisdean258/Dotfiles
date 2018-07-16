@@ -1,9 +1,5 @@
 alias c="clear"
 
-alias rls="ls"
-
-alias cd="cdls"
-
 alias bashrc=". ~/.bashrc"
 
 alias python="python3"
@@ -13,39 +9,19 @@ alias xpaste="xclip -o -sel clip"
 
 alias open="xdg-open"
 
-alias make="make -j$(nproc)"
+alias make="make -j\$(nproc)"
 
 alias head="head -n \$(echo \$(tput lines)-2|bc)"
 
+alias cd="cdls"
+
 cdls()
 {
-	builtin cd $@ &&
+	builtin cd "$@" &&
 		ls &&
 		echo `realpath .` >> ~/.jmp/to.txt && 
 		sed -i 1d ~/.jmp/to.txt
 }
 
-alias cat="catdir"
-
-catdir()
-{
-	if [ $# -eq 1 ] && [ -d $1 ]; then
-		ls $1
-	else
-		/bin/cat $*
-	fi
-
-}
-
 alias cd..="cd .."
 alias ..="cd .."
-
-alias vimrc="vimrc"
-vimrc()
-{
-	builtin cd ~/git/vimrc
-	git pull
-	cp vimrc ~/.vimrc
-	builtin cd -
-}
-

@@ -130,4 +130,4 @@ PATH=$PATH:$HOME/bin
 PATH=$PATH:.
 CDPATH=$CDPATH:~
 set -o vi
-PROMPT_COMMAND='rv=$?; [ $rv -ne 0 ] && echo -n "$(tput setaf 1)[$rv] "'
+PROMPT_COMMAND='rv=$?; [ $rv -ne 0 ] && echo -n "$(tput setaf 1)[$rv] ";history -a'
