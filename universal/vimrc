@@ -123,6 +123,11 @@
 	:nnoremap <silent>s<F12> <nop>
 	:nnoremap <silent>S<F12> <nop>
 
+	" Repeat mappings
+	:nnoremap <silent>. :call RepeatFunc()<CR>.
+	:let g:repeat = ""
+	:let g:repeatstack = ""
+
 	" key mapping
 	:nnoremap j gj
 	:nnoremap k gk
@@ -481,6 +486,12 @@
 		:endfunction
 		" }}}
 
+		:function! RepeatFunc()
+		" {{{
+		:  let g:repeat = g:repeatstack
+		:  let g:repeatstack = ""
+		:endfunction
+		" }}}
 	" }}}
 
 	" HTML/Markdown
@@ -716,9 +727,16 @@
 
 		:function! Wrap(type) range
 		" {{{
+		:  let l:window = winsaveview()
 		:  let l:sel_save = &selection
 		:  let &selection = "inclusive"
-		:  let l:input = nr2char(getchar())
+		:  if g:repeat != "wrap"
+		:    let l:input = nr2char(getchar())
+		:  else
+		:    let l:input = g:wrapinput
+		:  endif
+		:  let g:repeatstack = "wrap"
+		:  let g:wrapinput = l:input
 		:  let l:ending = l:input
 		:  let l:begin = l:input
 		:  let l:first = {"<" : "<", "[" : "[", "{" : "{", "(" : "(", ">" : "<", "]" : "[", "}" : "{", ")" : "(",}
@@ -727,7 +745,6 @@
 		:    let l:begin  = l:first[l:input]
 		:    let l:ending = l:last[l:input]
 		:  endif
-		:  echom a:type
 		:  if a:type ==# "line"
 		:    silent execute "normal! '[V`]$V"
 		:    silent execute "normal! `<i".l:begin."\<esc>`>la".l:ending
@@ -740,7 +757,8 @@
 		:  elseif a:type ==# "visual"
 		:    silent execute "normal! `<i".l:begin."\<esc>`>a".l:ending
 		:  endif
-		:  let &selection = sel_save
+		:  let &selection = l:sel_save
+		:  call winrestview(l:window)
 		:endfunction
 		" }}}
 
