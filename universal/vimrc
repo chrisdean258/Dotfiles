@@ -662,12 +662,16 @@
 		:function! SplitIf()
 		" {{{
 		:  let l:window = winsaveview()
+		:  let l:split = 0
 		:  execute "normal! 0f(%l"
-		:  if getline('.') =~ ".*(.*)\s*.*;$"
+		:  if getline('.') =~ ".*(.*)..*"
 		:    execute "normal! i\<CR>{\<CR>\<esc>o}"
+		:    let l:split = 1
 		:  endif
 		:  call winrestview(l:window)
-		:  normal! 2j^
+		:  if l:split
+		:    normal! 2j^
+		:  endif
 		:endfunction
 		" }}}
 
