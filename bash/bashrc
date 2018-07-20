@@ -107,8 +107,8 @@ if [ -f ~/.bash_aliases ]; then
     . ~/.bash_aliases
 fi
 
-if [ -f ~/.bash_aliases ]; then
-    . ~/.bash_functions
+if [ -f ~/.functions ]; then
+    . ~/.functions
 fi
 
 # enable programmable completion features (you don't need to enable
@@ -126,11 +126,32 @@ if [ -f ~/.git-completion.bash ]; then
 	source ~/.git-completion.bash
 fi
 
+
 PATH=$PATH:$HOME/bin
 PATH=$PATH:.
 CDPATH=$CDPATH:~
 set -o vi
-PROMPT_COMMAND='rv=$?; [ $rv -ne 0 ] && echo -n "$(tput setaf 1)[$rv] ";history -a'
+PROMPT_COMMAND=prompt_command
+PROMPT_SAVE=$PS1
+return_val()
+{
+	rv=$?
+	[ $rv -ne 0 ] && echo -n "$(tput setaf 1)[$rv]$(tput sgr0) "
+}
+git_branch()
+{
+	if git rev-parse --abbrev-ref HEAD > /dev/null 2>&1; then
+		echo -en " $(tput setaf 2)($(git diff-index --quiet HEAD -- || tput setaf 1)$(git rev-parse --abbrev-ref HEAD | tr -d "\n\f")$(tput setaf 2))$(tput sgr0)"
+	fi
+}
+prompt_command()
+{
+	rv=`return_val`
+	g=`git_branch`
+	prompt=`echo $PROMPT_SAVE | sed "s/..$//g"`
+	prompt="$rv$prompt$g"
+	PS1="$prompt$ "
+}
 
 export HISTCONTROL=ignoreboth
 shopt -s histappend
