@@ -663,9 +663,9 @@
 		" {{{
 		:  let l:window = winsaveview()
 		:  let l:split = 0
-		:  execute "normal! 0f(%l"
+		:  execute "normal! 0f(%"
 		:  if getline('.') =~ ".*(.*)..*"
-		:    execute "normal! i\<CR>{\<CR>\<esc>o}"
+		:    execute "normal! a\<CR>{\<CR>\<esc>o}"
 		:    let l:split = 1
 		:  endif
 		:  call winrestview(l:window)
