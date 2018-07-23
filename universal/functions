@@ -4,6 +4,16 @@
 	builtin cd -
 }
 
+alias cd="cdls"
+
+cdls()
+{
+	builtin cd "$@" &&
+		ls &&
+		echo `realpath .` >> ~/.jmp/to.txt && 
+		sed -i 1d ~/.jmp/to.txt
+}
+
 j()
 {
 	jmps="$HOME/.jmp/to.txt"

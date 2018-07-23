@@ -13,15 +13,6 @@ alias make="make -j\$(nproc)"
 
 alias head="head -n \$(echo \$(tput lines)-2|bc)"
 
-alias cd="cdls"
-
-cdls()
-{
-	builtin cd "$@" &&
-		ls &&
-		echo `realpath .` >> ~/.jmp/to.txt && 
-		sed -i 1d ~/.jmp/to.txt
-}
 
 alias cd..="cd .."
 alias ..="cd .."

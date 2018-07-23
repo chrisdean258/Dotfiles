@@ -9,6 +9,7 @@ source $HOME/.zsh.prompt       # set the prompt
 source $HOME/.zsh.path         # setup the PATH
 source $HOME/.zsh.manpath      # setup the MANPATH
 source $HOME/.zsh.aliases  # setup command aliases
+source $HOME/.functions
 
 dircolors $HOME/.dircolors > $HOME/.zsh.colors
 source $HOME/.zsh.colors
