@@ -126,6 +126,15 @@ if [ -f ~/.git-completion.bash ]; then
 	source ~/.git-completion.bash
 fi
 
+RED="\[`tput setaf 1`\]"
+GREEN="\[`tput setaf 2`\]"
+YELLOW="\[`tput setaf 3`\]"
+BLUE="\[`tput setaf 4`\]"
+PURPLE="\[`tput setaf 5`\]"
+AQUA="\[`tput setaf 6`\]"
+WHITE="\[`tput setaf 7`\]"
+BLACK="\[`tput setaf 8`\]"
+CLEAR="\[`tput sgr0`\]"
 
 PATH=$PATH:$HOME/bin
 PATH=$PATH:.
@@ -136,21 +145,18 @@ PROMPT_SAVE=$PS1
 return_val()
 {
 	rv=$?
-	[ $rv -ne 0 ] && echo -n "$(tput setaf 1)[$rv]$(tput sgr0) "
+	[ $rv -ne 0 ] && echo -n "$RED[$rv]$CLEAR "
 }
 git_branch()
 {
 	if git rev-parse --abbrev-ref HEAD > /dev/null 2>&1; then
-		echo -en " $(tput setaf 2)($(git diff-index --quiet HEAD -- || tput setaf 1)$(git rev-parse --abbrev-ref HEAD | tr -d "\n\f")$(tput setaf 2))$(tput sgr0)"
+		echo -en " $GREEN($(git rev-parse --abbrev-ref HEAD | tr -d "\n\f")$(git status 2>/dev/null | grep -q clean || echo "*"))$CLEAR"
 	fi
 }
 prompt_command()
 {
-	rv=`return_val`
-	g=`git_branch`
 	prompt=`echo $PROMPT_SAVE | sed "s/..$//g"`
-	prompt="$rv$prompt$g"
-	PS1="$prompt$ "
+	PS1="$(return_val)$prompt$(git_branch)$ "
 }
 
 export HISTCONTROL=ignoreboth
