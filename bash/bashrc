@@ -141,7 +141,7 @@ PATH=$PATH:.
 CDPATH=$CDPATH:~
 set -o vi
 PROMPT_COMMAND=prompt_command
-PROMPT_SAVE=$PS1
+PROMPT_SAVE=`echo $PS1 | sed 's/..$//g'`
 return_val()
 {
 	rv=$?
@@ -155,8 +155,7 @@ git_branch()
 }
 prompt_command()
 {
-	prompt=`echo $PROMPT_SAVE | sed "s/..$//g"`
-	PS1="$(return_val)$prompt$(git_branch)$ "
+	PS1="$(return_val)$PROMPT_SAVE$(git_branch)$ "
 }
 
 export HISTCONTROL=ignoreboth
