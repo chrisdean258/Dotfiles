@@ -11,7 +11,8 @@ alias open="xdg-open"
 
 alias make="make -j\$(nproc)"
 
-alias head="head -n \$(echo \$(tput lines)-2|bc)"
+alias tail="tail -n \$(echo \$(tput lines)-2|bc)"
+alias tail="tail -n \$(echo \$(tput lines)-2|bc)"
 
 
 alias cd..="cd .."
