@@ -124,7 +124,7 @@
 	:nnoremap <silent>S<F12> <nop>
 
 	" Repeat mappings
-	:nnoremap <silent>. :call RepeatFunc()<CR>.
+	:nnoremap <silent>. .:let g:repeat = "wrap"<CR>
 	:let g:repeat = ""
 	:let g:repeatstack = ""
 
@@ -485,13 +485,6 @@
 		:  return Strip(LineBeforeCursor())
 		:endfunction
 		" }}}
-
-		:function! RepeatFunc()
-		" {{{
-		:  let g:repeat = g:repeatstack
-		:  let g:repeatstack = ""
-		:endfunction
-		" }}}
 	" }}}
 
 	" HTML/Markdown
@@ -739,7 +732,7 @@
 		:  else
 		:    let l:input = g:wrapinput
 		:  endif
-		:  let g:repeatstack = "wrap"
+		:  let g:repeat = "wrap"
 		:  let g:wrapinput = l:input
 		:  let l:ending = l:input
 		:  let l:begin = l:input

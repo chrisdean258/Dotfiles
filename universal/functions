@@ -47,7 +47,7 @@ j()
 		awk '{ if (!a[$0]++) print $0 }' |
 		awk '{ print $0; if(!a) a = $0 }; END { print a }' |
 		grep -m 1 -A 1 "^$PWD$" |
-		tail -1
+		\tail -1
 		)
 
 	fi

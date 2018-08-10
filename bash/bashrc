@@ -155,7 +155,7 @@ git_branch()
 }
 prompt_command()
 {
-	PS1="$(return_val)$PROMPT_SAVE$(git_branch)$ "
+	PS1="$(return_val)$PROMPT_SAVE$(git_branch)\$ "
 }
 
 export HISTCONTROL=ignoreboth
