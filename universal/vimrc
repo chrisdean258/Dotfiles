@@ -39,7 +39,9 @@
 	:set laststatus=1
 
 	" Comment out this group for auto commenting
+	:if &filetype !~ "vim"
 	:setlocal nofoldenable
+	:endif
 	:setlocal foldtext=MyFold()
 
 	:set splitright
@@ -872,6 +874,21 @@
 	:  g/^N/:call setline('.',join(split(getline('.'))[0:5]))
 	:endfunction
 	" }}}
+" }}}
+
+" VIMRC SOURCING {{{
+"_______________________________________________________________________________________________________
+	
+	:function! UpwardVimrcSource()
+	:  let l:dir = getcwd(). "/"
+	:  while l:dir =~ "\/" && l:dir != $HOME
+	:    if findfile(l:dir . "/.vimrc") != ""
+	:      execute "source " . l:dir . "/.vimrc"
+	:    endif
+	:    let l:dir = fnamemodify(l:dir, ":p:h:h")
+	:  endwhile
+	:endfunction
+
 " }}}
 
 " TMUX Terminal Split {{{
