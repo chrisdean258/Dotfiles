@@ -59,6 +59,7 @@
 	:endif
 
 	:set ttyfast
+	:set lazyredraw
 	:set infercase
 	:set complete-=i
 	:set autoread
@@ -271,7 +272,7 @@
 	:autocmd cursorhold * :set nohlsearch
 	:autocmd BufEnter * :if &filetype !~ "help" | setlocal nu rnu
 	:autocmd BufLeave * :setlocal nornu
-	:autocmd InsertLeave * set nopaste
+	:autocmd InsertLeave * setlocal nopaste
 	:augroup END
 	" }}}
 
