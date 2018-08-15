@@ -28,7 +28,6 @@
 	:set wildmenu
 	:set incsearch hlsearch
 	:set backspace=eol,indent,start
-	:set lazyredraw
 	:filetype plugin indent on
 	:filetype plugin on
 
@@ -50,6 +49,7 @@
 	:set tag=./tags,./TAGS,tags,TAGSs,../tags,../../tags
 	:set tags+=./tags;$HOME
 	:set tags+=./.tags;$HOME
+	:set tags+=~/.vim/systags
 
 	:set wildignore=*.o,*~,*.pyc
 	:if has("win16") || has("win32")
@@ -58,8 +58,6 @@
 	:  set wildignore+=*/.git/*,*/.hg/*,*/.svn/*,*/.DS_Store
 	:endif
 
-	:set ttyfast
-	:set lazyredraw
 	:set infercase
 	:set complete-=i
 	:set autoread
@@ -144,7 +142,7 @@
 	:nnoremap <silent>S<F12> <nop>
 
 	" Repeat mappings
-	:nnoremap <silent>. .:let g:repeat = "wrap"<CR>
+	:nnoremap <silent>. .:let g:repeat = g:repeatstack<CR>
 	:let g:repeat = ""
 	:let g:repeatstack = ""
 
@@ -756,12 +754,12 @@
 		:  let l:window = winsaveview()
 		:  let l:sel_save = &selection
 		:  let &selection = "inclusive"
-		:  if g:repeat != "wrap"
+		:  if g:repeat == "wrap"
 		:    let l:input = nr2char(getchar())
 		:  else
 		:    let l:input = g:wrapinput
 		:  endif
-		:  let g:repeat = "wrap"
+		:  let g:repeatstack = "wrap"
 		:  let g:wrapinput = l:input
 		:  let l:ending = l:input
 		:  let l:begin = l:input
