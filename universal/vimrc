@@ -880,7 +880,7 @@
 "_______________________________________________________________________________________________________
 	
 	:function! UpwardVimrcSource()
-	:  let l:dir = getcwd(). "/"
+	:  let l:dir = getcwd()
 	:  while l:dir =~ "\/" && l:dir != $HOME
 	:    if findfile(l:dir . "/.vimrc") != ""
 	:      execute "source " . l:dir . "/.vimrc"
