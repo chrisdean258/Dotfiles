@@ -28,6 +28,7 @@
 	:set wildmenu
 	:set incsearch hlsearch
 	:set backspace=eol,indent,start
+	:set lazyredraw
 	:filetype plugin indent on
 	:filetype plugin on
 
@@ -45,8 +46,24 @@
 	:set splitbelow
 
 	:set tag=./tags,./TAGS,tags,TAGSs,../tags,../../tags
-	set tags+=./tags;$HOME
-	set tags+=./.tags;$HOME
+	:set tags+=./tags;$HOME
+	:set tags+=./.tags;$HOME
+
+	:set wildignore=*.o,*~,*.pyc
+	:if has("win16") || has("win32")
+	:  set wildignore+=.git\*,.hg\*,.svn\*
+	:else
+	:  set wildignore+=*/.git/*,*/.hg/*,*/.svn/*,*/.DS_Store
+	:endif
+
+	:set ttyfast
+	:set infercase
+	:set complete-=i
+	:set autoread
+	:set switchbuf=usetab
+	:set hidden
+	:set tabpagemax=1000
+
 " }}}
 
 " HIGHLIGHT SETTINGS {{{
@@ -157,12 +174,12 @@
 
 	" clear highlighting from search
 	:nnoremap <silent><c-L> :nohlsearch<CR><c-L>
-	:nnoremap n :set hlsearch<cr>n
-	:nnoremap N :set hlsearch<cr>N
+	:nnoremap n :set hlsearch<cr>nzz
+	:nnoremap N :set hlsearch<cr>Nzz
 	:nnoremap / :set hlsearch<cr>/
 	:nnoremap ? :set hlsearch<cr>?
-	:nnoremap # :set hlsearch<cr>#
-	:nnoremap * :set hlsearch<cr>*
+	:nnoremap # :set hlsearch<cr>#zz
+	:nnoremap * :set hlsearch<cr>*zz
 
 	" mapping for jumping to error
 	:nnoremap <silent><A-up>    :lnext<CR>
@@ -206,6 +223,9 @@
 	" TODO The yanking operations
 	:nnoremap Y y$
 
+	" VisualBlock
+	:nnoremap <C-c> <C-v>
+
 " }}}
 
 " UNIVERSAL ABBREVIATIONS AND COMMANDS {{{
@@ -225,12 +245,12 @@
 	:cabbrev S %s
 	:cabbrev a 'a,.s
 	:cabbrev $$ .,$s
+	:cabbrev w!! %!sudo tee > /dev/null %
 
 	:command! MakeTags !ctags -Rf .tags
 	:command! Unicode set encoding=utf-8
 	:command! Net :call ProcessNetwork()
 	:command! Fold :setlocal foldenable | setlocal foldmethod=syntax
-	:command! SError let g:syntastic_auto_loc_list = 1 | SyntasticCheck
 
 " }}}
 
@@ -246,7 +266,10 @@
 	:autocmd!
 	:autocmd BufNewFile * :autocmd BufWritePost * :call IfScript()
 	:autocmd BufRead *    :setlocal formatoptions-=cro
-	:autocmd cursorhold * set nohlsearch
+	:autocmd cursorhold * :set nohlsearch
+	:autocmd BufEnter * :if &filetype !~ "help" | setlocal nu rnu
+	:autocmd BufLeave * :setlocal nornu
+	:autocmd InsertLeave * set nopaste
 	:augroup END
 	" }}}
 
@@ -264,7 +287,7 @@
 	" }}}
 
 	" C style formatting
-	" {{{
+	" {{{ 
 	:augroup c_style
 	:  autocmd!
 	:  autocmd FileType c,cpp,javascript,java,perl,cs :nnoremap <silent><buffer><localleader>\ :call CommentBL('\/\/')<CR>
@@ -310,6 +333,7 @@
 	:  autocmd FileType html,php :setlocal expandtab
 	:  autocmd FileType html,php :setlocal wrap
 	:  autocmd FileType html,php :setlocal linebreak
+	:  autocmd FileType html,php :setlocal matchpairs+=<:>
 	:  if exists("+breakindent")
 	:    autocmd FileType html,php :setlocal breakindent
 	:  endif
@@ -329,9 +353,6 @@
 	:autocmd FileType python  :setlocal tabstop=4
 	:autocmd FileType python  :setlocal expandtab
 	:autocmd FileType python  :call RemoveTrailingWhitespace_AU()
-	:autocmd BufNewFile *.py   :autocmd VimLeave <buffer> :!chmod +x %
-	:autocmd BufNewFile *.sh   :autocmd VimLeave <buffer> :!chmod +x %
-	:autocmd BufNewFile *.bash :autocmd VimLeave <buffer> :!chmod +x %
 	:augroup END
 	" }}}
 
@@ -344,6 +365,7 @@
 	:autocmd FileType vim :setlocal foldenable
 	:autocmd FileType vim :setlocal foldtext=MyFold()
 	:autocmd FileType vim :inoremap <expr><buffer><tab> CleverTab()
+	:autocmd BufWritePost .vimrc :source %
 	:augroup END
 	" }}}
 
@@ -703,12 +725,16 @@
 
 		:function! CleverTab()
 		" {{{
-		:   let l:str =  strpart( getline('.'), 0, col('.')-1 )
-		:   if l:str =~ '^\s*$' || l:str =~ '\s$'
-		:      return "\<Tab>"
-		:   else
-		:      return "\<C-P>"
-		:   endif
+		:  let l:str =  strpart( getline('.'), 0, col('.')-1 )
+		:  let l:words = split(l:str, " ")
+		:  let l:last_word = len(l:words) > 0 ? l:words[-1] : ""
+		:  if l:str =~ '^\s*$' || l:str =~ '\s$'
+		:    return "\<Tab>"
+		:  elseif l:last_word =~ "\/"
+		:    return "\<C-X>\<C-F>"
+		:  else
+		:    return "\<C-P>"
+		:  endif
 		:endfunction
 		" }}}
 
@@ -858,14 +884,12 @@
 	" {{{
 	:  let aucmd = ' ''autocmd VimLeave :!tmux kill-session -t vim '' '
 	:  let tmuxSession = 'tmux new-session -s "vim" "vim -S session.vim -c '.aucmd .'"'
-	:  echo tmuxSession
-	:  call getchar()
-	:  let split = '\; split-window -v -p 40 \;'
+	:  let split_ = '\; split-window -v -p 40 \;'
 	:  mksession session.vim
 	:  set noswapfile
-	:  silent execute '!' . tmuxSession . split
+	:  silent execute '!' . tmuxSession . split_
 	:  silent execute '!rm session.vim'
-	" :  q!
+	:  q!
 	:endfunction
 	" }}}
 
