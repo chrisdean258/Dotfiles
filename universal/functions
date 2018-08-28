@@ -14,6 +14,11 @@ cdls()
 		sed -i 1d ~/.jmp/to.txt
 }
 
+md()
+{
+	mkdir "$@" && cd "$@"
+}
+
 j()
 {
 	jmps="$HOME/.jmp/to.txt"
