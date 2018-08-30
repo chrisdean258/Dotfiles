@@ -354,6 +354,10 @@
 	:autocmd FileType python  :setlocal tabstop=4
 	:autocmd FileType python  :setlocal expandtab
 	:autocmd FileType python  :call RemoveTrailingWhitespace_AU()
+	:autocmd FileType python  :let g:pyindent_open_paren = '&sw'
+	:autocmd FileType python  :let g:pyindent_nested_paren = '&sw'
+	:autocmd FileType python  :let g:pyindent_continue = '0'
+	:autocmd FileType python  :autocmd BufEnter <buffer> :if getline(1) !~ '^#' | call append(0, "#!/usr/bin/env python3") | endif
 	:augroup END
 	" }}}
 
@@ -416,10 +420,12 @@
 	" }}}
 
 	" Make
-	:augroup c_style
+	" {{{
+	:augroup make_
 	:  autocmd FileType make :inoremap <expr><buffer><tab> CleverTab()
 	:  autocmd FileType make :nnoremap <silent><buffer><localleader>\ :call CommentBL('#')<CR>
 	:augroup END
+	" }}}
 
 " {{{
 :endif

@@ -126,6 +126,11 @@ if [ -f ~/.git-completion.bash ]; then
 	source ~/.git-completion.bash
 fi
 
+if [ -f ~/.bash_keys ]; then 
+	source ~/.bash_keys
+fi
+
+
 RED="\[`tput setaf 1`\]"
 GREEN="\[`tput setaf 2`\]"
 YELLOW="\[`tput setaf 3`\]"
