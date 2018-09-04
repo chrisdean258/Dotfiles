@@ -265,12 +265,13 @@
 	" {{{
 	:augroup Universal
 	:autocmd!
-	:autocmd BufNewFile * :autocmd BufWritePost * :call IfScript()
-	:autocmd BufRead *    :setlocal formatoptions-=cro
-	:autocmd cursorhold * :set nohlsearch
-	:autocmd BufEnter * :if &filetype !~ "help" | setlocal nu rnu
-	:autocmd BufLeave * :setlocal nornu
-	:autocmd InsertLeave * setlocal nopaste
+	:autocmd BufNewFile *  :autocmd BufWritePost * :call IfScript()
+	:autocmd BufRead *     :setlocal formatoptions-=cro
+	:autocmd CursorHold *  :set nohlsearch
+	:autocmd BufEnter *    :if &filetype !~ "help" | setlocal nu rnu
+	:autocmd BufLeave *    :setlocal nornu
+	:autocmd InsertLeave * :setlocal nopaste
+	:autocmd BufReadPost * :if line("'\"") > 0 && line ("'\"") <= line("$") | exe "normal! g'\"" | endif
 	:augroup END
 	" }}}
 
@@ -755,12 +756,13 @@
 		:endfunction
 		" }}}
 
+
 		:function! Wrap(type) range
 		" {{{
 		:  let l:window = winsaveview()
 		:  let l:sel_save = &selection
 		:  let &selection = "inclusive"
-		:  if g:repeat == "wrap"
+		:  if g:repeat != "wrap"
 		:    let l:input = nr2char(getchar())
 		:  else
 		:    let l:input = g:wrapinput
