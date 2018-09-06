@@ -142,7 +142,7 @@
 	:nnoremap <silent>S<F12> <nop>
 
 	" Repeat mappings
-	:nnoremap <silent>. .:let g:repeat = g:repeatstack<CR>
+	:nnoremap <silent>. :call RepeatFunc()<CR>.
 	:let g:repeat = ""
 	:let g:repeatstack = ""
 
@@ -356,6 +356,7 @@
 	:autocmd FileType python  :setlocal expandtab
 	:autocmd FileType python  :setlocal nosmartindent
 	:autocmd FileType python  :call RemoveTrailingWhitespace_AU()
+	:autocmd FileType python  :call SetPythonVersion()
 	:autocmd FileType python  :let g:pyindent_open_paren = '&sw'
 	:autocmd FileType python  :let g:pyindent_nested_paren = '&sw'
 	:autocmd FileType python  :let g:pyindent_continue = '0'
@@ -701,6 +702,15 @@
 
 	" }}}
 
+	" Python
+	" {{{
+	:function! SetPythonVersion()
+	:  if getline(1) =~ "python3"
+	:    let g:syntastic_python_python_exe = 'python3'
+	:  endif
+	:endfunction
+	" }}}
+
 	" Universally used function
 	" {{{
 		:function! CommentBL(start,...) range
@@ -772,6 +782,7 @@
 		:  let g:wrapinput = l:input
 		:  let l:ending = l:input
 		:  let l:begin = l:input
+		:   echom l:input
 		:  let l:first = {"<" : "<", "[" : "[", "{" : "{", "(" : "(", ">" : "<", "]" : "[", "}" : "{", ")" : "(",}
 		:  let l:last  = {"<" : ">", "[" : "]", "{" : "}", "(" : ")", ">" : ">", "]" : "]", "}" : "}", ")" : ")",}
 		:  if has_key(l:first, input)
@@ -870,6 +881,13 @@
 		:    let perm = perm[:1] . "x" . perm[3:]
 		:    call setfperm(expand("%"), perm)
 		:  endif
+		:endfunction
+		" }}}
+
+		:function! RepeatFunc()
+		" {{{
+		:  let g:repeat = g:repeatstack 
+		:  let g:repeatstack = ""
 		:endfunction
 		" }}}
 	" }}}
