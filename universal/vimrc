@@ -387,6 +387,7 @@
 	:autocmd Filetype markdown :nnoremap <expr><silent><buffer>o MDNewline("o")
 	:autocmd Filetype markdown :nnoremap <silent><buffer><localleader>s :call SpellReplace()<CR>
 	:autocmd FileType markdown :nnoremap <silent><buffer><localleader>\ :call CommentBL('- ')<CR>
+	:autocmd FileType markdown :highlight link markdownError NONE
 	:autocmd Filetype markdown :setlocal wrap
 	:autocmd Filetype markdown :setlocal linebreak
 	:if exists("+breakindent")
