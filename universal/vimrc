@@ -354,6 +354,7 @@
 	:autocmd FileType python,matlab,shell,sh,bash  :inoremap <expr><buffer><tab> CleverTab()
 	:autocmd FileType python  :setlocal tabstop=4
 	:autocmd FileType python  :setlocal expandtab
+	:autocmd FileType python  :setlocal nosmartindent
 	:autocmd FileType python  :call RemoveTrailingWhitespace_AU()
 	:autocmd FileType python  :let g:pyindent_open_paren = '&sw'
 	:autocmd FileType python  :let g:pyindent_nested_paren = '&sw'
@@ -943,4 +944,4 @@
 " }}}
 
 " If you cannot see anything but this message uncomment the next line
-" :highlight Folded ctermfg=DarkGrey guifg=DarkGrey
+:highlight Folded ctermfg=DarkGrey guifg=DarkGrey
