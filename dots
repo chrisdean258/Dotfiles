@@ -2,97 +2,16 @@
 
 base=$HOME/git/Dotfiles
 
-if [ -d ~/bin ]; then
-	cp $base/dots ~/bin/dots
+if [ $# -ne 1 ]; then
+	echo "Usage: dots save|deploy"
 fi
 
-if ! [ -d $base ]; then
-	echo please set the base in $0
-	exit 1
-fi
-
-if ! [ $# -ge 1 ]; then
-	echo "Please specify either deploy or save"
-	exit 1
-fi
-
-shell=`basename $SHELL`
 cd $base
-
-tput bold
-echo git pull
-tput sgr0
-git pull
-
-if [ "$1" == "deploy" ] || [ "$1" == "pull" ] || [ "$1" == "get" ]
-then
-	for file in ${base}/${shell}/*; do
-		basefile=`basename $file`
-		if ! diff ${file} ~/.${basefile} &>/dev/null; then
-			tput bold
-			echo cp $file ~/.$basefile
-			tput sgr0
-			cp $file ~/.$basefile
-		fi
-	done
-
-	for file in ${base}/universal/*; do
-		basefile=`basename $file`
-		if ! diff ${file} ~/.${basefile} &>/dev/null; then
-			tput bold
-			echo cp $file ~/.$basefile
-			tput sgr0
-			cp $file ~/.$basefile
-		fi
-	done
-
-elif [ "$1" == "save" ] || [ "$1" == "push" ]
-then
-	comment=""
-
-	for file in ${base}/${shell}/*; do
-		basefile=`basename $file`
-		if ! diff ${file} ~/.${basefile} &>/dev/null; then
-			comment="$comment $shell:$basefile "
-			tput bold
-			echo cp ~/.$basefile $file 
-			tput sgr0
-			cp ~/.$basefile $file 
-		fi
-	done
-
-	for file in ${base}/universal/*; do
-		basefile=`basename $file`
-		if ! diff ${file} ~/.${basefile} &>/dev/null; then
-			comment="$comment universal:$basefile "
-			tput bold
-			echo cp ~/.$basefile $file
-			tput sgr0
-			cp ~/.$basefile $file
-		fi
-	done
-
-	if ! [ -z "$comment" ]; then
-		tput bold
-		echo git add $shell
-		tput sgr0
-		git add $shell
-		tput bold
-		echo git add universal
-		tput sgr0
-		git add universal
-		tput bold
-		echo git commit -m "\"$comment\""
-		tput sgr0
-		git commit -m "$shell"
-		tput bold
-		echo git push
-		tput sgr0
-		git push
-	else
-		tput bold
-		echo "Nothing to commit"
-		tput sgr0
-	fi
-
+if [ "$1" -eq "save" ] || [ "$1" -eq "push" ] || [ "$1" -eq "commit" ]; then
+	git add .
+	git commit -m "`git changed`"
+	git push
+elif [ "$1" -eq "deploy" ] || [ "$1" -eq "pull" ]; then
+	git pull
 fi
+
