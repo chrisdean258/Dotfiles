@@ -3,15 +3,26 @@
 base=$HOME/git/Dotfiles
 
 if [ $# -ne 1 ]; then
-	echo "Usage: dots save|deploy"
+	echo "Usage: dots save|deploy (--force)"
+	exit 1
 fi
 
 cd $base
-if [ "$1" -eq "save" ] || [ "$1" -eq "push" ] || [ "$1" -eq "commit" ]; then
+if [ "$1" = "save" ] || [ "$1" = "push" ] || [ "$1" = "commit" ]; then
 	git add .
 	git commit -m "`git changed`"
 	git push
-elif [ "$1" -eq "deploy" ] || [ "$1" -eq "pull" ]; then
-	git pull
+elif [ "$1" = "deploy" ] || [ "$1" = "pull" ]; then
+	if git status 2>/dev/null | grep -q clean; then
+		git pull
+	elif [ "$2" = "--force" ]; then
+		git reset --hard
+		git pull
+	else
+		echo "You have unsaved changes in your dotfiles"
+	fi
+else
+	echo "Usage: dots save|deploy (--force)"
+	exit 1
 fi
 

@@ -3,9 +3,11 @@
 shell="${1:-bash}"
 
 for file in $shell/*; do
+	rm -f ~/.`basename $file`
 	ln $file ~/.`basename $file`
 done
 
 for file in universal/*; do
+	rm -f ~/.`basename $file`
 	ln $file ~/.`basename $file`
 done
