@@ -9,15 +9,16 @@ fi
 
 cd $base
 if [ "$1" = "save" ] || [ "$1" = "push" ] || [ "$1" = "commit" ]; then
-	git add .
-	git commit -m "`git changed`"
-	git push
+	comment=`git diff --name-only`
+	git add . >/dev/null
+	git commit -m "`git changed`" >/dev/null
+	git push >/dev/null
 elif [ "$1" = "deploy" ] || [ "$1" = "pull" ]; then
 	if git status 2>/dev/null | grep -q clean; then
-		git pull
+		git pull >/dev/null
 	elif [ "$2" = "--force" ]; then
-		git reset --hard
-		git pull
+		git reset --hard >/dev/null
+		git pull >/dev/null
 	else
 		echo "You have unsaved changes in your dotfiles"
 	fi

@@ -165,3 +165,5 @@ prompt_command()
 
 export HISTCONTROL=ignoreboth
 shopt -s histappend
+
+dots deploy
