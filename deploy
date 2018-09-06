@@ -2,6 +2,9 @@
 
 shell="${1:-bash}"
 
+rm -f ~/bin/dots
+ln dots ~/bin/dots
+
 for file in $shell/*; do
 	rm -f ~/.`basename $file`
 	ln $file ~/.`basename $file`
