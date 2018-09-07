@@ -79,13 +79,6 @@ jsetup()
 }
 
 
-if [ "`basename $SHELL`" = "bash" ]; then
-	=()
-	{
-		sed "s/x/*/g " <<< "$@" | bc -l
-	}
-fi
-
 vi()
 {
 	if [ $# -ne 0 ]
