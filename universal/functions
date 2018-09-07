@@ -4,11 +4,6 @@
 	builtin cd -
 }
 
-$()
-{
-	"$@"
-}
-
 alias cd="cdls"
 
 cdls()
@@ -83,10 +78,13 @@ jsetup()
 	find $HOME -type d -not -path "*/\.*" > $HOME/.jmp/to.txt
 }
 
-=()
-{
-	sed "s/x/*/g " <<< "$@" | bc -l
-}
+
+if [ "`basename $SHELL`" = "bash" ]; then
+	=()
+	{
+		sed "s/x/*/g " <<< "$@" | bc -l
+	}
+fi
 
 vi()
 {
