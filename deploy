@@ -1,16 +1,24 @@
 #!/bin/bash
 
+deploy()
+{
+	for file in $1/*; do
+		echo $file
+		if [ -f $file ]; then
+			rm -rf ~/.`basename $file`
+			ln $file ~/.`basename $file`
+		fi
+	done
+
+}
+
 shell="${1:-bash}"
 
 rm -f ~/bin/dots
 ln dots ~/bin/dots
+mkdir -p ~/bin
+rm -rf ~/bin/git
+ln -s git_scripts ~/bin/git
 
-for file in $shell/*; do
-	rm -f ~/.`basename $file`
-	ln $file ~/.`basename $file`
-done
-
-for file in universal/*; do
-	rm -f ~/.`basename $file`
-	ln $file ~/.`basename $file`
-done
+deploy universal
+deploy $shell

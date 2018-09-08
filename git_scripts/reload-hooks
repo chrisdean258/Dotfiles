@@ -1,0 +1,4 @@
+#!/bin/bash
+
+rm -f $(git rev-parse --git-dir)/hooks/*
+git init

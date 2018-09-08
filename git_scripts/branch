@@ -1,0 +1,13 @@
+#!/bin/bash
+
+
+if [ $# -eq 0 ]
+then
+	git branch
+elif [ $# -eq 1 ] && [ `git branch | grep $1` ]
+then
+	git co $1
+else
+	git co -b $1
+fi
+

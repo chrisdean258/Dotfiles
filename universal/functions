@@ -21,31 +21,14 @@ md()
 
 j()
 {
-	jmps="$HOME/.jmp/to.txt"
+	jmps="$HOME/.jmp"
 	if [ $# -ne 0 ]
 	then
 		pattern=".*$(echo "$@" | sed "s/\s\+/.*\/.*/g")[^\/]*$"
 	fi
 
-	if [ -z $(echo $PWD | grep -i "$pattern") ]
+	if echo $PWD | grep -qi "$pattern"
 	then
-		new_dir=$(
-		tac $jmps |
-		grep -v "^$PWD$" |
-		grep "$pattern" |
-		awk '{ if (!a[$0]++) print $0 }' |
-		\head -n 1
-		)
-		if [ -z "$new_dir" ]; then
-			new_dir=$(
-			tac $jmps |
-			grep -v "^$PWD$" |
-			grep -i "$pattern" |
-			awk '{ if (!a[$0]++) print $0 }' |
-			\head -n 1
-			)
-		fi
-	else
 		new_dir=$(
 		tac $jmps |
 		grep -i "$pattern" |
@@ -53,6 +36,13 @@ j()
 		awk '{ print $0; if(!a) a = $0 }; END { print a }' |
 		grep -m 1 -A 1 "^$PWD$" |
 		\tail -1
+		)
+	else
+		new_dir=$(
+		tac $jmps |
+		grep -i "$pattern" |
+		awk '{ if (!a[$0]++) print $0 }' |
+		\head -n 1
 		)
 
 	fi
@@ -74,8 +64,8 @@ j()
 
 jsetup()
 {
-	mkdir -p $HOME/.jmp
-	find $HOME -type d -not -path "*/\.*" > $HOME/.jmp/to.txt
+	time=$(date +%D --date="-2 month")
+	find $HOME -type d -not -path "*/\.*" -newermt $time > $HOME/.jmp
 }
 
 

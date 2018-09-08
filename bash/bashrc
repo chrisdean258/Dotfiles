@@ -143,7 +143,6 @@ CLEAR="\[`tput sgr0`\]"
 
 PATH=$PATH:$HOME/bin
 PATH=$PATH:.
-CDPATH=$CDPATH:~
 set -o vi
 PROMPT_COMMAND=prompt_command
 PROMPT_SAVE=`echo $PS1 | sed 's/..$//g'`
