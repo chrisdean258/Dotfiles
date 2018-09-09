@@ -358,7 +358,7 @@
 	:autocmd FileType python  :setlocal expandtab
 	:autocmd FileType python  :setlocal nosmartindent
 	:autocmd FileType python  :call RemoveTrailingWhitespace_AU()
-	" :autocmd FileType python  :call SetPythonVersion()
+	:autocmd FileType python  :call SetPythonVersion()
 	:autocmd FileType python  :let g:pyindent_open_paren = '&sw'
 	:autocmd FileType python  :let g:pyindent_nested_paren = '&sw'
 	:autocmd FileType python  :let g:pyindent_continue = '0'
@@ -718,13 +718,14 @@
 	" {{{
 		:function! SetPythonVersion()
 		" {{{
-		:  if getline(1) =~ "python3"
-		:    let g:syntastic_python_python_exe = 'python3'
+		:  if getline(1) =~ "python3" && executable("flake8")
+		:    let g:syntastic_python_checkers = [ "flake8" ]
+		:    let g:syntastic_python_checker_args ='--ignore=F841'
+		:    let g:syntastic_python_flake8_args='--ignore=F841'
 		:  endif
 		:endfunction
 		" }}}
 	" }}}
-
 
 	" Universally used function
 	" {{{

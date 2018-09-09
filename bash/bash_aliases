@@ -1,3 +1,5 @@
+alias 1v="!v"
+alias 1vi="!vi"
 alias c="clear"
 
 alias bashrc=". ~/.bashrc"
