@@ -10,8 +10,8 @@ cdls()
 {
 	builtin cd "$@" &&
 		ls &&
-		echo `realpath .` >> ~/.jmp/to.txt && 
-		sed -i 1d ~/.jmp/to.txt
+		echo `realpath .` >> ~/.jmp && 
+		sed -i 1d ~/.jmp
 }
 
 md()
