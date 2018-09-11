@@ -14,6 +14,7 @@ deploy()
 
 shell="${1:-bash}"
 
+mkdir -p ~/bin
 rm -f ~/bin/dots
 ln dots ~/bin/dots
 mkdir -p ~/bin
