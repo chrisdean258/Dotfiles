@@ -66,6 +66,23 @@
 	:set tabpagemax=1000
 	:set textwidth=0
 
+	" Create needed folders
+	:if !isdirectory($HOME . "/.vim/backup")
+	:  call mkdir($HOME . "/.vim/backup", "p")
+	:endif
+	:if !isdirectory($HOME . "/.vim/undo")
+	:  call mkdir($HOME . "/.vim/undo", "p")
+	:endif
+
+	" Set the directory to store swap files
+	:set backupdir=~/.vim/backup//
+	:set undodir=~/.vim/undo//
+	
+	" Set up undo
+	:set undofile
+	:set undolevels=1000
+	:set undoreload=10000
+
 " }}}
 
 " HIGHLIGHT SETTINGS {{{
