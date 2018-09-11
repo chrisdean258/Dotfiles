@@ -2,7 +2,7 @@
 
 base=$HOME/git/Dotfiles
 
-if [ $# -ne 1 ]; then
+if [ $# -lt 1 ]; then
 	echo "Usage: dots save|deploy (--force)"
 	exit 1
 fi
@@ -23,7 +23,6 @@ elif [ "$1" = "deploy" ] || [ "$1" = "pull" ]; then
 		echo "You have unsaved changes in your dotfiles"
 	fi
 else
-	echo "Usage: dots save|deploy (--force)"
-	exit 1
+	git "$@"
 fi
 

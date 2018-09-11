@@ -18,7 +18,7 @@ rm -f ~/bin/dots
 ln dots ~/bin/dots
 mkdir -p ~/bin
 rm -rf ~/bin/git
-ln -s git_scripts ~/bin/git
+ln -s `realpath .`/git_scripts ~/bin/git
 
 deploy universal
 deploy $shell
