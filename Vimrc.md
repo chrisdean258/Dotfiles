@@ -10,7 +10,7 @@ Install
 -------
 
 ```sh
-wget https://raw.githubusercontent.com/chrisdean258/vimrc/master/vimrc -O $HOME/.vimrc
+wget https://raw.githubusercontent.com/chrisdean258/Dotfiles/master/universal/vimrc -O $HOME/.vimrc
 ```
 
 ### Install Notes
