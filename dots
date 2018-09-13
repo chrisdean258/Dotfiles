@@ -7,8 +7,14 @@ if [ $# -lt 1 ]; then
 	exit 1
 fi
 
-cd $base
+cd "$base"
 if [ "$1" = "save" ] || [ "$1" = "push" ] || [ "$1" = "commit" ]; then
+	if [ $# -gt 1 ]; then
+		shift
+		comment="$*"
+	else
+		comment=""
+	fi
 	comment=`git diff --name-only`
 	git add . >/dev/null
 	git commit -m "$comment" >/dev/null
