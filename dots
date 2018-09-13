@@ -11,11 +11,11 @@ cd "$base"
 if [ "$1" = "save" ] || [ "$1" = "push" ] || [ "$1" = "commit" ]; then
 	if [ $# -gt 1 ]; then
 		shift
-		comment="$*"
+		comment="$* "
 	else
 		comment=""
 	fi
-	comment=`git diff --name-only`
+	comment="$comment`git diff --name-only`"
 	git add . >/dev/null
 	git commit -m "$comment" >/dev/null
 	git push >/dev/null
