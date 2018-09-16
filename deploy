@@ -3,7 +3,6 @@
 deploy()
 {
 	for file in $1/*; do
-		echo $file
 		if [ -f $file ]; then
 			rm -rf ~/.`basename $file`
 			ln $file ~/.`basename $file`
@@ -14,11 +13,15 @@ deploy()
 
 shell="${1:-bash}"
 
+mkdir -p ~/bin
 rm -f ~/bin/dots
 ln dots ~/bin/dots
 mkdir -p ~/bin
 rm -rf ~/bin/git
-ln -s `realpath .`/git_scripts ~/bin/git
+ln -s `realpath .`/dirs/git_scripts ~/bin/git
+
+rm -rf ~/.git_template
+ln -s `realpath .`/dirs/git_template ~/.git_template
 
 deploy universal
 deploy $shell

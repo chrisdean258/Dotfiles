@@ -19,6 +19,27 @@ md()
 	mkdir "$@" && cd "$@"
 }
 
+pip3()
+{
+	pip3=`which pip3`
+	if [ -z "$pip3" ]; then
+		echo "pip3 not installed"
+		return 1
+	fi
+	for arg in "$@"; do
+		if [ "$arg" = "--user" ]; then
+			$pip3 "$@"
+			return $?
+		fi
+	done
+
+	if groups | grep -q sudo; then
+		sudo $pip3 "$@"
+	else
+		$pip3 "$@"
+	fi
+}
+
 j()
 {
 	jmps="$HOME/.jmp"
