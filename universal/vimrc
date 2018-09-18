@@ -976,7 +976,7 @@
 	:endfunction
 	" }}}
 	:augroup vim_update
-	" :autocmd VimEnter * :call Update_Vimrc()
+	:autocmd VimEnter * :call Update_Vimrc()
 	:augroup END
 	:command! Update call Update_Vimrc()
 
