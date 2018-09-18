@@ -970,18 +970,25 @@
 "_______________________________________________________________________________________________________
 	:function! Update_Vimrc()
 	" {{{
-	:let update_script= "sh $HOME/.vim/auto_update/fetch_vimrc.sh auto"
-	:  silent execute "! " . update_script . " &> /dev/null"
-	:  if v:shell_error != 0
-	:    silent !mkdir -p $HOME/.vim/auto_update
-	:    silent !wget https://raw.githubusercontent.com/chrisdean258/vimrc/master/fetch_vimrc.sh -O $HOME/.vim/auto_update/fetch_vimrc.sh &>/dev/null
-	:    silent execute "! " . update_script . " &>/dev/null"
-	:  endif
+	:  let l:url = 'https://raw.githubusercontent.com/chrisdean258/Dotfiles/master/universal/vimrc'
+	:  silent call system("wget -O ~/.vimrc " . l:url)
 	:endfunction
 	" }}}
-	" :call Update_Vimrc()
+
+	:if has("autocmd") && &filetype !~ "vim" && expand("%") !~ ".vimrc$"
+	:augroup vim_update
+	:  autocmd VimEnter * :call Update_Vimrc()
+	:augroup END
 	:command! Update call Update_Vimrc()
+	:endif
+
+	:if filereadable(expand("~") . "/.vimrc.local")
+	:  source ~/.vimrc.local
+	:endif
+
 " }}}
 
 " If you cannot see anything but this message uncomment the next line
 " :highlight Folded ctermfg=DarkGrey guifg=DarkGrey
+
+
