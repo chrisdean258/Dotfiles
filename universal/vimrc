@@ -972,7 +972,6 @@
 	" {{{
 	:  let l:url = 'https://raw.githubusercontent.com/chrisdean258/Dotfiles/master/universal/vimrc'
 	:  silent call system("wget -O ~/.vimrc " . l:url)
-	:  edit %
 	:endfunction
 	" }}}
 
