@@ -384,6 +384,7 @@
 	:autocmd FileType python  :setlocal tabstop=4
 	:autocmd FileType python  :setlocal expandtab
 	:autocmd FileType python  :setlocal nosmartindent
+	:autocmd FileType python  :iabbrev inport import
 	:autocmd FileType python  :call RemoveTrailingWhitespace_AU()
 	:autocmd FileType python  :call SetPythonVersion()
 	:autocmd FileType python  :let g:pyindent_open_paren = '&sw'
