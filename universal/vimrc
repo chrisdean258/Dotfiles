@@ -971,6 +971,11 @@
 "_______________________________________________________________________________________________________
 	:function! Update_Vimrc()
 	" {{{
+	:  let l:output = system("diff <(date +%j) ~/.vim/update")
+	:  if l:output == ""
+	:    return
+	:  endif
+	:  silent call system("date +%j > ~/.vim/update")
 	:  let l:url = 'https://raw.githubusercontent.com/chrisdean258/Dotfiles/master/universal/vimrc'
 	:  silent call system("wget -O ~/.vimrc " . l:url)
 	:endfunction
