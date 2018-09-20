@@ -147,7 +147,7 @@
 	:  if getline(1) =~ "python3" && executable("flake8")
 	:    let g:syntastic_python_checkers = [ "flake8" ]
 	:    let g:syntastic_python_checker_args ='--ignore=F841'
-	:    let g:syntastic_python_flake8_args='--ignore=F841'
+	:    let g:syntastic_python_flake8_args=['--ignore=F841,F405,F403,F402,F401']
 	:  endif
 	:endfunction
 	" }}}
@@ -384,6 +384,7 @@
 	:autocmd FileType python  :setlocal tabstop=4
 	:autocmd FileType python  :setlocal expandtab
 	:autocmd FileType python  :setlocal nosmartindent
+	:autocmd FileType python  :iabbrev inport import
 	:autocmd FileType python  :call RemoveTrailingWhitespace_AU()
 	:autocmd FileType python  :call SetPythonVersion()
 	:autocmd FileType python  :let g:pyindent_open_paren = '&sw'
@@ -970,6 +971,11 @@
 "_______________________________________________________________________________________________________
 	:function! Update_Vimrc()
 	" {{{
+	:  let l:output = system("diff <(date +%j) ~/.vim/update")
+	:  if l:output == ""
+	:    return
+	:  endif
+	:  silent call system("date +%j > ~/.vim/update")
 	:  let l:url = 'https://raw.githubusercontent.com/chrisdean258/Dotfiles/master/universal/vimrc'
 	:  silent call system("wget -O ~/.vimrc " . l:url)
 	:endfunction
