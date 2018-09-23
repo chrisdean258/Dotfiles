@@ -28,6 +28,7 @@ elif [ "$1" = "deploy" ] || [ "$1" = "pull" ]; then
 	else
 		echo "You have unsaved changes in your dotfiles"
 	fi
+	./deploy
 else
 	git "$@"
 fi
