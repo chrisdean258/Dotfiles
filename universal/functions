@@ -85,6 +85,7 @@ j()
 
 jsetup()
 {
+	rm -rf ~/.jmp
 	time=$(date +%D --date="-2 month")
 	find $HOME -type d -not -path "*/\.*" -newermt $time > $HOME/.jmp
 }
