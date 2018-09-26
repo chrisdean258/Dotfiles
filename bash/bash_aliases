@@ -13,7 +13,6 @@ if [ "`which xdg-open`" ]; then
 	alias open="xdg-open"
 fi
 
-alias make="make -j\$(nproc)"
 
 if [ "`which bc`" ]; then 
 	alias head="head -n \$(echo \$(tput lines)-2|bc)"
