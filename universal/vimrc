@@ -797,7 +797,6 @@
 		:endfunction
 		" }}}
 
-
 		:function! Wrap(type) range
 		" {{{
 		:  let l:window = winsaveview()
@@ -809,6 +808,7 @@
 		:    let l:input = g:wrapinput
 		:  endif
 		:  let g:repeatstack = "wrap"
+		:  let g:repeat = ""
 		:  let g:wrapinput = l:input
 		:  let l:ending = l:input
 		:  let l:begin = l:input
