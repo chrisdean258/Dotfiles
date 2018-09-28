@@ -295,7 +295,6 @@
 	:autocmd BufNewFile *  :autocmd BufWritePost * :call IfScript()
 	:autocmd BufRead *     :setlocal formatoptions-=cro
 	:autocmd CursorHold *  :set nohlsearch
-	:autocmd BufLeave *    :setlocal nornu
 	:autocmd InsertLeave * :setlocal nopaste
 	:autocmd BufReadPost * :if line("'\"") > 0 && line ("'\"") <= line("$") | exe "normal! g'\"" | endif
 	:augroup END
