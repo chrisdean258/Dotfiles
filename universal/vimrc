@@ -46,10 +46,9 @@
 	:set splitright
 	:set splitbelow
 
-	:set tag=./tags,./TAGS,tags,TAGSs,../tags,../../tags
+	:set tag=./tags,./TAGS,tags
 	:set tags+=./tags;$HOME
 	:set tags+=./.tags;$HOME
-	:set tags+=~/.vim/systags
 
 	:set wildignore=*.o,*~,*.pyc
 	:if has("win16") || has("win32")
@@ -296,7 +295,6 @@
 	:autocmd BufNewFile *  :autocmd BufWritePost * :call IfScript()
 	:autocmd BufRead *     :setlocal formatoptions-=cro
 	:autocmd CursorHold *  :set nohlsearch
-	:autocmd BufLeave *    :setlocal nornu
 	:autocmd InsertLeave * :setlocal nopaste
 	:autocmd BufReadPost * :if line("'\"") > 0 && line ("'\"") <= line("$") | exe "normal! g'\"" | endif
 	:augroup END
@@ -774,6 +772,9 @@
 
 		:function! CleverTab()
 		" {{{
+		:  if pumvisible()
+		:    return "\<C-N>"
+		:  endif
 		:  let l:str =  strpart( getline('.'), 0, col('.')-1 )
 		:  let l:words = split(l:str, " ")
 		:  let l:last_word = len(l:words) > 0 ? l:words[-1] : ""
@@ -995,5 +996,3 @@
 
 " If you cannot see anything but this message uncomment the next line
 " :highlight Folded ctermfg=DarkGrey guifg=DarkGrey
-
-
