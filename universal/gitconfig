@@ -17,6 +17,8 @@
 	save = !~/bin/git/save
 	note = !~/bin/git/notes
 	reload-hooks = !~/bin/git/reload-hooks
+	issues = !ghi
+	i = !ghi
 [merge]
 	tool = vimdiff
 [core]
