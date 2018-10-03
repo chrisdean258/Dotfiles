@@ -65,6 +65,8 @@
 	:set hidden
 	:set tabpagemax=1000
 	:set textwidth=0
+	:set pumheight=15
+
 
 	" Create needed folders
 	:if !isdirectory($HOME . "/.vim/backup")
