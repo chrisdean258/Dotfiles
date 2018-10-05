@@ -49,6 +49,7 @@
 	:set tag=./tags,./TAGS,tags
 	:set tags+=./tags;$HOME
 	:set tags+=./.tags;$HOME
+	:set tags+=~/.vim/systags
 
 	:set wildignore=*.o,*~,*.pyc
 	:if has("win16") || has("win32")
@@ -64,6 +65,8 @@
 	:set hidden
 	:set tabpagemax=1000
 	:set textwidth=0
+	:set pumheight=15
+
 
 	" Create needed folders
 	:if !isdirectory($HOME . "/.vim/backup")
@@ -774,18 +777,17 @@
 		:function! CleverTab()
 		" {{{
 		:  if pumvisible()
-		:    return "\<C-N>"
+		:    return "\<C-P>"
 		:  endif
 		:  let l:str =  strpart( getline('.'), 0, col('.')-1 )
 		:  let l:words = split(l:str, " ")
 		:  let l:last_word = len(l:words) > 0 ? l:words[-1] : ""
 		:  if l:str =~ '^\s*$' || l:str =~ '\s$'
 		:    return "\<Tab>"
-		:  elseif l:last_word =~ "\/"
+		:  elseif l:last_word =~ "\/" && len(glob(l:last_word . "*")) > 0 
 		:    return "\<C-X>\<C-F>"
-		:  else
-		:    return "\<C-P>"
 		:  endif
+		:  return "\<C-P>"
 		:endfunction
 		" }}}
 
@@ -997,3 +999,4 @@
 
 " If you cannot see anything but this message uncomment the next line
 " :highlight Folded ctermfg=DarkGrey guifg=DarkGrey
+

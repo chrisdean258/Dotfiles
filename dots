@@ -1,5 +1,13 @@
 #!/bin/bash
 
+spawn()
+{
+	tput bold
+	echo "$@"
+	tput sgr0
+	"$@"
+}
+
 base=$HOME/git/Dotfiles
 
 if [ $# -lt 1 ]; then
@@ -16,9 +24,9 @@ if [ "$1" = "save" ] || [ "$1" = "push" ] || [ "$1" = "commit" ]; then
 		comment=""
 	fi
 	comment="$comment`git diff --name-only`"
-	git add . >/dev/null
-	git commit -m "$comment" >/dev/null
-	git push >/dev/null
+	spawn git add .
+	spawn git commit -m "$comment"
+	spawn git push
 elif [ "$1" = "deploy" ] || [ "$1" = "pull" ]; then
 	if git status 2>/dev/null | grep -q clean; then
 		git pull >/dev/null
