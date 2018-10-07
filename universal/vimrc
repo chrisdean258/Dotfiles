@@ -60,6 +60,7 @@
 
 	:set infercase
 	:set complete-=i
+	:set complete-=t
 	:set autoread
 	:set switchbuf=usetab
 	:set hidden
