@@ -787,6 +787,9 @@
 		:    return "\<Tab>"
 		:  elseif l:last_word =~ "\/" && len(glob(l:last_word . "*")) > 0 
 		:    return "\<C-X>\<C-F>"
+		:  elseif l:last_word =~ "^\/" && len(glob(l:last_word[1:] . "*")) > 0 
+		:    " TODO flesh this out
+		:    return "\<C-P>"
 		:  endif
 		:  return "\<C-P>"
 		:endfunction
