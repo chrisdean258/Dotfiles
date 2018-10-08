@@ -60,6 +60,7 @@
 
 	:set infercase
 	:set complete-=i
+	:set complete-=t
 	:set autoread
 	:set switchbuf=usetab
 	:set hidden
@@ -999,4 +1000,3 @@
 
 " If you cannot see anything but this message uncomment the next line
 " :highlight Folded ctermfg=DarkGrey guifg=DarkGrey
-
