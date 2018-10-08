@@ -23,4 +23,6 @@ fi
 alias cd..="cd .."
 alias ..="cd .."
 
+alias lc="ls -1"
+
 
