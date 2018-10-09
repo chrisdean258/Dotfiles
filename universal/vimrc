@@ -374,6 +374,9 @@
 	:  autocmd FileType html,php :inoremap <silent><buffer>> ><esc>:call EndTagHTML()<CR>a
 	:  autocmd FileType html,php :inoremap <expr><buffer><CR> HTMLCarriageReturn()
 	:  autocmd FileType html,php :inoremap <expr><buffer><tab> CleverTab()
+	:  autocmd FileType html,php :let g:html_indent_script1 = "inc"
+	:  autocmd FileType html,php :let g:html_indent_style1 = "inc"
+	:  autocmd FileType html,php :let g:html_indent_inctags = "address,article,aside,audio,blockquote,canvas,dd,div,dl,fieldset,figcaption,figure,footer,form,h1,h2,h3,h4,h5,h6,header,hgroup,hr,main,nav,noscript,ol,output,p,pre,section,table,tfoot,ul,video"
 	:augroup END
 	" }}}
 
@@ -584,7 +587,7 @@
 		:  let l:leftside = TextBeforeCursor()
 		:  let l:rightside = TextFromCursor()
 		:  if l:leftside =~ '<.*>\s*$' && l:rightside =~ '^\s*</.*>'
-		:    return "\<CR>\<esc>O".Indentation()
+		:    return "\<CR>\<esc>O"
 		:  endif
 		:  return "\<CR>"
 		:endfunction
@@ -787,6 +790,9 @@
 		:    return "\<Tab>"
 		:  elseif l:last_word =~ "\/" && len(glob(l:last_word . "*")) > 0 
 		:    return "\<C-X>\<C-F>"
+		:  elseif l:last_word =~ "^\/" && len(glob(l:last_word[1:] . "*")) > 0 
+		:    " TODO flesh this out
+		:    return "\<C-P>"
 		:  endif
 		:  return "\<C-P>"
 		:endfunction
@@ -979,6 +985,7 @@
 	:  if l:output == ""
 	:    return
 	:  endif
+	:  echom "updating"
 	:  silent call system("date +%j > ~/.vim/update")
 	:  let l:url = 'https://raw.githubusercontent.com/chrisdean258/Dotfiles/master/universal/vimrc'
 	:  silent call system("wget -O ~/.vimrc " . l:url)
