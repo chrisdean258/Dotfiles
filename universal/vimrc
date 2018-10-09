@@ -584,7 +584,7 @@
 		:  let l:leftside = TextBeforeCursor()
 		:  let l:rightside = TextFromCursor()
 		:  if l:leftside =~ '<.*>\s*$' && l:rightside =~ '^\s*</.*>'
-		:    return "\<CR>\<esc>O".Indentation()
+		:    return "\<CR>\<esc>O"
 		:  endif
 		:  return "\<CR>"
 		:endfunction
