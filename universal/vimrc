@@ -377,6 +377,7 @@
 	:  autocmd FileType html,php :let g:html_indent_script1 = "inc"
 	:  autocmd FileType html,php :let g:html_indent_style1 = "inc"
 	:  autocmd FileType html,php :let g:html_indent_inctags = "address,article,aside,audio,blockquote,canvas,dd,div,dl,fieldset,figcaption,figure,footer,form,h1,h2,h3,h4,h5,h6,header,hgroup,hr,main,nav,noscript,ol,output,p,pre,section,table,tfoot,ul,video"
+	:  autocmd FileType html,php :command! Preview call HTMLPreview()
 	:augroup END
 	" }}}
 
@@ -593,7 +594,7 @@
 		:endfunction
 		" }}}
 
-		function! MDNewline(in)
+		:function! MDNewline(in)
 		"  {{{
 		:  let l:allowable_starts = [ '>', '\*', '-', '+', ]
 		:  let l:line = Text('.')
@@ -612,10 +613,10 @@
 		:    return a:in.(l:line + 1).') '
 		:  endif
 		:  return a:in
-		endfunction
+		:endfunction
 		" }}}
 
-		function! MDTab(default)
+		:function! MDTab(default)
 		"  {{{
 		:  let l:allowable_starts = [ '>', '\*', '-', '+', '|' , '\d\+.', '\d\+)' ]
 		:  let l:linenum = line('.') - 1
@@ -634,10 +635,10 @@
 		:    endif
 		:  endfor
 		:  return a:default
-		endfunction
+		:endfunction
 		" }}}
 
-		function! NotesMDFormat()
+		:function! NotesMDFormat()
 		" {{{
 		" The \{-} is the non greedy version of *
 		" Honestly there should be a *? but that who am I to judge
@@ -652,6 +653,15 @@
 		:endfunction
 		" }}}
 
+		:function! HTMLPreview()
+		" {{{
+		:  let l:refresh = '<meta http-equiv="refresh" content="1">'
+		:  execute ':g/'.l:refresh.'/d'
+		:  execute ':g/<head>/normal! o'.l:refresh
+		:  write
+		:  silent !xdg-open % >/dev/null 2>/dev/null &
+		:endfunction
+		" }}}
 	" }}}
 
 	" C Style Function
