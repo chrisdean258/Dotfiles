@@ -1,10 +1,10 @@
 " NORMAL CONFIGURATION SETTINGS {{{
 "_______________________________________________________________________________________________________
 
-	:syntax on
-	:set nowrap
-	:set number
-	:set relativenumber
+	:syntax on                 " Syntax highlighting
+	:set nowrap                " Dont wrap text to newlines
+	:set number                " Show line numbers
+	:set relativenumber        " show line numbers relative to your current line
 	:colorscheme elflord
 
 	" Set line buffer at top and bottom of screen
@@ -21,36 +21,35 @@
 " UNIVERSAL SETTINGS {{{
 "_______________________________________________________________________________________________________
 
-	:set nocompatible
-	:set autoindent
-	:set smartindent
-	:set showcmd
-	:set wildmenu
-	:set incsearch hlsearch
-	:set backspace=eol,indent,start
-	:filetype plugin indent on
+	:set nocompatible                       " We're not using vi
+	:set autoindent                         " automatically indent
+	:set smartindent                        " Increase indent in a smart way
+	:set showcmd                            " show partial command before you finish typing it
+	:set wildmenu                           " show menu of completeion on command line
+	:set incsearch hlsearch                 " turn on search highlighting
+	:set backspace=eol,start                " backspace across eol and farther than you started
+	:filetype plugin indent on              " indenting by filetype
 	:filetype plugin on
 
 	" Allows for recursive finding
-	:set path+=**
+	:set path+=**                           " Cheap fuzzy find
 
-	:set omnifunc=syntaxcomplete#Complete
-	:set laststatus=1
+	:set omnifunc=syntaxcomplete#Complete   " Not 100% on this because I dont use omnicomplete
+	:set laststatus=1                       " Show statusline only if we have more than 1 window upen
 
-	" Comment out this group for auto commenting
 	:if &filetype !~ "vim"
-	:setlocal nofoldenable
+	:setlocal nofoldenable                  " Turn off folding except in vim files
 	:endif
-	:setlocal foldtext=MyFold()
+	:setlocal foldtext=MyFold()             " Show foldtext based on my function
 
-	:set splitright
-	:set splitbelow
+	:set splitright                         "Split to the right
+	:set splitbelow                         "Split to below
 
-	:set tag=./tags,./TAGS,tags
+	:set tag=./tags,./TAGS,tags             " Add a bunch of tag files that can be looked at
 	:set tags+=./tags;$HOME
 	:set tags+=./.tags;$HOME
-	:set tags+=~/.vim/systags
 
+	" Just ignoring a lot of files you normally dont want to open in vim
 	:set wildignore=*.o,*~,*.pyc
 	:if has("win16") || has("win32")
 	:  set wildignore+=.git\*,.hg\*,.svn\*
@@ -58,18 +57,21 @@
 	:  set wildignore+=*/.git/*,*/.hg/*,*/.svn/*,*/.DS_Store
 	:endif
 
-	:set infercase
-	:set complete-=i
-	:set complete-=t
-	:set autoread
-	:set switchbuf=usetab
-	:set hidden
-	:set tabpagemax=1000
-	:set textwidth=0
-	:set pumheight=15
-	:set shortmess+=atI
+	:set infercase                           " for insert completion
+	:set autoread                            " reads from disk if no modification in buffer
+	:set switchbuf=usetab                    " default to jumping to a new tab
+	:set hidden                              " hide buffers instead of closing
+	:set tabpagemax=1000                     " Vim can handle a lot of tags
+	:set textwidth=0                         " Dont insert random newlines for us
+	:set pumheight=15                        " Only see 15 options on completion
+	:set shortmess+=atI                      " Make more messages short
+	:set ttyfast                             " Increase buffer before redraw
+	:set encoding=utf-8                      " use utf-8 everywhere
+	:set fileencoding=utf-8                  " use utf-8 everywhere
+	:set termencoding=utf-8                  " use utf-8 everywhere
 
-	" Create needed folders
+
+	" Create needed folders for backups and undo files
 	:if !isdirectory($HOME . "/.vim/backup")
 	:  call mkdir($HOME . "/.vim/backup", "p")
 	:endif
@@ -77,7 +79,7 @@
 	:  call mkdir($HOME . "/.vim/undo", "p")
 	:endif
 
-	" Set the directory to store swap files
+	" Set the directory to store backups and undos
 	:set backupdir=~/.vim/backup//
 	:set undodir=~/.vim/undo//
 	
@@ -118,6 +120,7 @@
 " PLUGIN SETTINGS {{{
 "_______________________________________________________________________________________________________
 
+	" Function to install syntastic if it isnt already there
 	:function! SourceOrInstallSyntastic()
 	:  try
 	:    execute pathogen#infect()
@@ -134,17 +137,21 @@
 
 	:call SourceOrInstallSyntastic()
 
+
+	" Linting c/c++
+	" Some of this stuff has to do with my research like anything to do with eo
 	:let g:syntastic_check_on_wq = 0
         :let g:syntastic_cpp_compiler = "g++"
         :let g:syntastic_cpp_compiler_options = "-std=c++98 -Wall -Wextra"
 	:let g:syntastic_cpp_include_dirs = [ "../../include", "../../include/utils/" , "../../eo/include", "../../eo/gengraph/include" ]
 
+	" Linting python
 	:let g:syntastic_python_checkers = [ 'python' ]
 	:let g:syntastic_always_populate_loc_list = 1
-	" :let g:syntastic_auto_loc_list = 1
 	:let g:syntastic_loc_list_height= 3
 	:let g:syntastic_quiet_messages = { "type": "style" }
 
+	" Use flake8 to lint python3
 	:function! SetPythonVersion()
 	" {{{
 	:  if getline(1) =~ "python3" && executable("flake8")
@@ -154,6 +161,9 @@
 	:  endif
 	:endfunction
 	" }}}
+
+	" Turn off Syntastic Errors
+	:cabbrev jk SyntasticReset
 
 " }}}
 
@@ -165,32 +175,35 @@
 	:let maplocalleader = '\'
 
 	" insert a single char
-	" :nnoremap s i <esc>r
-	" :nnoremap S a <esc>r
+	" use the s<F12> mapping to prevent evaluation of the macro until another character is input
 	:nnoremap <silent><expr>s SingleInsert("i")
 	:nnoremap <silent><expr>S SingleInsert("a")
 	:nnoremap <silent>s<F12> <nop>
 	:nnoremap <silent>S<F12> <nop>
 
+
 	" Repeat mappings
+	" allow for repeated wrapping
 	:nnoremap <silent>. :call RepeatFunc()<CR>.
 	:let g:repeat = ""
 	:let g:repeatstack = ""
 
 	" key mapping
+	" move up and down visually rather than linewose
 	:nnoremap j gj
 	:nnoremap k gk
 
+	" Use jk instead of escape
 	:inoremap <expr> jk CleverEsc()
 	:imap Jk jk
 	:imap JK jk
 	:noremap <space> <nop>
 
-	" move lines up and down
-	:nnoremap - ddp
+	" move lines up and down respectively
 	:nnoremap _ ddkP
+	:nnoremap - ddp
 
-	" indent file
+	" indent entire file
 	:nnoremap <silent><leader>g :call Indent()<CR>
 
 	" edit and reload vimrc
@@ -206,6 +219,8 @@
 
 	" clear highlighting from search
 	:nnoremap <silent><c-L> :nohlsearch<CR><c-L>
+	" Turn on highlighting every time you research or look for the next item
+	" Also centers found item on page
 	:nnoremap n :set hlsearch<cr>nzz
 	:nnoremap N :set hlsearch<cr>Nzz
 	:nnoremap / :set hlsearch<cr>/
@@ -220,10 +235,11 @@
 	:nnoremap <silent><A-right> :llast<CR>
 
 
-	" Clever Tab
+	" File name completion with shift-tab because it wasnt doing anything useful
 	:inoremap <S-tab> <c-x><c-f>
 
-	" Wrapping
+	" Wrapping magic 
+	" allows you to target text and wrap it in characters repeatably
 	:nnoremap <silent><leader>w :set opfunc=Wrap<CR>g@
 	:vnoremap <silent><leader>w :call Wrap("visual")<CR>
 
@@ -233,11 +249,13 @@
 	:nnoremap <silent><S-up>    :resize +5 <CR>
 	:nnoremap <silent><S-down>  :resize -5 <CR>
 
-	" Jumping splits and tabs
+	" Jumping splits 
 	:nnoremap <leader>h <c-w>h
 	:nnoremap <leader>j <c-w>j
 	:nnoremap <leader>k <c-w>k
 	:nnoremap <leader>l <c-w>l
+
+	" creating and navigating tabs
 	:nnoremap <silent><tab>         :tabnext<CR>
 	:nnoremap <silent><S-tab>       :tabprev<CR>
 	:nnoremap <silent><leader><tab> :tabnew<CR>
@@ -258,14 +276,19 @@
 	" VisualBlock
 	:nnoremap <C-c> <C-v>
 
+	" Use control j and k to navigate pop up menu
 	:inoremap <expr> <c-j> (pumvisible()?"\<C-n>":"\<c-j>")
 	:inoremap <expr> <c-k> (pumvisible()?"\<C-p>":"\<c-k>")
+
+	" Commenting out lines
+	:nnoremap <silent><localleader>\ :call Comment()<CR>
 
 " }}}
 
 " UNIVERSAL ABBREVIATIONS AND COMMANDS {{{
 "_______________________________________________________________________________________________________
 
+	" Vertical splitting is better than horizontal splitting
 	:cabbrev help vert help
 	:cabbrev sp vs
 	:cabbrev help vert help
@@ -275,16 +298,19 @@
 	:cabbrev Q q
 	:cabbrev Wq wq
 	:cabbrev WQ wq
-	:cabbrev jk SyntasticReset
-	:cabbrev unicode Unicode
+
+	" Expanding for substitutions
 	:cabbrev S %s
 	:cabbrev a 'a,.s
 	:cabbrev $$ .,$s
+
+	" Force writing
 	:cabbrev w!! %!sudo tee > /dev/null %
 
+	" Making a tags file for jumping
 	:command! MakeTags !ctags -Rf .tags
-	:command! Unicode set encoding=utf-8
-	:command! Net :call ProcessNetwork()
+
+	" Turn on folding
 	:command! Fold :setlocal foldenable | setlocal foldmethod=syntax
 
 " }}}
@@ -299,12 +325,11 @@
 	" {{{
 	:augroup Universal
 	:autocmd!
-	:autocmd BufNewFile *  :autocmd BufWritePost * :call IfScript()
-	:autocmd BufRead *     :setlocal formatoptions-=cro
-	:autocmd CursorHold *  :set nohlsearch
-	:autocmd InsertLeave * :setlocal nopaste
-	:autocmd BufReadPost * :if line("'\"") > 0 && line ("'\"") <= line("$") | exe "normal! g'\"" | endif
-	:autocmd BufEnter GHI_ISSUE* :setlocal filetype=markdown
+	:autocmd BufRead *     :setlocal formatoptions-=cro " turn off autocommenting
+	:autocmd CursorHold *  :set nohlsearch              " turn off search highlighting after a few seconds of nonuse
+	:autocmd InsertLeave * :setlocal nopaste            " Turn off paste when leaving insert mode
+	:autocmd BufReadPost * :if line("'\"") > 0 && line ("'\"") <= line("$") | exe "normal! g'\"" | endif " Jump to where you were in a file
+	:autocmd BufEnter GHI_ISSUE* :setlocal filetype=markdown " Open github issues files as markdown
 	:augroup END
 	" }}}
 
@@ -313,10 +338,9 @@
 	:if exists("##OptionSet")
 	:augroup Options
 	:autocmd!
-	:autocmd OptionSet relativenumber :let &number=&relativenumber
-	:autocmd OptionSet wrap           :let &linebreak=&wrap
-	:autocmd OptionSet paste          :let &relativenumber=!&paste
-	:autocmd OptionSet spell          :setlocal spelllang=en
+	:autocmd OptionSet relativenumber :let &number=&relativenumber   " Turn on and off number when we toggle reelative number
+	:autocmd OptionSet wrap           :let &linebreak=&wrap          " break on words when were wrapping
+	:autocmd OptionSet spell          :setlocal spelllang=en         " set spell langage when we turn on spell
 	:augroup END
 	:endif
 	" }}}
@@ -325,7 +349,8 @@
 	" {{{ 
 	:augroup c_style
 	:  autocmd!
-	:  autocmd FileType c,cpp,javascript,java,perl,cs :nnoremap <silent><buffer><localleader>\ :call CommentBL('\/\/')<CR>
+	":  autocmd FileType c,cpp,javascript,java,perl,cs :nnoremap <silent><buffer><localleader>\ :call CommentBL('\/\/')<CR>
+	:  autocmd FileType c,cpp,javascript,java,perl,cs :setlocal commentstring=//%s
 	:  autocmd FileType c,cpp,javascript,java,perl,cs :nnoremap <silent><buffer><localleader>s :silent call SplitIf()<CR>
 	:  autocmd FileType c,cpp,javascript,java,perl,cs :nnoremap <silent><buffer>; :call AppendSemicolon()<CR>
 	:  autocmd FileType c,cpp,javascript,java,perl,cs :inoremap <buffer>{} {<CR>}<esc>O
@@ -373,7 +398,7 @@
 	:  if exists("+breakindent")
 	:    autocmd FileType html,php :setlocal breakindent
 	:  endif
-	:  autocmd FileType html,php :nnoremap <silent><buffer><localleader>\ :call CommentBL('\<!--', '-->')<CR>
+	" :  autocmd FileType html,php :nnoremap <silent><buffer><localleader>\ :call CommentBL('\<!--', '-->')<CR>
 	:  autocmd FileType html,php :inoremap <silent><buffer>> ><esc>:call EndTagHTML()<CR>a
 	:  autocmd FileType html,php :inoremap <expr><buffer><CR> HTMLCarriageReturn()
 	:  autocmd FileType html,php :inoremap <expr><buffer><tab> CleverTab()
@@ -388,7 +413,7 @@
 	" {{{
 	:augroup python_
 	:autocmd!
-	:autocmd FileType python,matlab,shell,sh,bash  :nnoremap <silent><buffer><localleader>\ :call CommentBL('#')<CR>
+	" :autocmd FileType python,matlab,shell,sh,bash  :nnoremap <silent><buffer><localleader>\ :call CommentBL('#')<CR>
 	:autocmd FileType python,matlab,shell,sh,bash  :inoremap <expr><buffer><tab> CleverTab()
 	:autocmd FileType python  :setlocal tabstop=4
 	:autocmd FileType python  :setlocal expandtab
@@ -407,8 +432,9 @@
 	" {{{
 	:augroup vim_
 	:autocmd!
-	:autocmd FileType vim :nnoremap <silent><buffer><localleader>\ :call CommentBL('" ')<CR>
+	" :autocmd FileType vim :nnoremap <silent><buffer><localleader>\ :call CommentBL('" ')<CR>
 	:autocmd FileType vim :setlocal foldmethod=marker
+	:autocmd FileType vim :setlocal commentstring=\"\ %s
 	:autocmd FileType vim :setlocal foldenable
 	:autocmd FileType vim :setlocal foldtext=MyFold()
 	:autocmd FileType vim :inoremap <expr><buffer><tab> CleverTab()
@@ -458,7 +484,7 @@
 	" {{{
 	:augroup Assembly
 	:autocmd!
-	:autocmd BufRead,BufNewFile *.S :nnoremap <silent><buffer><localleader>\ :call CommentBL('\/\/')<CR>
+	" :autocmd BufRead,BufNewFile *.S :nnoremap <silent><buffer><localleader>\ :call CommentBL('\/\/')<CR>
 	:augroup END
 	" }}}
 
@@ -466,7 +492,7 @@
 	" {{{
 	:augroup make_
 	:  autocmd FileType make :inoremap <expr><buffer><tab> CleverTab()
-	:  autocmd FileType make :nnoremap <silent><buffer><localleader>\ :call CommentBL('#')<CR>
+	" :  autocmd FileType make :nnoremap <silent><buffer><localleader>\ :call CommentBL('#')<CR>
 	:augroup END
 	" }}}
 
@@ -775,32 +801,16 @@
 		:endfunction
 		" }}}
 
-		:function! CommentBLTest() range
+		:function! Comment() range
 		" {{{
 		:  let l:temp = split(&commentstring, "%s")
-		:  let l:start = escape(get(l:temp, 0, ""), '\*/')
-		:  let l:end = escape(get(l:temp, 1, ""), '\*/')
+		:  let l:start = escape(get(l:temp, 0, ""), '\*/!')
+		:  let l:end = escape(get(l:temp, 1, ""), '\*/!')
 		:  let l:window = winsaveview()
 		:  execute "silent ".a:firstline.",".a:lastline.'s:^\(\s*\)\(.\):\1'.l:start.'\2:e'
 		:  execute "silent ".a:firstline.",".a:lastline.'s:^\(\s*\)'.l:start.l:start.':\1:e'
 		:  execute "silent ".a:firstline.",".a:lastline.'s:$:'. l:end
 		:  execute "silent ".a:firstline.",".a:lastline.'s:'. l:end . l:end . '$::e'
-		:  call winrestview(l:window)
-		:  nohlsearch
-		:endfunction
-		" }}}
-
-		:function! Comment() range
-		" {{{
-		:  let l:window = winsaveview()
-		:  let l:row = line(a:firstline)
-		:  let l:comments = split(&commentstring, "%s")
-		:  let l:begin = l:comments[0]
-		:  let l:end = len(l:comments) > 2 ? l:comments[1] : ""
-		:  while l:row <= line(a:lastline)
-		:    let l:line = getline(l:row)
-		:    let l:row += 1
-		:  endwhile
 		:  call winrestview(l:window)
 		:  nohlsearch
 		:endfunction
