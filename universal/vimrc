@@ -374,9 +374,9 @@
 	:  autocmd FileType html,php :inoremap <silent><buffer>> ><esc>:call EndTagHTML()<CR>a
 	:  autocmd FileType html,php :inoremap <expr><buffer><CR> HTMLCarriageReturn()
 	:  autocmd FileType html,php :inoremap <expr><buffer><tab> CleverTab()
-	:  autocmd FileType html,php :let g:html_indent_script1 = "inc"
-	:  autocmd FileType html,php :let g:html_indent_style1 = "inc"
-	:  autocmd FileType html,php :let g:html_indent_inctags = "address,article,aside,audio,blockquote,canvas,dd,div,dl,fieldset,figcaption,figure,footer,form,h1,h2,h3,h4,h5,h6,header,hgroup,hr,main,nav,noscript,ol,output,p,pre,section,table,tfoot,ul,video"
+	:let g:html_indent_script1 = "inc"
+	:let g:html_indent_style1 = "inc"
+	:let g:html_indent_inctags = "address,article,aside,audio,blockquote,canvas,dd,div,dl,fieldset,figcaption,figure,footer,form,h1,h2,h3,h4,h5,h6,header,hgroup,hr,main,nav,noscript,ol,output,p,pre,section,table,tfoot,ul,video"
 	:  autocmd FileType html,php :command! Preview call HTMLPreview()
 	:augroup END
 	" }}}
