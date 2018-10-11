@@ -67,7 +67,7 @@
 	:set tabpagemax=1000
 	:set textwidth=0
 	:set pumheight=15
-
+	:set shortmess+=atI
 
 	" Create needed folders
 	:if !isdirectory($HOME . "/.vim/backup")
@@ -257,6 +257,9 @@
 
 	" VisualBlock
 	:nnoremap <C-c> <C-v>
+
+	:inoremap <expr> <c-j> (pumvisible()?"\<C-n>":"\<c-j>")
+	:inoremap <expr> <c-k> (pumvisible()?"\<C-p>":"\<c-k>")
 
 " }}}
 
@@ -763,10 +766,25 @@
 		" {{{
 		:  let a:end = get(a:, 1, "")
 		:  let l:window = winsaveview()
-		:  execute "silent ".a:firstline.",".a:lastline.'s/\v^(\s*)(.)/\1'.a:start.'\2/e'
-		:  execute "silent ".a:firstline.",".a:lastline.'s/\v^(\s*)'.a:start.a:start.'/\1/e'
-		:  execute "silent ".a:firstline.",".a:lastline.'s/$/'. a:end
-		:  execute "silent ".a:firstline.",".a:lastline.'s/'. a:end . a:end . '$//e'
+		:  execute "silent ".a:firstline.",".a:lastline.'s:^\(\s*\)\(.\):\1'.a:start.'\2:e'
+		:  execute "silent ".a:firstline.",".a:lastline.'s:^\(\s*\)'.a:start.a:start.':\1:e'
+		:  execute "silent ".a:firstline.",".a:lastline.'s:$:'. a:end
+		:  execute "silent ".a:firstline.",".a:lastline.'s:'. a:end . a:end . '$::e'
+		:  call winrestview(l:window)
+		:  nohlsearch
+		:endfunction
+		" }}}
+
+		:function! CommentBLTest() range
+		" {{{
+		:  let l:temp = split(&commentstring, "%s")
+		:  let l:start = escape(get(l:temp, 0, ""), '\*/')
+		:  let l:end = escape(get(l:temp, 1, ""), '\*/')
+		:  let l:window = winsaveview()
+		:  execute "silent ".a:firstline.",".a:lastline.'s:^\(\s*\)\(.\):\1'.l:start.'\2:e'
+		:  execute "silent ".a:firstline.",".a:lastline.'s:^\(\s*\)'.l:start.l:start.':\1:e'
+		:  execute "silent ".a:firstline.",".a:lastline.'s:$:'. l:end
+		:  execute "silent ".a:firstline.",".a:lastline.'s:'. l:end . l:end . '$::e'
 		:  call winrestview(l:window)
 		:  nohlsearch
 		:endfunction
