@@ -8,7 +8,13 @@ spawn()
 	"$@"
 }
 
-base=$HOME/git/Dotfiles
+base=`find ~ -name Dotfiles -type d | head -n 1`
+if [ -z "$base" ]; then
+	echo "Please clone the dotfiles repo into a directory called Dotfiles" >&2
+	exit 1
+fi
+	
+
 
 if [ $# -lt 1 ]; then
 	echo "Usage: dots save|deploy (--force)"
