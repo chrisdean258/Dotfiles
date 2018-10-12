@@ -27,7 +27,7 @@
 	:set showcmd                            " show partial command before you finish typing it
 	:set wildmenu                           " show menu of completeion on command line
 	:set incsearch hlsearch                 " turn on search highlighting
-	:set backspace=eol,start                " backspace across eol and farther than you started
+	:set backspace=eol,indent,start                " backspace across eol and farther than you started
 	:filetype plugin indent on              " indenting by filetype
 	:filetype plugin on
 
