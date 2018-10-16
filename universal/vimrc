@@ -942,7 +942,7 @@
 		:  let l:save = &textwidth
 		:  let l:tw = &textwidth ? &textwidth : 80
 		:  let &textwidth = l:tw
-		:  g/.\{80,\}/normal! gqq
+		:  execute ':g/.\{' . l:tw . ',\}/normal! gqq'
 		:  normal! gg=G
 		:  let &textwidth = l:save
 		:  call winrestview(l:window)
