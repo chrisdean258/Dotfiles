@@ -165,4 +165,8 @@ prompt_command()
 export HISTCONTROL=ignoreboth
 shopt -s histappend
 
+if ! echo | python3; then
+	source /opt/rh/python33/enable
+fi
+
 dots deploy
