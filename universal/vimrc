@@ -330,6 +330,7 @@
 	" {{{
 	:augroup Universal
 	:autocmd!
+	:autocmd BufNewFile *  :autocmd BufWritePost * :call IfScript() " Mark files with shebang as executable
 	:autocmd BufRead *     :setlocal formatoptions-=cro " turn off autocommenting
 	:autocmd CursorHold *  :set nohlsearch              " turn off search highlighting after a few seconds of nonuse
 	:autocmd InsertLeave * :setlocal nopaste            " Turn off paste when leaving insert mode
