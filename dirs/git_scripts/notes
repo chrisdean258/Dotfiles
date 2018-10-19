@@ -1,0 +1,28 @@
+#!/bin/bash
+dir=`basename $PWD`
+up=".."
+
+while ! echo "$dir" | grep "[0-9]" &>/dev/null && ! [ -d ${up}/.git ]; do
+	dir=$(basename $(realpath $up))/$dir
+	up=$up"/.."
+done
+
+tput bold
+echo git pull
+tput sgr0
+git pull
+
+tput bold
+echo git add .
+tput sgr0
+git add .
+
+tput bold
+echo git commit -m "\"$dir notes\""
+tput sgr0
+git commit -m "$dir notes"
+
+tput bold
+echo git push
+tput sgr0
+git push

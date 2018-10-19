@@ -1,3 +1,4 @@
+exec bash
 autoload -U compinit
 compinit
 
