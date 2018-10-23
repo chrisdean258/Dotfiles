@@ -165,6 +165,6 @@ prompt_command()
 export HISTCONTROL=ignoreboth
 shopt -s histappend
 
-[ -x "$(command -v foo)" ] || source /opt/rh/python33/enable
+[ -x "$(command -v python3)" ] || source /opt/rh/python33/enable
 
 dots deploy
