@@ -162,6 +162,7 @@
 	:    let g:syntastic_python_flake8_args=['--ignore=F841,F405,F403,F402,F401']
 	:  endif
 	:endfunction
+	:call SetPythonVersion()
 	" }}}
 
 	" Turn off Syntastic Errors
@@ -278,7 +279,8 @@
 	" Use control j and k to navigate pop up menu
 	:inoremap <expr> <c-j> (pumvisible()?"\<C-n>":"\<c-j>")
 	:inoremap <expr> <c-k> (pumvisible()?"\<C-p>":"\<c-k>")
-	:inoremap <S-tab> (pumvisible()?"\<C-n>":"\<c-x>\<c-f>")
+	:inoremap <expr> <S-tab> (pumvisible()?"\<C-n>":"\<c-x>\<c-f>")
+	:inoremap <expr> <tab>  CleverTab()
 			
 
 	" Commenting out lines
