@@ -70,6 +70,7 @@
 	:set fileencoding=utf-8                  " use utf-8 everywhere
 	:set termencoding=utf-8                  " use utf-8 everywhere
 	:set cinoptions=(8                       " indent 8 for every open paren
+	:set complete-=t                         " Turn off completion using tag files for all except c/c++ projects
 
 
 	" Create needed folders for backups and undo files
@@ -335,7 +336,7 @@
 	:autocmd CursorHold *  :set nohlsearch              " turn off search highlighting after a few seconds of nonuse
 	:autocmd InsertLeave * :setlocal nopaste            " Turn off paste when leaving insert mode
 	:autocmd BufReadPost * :if line("'\"") > 0 && line ("'\"") <= line("$") | exe "normal! g'\"" | endif " Jump to where you were in a file
-	:autocmd BufEnter GHI_ISSUE* :setlocal filetype=markdown " Open github issues files as markdown
+	:autocmd VimEnter *    :if getcwd() ==# $HOME | set complete-=t | endif
 	:augroup END
 	" }}}
 
@@ -372,14 +373,15 @@
 	" {{{
 	:augroup c_cpp
 	:  autocmd!
-	:  autocmd FileType cpp    :iabbrev <buffer> nstd using namespace std;<CR>
+	:  autocmd FileType c,cpp  :setlocal complete+=t
 	:  autocmd FileType c,cpp  :iabbrev <buffer> #i #include
 	:  autocmd FileType c,cpp  :iabbrev <buffer> #I #include
 	:  autocmd FileType c,cpp  :iabbrev <buffer> cahr char
-	:  autocmd FileType cpp    :iabbrev <buffer> enld endl
 	:  autocmd FileType c,cpp  :iabbrev <buffer> main <C-R>=MainAbbrev()<CR>
-	:  autocmd FileType c      :autocmd CursorMoved,CursorMovedI <buffer> call HighlightAfterColumn(80)
+	:  autocmd FileType cpp    :iabbrev <buffer> enld endl
+	:  autocmd FileType cpp    :iabbrev <buffer> nstd using namespace std;<CR>
 	:  autocmd FileType cpp    :autocmd CursorMoved,CursorMovedI <buffer> call HighlightAfterColumn(100)
+	:  autocmd FileType c      :autocmd CursorMoved,CursorMovedI <buffer> call HighlightAfterColumn(80)
 	:augroup END
 	" }}}
 
@@ -794,18 +796,6 @@
 
 	" Universally used function
 	" {{{
-		:function! CommentBL(start,...) range
-		" {{{
-		:  let a:end = get(a:, 1, "")
-		:  let l:window = winsaveview()
-		:  execute "silent ".a:firstline.",".a:lastline.'s:^\(\s*\)\(.\):\1'.a:start.'\2:e'
-		:  execute "silent ".a:firstline.",".a:lastline.'s:^\(\s*\)'.a:start.a:start.':\1:e'
-		:  execute "silent ".a:firstline.",".a:lastline.'s:$:'. a:end
-		:  execute "silent ".a:firstline.",".a:lastline.'s:'. a:end . a:end . '$::e'
-		:  call winrestview(l:window)
-		:  nohlsearch
-		:endfunction
-		" }}}
 
 		:function! Comment() range
 		" {{{
@@ -813,10 +803,17 @@
 		:  let l:start = escape(get(l:temp, 0, ""), '\*/!')
 		:  let l:end = escape(get(l:temp, 1, ""), '\*/!')
 		:  let l:window = winsaveview()
-		:  execute "silent ".a:firstline.",".a:lastline.'s:^\(\s*\)\(.\):\1'.l:start.'\2:e'
-		:  execute "silent ".a:firstline.",".a:lastline.'s:^\(\s*\)'.l:start.l:start.':\1:e'
-		:  execute "silent ".a:firstline.",".a:lastline.'s:$:'. l:end
-		:  execute "silent ".a:firstline.",".a:lastline.'s:'. l:end . l:end . '$::e'
+		:  if l:end ==# ""
+		:    execute "silent ".a:firstline.",".a:lastline.'s:^\(\s*\)\(.\):\1'.l:start.'\2:e'
+		:    execute "silent ".a:firstline.",".a:lastline.'s:^\(\s*\)'.l:start.l:start.':\1:e'
+		:    execute "silent ".a:firstline.",".a:lastline.'s:$:'. l:end
+		:    execute "silent ".a:firstline.",".a:lastline.'s:'. l:end . l:end . '$::e'
+		:  else
+		:    execute "silent ".a:firstline.'s:^\(\s*\)\(.\):\1'.l:start.'\2:e'
+		:    execute "silent ".a:firstline.'s:^\(\s*\)'.l:start.l:start.':\1:e'
+		:    execute "silent ".a:lastline.'s:$:'. l:end
+		:    execute "silent ".a:lastline.'s:'. l:end . l:end . '$::e'
+		:  endif
 		:  call winrestview(l:window)
 		:  nohlsearch
 		:endfunction
