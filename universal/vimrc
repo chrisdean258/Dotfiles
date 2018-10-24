@@ -70,7 +70,7 @@
 	:set fileencoding=utf-8                  " use utf-8 everywhere
 	:set termencoding=utf-8                  " use utf-8 everywhere
 	:set cinoptions=(8                       " indent 8 for every open paren
-	:set complete-=t                         " Turn off completion using tag files for all except c/c++ projects
+	:setlocal complete-=t                    " Turn off completion using tag files for all except c/c++ projects
 
 
 	" Create needed folders for backups and undo files
@@ -492,7 +492,7 @@
 	" {{{
 	:augroup Assembly
 	:autocmd!
-	" :autocmd BufRead,BufNewFile *.S :nnoremap <silent><buffer><localleader>\ :call CommentBL('\/\/')<CR>
+	:  autocmd FileType assembly :setlocal commentstring=//%s
 	:augroup END
 	" }}}
 
@@ -500,7 +500,6 @@
 	" {{{
 	:augroup make_
 	:  autocmd FileType make :inoremap <expr><buffer><tab> CleverTab()
-	" :  autocmd FileType make :nnoremap <silent><buffer><localleader>\ :call CommentBL('#')<CR>
 	:augroup END
 	" }}}
 
@@ -1083,5 +1082,5 @@
 
 " }}}
 
-" If you cannot see anything but this message uncomment the next line
+" If you cannot see anything add the following line to ~/.vimrc.local without the double quote
 " :highlight Folded ctermfg=DarkGrey guifg=DarkGrey
