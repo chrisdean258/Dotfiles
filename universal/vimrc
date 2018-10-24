@@ -237,10 +237,6 @@
 	:nnoremap <silent><A-left>  :lfirst<CR>
 	:nnoremap <silent><A-right> :llast<CR>
 
-
-	" File name completion with shift-tab because it wasnt doing anything useful
-	:inoremap <S-tab> <c-x><c-f>
-
 	" Wrapping magic 
 	" allows you to target text and wrap it in characters repeatably
 	:nnoremap <silent><leader>w :set opfunc=Wrap<CR>g@
@@ -282,9 +278,14 @@
 	" Use control j and k to navigate pop up menu
 	:inoremap <expr> <c-j> (pumvisible()?"\<C-n>":"\<c-j>")
 	:inoremap <expr> <c-k> (pumvisible()?"\<C-p>":"\<c-k>")
+	:inoremap <S-tab> (pumvisible()?"\<C-n>":"\<c-x>\<c-f>")
+			
 
 	" Commenting out lines
 	:nnoremap <silent><localleader>\ :call Comment()<CR>
+
+	" Paste mode
+	:nnoremap \p :set paste<CR>
 
 " }}}
 
