@@ -254,6 +254,7 @@
 	:nnoremap <leader>j <c-w>j
 	:nnoremap <leader>k <c-w>k
 	:nnoremap <leader>l <c-w>l
+	:nnoremap <leader><space> <c-w><c-w>
 
 	" creating and navigating tabs
 	:nnoremap <silent><tab>         :tabnext<CR>
