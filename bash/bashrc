@@ -154,7 +154,7 @@ return_val()
 git_branch()
 {
 	if git rev-parse --abbrev-ref HEAD > /dev/null 2>&1; then
-		echo -en " $GREEN($(git rev-parse --abbrev-ref HEAD | tr -d "\n\f")$(git status 2>/dev/null | grep -q clean || echo "*"))$CLEAR"
+		echo -en " $GREEN($(git rev-parse --abbrev-ref HEAD | tr -d "\n\f")$(timeout 0.5s git status 2>/dev/null | grep -q clean || echo "*"))$CLEAR"
 	fi
 }
 prompt_command()
