@@ -340,6 +340,7 @@
 	:autocmd InsertLeave * :setlocal nopaste            " Turn off paste when leaving insert mode
 	:autocmd BufReadPost * :if line("'\"") > 0 && line ("'\"") <= line("$") | exe "normal! g'\"" | endif " Jump to where you were in a file
 	:autocmd VimEnter *    :if getcwd() ==# $HOME | set complete-=t | endif
+	:autocmd SwapExists *  :call SwapExists()
 	:augroup END
 	" }}}
 
@@ -1010,6 +1011,21 @@
 		:  inoremap <ESC> <NOP>
 		:endfunction
 		" }}}
+
+		:function! SwapExists()
+		" {{{
+		"  open swapfiles readonly by default
+		:  if getftime(expand("%")) > getftime(v:swapname)
+		"    delete swap file if it is older than our file
+		:    let v:swapchoice = "d"
+		:    echohl WarningMsg | echom "Deleting Swapfile" | echohl None
+		:  else
+		:    let v:swapchoice = "o"
+		:    echohl WarningMsg | echom "Detected Swapfile. Opening Read only" | echohl None
+		:  endif
+		:endfunction
+		" }}}
+		
 	" }}}
 
 " }}}
