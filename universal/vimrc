@@ -71,7 +71,7 @@
 	:set termencoding=utf-8                  " use utf-8 everywhere
 	:set cinoptions=(8                       " indent 8 for every open paren
 	:setlocal complete-=t                    " Turn off completion using tag files for all except c/c++ projects
-
+	:set matchpairs+=<:>                     " adding a matched pair for highlighting and wrapping
 
 	" Create needed folders for backups and undo files
 	:if !isdirectory($HOME . "/.vim/backup")
@@ -148,7 +148,9 @@
 	:let g:syntastic_cpp_include_dirs = [ "../../include", "../../include/utils/" , "../../eo/include", "../../eo/gengraph/include" ]
 
 	" Linting python
-	:let g:syntastic_python_checkers = [ "flake8" ]
+	:if executable("flake8")
+	:  let g:syntastic_python_checkers = [ "flake8" ]
+	:endif
 	:let g:syntastic_python_flake8_args=['--ignore=F841,F405,F403,F402,F401']
 	:let g:syntastic_always_populate_loc_list = 1
 	:let g:syntastic_loc_list_height= 3
@@ -846,23 +848,13 @@
 		:  let l:window = winsaveview()
 		:  let l:sel_save = &selection
 		:  let &selection = "inclusive"
-		:  if g:repeat != "wrap"
-		:    let l:input = nr2char(getchar())
-		:  else
-		:    let l:input = g:wrapinput
-		:  endif
+		:  let g:wrapinput = g:repeat != "wrap" ? nr2char(getchar()) : g:wrapinput
 		:  let g:repeatstack = "wrap"
 		:  let g:repeat = ""
-		:  let g:wrapinput = l:input
-		:  let l:ending = l:input
-		:  let l:begin = l:input
-		:   echom l:input
-		:  let l:first = {"<" : "<", "[" : "[", "{" : "{", "(" : "(", ">" : "<", "]" : "[", "}" : "{", ")" : "(",}
-		:  let l:last  = {"<" : ">", "[" : "]", "{" : "}", "(" : ")", ">" : ">", "]" : "]", "}" : "}", ")" : ")",}
-		:  if has_key(l:first, input)
-		:    let l:begin  = l:first[l:input]
-		:    let l:ending = l:last[l:input]
-		:  endif
+		:  execute "let l:last  = {".substitute(&matchpairs, '\(.\):\(.\)', '"\1":"\2"', "g")."}"
+		:  execute "let l:first = {".substitute(&matchpairs, '\(.\):\(.\)', '"\2":"\1"', "g")."}"
+		:  let l:begin  = get(l:first, g:wrapinput, g:wrapinput)
+		:  let l:ending = get(l:last,  g:wrapinput, g:wrapinput)
 		:  if a:type ==# "line"
 		:    silent execute "normal! '[V`]$V"
 		:    silent execute "normal! `<i".l:begin."\<esc>`>la".l:ending
