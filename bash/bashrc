@@ -146,6 +146,10 @@ PATH=$PATH:.
 set -o vi
 PROMPT_COMMAND=prompt_command
 PROMPT_SAVE=`echo $PS1 | sed 's/..$//g'`
+battery()
+{
+	[ -x low_battery ] && low_battery && echo -en "$RED[Low Battery] "
+}
 return_val()
 {
 	rv=$?
@@ -159,7 +163,7 @@ git_branch()
 }
 prompt_command()
 {
-	PS1="$(return_val)$PROMPT_SAVE$(git_branch)\$ "
+	PS1="$(battery)$(return_val)$PROMPT_SAVE$(git_branch)\$ "
 }
 
 export HISTCONTROL=ignoreboth
