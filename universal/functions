@@ -93,7 +93,7 @@ jsetup()
 }
 
 
-vi()
+vif()
 {
 	if [ $# -ne 0 ]
 	then
