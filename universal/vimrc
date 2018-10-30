@@ -856,17 +856,13 @@
 		:  let l:begin  = get(l:first, g:wrapinput, g:wrapinput)
 		:  let l:ending = get(l:last,  g:wrapinput, g:wrapinput)
 		:  if a:type ==# "line"
-		:    silent execute "normal! '[V`]$V"
-		:    silent execute "normal! `<i".l:begin."\<esc>`>la".l:ending
+		:    silent execute "normal! `[V`]$V"
 		:  elseif a:type ==# "char"
 		:    silent execute "normal! `[v`]lv"
-		:    silent execute "normal! `<i".l:begin."\<esc>`>a".l:ending
 		:  elseif a:type ==# "block"
 		:    silent execute "normal! `[\<C-V>`]\<C-V>"
-		:    silent execute "normal! `<i".l:begin."\<esc>`>a".l:ending
-		:  elseif a:type ==# "visual"
-		:    silent execute "normal! `<i".l:begin."\<esc>`>a".l:ending
 		:  endif
+		:  silent execute "normal! `<i".l:begin."\<esc>`>a".l:ending
 		:  let &selection = l:sel_save
 		:  call winrestview(l:window)
 		:endfunction
@@ -892,21 +888,13 @@
 
 		:function! MyFold()
 		" {{{
-		:  let tablen = &l:tabstop
+		:  let l:tablen = &tabstop
 		:  let line = getline(v:foldstart)
 		:  let lines_count = v:foldend - v:foldstart + 1
-		:  let i = 0
-		:  while line[i] == "\t"
-		:    let i += 1
-		:  endwhile
 		:  setlocal fillchars=fold:\ "
 		:  let foldline = substitute(getline(v:foldstart), '^\s*"\?\s*\|\s*"\?\s*{{' . '{\d*\s*', '', 'g')
-		:  if strlen(foldline) == 0
-		:    let foldline = ' '
-		:  else
-		:    let foldline = ' ' . foldline . ' '
-		:  endif
-		:  return repeat(" ", tablen*i). '+--- ' . lines_count . ' lines:' . foldline . '---+'
+		:  let foldline = (strlen(foldline) > 0 ? ': ' : "") . foldline 
+		:  return (repeat(" ", indent(v:foldstart)). '+--- ' . lines_count . ' lines' . foldline . ' ---+')[winsaveview()["leftcol"]:]
 		:endfunction
 		" }}}
 
