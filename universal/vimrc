@@ -1,4 +1,4 @@
-" NORMAL CONFIGURATION SETTINGS {{{
+" CONFIGURATION SETTINGS {{{
 "_______________________________________________________________________________________________________
 
 	:syntax on                 " Syntax highlighting
@@ -16,10 +16,6 @@
 	:set tabstop=8
 	:set softtabstop=-1
 	:set shiftwidth=0
-" }}}
-
-" UNIVERSAL SETTINGS {{{
-"_______________________________________________________________________________________________________
 
 	:set nocompatible                       " We're not using vi
 	:set autoindent                         " automatically indent
@@ -27,11 +23,10 @@
 	:set showcmd                            " show partial command before you finish typing it
 	:set wildmenu                           " show menu of completeion on command line
 	:set incsearch hlsearch                 " turn on search highlighting
-	:set backspace=eol,indent,start                " backspace across eol and farther than you started
+	:set backspace=eol,indent,start         " backspace across eol and farther than you started
 	:filetype plugin indent on              " indenting by filetype
 	:filetype plugin on
 
-	" Allows for recursive finding
 	:set path+=**                           " Cheap fuzzy find
 
 	:set omnifunc=syntaxcomplete#Complete   " Not 100% on this because I dont use omnicomplete
