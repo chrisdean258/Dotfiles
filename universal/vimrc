@@ -498,6 +498,13 @@
 	:augroup END
 	" }}}
 
+	" Yacc
+	" {{{
+	:augroup yacc
+	:  autocmd VimEnter *.y :doautocmd Filetype c | doautocmd Filetype yacc
+	:augroup END
+	" }}}
+
 " {{{
 :endif
 " }}}
