@@ -1,21 +1,18 @@
 " CONFIGURATION SETTINGS {{{
 "_______________________________________________________________________________________________________
 
-	:syntax on                 " Syntax highlighting
-	:set nowrap                " Dont wrap text to newlines
-	:set number                " Show line numbers
-	:set relativenumber        " show line numbers relative to your current line
-	:colorscheme elflord
+	:syntax on                              " Syntax highlighting
+	:set nowrap                             " Dont wrap text to newlines
+	:set number                             " Show line numbers
+	:set relativenumber                     " show line numbers relative to your current line
+	:colorscheme elflord                    " Hells yeah elflord
 
-	" Set line buffer at top and bottom of screen
-	:set scrolloff=5
-	:set sidescroll=1
-	:set sidescrolloff=5
-
-	" If you want 4 width tabs changes tabstop ad shiftwidth to 4
-	:set tabstop=8
-	:set softtabstop=-1
-	:set shiftwidth=0
+	:set scrolloff=5                        " Keep cursor 5 lines in
+	:set sidescroll=1                       " Move one character at a time off the screen rather than jumping
+	:set sidescrolloff=5                    " Keep the cursor 5 characters from the left side of the screen
+	:set tabstop=8                          " Tabs should be 8 wide. Dont even argue you are wrong
+	:set softtabstop=-1                     " Keep defaults to shiftwidth
+	:set shiftwidth=0                       " defaults to tabstop
 
 	:set nocompatible                       " We're not using vi
 	:set autoindent                         " automatically indent
@@ -25,20 +22,18 @@
 	:set incsearch hlsearch                 " turn on search highlighting
 	:set backspace=eol,indent,start         " backspace across eol and farther than you started
 	:filetype plugin indent on              " indenting by filetype
-	:filetype plugin on
-
 	:set path+=**                           " Cheap fuzzy find
 
 	:set omnifunc=syntaxcomplete#Complete   " Not 100% on this because I dont use omnicomplete
 	:set laststatus=1                       " Show statusline only if we have more than 1 window upen
 
 	:if &filetype !~ "vim"
-	:setlocal nofoldenable                  " Turn off folding except in vim files
+	:  setlocal nofoldenable                " Turn off folding except in vim files
 	:endif
 	:setlocal foldtext=MyFold()             " Show foldtext based on my function
 
-	:set splitright                         "Split to the right
-	:set splitbelow                         "Split to below
+	:set splitright                         " Split to the right
+	:set splitbelow                         " Split to below
 
 	:set tag=./tags,./TAGS,tags             " Add a bunch of tag files that can be looked at
 	:set tags+=./tags;$HOME
@@ -46,11 +41,7 @@
 
 	" Just ignoring a lot of files you normally dont want to open in vim
 	:set wildignore=*.o,*~,*.pyc
-	:if has("win16") || has("win32")
-	:  set wildignore+=.git\*,.hg\*,.svn\*
-	:else
-	:  set wildignore+=*/.git/*,*/.hg/*,*/.svn/*,*/.DS_Store
-	:endif
+	:set wildignore+=*/.git/*,*/.hg/*,*/.svn/*,*/.DS_Store
 
 	:set infercase                           " for insert completion
 	:set autoread                            " reads from disk if no modification in buffer
@@ -163,6 +154,16 @@
 	:let mapleader = " "
 	:let maplocalleader = '\'
 
+	" move up and down visually rather than linewise
+	:nnoremap j gj
+	:nnoremap k gk
+
+	" Use jk instead of escape
+	:inoremap <expr> jk CleverEsc()
+	:imap Jk jk
+	:imap JK jk
+	:noremap <space> <nop>
+
 	" insert a single char
 	" use the s<F12> mapping to prevent evaluation of the macro until another character is input
 	:nnoremap <silent><expr>s SingleInsert("i")
@@ -176,17 +177,6 @@
 	:nnoremap <silent>. :call RepeatFunc()<CR>.
 	:let g:repeat = ""
 	:let g:repeatstack = ""
-
-	" key mapping
-	" move up and down visually rather than linewose
-	:nnoremap j gj
-	:nnoremap k gk
-
-	" Use jk instead of escape
-	:inoremap <expr> jk CleverEsc()
-	:imap Jk jk
-	:imap JK jk
-	:noremap <space> <nop>
 
 	" move lines up and down respectively
 	:nnoremap _ ddkP
@@ -247,12 +237,6 @@
 	:nnoremap <silent><S-tab>       :tabprev<CR>
 	:nnoremap <silent><leader><tab> :tabnew<CR>
 
-	" Window Compatibility
-	" :inoremap <BS> <Left><Del>
-
-	" Getting rid of pesky popup window
-	:nnoremap q: :
-
 	" Pasting from clipboard
 	:nnoremap <leader>p "+p
 	:nnoremap <leader>P "+P
@@ -260,16 +244,10 @@
 	" TODO The yanking operations
 	:nnoremap Y y$
 
-	" VisualBlock
-	:nnoremap <C-c> <C-v>
-
 	" Use control j and k to navigate pop up menu
-	:inoremap <expr> <c-j> (pumvisible()?"\<C-n>":"\<c-j>")
-	:inoremap <expr> <c-k> (pumvisible()?"\<C-p>":"\<c-k>")
+	:inoremap <expr> <tab>   (pumvisible()?"\<C-p>":CleverTab())
 	:inoremap <expr> <S-tab> (pumvisible()?"\<C-n>":"\<c-x>\<c-f>")
-	:inoremap <expr> <tab>  CleverTab()
 			
-
 	" Commenting out lines
 	:nnoremap <silent><localleader>\ :call Comment()<CR>
 
