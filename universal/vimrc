@@ -326,7 +326,7 @@
 	:augroup c_style
 	:  autocmd!
 	":  autocmd FileType c,cpp,javascript,java,perl,cs :nnoremap <silent><buffer><localleader>\ :call CommentBL('\/\/')<CR>
-	:  autocmd FileType c,cpp,javascript,java,perl,cs :setlocal commentstring=//%s
+	:  autocmd FileType c,cpp,javascript,java,perl,cs :setlocal commentstring=//%sS
 	:  autocmd FileType c,cpp,javascript,java,perl,cs :nnoremap <silent><buffer><localleader>s :silent call SplitIf()<CR>
 	:  autocmd FileType c,cpp,javascript,java,perl,cs :nnoremap <silent><buffer>; :call AppendSemicolon()<CR>
 	:  autocmd FileType c,cpp,javascript,java,perl,cs :inoremap <buffer>{} {<CR>}<esc>O
@@ -335,6 +335,7 @@
 	:  autocmd FileType c,cpp,javascript,java,perl,cs :iabbrev <buffer>csign <c-r>=Csign()<CR>
 	:  autocmd FileType c,cpp,javascript,java,perl,cs :call RemoveTrailingWhitespace_AU()
 	:  autocmd FileType c,cpp,javascript,java,perl,cs :command! Format :call CFormat()
+	:  autocmd FileType c,cpp,javascript,java,perl,cs :call CFold()
 	:augroup END
 	" }}}
 
@@ -702,7 +703,8 @@
 		:  let l:lines = v:foldend - v:foldstart - 1
 		:  let l:line = getline(v:foldstart)
 		:  let l:endline = getline(v:foldend)
-		:  return substitute(l:line[0:index(l:line,'{')], "\t", repeat(" ", l:tablen), "g").' '. l:lines .' lines '. l:endline
+		:  let l:line = substitute(getline(v:foldstart), '^\s*\(.\{-}\){\s*$', '\1', '')
+		:  return (repeat(" ", indent(v:foldstart)).l:line.'{ '.l:lines. ' line'.(l:lines!=1?"s":"").' }')[winsaveview()['leftcol']:]
 		:endfunction
 		" }}}
 
@@ -734,7 +736,11 @@
 		:function! MainAbbrev()
 		" {{{
 		:  if getline('.') =~ '^$'
-		:    return "int main(int argc, char ** argv)\<CR>{\<CR>}\<up>"
+		:    if get(g:, 'inline_braces')
+		:      return "int main(int argc, char ** argv){\<CR>}\<up>" . repeat("\<right>", 50)
+		:    else
+		:      return "int main(int argc, char ** argv)\<CR>{\<CR>}\<up>"
+		:    endif
 		:  else
 		:    return 'main'
 		:  endif
