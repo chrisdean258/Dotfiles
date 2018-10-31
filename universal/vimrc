@@ -299,7 +299,7 @@
 	:autocmd!
 	:autocmd BufNewFile *  :autocmd BufWritePost * :call IfScript() " Mark files with shebang as executable
 	:autocmd BufRead *     :setlocal formatoptions-=cro " turn off autocommenting
-	:autocmd CursorHold *  :set nohlsearch              " turn off search highlighting after a few seconds of nonuse
+	:autocmd CursorHold *  :if get(g:, "hltimeout", 1) | set nohlsearch | endif " turn off search highlighting after a few seconds of nonuse
 	:autocmd InsertLeave * :setlocal nopaste            " Turn off paste when leaving insert mode
 	:autocmd BufReadPost * :if line("'\"") > 0 && line ("'\"") <= line("$") | exe "normal! g'\"" | endif " Jump to where you were in a file
 	:autocmd VimEnter *    :if getcwd() ==# $HOME | set complete-=t | endif
@@ -713,7 +713,7 @@
 		:    call matchdelete(match)
 		:  endfor
 		:  let s:longlinematches = []
-		:  if !get(g:, "hllonglines") && getline('.') !~ 'printf' && getline('.') !~ '[^=]*<<[^=]*'
+		:  if get(g:, "hllonglines", 1) && getline('.') !~ 'printf' && getline('.') !~ '[^=]*<<[^=]*'
 		:    let l:match = matchadd('LongLine', '\%'.line('.').'l\%>'.(a:col).'v.')
 		:    call add(s:longlinematches, l:match)
 		:  endif
