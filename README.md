@@ -36,6 +36,7 @@ This changes and contains some weird stuff that has to do with research (mainly 
 This section contains mappings available in every file opened in vim
 
 **Mapleader is set to space**
+
 **Localmapleader set to backslash**
 
 #### Normal Mode
