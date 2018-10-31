@@ -175,8 +175,6 @@
 	" Repeat mappings
 	" allow for repeated wrapping
 	:nnoremap <silent>. :call RepeatFunc()<CR>.
-	:let g:repeat = ""
-	:let g:repeatstack = ""
 
 	" move lines up and down respectively
 	:nnoremap _ ddkP
@@ -710,10 +708,14 @@
 
 		:function! HighlightAfterColumn(col)
 		" {{{
-		:  if getline('.') !~ 'printf' && getline('.') !~ '[^=]*<<[^=]*'
-		:    exe 'match LongLine /\%'.line('.').'l\%>'.(a:col).'v./'
-		:  else
-		:    exe 'match LongLine /\%'.line('.').'l\%>'.(500).'v./'
+		:  let s:longlinematches = get(s:, 'longlinematches', [])
+		:  for match in s:longlinematches
+		:    call matchdelete(match)
+		:  endfor
+		:  let s:longlinematches = []
+		:  if !get(g:, "hllonglines") && getline('.') !~ 'printf' && getline('.') !~ '[^=]*<<[^=]*'
+		:    let l:match = matchadd('LongLine', '\%'.line('.').'l\%>'.(a:col).'v.')
+		:    call add(s:longlinematches, l:match)
 		:  endif
 		:endfunction
 		" }}}
@@ -834,13 +836,13 @@
 		:  let l:window = winsaveview()
 		:  let l:sel_save = &selection
 		:  let &selection = "inclusive"
-		:  let g:wrapinput = g:repeat != "wrap" ? nr2char(getchar()) : g:wrapinput
-		:  let g:repeatstack = "wrap"
-		:  let g:repeat = ""
+		:  let s:wrapinput = get(s:, 'repeat') != "wrap" ? nr2char(getchar()) : get(s:, 'wrapinput')
+		:  let s:repeatstack = "wrap"
+		:  let s:repeat = ""
 		:  execute "let l:last  = {".substitute(&matchpairs, '\(.\):\(.\)', '"\1":"\2"', "g")."}"
 		:  execute "let l:first = {".substitute(&matchpairs, '\(.\):\(.\)', '"\2":"\1"', "g")."}"
-		:  let l:begin  = get(l:first, g:wrapinput, g:wrapinput)
-		:  let l:ending = get(l:last,  g:wrapinput, g:wrapinput)
+		:  let l:begin  = get(l:first, s:wrapinput, s:wrapinput)
+		:  let l:ending = get(l:last,  s:wrapinput, s:wrapinput)
 		:  if a:type ==# "line"
 		:    silent execute "normal! `[V`]$V"
 		:  elseif a:type ==# "char"
@@ -939,8 +941,8 @@
 
 		:function! RepeatFunc()
 		" {{{
-		:  let g:repeat = g:repeatstack 
-		:  let g:repeatstack = ""
+		:  let s:repeat = s:repeatstack 
+		:  let s:repeatstack = ""
 		:endfunction
 		" }}}
 
@@ -997,33 +999,6 @@
 	:    let l:dir = fnamemodify(l:dir, ":p:h:h")
 	:  endwhile
 	:endfunction
-
-" }}}
-
-" TMUX Terminal Split {{{
-"_______________________________________________________________________________________________________
-
-	:cabbrev t T
-	:command! T call Terminal()
-
-	:function! Terminal()
-	" {{{
-	:  let aucmd = ' ''autocmd VimLeave :!tmux kill-session -t vim '' '
-	:  let tmuxSession = 'tmux new-session -s "vim" "vim -S session.vim -c '.aucmd .'"'
-	:  let split_ = '\; split-window -v -p 40 \;'
-	:  mksession session.vim
-	:  set noswapfile
-	:  silent execute '!' . tmuxSession . split_
-	:  silent execute '!rm session.vim'
-	:  q!
-	:endfunction
-	" }}}
-
-	:function! TestSuspend()
-	" {{{
-	: silent execute '!sleep 3 && echo hi &'
-	:endfunction
-	" }}}
 
 " }}}
 
