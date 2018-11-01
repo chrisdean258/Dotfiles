@@ -304,8 +304,8 @@
 	:autocmd BufReadPost * :if line("'\"") > 0 && line ("'\"") <= line("$") | exe "normal! g'\"" | endif " Jump to where you were in a file
 	:autocmd VimEnter *    :if getcwd() ==# $HOME | set complete-=t | endif
 	:autocmd SwapExists *  :call SwapExists()
-	:autocmd BufWinEnter *    :call BuffEnter()
-	:autocmd BufWinLeave *    :call BuffLeave()
+	:autocmd WinEnter *    :call WinEnter()
+	:autocmd WinLeave *    :call WinLeave()
 	:augroup END
 	" }}}
 
@@ -993,26 +993,13 @@
 		:endfunction
 		" }}}
 
-		:function! BufWinEnter()
+		:function! WinEnter()
 		" {{{
-		:  if !get(g:, 'buffcmds', 1)
-		:    return
-		:  endif
-		:  exec (&columns / 20).'wincmd >'
-		:  if get(b:, 'relativenumber', &relativenumber)
-		:    setlocal relativenumber
-		:  endif
 		:endfunction
 		" }}}
 
-		:function! BufWinLeave()
+		:function! WinLeave()
 		" {{{
-		:  if !get(g:, 'buffcmds', 1)
-		:    return
-		:  endif
-		:  exec (&columns / 20).'wincmd <'
-		:  let b:relativenumber = &relativenumber
-		:  setlocal norelativenumber
 		:endfunction
 		" }}}
 		
@@ -1032,6 +1019,39 @@
 	:    let l:dir = fnamemodify(l:dir, ":p:h:h")
 	:  endwhile
 	:endfunction
+
+" }}}
+
+" DEV {{{
+"_______________________________________________________________________________________________________
+
+:if $USER ==# "chris" && get(g:, "neverdev", 1)
+
+		:function! WinEnter()
+		" {{{
+		:  if !get(g:, 'buffcmds', 1)
+		:    return
+		:  endif
+		:  exec (&columns / 20).'wincmd >'
+		:  exec (&lines / 20).'wincmd +'
+		:  if get(b:, 'relativenumber', &relativenumber)
+		:    setlocal relativenumber
+		:  endif
+		:endfunction
+		" }}}
+
+		:function! WinLeave()
+		" {{{
+		:  if !get(g:, 'buffcmds', 1)
+		:    return
+		:  endif
+		:  exec (&columns / 20).'wincmd <'
+		:  exec (&lines / 20).'wincmd -'
+		:  let b:relativenumber = &relativenumber
+		:  setlocal norelativenumber
+		:endfunction
+		" }}}
+:endif
 
 " }}}
 
