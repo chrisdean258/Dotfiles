@@ -1106,7 +1106,6 @@
 	:  let l:output = ""
 	:  let l:output = system("diff <(date +%j) ~/.vim/update")
 	:  if l:output == "" && !get(a:, 1)
-	:    echom "returning"
 	:    return
 	:  endif
 	:  echom "updating"
