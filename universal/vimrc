@@ -1090,7 +1090,7 @@
 
 		:function! BufEnter()
 		" {{{
-		:  if len(getwininfo()) == 1 && bufname("%") =~ '^!'
+		:  if exists("*getwininfo") && len(getwininfo()) == 1 && bufname("%") =~ '^!'
 		:    q!
 		:  endif
 		:endfunction
