@@ -1101,11 +1101,11 @@
 
 " AUTO UPDATE SCRIPT {{{
 "_______________________________________________________________________________________________________
-	:function! Update_Vimrc()
+	:function! Update_Vimrc(...)
 	" {{{
 	:  let l:output = ""
 	:  let l:output = system("diff <(date +%j) ~/.vim/update")
-	:  if l:output == ""
+	:  if l:output == "" && !get(a:, 1)
 	:    return
 	:  endif
 	:  echom "updating"
@@ -1117,8 +1117,9 @@
 
 	:if has("autocmd") && &filetype !~ "vim" && expand("%") !~ ".vimrc$"
 	:augroup vim_update
-	:  autocmd VimEnter * :call Update_Vimrc()
+	:  autocmd VimEnter * :call Update_Vimrc(1)
 	:augroup END
+
 	:command! Update call Update_Vimrc()
 	:endif
 
