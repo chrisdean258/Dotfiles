@@ -1106,6 +1106,7 @@
 	:  let l:output = ""
 	:  let l:output = system("diff <(date +%j) ~/.vim/update")
 	:  if l:output == "" && !get(a:, 1)
+	:    echom "returning"
 	:    return
 	:  endif
 	:  echom "updating"
@@ -1115,13 +1116,13 @@
 	:endfunction
 	" }}}
 
-	:if has("autocmd") && &filetype !~ "vim" && expand("%") !~ ".vimrc$"
+	:if has("autocmd") && &filetype !~ "vim" && expand("%") !~ "\.vimrc$"
 	:augroup vim_update
-	:  autocmd VimEnter * :call Update_Vimrc(1)
+	:  autocmd VimEnter * :call Update_Vimrc()
 	:augroup END
-
-	:command! Update call Update_Vimrc()
 	:endif
+
+	:command! Update call Update_Vimrc(1)
 
 	:if filereadable(expand("~") . "/.vimrc.local")
 	:  source ~/.vimrc.local
