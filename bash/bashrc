@@ -146,6 +146,10 @@ PATH=$PATH:.
 set -o vi
 PROMPT_COMMAND=prompt_command
 PROMPT_SAVE=`echo $PS1 | sed 's/..$//g'`
+battery()
+{
+	[ -e low_battery ] && low_battery && echo -en "$RED[Low Battery] "
+}
 return_val()
 {
 	rv=$?
@@ -154,19 +158,17 @@ return_val()
 git_branch()
 {
 	if git rev-parse --abbrev-ref HEAD > /dev/null 2>&1; then
-		echo -en " $GREEN($(git rev-parse --abbrev-ref HEAD | tr -d "\n\f")$(git status 2>/dev/null | grep -q clean || echo "*"))$CLEAR"
+		echo -en " $GREEN($(git rev-parse --abbrev-ref HEAD | tr -d "\n\f")$(timeout 0.5s git status 2>/dev/null | grep -q clean || echo "*"))$CLEAR"
 	fi
 }
 prompt_command()
 {
-	PS1="$(return_val)$PROMPT_SAVE$(git_branch)\$ "
+	PS1="$(return_val)$(battery)$PROMPT_SAVE$(git_branch)\$ "
 }
 
 export HISTCONTROL=ignoreboth
 shopt -s histappend
 
-if ! echo | python3; then
-	source /opt/rh/python33/enable
-fi
+[ -x "$(command -v python3)" ] || source /opt/rh/python33/enable
 
 dots deploy

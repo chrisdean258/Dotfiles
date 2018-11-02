@@ -1,25 +1,18 @@
-" NORMAL CONFIGURATION SETTINGS {{{
+" CONFIGURATION SETTINGS {{{
 "_______________________________________________________________________________________________________
 
-	:syntax on                 " Syntax highlighting
-	:set nowrap                " Dont wrap text to newlines
-	:set number                " Show line numbers
-	:set relativenumber        " show line numbers relative to your current line
-	:colorscheme elflord
+	:syntax on                              " Syntax highlighting
+	:set nowrap                             " Dont wrap text to newlines
+	:set number                             " Show line numbers
+	:set relativenumber                     " show line numbers relative to your current line
+	:colorscheme elflord                    " Hells yeah elflord
 
-	" Set line buffer at top and bottom of screen
-	:set scrolloff=5
-	:set sidescroll=1
-	:set sidescrolloff=5
-
-	" If you want 4 width tabs changes tabstop ad shiftwidth to 4
-	:set tabstop=8
-	:set softtabstop=-1
-	:set shiftwidth=0
-" }}}
-
-" UNIVERSAL SETTINGS {{{
-"_______________________________________________________________________________________________________
+	:set scrolloff=5                        " Keep cursor 5 lines in
+	:set sidescroll=1                       " Move one character at a time off the screen rather than jumping
+	:set sidescrolloff=5                    " Keep the cursor 5 characters from the left side of the screen
+	:set tabstop=8                          " Tabs should be 8 wide. Dont even argue you are wrong
+	:set softtabstop=-1                     " Keep defaults to shiftwidth
+	:set shiftwidth=0                       " defaults to tabstop
 
 	:set nocompatible                       " We're not using vi
 	:set autoindent                         " automatically indent
@@ -27,23 +20,20 @@
 	:set showcmd                            " show partial command before you finish typing it
 	:set wildmenu                           " show menu of completeion on command line
 	:set incsearch hlsearch                 " turn on search highlighting
-	:set backspace=eol,indent,start                " backspace across eol and farther than you started
+	:set backspace=eol,indent,start         " backspace across eol and farther than you started
 	:filetype plugin indent on              " indenting by filetype
-	:filetype plugin on
-
-	" Allows for recursive finding
 	:set path+=**                           " Cheap fuzzy find
 
 	:set omnifunc=syntaxcomplete#Complete   " Not 100% on this because I dont use omnicomplete
 	:set laststatus=1                       " Show statusline only if we have more than 1 window upen
 
 	:if &filetype !~ "vim"
-	:setlocal nofoldenable                  " Turn off folding except in vim files
+	:  setlocal nofoldenable                " Turn off folding except in vim files
 	:endif
 	:setlocal foldtext=MyFold()             " Show foldtext based on my function
 
-	:set splitright                         "Split to the right
-	:set splitbelow                         "Split to below
+	:set splitright                         " Split to the right
+	:set splitbelow                         " Split to below
 
 	:set tag=./tags,./TAGS,tags             " Add a bunch of tag files that can be looked at
 	:set tags+=./tags;$HOME
@@ -51,11 +41,7 @@
 
 	" Just ignoring a lot of files you normally dont want to open in vim
 	:set wildignore=*.o,*~,*.pyc
-	:if has("win16") || has("win32")
-	:  set wildignore+=.git\*,.hg\*,.svn\*
-	:else
-	:  set wildignore+=*/.git/*,*/.hg/*,*/.svn/*,*/.DS_Store
-	:endif
+	:set wildignore+=*/.git/*,*/.hg/*,*/.svn/*,*/.DS_Store
 
 	:set infercase                           " for insert completion
 	:set autoread                            " reads from disk if no modification in buffer
@@ -70,7 +56,8 @@
 	:set fileencoding=utf-8                  " use utf-8 everywhere
 	:set termencoding=utf-8                  " use utf-8 everywhere
 	:set cinoptions=(8                       " indent 8 for every open paren
-
+	:setlocal complete-=t                    " Turn off completion using tag files for all except c/c++ projects
+	:set matchpairs+=<:>                     " adding a matched pair for highlighting and wrapping
 
 	" Create needed folders for backups and undo files
 	:if !isdirectory($HOME . "/.vim/backup")
@@ -147,21 +134,13 @@
 	:let g:syntastic_cpp_include_dirs = [ "../../include", "../../include/utils/" , "../../eo/include", "../../eo/gengraph/include" ]
 
 	" Linting python
-	:let g:syntastic_python_checkers = [ 'python' ]
+	:if executable("flake8")
+	:  let g:syntastic_python_checkers = [ "flake8" ]
+	:endif
+	:let g:syntastic_python_flake8_args=['--ignore=F841,F405,F403,F402,F401']
 	:let g:syntastic_always_populate_loc_list = 1
 	:let g:syntastic_loc_list_height= 3
 	:let g:syntastic_quiet_messages = { "type": "style" }
-
-	" Use flake8 to lint python3
-	:function! SetPythonVersion()
-	" {{{
-	:  if getline(1) =~ "python3" && executable("flake8")
-	:    let g:syntastic_python_checkers = [ "flake8" ]
-	:    let g:syntastic_python_checker_args ='--ignore=F841'
-	:    let g:syntastic_python_flake8_args=['--ignore=F841,F405,F403,F402,F401']
-	:  endif
-	:endfunction
-	" }}}
 
 	" Turn off Syntastic Errors
 	:cabbrev jk SyntasticReset
@@ -175,6 +154,16 @@
 	:let mapleader = " "
 	:let maplocalleader = '\'
 
+	" move up and down visually rather than linewise
+	:nnoremap j gj
+	:nnoremap k gk
+
+	" Use jk instead of escape
+	:inoremap <expr> jk CleverEsc()
+	:imap Jk jk
+	:imap JK jk
+	:noremap <space> <nop>
+
 	" insert a single char
 	" use the s<F12> mapping to prevent evaluation of the macro until another character is input
 	:nnoremap <silent><expr>s SingleInsert("i")
@@ -186,19 +175,6 @@
 	" Repeat mappings
 	" allow for repeated wrapping
 	:nnoremap <silent>. :call RepeatFunc()<CR>.
-	:let g:repeat = ""
-	:let g:repeatstack = ""
-
-	" key mapping
-	" move up and down visually rather than linewose
-	:nnoremap j gj
-	:nnoremap k gk
-
-	" Use jk instead of escape
-	:inoremap <expr> jk CleverEsc()
-	:imap Jk jk
-	:imap JK jk
-	:noremap <space> <nop>
 
 	" move lines up and down respectively
 	:nnoremap _ ddkP
@@ -236,10 +212,6 @@
 	:nnoremap <silent><A-left>  :lfirst<CR>
 	:nnoremap <silent><A-right> :llast<CR>
 
-
-	" File name completion with shift-tab because it wasnt doing anything useful
-	:inoremap <S-tab> <c-x><c-f>
-
 	" Wrapping magic 
 	" allows you to target text and wrap it in characters repeatably
 	:nnoremap <silent><leader>w :set opfunc=Wrap<CR>g@
@@ -256,17 +228,12 @@
 	:nnoremap <leader>j <c-w>j
 	:nnoremap <leader>k <c-w>k
 	:nnoremap <leader>l <c-w>l
+	:nnoremap <leader><space> <c-w><c-w>
 
 	" creating and navigating tabs
 	:nnoremap <silent><tab>         :tabnext<CR>
 	:nnoremap <silent><S-tab>       :tabprev<CR>
 	:nnoremap <silent><leader><tab> :tabnew<CR>
-
-	" Window Compatibility
-	" :inoremap <BS> <Left><Del>
-
-	" Getting rid of pesky popup window
-	:nnoremap q: :
 
 	" Pasting from clipboard
 	:nnoremap <leader>p "+p
@@ -275,15 +242,15 @@
 	" TODO The yanking operations
 	:nnoremap Y y$
 
-	" VisualBlock
-	:nnoremap <C-c> <C-v>
-
 	" Use control j and k to navigate pop up menu
-	:inoremap <expr> <c-j> (pumvisible()?"\<C-n>":"\<c-j>")
-	:inoremap <expr> <c-k> (pumvisible()?"\<C-p>":"\<c-k>")
-
+	:inoremap <expr> <tab>   (pumvisible()?"\<C-p>":CleverTab())
+	:inoremap <expr> <S-tab> (pumvisible()?"\<C-n>":"\<c-x>\<c-f>")
+			
 	" Commenting out lines
 	:nnoremap <silent><localleader>\ :call Comment()<CR>
+
+	" Paste mode
+	:nnoremap \p :set paste<CR>
 
 " }}}
 
@@ -332,10 +299,16 @@
 	:autocmd!
 	:autocmd BufNewFile *  :autocmd BufWritePost * :call IfScript() " Mark files with shebang as executable
 	:autocmd BufRead *     :setlocal formatoptions-=cro " turn off autocommenting
-	:autocmd CursorHold *  :set nohlsearch              " turn off search highlighting after a few seconds of nonuse
+	:autocmd CursorHold *  :if get(g:, "hltimeout", 1) | set nohlsearch | endif " turn off search highlighting after a few seconds of nonuse
 	:autocmd InsertLeave * :setlocal nopaste            " Turn off paste when leaving insert mode
 	:autocmd BufReadPost * :if line("'\"") > 0 && line ("'\"") <= line("$") | exe "normal! g'\"" | endif " Jump to where you were in a file
-	:autocmd BufEnter GHI_ISSUE* :setlocal filetype=markdown " Open github issues files as markdown
+	:autocmd VimEnter *    :if getcwd() ==# $HOME | set complete-=t | endif
+	:autocmd SwapExists *  :call SwapExists()
+	:autocmd WinEnter *    :call WinEnter()
+	:autocmd WinLeave *    :call WinLeave()
+	:autocmd WinNew *      :call WinNew()
+	:autocmd BufEnter *    :call BufEnter()
+	:autocmd BufLeave *    :call BufLeave()
 	:augroup END
 	" }}}
 
@@ -356,7 +329,7 @@
 	:augroup c_style
 	:  autocmd!
 	":  autocmd FileType c,cpp,javascript,java,perl,cs :nnoremap <silent><buffer><localleader>\ :call CommentBL('\/\/')<CR>
-	:  autocmd FileType c,cpp,javascript,java,perl,cs :setlocal commentstring=//%s
+	:  autocmd FileType c,cpp,javascript,java,perl,cs :setlocal commentstring=//%sS
 	:  autocmd FileType c,cpp,javascript,java,perl,cs :nnoremap <silent><buffer><localleader>s :silent call SplitIf()<CR>
 	:  autocmd FileType c,cpp,javascript,java,perl,cs :nnoremap <silent><buffer>; :call AppendSemicolon()<CR>
 	:  autocmd FileType c,cpp,javascript,java,perl,cs :inoremap <buffer>{} {<CR>}<esc>O
@@ -365,6 +338,7 @@
 	:  autocmd FileType c,cpp,javascript,java,perl,cs :iabbrev <buffer>csign <c-r>=Csign()<CR>
 	:  autocmd FileType c,cpp,javascript,java,perl,cs :call RemoveTrailingWhitespace_AU()
 	:  autocmd FileType c,cpp,javascript,java,perl,cs :command! Format :call CFormat()
+	:  autocmd FileType c,cpp,javascript,java,perl,cs :call CFold()
 	:augroup END
 	" }}}
 
@@ -372,14 +346,15 @@
 	" {{{
 	:augroup c_cpp
 	:  autocmd!
-	:  autocmd FileType cpp    :iabbrev <buffer> nstd using namespace std;<CR>
+	:  autocmd FileType c,cpp  :setlocal complete+=t
 	:  autocmd FileType c,cpp  :iabbrev <buffer> #i #include
 	:  autocmd FileType c,cpp  :iabbrev <buffer> #I #include
 	:  autocmd FileType c,cpp  :iabbrev <buffer> cahr char
-	:  autocmd FileType cpp    :iabbrev <buffer> enld endl
 	:  autocmd FileType c,cpp  :iabbrev <buffer> main <C-R>=MainAbbrev()<CR>
-	:  autocmd FileType c      :autocmd CursorMoved,CursorMovedI <buffer> call HighlightAfterColumn(80)
+	:  autocmd FileType cpp    :iabbrev <buffer> enld endl
+	:  autocmd FileType cpp    :iabbrev <buffer> nstd using namespace std;<CR>
 	:  autocmd FileType cpp    :autocmd CursorMoved,CursorMovedI <buffer> call HighlightAfterColumn(100)
+	:  autocmd FileType c      :autocmd CursorMoved,CursorMovedI <buffer> call HighlightAfterColumn(80)
 	:augroup END
 	" }}}
 
@@ -426,7 +401,6 @@
 	:autocmd FileType python  :setlocal nosmartindent
 	:autocmd FileType python  :iabbrev inport import
 	:autocmd FileType python  :call RemoveTrailingWhitespace_AU()
-	:autocmd FileType python  :call SetPythonVersion()
 	:autocmd FileType python  :let g:pyindent_open_paren = '&sw'
 	:autocmd FileType python  :let g:pyindent_nested_paren = '&sw'
 	:autocmd FileType python  :let g:pyindent_continue = '0'
@@ -490,7 +464,7 @@
 	" {{{
 	:augroup Assembly
 	:autocmd!
-	" :autocmd BufRead,BufNewFile *.S :nnoremap <silent><buffer><localleader>\ :call CommentBL('\/\/')<CR>
+	:  autocmd FileType assembly :setlocal commentstring=//%s
 	:augroup END
 	" }}}
 
@@ -498,7 +472,13 @@
 	" {{{
 	:augroup make_
 	:  autocmd FileType make :inoremap <expr><buffer><tab> CleverTab()
-	" :  autocmd FileType make :nnoremap <silent><buffer><localleader>\ :call CommentBL('#')<CR>
+	:augroup END
+	" }}}
+
+	" Yacc
+	" {{{
+	:augroup yacc
+	:  autocmd VimEnter *.y :doautocmd Filetype c | doautocmd Filetype yacc
 	:augroup END
 	" }}}
 
@@ -726,16 +706,21 @@
 		:  let l:lines = v:foldend - v:foldstart - 1
 		:  let l:line = getline(v:foldstart)
 		:  let l:endline = getline(v:foldend)
-		:  return substitute(l:line[0:index(l:line,'{')], "\t", repeat(" ", l:tablen), "g").' '. l:lines .' lines '. l:endline
+		:  let l:line = substitute(getline(v:foldstart), '^\s*\(.\{-}\){\s*$', '\1', '')
+		:  return (repeat(" ", indent(v:foldstart)).l:line.'{ '.l:lines. ' line'.(l:lines!=1?"s":"").' }')[winsaveview()['leftcol']:]
 		:endfunction
 		" }}}
 
 		:function! HighlightAfterColumn(col)
 		" {{{
-		:  if getline('.') !~ 'printf' && getline('.') !~ '[^=]*<<[^=]*'
-		:    exe 'match LongLine /\%'.line('.').'l\%>'.(a:col).'v./'
-		:  else
-		:    exe 'match LongLine /\%'.line('.').'l\%>'.(500).'v./'
+		:  let s:longlinematches = get(s:, 'longlinematches', [])
+		:  for match in s:longlinematches
+		:    call matchdelete(match)
+		:  endfor
+		:  let s:longlinematches = []
+		:  if get(g:, "hllonglines", 1) && getline('.') !~ 'printf' && getline('.') !~ '[^=]*<<[^=]*'
+		:    let l:match = matchadd('LongLine', '\%'.line('.').'l\%>'.(a:col).'v.')
+		:    call add(s:longlinematches, l:match)
 		:  endif
 		:endfunction
 		" }}}
@@ -758,7 +743,11 @@
 		:function! MainAbbrev()
 		" {{{
 		:  if getline('.') =~ '^$'
-		:    return "int main(int argc, char ** argv)\<CR>{\<CR>}\<up>"
+		:    if get(g:, 'inline_braces')
+		:      return "int main(int argc, char ** argv){\<CR>}\<up>" . repeat("\<right>", 50)
+		:    else
+		:      return "int main(int argc, char ** argv)\<CR>{\<CR>}\<up>"
+		:    endif
 		:  else
 		:    return 'main'
 		:  endif
@@ -794,18 +783,6 @@
 
 	" Universally used function
 	" {{{
-		:function! CommentBL(start,...) range
-		" {{{
-		:  let a:end = get(a:, 1, "")
-		:  let l:window = winsaveview()
-		:  execute "silent ".a:firstline.",".a:lastline.'s:^\(\s*\)\(.\):\1'.a:start.'\2:e'
-		:  execute "silent ".a:firstline.",".a:lastline.'s:^\(\s*\)'.a:start.a:start.':\1:e'
-		:  execute "silent ".a:firstline.",".a:lastline.'s:$:'. a:end
-		:  execute "silent ".a:firstline.",".a:lastline.'s:'. a:end . a:end . '$::e'
-		:  call winrestview(l:window)
-		:  nohlsearch
-		:endfunction
-		" }}}
 
 		:function! Comment() range
 		" {{{
@@ -813,10 +790,17 @@
 		:  let l:start = escape(get(l:temp, 0, ""), '\*/!')
 		:  let l:end = escape(get(l:temp, 1, ""), '\*/!')
 		:  let l:window = winsaveview()
-		:  execute "silent ".a:firstline.",".a:lastline.'s:^\(\s*\)\(.\):\1'.l:start.'\2:e'
-		:  execute "silent ".a:firstline.",".a:lastline.'s:^\(\s*\)'.l:start.l:start.':\1:e'
-		:  execute "silent ".a:firstline.",".a:lastline.'s:$:'. l:end
-		:  execute "silent ".a:firstline.",".a:lastline.'s:'. l:end . l:end . '$::e'
+		:  if l:end ==# ""
+		:    execute "silent ".a:firstline.",".a:lastline.'s:^\(\s*\)\(.\):\1'.l:start.'\2:e'
+		:    execute "silent ".a:firstline.",".a:lastline.'s:^\(\s*\)'.l:start.l:start.':\1:e'
+		:    execute "silent ".a:firstline.",".a:lastline.'s:$:'. l:end
+		:    execute "silent ".a:firstline.",".a:lastline.'s:'. l:end . l:end . '$::e'
+		:  else
+		:    execute "silent ".a:firstline.'s:^\(\s*\)\(.\):\1'.l:start.'\2:e'
+		:    execute "silent ".a:firstline.'s:^\(\s*\)'.l:start.l:start.':\1:e'
+		:    execute "silent ".a:lastline.'s:$:'. l:end
+		:    execute "silent ".a:lastline.'s:'. l:end . l:end . '$::e'
+		:  endif
 		:  call winrestview(l:window)
 		:  nohlsearch
 		:endfunction
@@ -857,35 +841,21 @@
 		:  let l:window = winsaveview()
 		:  let l:sel_save = &selection
 		:  let &selection = "inclusive"
-		:  if g:repeat != "wrap"
-		:    let l:input = nr2char(getchar())
-		:  else
-		:    let l:input = g:wrapinput
-		:  endif
-		:  let g:repeatstack = "wrap"
-		:  let g:repeat = ""
-		:  let g:wrapinput = l:input
-		:  let l:ending = l:input
-		:  let l:begin = l:input
-		:   echom l:input
-		:  let l:first = {"<" : "<", "[" : "[", "{" : "{", "(" : "(", ">" : "<", "]" : "[", "}" : "{", ")" : "(",}
-		:  let l:last  = {"<" : ">", "[" : "]", "{" : "}", "(" : ")", ">" : ">", "]" : "]", "}" : "}", ")" : ")",}
-		:  if has_key(l:first, input)
-		:    let l:begin  = l:first[l:input]
-		:    let l:ending = l:last[l:input]
-		:  endif
+		:  let s:wrapinput = get(s:, 'repeat') != "wrap" ? nr2char(getchar()) : get(s:, 'wrapinput')
+		:  let s:repeatstack = "wrap"
+		:  let s:repeat = ""
+		:  execute "let l:last  = {".substitute(&matchpairs, '\(.\):\(.\)', '"\1":"\2"', "g")."}"
+		:  execute "let l:first = {".substitute(&matchpairs, '\(.\):\(.\)', '"\2":"\1"', "g")."}"
+		:  let l:begin  = get(l:first, s:wrapinput, s:wrapinput)
+		:  let l:ending = get(l:last,  s:wrapinput, s:wrapinput)
 		:  if a:type ==# "line"
-		:    silent execute "normal! '[V`]$V"
-		:    silent execute "normal! `<i".l:begin."\<esc>`>la".l:ending
+		:    silent execute "normal! `[V`]$V"
 		:  elseif a:type ==# "char"
 		:    silent execute "normal! `[v`]lv"
-		:    silent execute "normal! `<i".l:begin."\<esc>`>a".l:ending
 		:  elseif a:type ==# "block"
 		:    silent execute "normal! `[\<C-V>`]\<C-V>"
-		:    silent execute "normal! `<i".l:begin."\<esc>`>a".l:ending
-		:  elseif a:type ==# "visual"
-		:    silent execute "normal! `<i".l:begin."\<esc>`>a".l:ending
 		:  endif
+		:  silent execute "normal! `<i".l:begin."\<esc>`>a".l:ending
 		:  let &selection = l:sel_save
 		:  call winrestview(l:window)
 		:endfunction
@@ -911,21 +881,13 @@
 
 		:function! MyFold()
 		" {{{
-		:  let tablen = &l:tabstop
+		:  let l:tablen = &tabstop
 		:  let line = getline(v:foldstart)
 		:  let lines_count = v:foldend - v:foldstart + 1
-		:  let i = 0
-		:  while line[i] == "\t"
-		:    let i += 1
-		:  endwhile
 		:  setlocal fillchars=fold:\ "
 		:  let foldline = substitute(getline(v:foldstart), '^\s*"\?\s*\|\s*"\?\s*{{' . '{\d*\s*', '', 'g')
-		:  if strlen(foldline) == 0
-		:    let foldline = ' '
-		:  else
-		:    let foldline = ' ' . foldline . ' '
-		:  endif
-		:  return repeat(" ", tablen*i). '+--- ' . lines_count . ' lines:' . foldline . '---+'
+		:  let foldline = (strlen(foldline) > 0 ? ': ' : "") . foldline 
+		:  return (repeat(" ", indent(v:foldstart)). '+--- ' . lines_count . ' lines' . foldline . ' ---+')[winsaveview()["leftcol"]:]
 		:endfunction
 		" }}}
 
@@ -984,8 +946,8 @@
 
 		:function! RepeatFunc()
 		" {{{
-		:  let g:repeat = g:repeatstack 
-		:  let g:repeatstack = ""
+		:  let s:repeat = get(s:, 'repeatstack', "")
+		:  let s:repeatstack = ""
 		:endfunction
 		" }}}
 
@@ -1011,6 +973,55 @@
 		:  inoremap <ESC> <NOP>
 		:endfunction
 		" }}}
+
+		:function! SwapExists()
+		" {{{
+		"  open swapfiles readonly by default
+		:  if getftime(expand("%")) > getftime(v:swapname)
+		"    delete swap file if it is older than our file
+		:    let v:swapchoice = "d"
+		:    echohl WarningMsg | echom "Deleting Swapfile" | echohl None
+		:  else
+		:    let v:swapchoice = "o"
+		:    echohl WarningMsg | echom "Detected Swapfile. Opening Read only" | echohl None
+		:  endif
+		:endfunction
+		" }}}
+
+		:function! Scanf(input, format)
+		" {{{
+		" Escape a bunch of characters
+		:  l:input = escape(a:input, '/\[].*')
+		:  l:input = substitute(l:input, "%s", '\([^\S]*\)', "g")
+		:  l:input = substitute(l:input, "%d", '\(-{0,1}\d\+\)', "g")
+		:endfunction
+		" }}}
+
+		:function! WinEnter()
+		" {{{
+		:endfunction
+		" }}}
+
+		:function! WinLeave()
+		" {{{
+		:endfunction
+		" }}}
+
+		:function! WinNew()
+		" {{{
+		:endfunction
+		" }}}
+		 
+		:function! BufLeave()
+		" {{{
+		:endfunction
+		" }}}
+		
+		:function! BufEnter()
+		" {{{
+		: 
+		:endfunction
+		" }}}
 	" }}}
 
 " }}}
@@ -1030,30 +1041,61 @@
 
 " }}}
 
-" TMUX Terminal Split {{{
+" DEV {{{
 "_______________________________________________________________________________________________________
 
-	:cabbrev t T
-	:command! T call Terminal()
+:if $USER ==# "chris" && get(g:, "neverdev", 1)
 
-	:function! Terminal()
-	" {{{
-	:  let aucmd = ' ''autocmd VimLeave :!tmux kill-session -t vim '' '
-	:  let tmuxSession = 'tmux new-session -s "vim" "vim -S session.vim -c '.aucmd .'"'
-	:  let split_ = '\; split-window -v -p 40 \;'
-	:  mksession session.vim
-	:  set noswapfile
-	:  silent execute '!' . tmuxSession . split_
-	:  silent execute '!rm session.vim'
-	:  q!
-	:endfunction
-	" }}}
+		:function! WinEnter()
+		" {{{
+		:  if !get(g:, 'buffcmds', 1)
+		:    return
+		:  endif
+		:  exec (&columns / 20).'wincmd >'
+		:  exec (&lines / 20).'wincmd +'
+		:  if get(b:, 'relativenumber', &relativenumber)
+		:    setlocal relativenumber
+		:  endif
+		:endfunction
+		" }}}
 
-	:function! TestSuspend()
-	" {{{
-	: silent execute '!sleep 3 && echo hi &'
-	:endfunction
-	" }}}
+		:function! WinLeave()
+		" {{{
+		:  if !get(g:, 'buffcmds', 1)
+		:    return
+		:  endif
+		:  exec (&columns / 20).'wincmd <'
+		:  exec (&lines / 20).'wincmd -'
+		:  if bufname("%") =~ "^!"
+		:    exec 'resize '.(winline() / 10 + 10)
+		:  endif
+		:  let b:relativenumber = &relativenumber
+		:  setlocal norelativenumber
+		:endfunction
+		" }}}
+
+		:function! WinNew()
+		" {{{
+		:  if bufname("%") =~ "^!"
+		:    exec 'resize '.(winline() / 10 + 10)
+		:  endif
+		:endfunction
+		" }}}
+
+		:function! BufLeave()
+		" {{{
+		: 
+		:endfunction
+		" }}}
+
+		:function! BufEnter()
+		" {{{
+		:  if len(getwininfo()) == 1 && bufname("%") =~ '^!'
+		:    q!
+		:  endif
+		:endfunction
+		" }}}
+:endif
 
 " }}}
 
@@ -1086,5 +1128,5 @@
 
 " }}}
 
-" If you cannot see anything but this message uncomment the next line
+" If you cannot see anything add the following line to ~/.vimrc.local without the double quote
 " :highlight Folded ctermfg=DarkGrey guifg=DarkGrey
