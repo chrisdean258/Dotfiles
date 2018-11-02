@@ -306,7 +306,7 @@
 	:autocmd SwapExists *  :call SwapExists()
 	:autocmd WinEnter *    :call WinEnter()
 	:autocmd WinLeave *    :call WinLeave()
-	":autocmd WinCreate *      :call WinNew()
+	" :autocmd WinCreate *      :call WinNew()
 	:autocmd BufEnter *    :call BufEnter()
 	:autocmd BufLeave *    :call BufLeave()
 	:augroup END
