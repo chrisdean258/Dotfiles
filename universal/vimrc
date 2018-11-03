@@ -55,7 +55,7 @@
 	:set encoding=utf-8                      " use utf-8 everywhere
 	:set fileencoding=utf-8                  " use utf-8 everywhere
 	:set termencoding=utf-8                  " use utf-8 everywhere
-	:set cinoptions=(8                       " indent 8 for every open paren
+	:set cinoptions=(8,N-s                   " indent 8 for every open paren
 	:setlocal complete-=t                    " Turn off completion using tag files for all except c/c++ projects
 	:set matchpairs+=<:>                     " adding a matched pair for highlighting and wrapping
 
@@ -248,6 +248,7 @@
 			
 	" Commenting out lines
 	:nnoremap <silent><localleader>\ :call Comment()<CR>
+	:vnoremap <silent><localleader>\ :call Comment("visual")<CR>
 
 	" Paste mode
 	:nnoremap \p :set paste<CR>
@@ -329,7 +330,7 @@
 	:augroup c_style
 	:  autocmd!
 	":  autocmd FileType c,cpp,javascript,java,perl,cs :nnoremap <silent><buffer><localleader>\ :call CommentBL('\/\/')<CR>
-	:  autocmd FileType c,cpp,javascript,java,perl,cs :setlocal commentstring=//%sS
+	:  autocmd FileType c,cpp,javascript,java,perl,cs :setlocal commentstring=//%s
 	:  autocmd FileType c,cpp,javascript,java,perl,cs :nnoremap <silent><buffer><localleader>s :silent call SplitIf()<CR>
 	:  autocmd FileType c,cpp,javascript,java,perl,cs :nnoremap <silent><buffer>; :call AppendSemicolon()<CR>
 	:  autocmd FileType c,cpp,javascript,java,perl,cs :inoremap <buffer>{} {<CR>}<esc>O
@@ -485,6 +486,13 @@
 	" {{{
 	:augroup yacc
 	:  autocmd VimEnter *.y :doautocmd Filetype c | doautocmd Filetype yacc
+	:augroup END
+	" }}}
+
+	" LD
+	" {{{
+	:augroup ld
+	:  autocmd FileType ld :inoremap <buffer>{} {<CR>}<esc>O
 	:augroup END
 	" }}}
 
@@ -719,14 +727,14 @@
 
 		:function! HighlightAfterColumn(col)
 		" {{{
-		:  let s:longlinematches = get(s:, 'longlinematches', [])
-		:  for match in s:longlinematches
-		:    call matchdelete(match)
+		:  for match in getmatches()
+		:    if match["group"] ==? "LongLine"
+		:      call matchdelete(match["id"])
+		:    endif
 		:  endfor
 		:  let s:longlinematches = []
 		:  if get(g:, "hllonglines", 1) && getline('.') !~ 'printf' && getline('.') !~ '[^=]*<<[^=]*'
-		:    let l:match = matchadd('LongLine', '\%'.line('.').'l\%>'.(a:col).'v.')
-		:    call add(s:longlinematches, l:match)
+		:    call matchadd('LongLine', '\%'.line('.').'l\%>'.(a:col).'v.')
 		:  endif
 		:endfunction
 		" }}}
@@ -790,12 +798,18 @@
 	" Universally used function
 	" {{{
 
-		:function! Comment() range
+		:function! Comment(...) range
 		" {{{
+		:  let l:window = winsaveview()
+		:  if get(a:, 1, "") ==# 'visual'
+		:    let l:num = line("'<") - line("'>") + 1
+		:    exec "normal '<" . l:num .'\\'
+		:    call winrestview(l:window)
+		:    return
+		:  endif
 		:  let l:temp = split(&commentstring, "%s")
 		:  let l:start = escape(get(l:temp, 0, ""), '\*/!')
 		:  let l:end = escape(get(l:temp, 1, ""), '\*/!')
-		:  let l:window = winsaveview()
 		:  if l:end ==# ""
 		:    execute "silent ".a:firstline.",".a:lastline.'s:^\(\s*\)\(.\):\1'.l:start.'\2:e'
 		:    execute "silent ".a:firstline.",".a:lastline.'s:^\(\s*\)'.l:start.l:start.':\1:e'
@@ -1057,8 +1071,8 @@
 		:  if !get(g:, 'buffcmds', 1)
 		:    return
 		:  endif
-		:  exec (&columns / 20).'wincmd >'
-		:  exec (&lines / 20).'wincmd +'
+		:  exec (10+&columns / 20).'wincmd >'
+		:  exec (10+&lines / 20).'wincmd +'
 		:  if get(b:, 'relativenumber', &relativenumber)
 		:    setlocal relativenumber
 		:  endif
@@ -1070,8 +1084,8 @@
 		:  if !get(g:, 'buffcmds', 1)
 		:    return
 		:  endif
-		:  exec (&columns / 20).'wincmd <'
-		:  exec (&lines / 20).'wincmd -'
+		:  exec (10+&columns / 20).'wincmd <'
+		:  exec (10+&lines / 20).'wincmd -'
 		:  if bufname("%") =~ "^!"
 		" :    exec 'resize '.(winline() / 10 + 10)
 		:  endif
