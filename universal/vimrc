@@ -1067,7 +1067,7 @@
 		:  exec (&columns / 20).'wincmd <'
 		:  exec (&lines / 20).'wincmd -'
 		:  if bufname("%") =~ "^!"
-		:    exec 'resize '.(winline() / 10 + 10)
+		" :    exec 'resize '.(winline() / 10 + 10)
 		:  endif
 		:  let b:relativenumber = &relativenumber
 		:  setlocal norelativenumber
