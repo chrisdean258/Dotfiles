@@ -55,7 +55,7 @@
 	:set encoding=utf-8                      " use utf-8 everywhere
 	:set fileencoding=utf-8                  " use utf-8 everywhere
 	:set termencoding=utf-8                  " use utf-8 everywhere
-	:set cinoptions=(8,N-s                   " indent 8 for every open paren
+	:set cinoptions=(8,N-s,l1                " indent 8 for every open paren
 	:setlocal complete-=t                    " Turn off completion using tag files for all except c/c++ projects
 	:set matchpairs+=<:>                     " adding a matched pair for highlighting and wrapping
 
@@ -131,7 +131,7 @@
 	:let g:syntastic_check_on_wq = 0
         :let g:syntastic_cpp_compiler = "g++"
         :let g:syntastic_cpp_compiler_options = "-std=c++98 -Wall -Wextra"
-	:let g:syntastic_cpp_include_dirs = [ "../../include", "../../include/utils/" , "../../eo/include", "../../eo/gengraph/include" ]
+	:let g:syntastic_cpp_include_dirs = [ "../../include", "../../include/utils/" , "../../eo/include", "../../eo/gengraph/include", "../include", "include", "."]
 
 	" Linting python
 	:if executable("flake8")
@@ -855,7 +855,7 @@
 		:  let l:window = winsaveview()
 		:  let l:sel_save = &selection
 		:  let &selection = "inclusive"
-		:  let s:wrapinput = get(s:, 'repeat') != "wrap" ? nr2char(getchar()) : get(s:, 'wrapinput')
+		:  let s:wrapinput = get(s:, 'repeat', "") != "wrap" ? nr2char(getchar()) : get(s:, 'wrapinput', "")
 		:  let s:repeatstack = "wrap"
 		:  let s:repeat = ""
 		:  execute "let l:last  = {".substitute(&matchpairs, '\(.\):\(.\)', '"\1":"\2"', "g")."}"
