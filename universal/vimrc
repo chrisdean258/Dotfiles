@@ -349,6 +349,8 @@
 	:  autocmd FileType c,cpp  :setlocal complete+=t
 	:  autocmd FileType c,cpp  :iabbrev <buffer> #i #include
 	:  autocmd FileType c,cpp  :iabbrev <buffer> #I #include
+	:  autocmd FileType c,cpp  :iabbrev <buffer> #d #define
+	:  autocmd FileType c,cpp  :iabbrev <buffer> #D #define
 	:  autocmd FileType c,cpp  :iabbrev <buffer> cahr char
 	:  autocmd FileType c,cpp  :iabbrev <buffer> main <C-R>=MainAbbrev()<CR>
 	:  autocmd FileType cpp    :iabbrev <buffer> enld endl
@@ -465,6 +467,7 @@
 	:augroup Assembly
 	:autocmd!
 	:  autocmd FileType assembly :setlocal commentstring=//%s
+	:  autocmd FileType assembly :iunmap <tab>
 	:augroup END
 	" }}}
 
