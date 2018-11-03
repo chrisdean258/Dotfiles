@@ -378,14 +378,11 @@
 	:  autocmd FileType html,php :setlocal expandtab
 	:  autocmd FileType html,php :setlocal wrap
 	:  autocmd FileType html,php :setlocal linebreak
-	:  autocmd FileType html,php :setlocal matchpairs+=<:>
 	:  if exists("+breakindent")
 	:    autocmd FileType html,php :setlocal breakindent
 	:  endif
-	" :  autocmd FileType html,php :nnoremap <silent><buffer><localleader>\ :call CommentBL('\<!--', '-->')<CR>
 	:  autocmd FileType html,php :inoremap <silent><buffer>> ><esc>:call EndTagHTML()<CR>a
 	:  autocmd FileType html,php :inoremap <expr><buffer><CR> HTMLCarriageReturn()
-	:  autocmd FileType html,php :inoremap <expr><buffer><tab> CleverTab()
 	:let g:html_indent_script1 = "inc"
 	:let g:html_indent_style1 = "inc"
 	:let g:html_indent_inctags = "address,article,aside,audio,blockquote,canvas,dd,div,dl,fieldset,figcaption,figure,footer,form,h1,h2,h3,h4,h5,h6,header,hgroup,hr,main,nav,noscript,ol,output,p,pre,section,table,tfoot,ul,video"
@@ -399,7 +396,6 @@
 	:augroup python_
 	:autocmd!
 	" :autocmd FileType python,matlab,shell,sh,bash  :nnoremap <silent><buffer><localleader>\ :call CommentBL('#')<CR>
-	:autocmd FileType python,matlab,shell,sh,bash  :inoremap <expr><buffer><tab> CleverTab()
 	:autocmd FileType python  :setlocal tabstop=4
 	:autocmd FileType python  :setlocal expandtab
 	:autocmd FileType python  :setlocal nosmartindent
@@ -421,7 +417,6 @@
 	:autocmd FileType vim :setlocal commentstring=\"\ %s
 	:autocmd FileType vim :setlocal foldenable
 	:autocmd FileType vim :setlocal foldtext=MyFold()
-	:autocmd FileType vim :inoremap <expr><buffer><tab> CleverTab()
 	:autocmd BufWritePost .vimrc :source %
 	:augroup END
 	" }}}
@@ -435,7 +430,6 @@
 	:autocmd Filetype markdown :inoremap <silent><buffer><localleader>s <esc>:call SpellReplace()<CR>a
 	:autocmd Filetype markdown :nnoremap <expr><silent><buffer>o MDNewline("o")
 	:autocmd Filetype markdown :nnoremap <silent><buffer><localleader>s :call SpellReplace()<CR>
-	:autocmd FileType markdown :nnoremap <silent><buffer><localleader>\ :call CommentBL('- ')<CR>
 	:autocmd FileType markdown :highlight link markdownError NONE
 	:autocmd Filetype markdown :setlocal wrap
 	:autocmd Filetype markdown :setlocal linebreak
