@@ -1052,6 +1052,7 @@
 	:    let l:dir = fnamemodify(l:dir, ":p:h:h")
 	:  endwhile
 	:endfunction
+	:call UpwardVimrcSource()
 
 " }}}
 
