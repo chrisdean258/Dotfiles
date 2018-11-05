@@ -374,6 +374,7 @@
 	" {{{
 	:augroup web
 	:  autocmd!
+	:  autocmd BufNewFile *.html :call NewHTML()
 	:  autocmd FileType html,php :setlocal tabstop=2
 	:  autocmd FileType html,php :setlocal expandtab
 	:  autocmd FileType html,php :setlocal wrap
@@ -683,6 +684,15 @@
 		:  execute ':g/<head>/normal! o'.l:refresh
 		:  write
 		:  silent !xdg-open % >/dev/null 2>/dev/null &
+		:endfunction
+		" }}}
+
+		:function! NewHTML()
+		" {{{
+		:  if filereadable($HOME . "/.vim/templates/template.html")
+		:    execute "%!cat ". $HOME . "/.vim/templates/template.html"
+		:    call winrestview({'lnum': 4, 'leftcol': 0, 'col': 8, 'topfill': 0, 'topline': 1, 'coladd': 0, 'skipcol': 0, 'curswant': 8})
+		:  endif
 		:endfunction
 		" }}}
 	" }}}
