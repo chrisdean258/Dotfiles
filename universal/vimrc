@@ -131,7 +131,7 @@
 	:let g:syntastic_check_on_wq = 0
         :let g:syntastic_cpp_compiler = "g++"
         :let g:syntastic_cpp_compiler_options = "-std=c++98 -Wall -Wextra"
-	:let g:syntastic_cpp_include_dirs = [ "../../include", "../../include/utils/" , "../../eo/include", "../../eo/gengraph/include", "../include", "include", "."]
+	:let g:syntastic_cpp_include_dirs = [ "../../include",  "../include", "include", ".", $HOME."/include"]
 
 	" Linting python
 	:if executable("flake8")
@@ -1046,7 +1046,7 @@
 	:function! UpwardVimrcSource()
 	:  let l:dir = getcwd()
 	:  while l:dir =~ "\/" && l:dir != $HOME
-	:    if findfile(l:dir . "/.vimrc") != ""
+	:    if filereadable(l:dir . "/.vimrc")
 	:      execute "source " . l:dir . "/.vimrc"
 	:    endif
 	:    let l:dir = fnamemodify(l:dir, ":p:h:h")
