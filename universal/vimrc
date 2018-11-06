@@ -1181,6 +1181,23 @@
 	:  source ~/.vimrc.local
 	:endif
 
+	:if exists("g:imawimp")
+	:  if !g:imawimp
+	:    call HJKL()
+	:  endif
+	:else
+	:  let s:response = confirm("I'm about to turn off the arrow keys. Use h,j,k,l for left, up, right, down respectively", "y\nn", "y")
+	:  if s:response < 2
+	:    call HJKL()
+	:    call system("echo :let g:imawimp = 0 >> ~/.vimrc.local")
+	:  else
+	:    call system("echo :let g:imawimp = 1 >> ~/.vimrc.local")
+	:  endif
+	:endif
+	
+	:if get(g:,"harmdmode")
+	:  call HardMode()
+	:endif
 " }}}
 
 " If you cannot see anything add the following line to ~/.vimrc.local without the double quote
