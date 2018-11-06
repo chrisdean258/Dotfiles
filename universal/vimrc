@@ -868,20 +868,47 @@
 		:  let s:wrapinput = get(s:, 'repeat', "") != "wrap" ? nr2char(getchar()) : get(s:, 'wrapinput', "")
 		:  let s:repeatstack = "wrap"
 		:  let s:repeat = ""
-		:  execute "let l:last  = {".substitute(&matchpairs, '\(.\):\(.\)', '"\1":"\2"', "g")."}"
-		:  execute "let l:first = {".substitute(&matchpairs, '\(.\):\(.\)', '"\2":"\1"', "g")."}"
-		:  let l:begin  = get(l:first, s:wrapinput, s:wrapinput)
-		:  let l:ending = get(l:last,  s:wrapinput, s:wrapinput)
+		:  let l:firstlast = WrapHelp(s:wrapinput)
+		:  let l:begin  = l:firstlast[0]
+		:  let l:ending = l:firstlast[1]
 		:  if a:type ==# "line"
 		:    silent execute "normal! `[V`]$V"
 		:  elseif a:type ==# "char"
-		:    silent execute "normal! `[v`]lv"
+		:    silent execute "normal! `[v`]v"
 		:  elseif a:type ==# "block"
 		:    silent execute "normal! `[\<C-V>`]\<C-V>"
 		:  endif
-		:  silent execute "normal! `<i".l:begin."\<esc>`>a".l:ending
+		:  silent execute "normal! `>a".l:ending."\<esc>`<i".l:begin
 		:  let &selection = l:sel_save
 		:  call winrestview(l:window)
+		:endfunction
+		" }}}
+
+		:function! WrapHelp(arg)
+		" {{{
+		:  execute "let l:last  = {".substitute(&matchpairs, '\(.\):\(.\)', '"\1":"\2"', "g")."}"
+		:  execute "let l:first = {".substitute(&matchpairs, '\(.\):\(.\)', '"\2":"\1"', "g")."}"
+		:  let l:begin = get(l:first, a:arg, a:arg)
+		:  let l:end = get(l:last,  a:arg, a:arg)
+		:  if l:begin ==? "t"
+		:    call inputsave()
+		:    let l:input = input("tag: ")
+		;    call inputrestore()
+		:    if l:input != ""
+		:      let l:begin = '<' . l:input . '>'
+		:      let l:end = '</' . split(l:input)[0] . '>'
+		:    endif
+		:  endif
+		:  if l:begin ==? "s"
+		:    call inputsave()
+		:    let l:input = input("tag: ")
+		;    call inputrestore()
+		:    if l:input != ""
+		:      let l:begin = l:input
+		:      let l:end = l:input
+		:    endif
+		:  endif
+		:  return [l:begin, l:end]
 		:endfunction
 		" }}}
 
