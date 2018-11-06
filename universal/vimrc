@@ -273,6 +273,7 @@
 	:cabbrev S %s
 	:cabbrev a 'a,.s
 	:cabbrev $$ .,$s
+	:cabbrev term term ++close ++rows=15
 
 	" Force writing
 	:cabbrev w!! %!sudo tee > /dev/null %
@@ -1096,15 +1097,15 @@
 " DEV {{{
 "_______________________________________________________________________________________________________
 
-:if $USER ==# "chris" && get(g:, "neverdev", 1)
+:if $USER ==# "chris" && !get(g:, "neverdev")
 
 		:function! WinEnter()
 		" {{{
 		:  if !get(g:, 'buffcmds', 1)
 		:    return
 		:  endif
-		:  exec (10+&columns / 20).'wincmd >'
-		:  exec (10+&lines / 20).'wincmd +'
+		:  exec (&columns / 20).'wincmd >'
+		:  exec (&lines / 20).'wincmd +'
 		:  if get(b:, 'relativenumber', &relativenumber)
 		:    setlocal relativenumber
 		:  endif
@@ -1116,10 +1117,11 @@
 		:  if !get(g:, 'buffcmds', 1)
 		:    return
 		:  endif
-		:  exec (10+&columns / 20).'wincmd <'
-		:  exec (10+&lines / 20).'wincmd -'
+		:  exec (&columns / 20).'wincmd <'
+		:  exec (&lines / 20).'wincmd -'
 		:  if bufname("%") =~ "^!"
-		" :    exec 'resize '.(winline() / 10 + 10)
+		:    exec 'resize '.(winline() / 10 + 10)
+		:    echo "hi"
 		:  endif
 		:  let b:relativenumber = &relativenumber
 		:  setlocal norelativenumber
