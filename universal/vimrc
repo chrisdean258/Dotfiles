@@ -586,7 +586,7 @@
 		" {{{
 		:  let l:unclosed = [ "area", "base", "br", "col", "command", "embed", "hr", "img", "input", "keygen", "link", "meta", "param", "source", "track", "wbr" ]
 		:  let l:line = TextUntilCursor()
-		:  if l:line !~ '<\w\+[^>]*>$'
+		:  if l:line !~ '<\w\+[^>]*>$' || l:line =~ "<![^>]*>" || l:line =~ '</[^>]*>$' || l:line =~ '<>$'
 		:    return ""
 		:  endif
 		:  let l:tag = split(split(split(l:line, "<")[-1], ">")[0], " ")[0]
