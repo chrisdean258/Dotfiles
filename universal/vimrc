@@ -1090,7 +1090,6 @@
 	:    let l:dir = fnamemodify(l:dir, ":p:h:h")
 	:  endwhile
 	:endfunction
-	:call UpwardVimrcSource()
 
 " }}}
 
@@ -1181,6 +1180,11 @@
 	:  source ~/.vimrc.local
 	:endif
 
+" }}}
+
+" FEATURE ADDITION {{{
+"_______________________________________________________________________________________________________
+
 	:if exists("g:imawimp")
 	:  if !g:imawimp
 	:    call HJKL()
@@ -1198,7 +1202,13 @@
 	:if get(g:,"harmdmode")
 	:  call HardMode()
 	:endif
+
+	:if get(g:, "source2home")
+	:  call UpwardVimrcSource()
+	:endif
+
 " }}}
+
 
 " If you cannot see anything add the following line to ~/.vimrc.local without the double quote
 " :highlight Folded ctermfg=DarkGrey guifg=DarkGrey
