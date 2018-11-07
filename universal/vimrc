@@ -335,7 +335,6 @@
 	:  autocmd FileType c,cpp,javascript,java,perl,cs :nnoremap <silent><buffer><localleader>s :silent call SplitIf()<CR>
 	:  autocmd FileType c,cpp,javascript,java,perl,cs :nnoremap <silent><buffer>; :call AppendSemicolon()<CR>
 	:  autocmd FileType c,cpp,javascript,java,perl,cs :inoremap <buffer>{} {<CR>}<esc>O
-	:  autocmd FileType c,cpp,javascript,java,perl,cs :inoremap <expr><buffer><tab> CleverTab()
 	:  autocmd FileType c,cpp,javascript,java,perl,cs :setlocal cindent
 	:  autocmd FileType c,cpp,javascript,java,perl,cs :iabbrev <buffer>csign <c-r>=Csign()<CR>
 	:  autocmd FileType c,cpp,javascript,java,perl,cs :call RemoveTrailingWhitespace_AU()
@@ -390,6 +389,7 @@
 	:let g:html_indent_inctags = "address,article,aside,audio,blockquote,canvas,dd,div,dl,fieldset,figcaption,figure,footer,form,h1,h2,h3,h4,h5,h6,header,hgroup,hr,main,nav,noscript,ol,output,p,pre,section,table,tfoot,ul,video"
 	:  autocmd FileType html,php :command! Preview call HTMLPreview()
 	:  autocmd FileType css :nnoremap <silent><buffer>; :call AppendSemicolon()<CR>
+	:  autocmd FileType css :inoremap <buffer>{} {<CR>}<esc>O
 	:augroup END
 	" }}}
 
@@ -450,7 +450,6 @@
 	:autocmd FileType text :setlocal encoding=utf-8
 	:autocmd FileType text :nnoremap <silent><buffer><localleader>s :call SpellReplace()<CR>
 	:autocmd FileType text :inoremap <silent><buffer><localleader>s <esc>:call SpellReplace()<CR>a
-	:autocmd FileType text :inoremap <expr><buffer><tab> CleverTab()
 	:autocmd FileType text :setlocal wrap
 	:autocmd FileType text :setlocal linebreak
 	:if exists("+breakindent")
