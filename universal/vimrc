@@ -332,7 +332,7 @@
 	:  autocmd!
 	":  autocmd FileType c,cpp,javascript,java,perl,cs :nnoremap <silent><buffer><localleader>\ :call CommentBL('\/\/')<CR>
 	:  autocmd FileType c,cpp,javascript,java,perl,cs :setlocal commentstring=//%s
-	:  autocmd FileType c,cpp,javascript,java,perl,cs :nnoremap <silent><buffer><localleader>s :silent call SplitIf()<CR>
+	:  autocmd FileType c,cpp,javascript,java,perl,cs :nnoremap <silent><buffer><localleader>s :call SplitIf()<CR>
 	:  autocmd FileType c,cpp,javascript,java,perl,cs :nnoremap <silent><buffer>; :call AppendSemicolon()<CR>
 	:  autocmd FileType c,cpp,javascript,java,perl,cs :inoremap <buffer>{} {<CR>}<esc>O
 	:  autocmd FileType c,cpp,javascript,java,perl,cs :setlocal cindent
@@ -776,14 +776,26 @@
 		" {{{
 		:  let l:window = winsaveview()
 		:  let l:split = 0
-		:  execute "normal! 0f(%"
-		:  if getline('.') =~ ".*(.*)..*"
-		:    execute "normal! a\<CR>{\<CR>\<esc>o}"
+		:  if getline('.') =~ '.\+(.*).\S\+'
+		:    let l:split = 1
+		:  elseif getline(line('.')) . getline(line('.')+1) =~ '.\+(.*).\S\+'
+		:    normal! J
+		:    let l:split = 1
+		:  elseif line('.') != 1 && getline(line('.')-1) . getline(line('.')) =~ '.\+(.*).\S\+'
+		:    normal! kJ
 		:    let l:split = 1
 		:  endif
-		:  call winrestview(l:window)
+		:  execute "normal! 0f(%"
 		:  if l:split
-		:    normal! 2j^
+		:    if get(g:, "inline_braces")
+		:      execute "normal! a{\<CR>\<esc>o}"
+		:      call winrestview(l:window)
+		:      normal! j^
+		:    else
+		:      execute "normal! a\<CR>{\<CR>\<esc>o}"
+		:      call winrestview(l:window)
+		:      normal! 2j^
+		:    endif
 		:  endif
 		:endfunction
 		" }}}
