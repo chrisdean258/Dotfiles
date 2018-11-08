@@ -149,7 +149,7 @@ PROMPT_COMMAND=prompt_command
 PROMPT_SAVE=`echo $PS1 | sed 's/..$//g'`
 battery()
 {
-	[ -e low_battery ] && low_battery && echo -en "$RED[Low Battery] "
+	command -v low_battery &> /dev/null && low_battery && echo -en "$RED[Low Battery] $CLEAR"
 }
 return_val()
 {
