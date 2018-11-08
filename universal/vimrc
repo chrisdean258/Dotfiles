@@ -353,7 +353,7 @@
 	:  autocmd FileType c,cpp  :iabbrev <buffer> #d #define
 	:  autocmd FileType c,cpp  :iabbrev <buffer> #D #define
 	:  autocmd FileType c,cpp  :iabbrev <buffer> cahr char
-	:  autocmd FileType c,cpp  :iabbrev <buffer> main <C-R>=MainAbbrev()<CR>
+	:  autocmd FileType c,cpp  :iabbrev <buffer> main <C-R>=CMainAbbrev()<CR>
 	:  autocmd FileType cpp    :iabbrev <buffer> enld endl
 	:  autocmd FileType cpp    :iabbrev <buffer> nstd using namespace std;<CR>
 	:  autocmd FileType cpp    :autocmd CursorMoved,CursorMovedI <buffer> call HighlightAfterColumn(100)
@@ -403,6 +403,7 @@
 	:autocmd FileType python  :setlocal nosmartindent
 	:autocmd FileType python  :iabbrev inport import
 	:autocmd FileType python  :call RemoveTrailingWhitespace_AU()
+	:autocmd FileType python  :iabbrev <buffer> main <C-R>=PythonMainAbbrev()<CR>
 	:autocmd FileType python  :let g:pyindent_open_paren = '&sw'
 	:autocmd FileType python  :let g:pyindent_nested_paren = '&sw'
 	:autocmd FileType python  :let g:pyindent_continue = '0'
@@ -758,7 +759,7 @@
 		:endfunction
 		" }}}
 
-		:function! MainAbbrev()
+		:function! CMainAbbrev()
 		" {{{
 		:  if getline('.') =~ '^$'
 		:    if get(g:, 'inline_braces')
@@ -809,6 +810,19 @@
 		:endfunction
 		" }}}
 
+	" }}}
+
+	" Python
+	" {{{
+		:function! PythonMainAbbrev()
+		" {{{
+		:  if getline('.') =~ '^$'
+		:      return 'if __name__ == "__main__":'
+		:  else
+		:    return 'main'
+		:  endif
+		:endfunction
+		" }}}
 	" }}}
 
 	" Universally used function
