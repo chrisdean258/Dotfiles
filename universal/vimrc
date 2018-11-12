@@ -1182,14 +1182,14 @@
 	:function! Update_Vimrc(...)
 	" {{{
 	:  let l:output = ""
-	:  let l:output = system("diff <(date +%j) ~/.vim/update")
-	:  if l:output == "" && !get(a:, 1)
+	:  silent !diff <(date +%j) ~/.vim/update
+	:  if v:shell_error != 0 && !get(a:, 1)
 	:    return
 	:  endif
 	:  echom "updating"
-	:  silent call system("date +%j > ~/.vim/update")
+	:  silent !date +%j > ~/.vim/update
 	:  let l:url = 'https://raw.githubusercontent.com/chrisdean258/Dotfiles/master/universal/vimrc'
-	:  silent call system("wget -O ~/.vimrc " . l:url)
+	:  silent execute "!wget -O ~/.vimrc " . l:url)
 	:endfunction
 	" }}}
 
