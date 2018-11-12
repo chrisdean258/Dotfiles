@@ -777,12 +777,12 @@
 		" {{{
 		:  let l:window = winsaveview()
 		:  let l:split = 0
-		:  if getline('.') =~ '.\+(.*).\S\+'
+		:  if getline('.') =~ '.\+(.*).\+'
 		:    let l:split = 1
-		:  elseif getline(line('.')) . getline(line('.')+1) =~ '.\+(.*).\S\+'
+		:  elseif getline(line('.')) . getline(line('.')+1) =~ '.\+(.*).\+'
 		:    normal! J
 		:    let l:split = 1
-		:  elseif line('.') != 1 && getline(line('.')-1) . getline(line('.')) =~ '.\+(.*).\S\+'
+		:  elseif line('.') != 1 && getline(line('.')-1) . getline(line('.')) =~ '.\+(.*).\+'
 		:    normal! kJ
 		:    let l:split = 1
 		:  endif
