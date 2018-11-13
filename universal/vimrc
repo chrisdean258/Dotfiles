@@ -273,7 +273,7 @@
 	:cabbrev S %s
 	:cabbrev a 'a,.s
 	:cabbrev $$ .,$s
-	:cabbrev term term ++close ++rows=15
+	" :cabbrev term term ++close ++rows=15
 
 	" Force writing
 	:cabbrev w!! %!sudo tee > /dev/null %
