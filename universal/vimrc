@@ -1184,12 +1184,14 @@
 	:  let l:output = ""
 	:  silent !diff <(date +%j) ~/.vim/update
 	:  if v:shell_error != 0 && !get(a:, 1)
+	:    redraw!
 	:    return
 	:  endif
 	:  echom "updating"
 	:  silent !date +%j > ~/.vim/update
 	:  let l:url = 'https://raw.githubusercontent.com/chrisdean258/Dotfiles/master/universal/vimrc'
 	:  silent execute "!wget -O ~/.vimrc " . l:url)
+	:  redraw!
 	:endfunction
 	" }}}
 
