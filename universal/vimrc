@@ -1181,16 +1181,21 @@
 "_______________________________________________________________________________________________________
 	:function! Update_Vimrc(...)
 	" {{{
-	:  let l:output = system("diff <(date +%j) ~/.vim/update")
-	:  if l:output == "" && !get(a:, 1)
+	:  try
+	:    let l:output = system("diff <(date +%j) ~/.vim/update")
+	:    if l:output == "" && !get(a:, 1)
+	:      redraw!
+	:      return
+	:    endif
+	:    echom "updating"
+	:    call system("date +%j > ~/.vim/update")
+	:    let l:url = 'https://raw.githubusercontent.com/chrisdean258/Dotfiles/master/universal/vimrc'
+	:    call system("wget -O ~/.vimrc " . l:url)
 	:    redraw!
-	:    return
-	:  endif
-	:  echom "updating"
-	:  call system("date +%j > ~/.vim/update")
-	:  let l:url = 'https://raw.githubusercontent.com/chrisdean258/Dotfiles/master/universal/vimrc'
-	:  call system("wget -O ~/.vimrc " . l:url)
-	:  redraw!
+	:  catch
+	:    let l:url = 'https://raw.githubusercontent.com/chrisdean258/Dotfiles/master/universal/vimrc'
+	:    call system("wget -O ~/.vimrc " . l:url)
+	:  endtry
 	:endfunction
 	" }}}
 
