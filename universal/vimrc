@@ -1187,9 +1187,9 @@
 	:    return
 	:  endif
 	:  echom "updating"
-	:  silent !date +%j > ~/.vim/update
+	:  call system("date +%j > ~/.vim/update")
 	:  let l:url = 'https://raw.githubusercontent.com/chrisdean258/Dotfiles/master/universal/vimrc'
-	:  silent execute "!wget -O ~/.vimrc " . l:url
+	:  call system("wget -O ~/.vimrc " . l:url)
 	:  redraw!
 	:endfunction
 	" }}}
