@@ -1182,7 +1182,7 @@
 	:function! Update_Vimrc(...)
 	" {{{
 	:  let l:output = system("diff <(date +%j) ~/.vim/update")
-	:  if l:ouput != "" && !get(a:, 1)
+	:  if l:ouput == "" && !get(a:, 1)
 	:    redraw!
 	:    return
 	:  endif
