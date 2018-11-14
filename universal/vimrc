@@ -1181,9 +1181,8 @@
 "_______________________________________________________________________________________________________
 	:function! Update_Vimrc(...)
 	" {{{
-	:  call system("touch ~/.vim/update")
 	:  let l:output = system("diff <(date +%j) ~/.vim/update")
-	:  if l:ouput == "" && !get(a:, 1)
+	:  if l:output == "" && !get(a:, 1)
 	:    redraw!
 	:    return
 	:  endif
