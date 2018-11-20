@@ -1059,8 +1059,8 @@
 		:    let v:swapchoice = "d"
 		:    echohl WarningMsg | echom "Deleting Swapfile" | echohl None
 		:  else
-		:    let v:swapchoice = "o"
-		:    echohl WarningMsg | echom "Detected Swapfile. Opening Read only" | echohl None
+		" :    let v:swapchoice = "o"
+		" :    echohl WarningMsg | echom "Detected Swapfile. Opening Read only" | echohl None
 		:  endif
 		:endfunction
 		" }}}
