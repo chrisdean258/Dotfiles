@@ -25,4 +25,4 @@ alias ..="cd .."
 
 alias lc="ls -1"
 
-
+alias moo="fortune|cowsay"

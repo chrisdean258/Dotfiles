@@ -1,5 +1,3 @@
 tags
 .tags
-*temp*
-*tmp*
-
+__pychache__
