@@ -33,7 +33,7 @@ if [ "$1" = "save" ] || [ "$1" = "push" ] || [ "$1" = "commit" ]; then
 	spawn git add .
 	spawn git commit -m "$comment"
 	spawn git push
-elif [ "$1" = "deploy" ] || [ "$1" = "pull" ]; then
+elif [ "$1" = "deploy" ]; then
 	if git status 2>/dev/null | grep -q clean; then
 		git pull >/dev/null
 	elif [ "$2" = "--force" ]; then
