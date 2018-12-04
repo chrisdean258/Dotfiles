@@ -253,6 +253,9 @@
 	" Paste mode
 	:nnoremap \p :set paste<CR>
 
+	" splitting into a file
+	:nnoremap <leader>v :vs <cfile><CR>
+
 " }}}
 
 " UNIVERSAL ABBREVIATIONS AND COMMANDS {{{
