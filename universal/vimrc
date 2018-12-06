@@ -586,15 +586,15 @@
 
 	" HTML/Markdown
 	" {{{
+		:let s:unclosed = [ "area", "base", "br", "col", "command", "embed", "hr", "img", "input", "keygen", "link", "meta", "param", "source", "track", "wbr", "canvas" ]
 		:function! GetEndTagHTML()
 		" {{{
-		:  let l:unclosed = [ "area", "base", "br", "col", "command", "embed", "hr", "img", "input", "keygen", "link", "meta", "param", "source", "track", "wbr" ]
 		:  let l:line = TextUntilCursor()
 		:  if l:line !~ '<\w\+[^>]*>$'
 		:    return ""
 		:  endif
 		:  let l:tag = split(split(split(l:line, "<")[-1], ">")[0], " ")[0]
-		:  for tag_ in l:unclosed
+		:  for tag_ in s:unclosed
 		:    if tag_ ==? l:tag
 		:      return ""
 		:    endif
@@ -608,6 +608,38 @@
 		:  let l:window = winsaveview()
 		:  execute "normal! a".GetEndTagHTML()
 		:  call winrestview(l:window)
+		:endfunction
+		" }}}
+
+		:function! MatchHTMLTagPre()
+		" {{{
+		:  let l:linebefore = TextBeforeCursor()
+		:  let l:lineafter = TextFromCursor()
+		:  if (l:linebefore =~ '</[^>]*$' && l:lineafter =~ '^[^<]*>')
+		   || (l:linebefore =~ '<[^>]*$' && l:lineafter =~ '^/[^<]*>')
+		   || (l:lineafter =~ '^</[^<]*>')
+		:    let l:window = winsaveview()
+		:    normal! vat
+		:    normal! `<
+		:    let s:match_tag = winsaveview()
+		:    call winrestview(l:window)
+		:  elseif (l:linebefore =~ '<[^>]*$' && l:lineafter =~ '^[^<]*>')
+		   || (l:lineafter =~ '^<[^<]*>')
+		:    let l:window = winsaveview()
+		:    normal! vat
+		:    let s:match_tag = winsaveview()
+		:    call winrestview(l:window)
+		:  else
+		:    let s:match = {}
+		:  endif
+		:endfunction
+		" }}}
+
+		:function! MatchHTMLTagPost()
+		" {{{
+		:  let s:match = get(s:, "match", {})
+		:  if len(s:match) > 0
+		:  endif
 		:endfunction
 		" }}}
 
