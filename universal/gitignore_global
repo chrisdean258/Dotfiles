@@ -1,3 +1,4 @@
 tags
 .tags
 __pychache__
+*.swp
