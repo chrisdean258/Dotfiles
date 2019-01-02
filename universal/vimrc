@@ -773,7 +773,7 @@
 		:    endif
 		:  endfor
 		:  let s:longlinematches = []
-		:  if get(g:, "hllonglines", 1) && getline('.') !~ 'printf' && getline('.') !~ '[^=]*<<[^=]*'
+		:  if get(g:, "hllonglines", 1) && getline('.') !~ 'printf' && getline('.') !~ '[^=]*<<[^=]*' && getline('.') !~ '\/\/' && getline('.') !~ '\/\*' && getline('.') !~ '\*\/'
 		:    call matchadd('LongLine', '\%'.line('.').'l\%>'.(a:col).'v.')
 		:  endif
 		:endfunction
