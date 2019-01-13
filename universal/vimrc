@@ -396,6 +396,19 @@
 	:augroup END
 	" }}}
 
+	" Web
+	" {{{
+	:augroup web
+	:  autocmd FileType tex :setlocal tabstop=2
+	:  autocmd FileType tex :setlocal expandtab
+	:  autocmd FileType tex :setlocal wrap
+	:  autocmd FileType tex :setlocal linebreak
+	:  if exists("+breakindent")
+	:    autocmd FileType tex :setlocal breakindent
+	:  endif
+	:augroup END
+	" }}}
+
 	" Python formatting
 	" {{{
 	:augroup python_
