@@ -314,6 +314,8 @@
 	" :autocmd WinCreate *      :call WinNew()
 	:autocmd BufEnter *    :call BufEnter()
 	:autocmd BufLeave *    :call BufLeave()
+	:autocmd BufNewFile *.tex :set filetype=tex
+	:autocmd BufNewFile *  :call NewFile()
 	:augroup END
 	" }}}
 
@@ -377,7 +379,6 @@
 	" {{{
 	:augroup web
 	:  autocmd!
-	:  autocmd BufNewFile *.html :call NewHTML()
 	:  autocmd FileType html,php :setlocal tabstop=2
 	:  autocmd FileType html,php :setlocal expandtab
 	:  autocmd FileType html,php :setlocal wrap
@@ -396,7 +397,7 @@
 	:augroup END
 	" }}}
 
-	" Web
+	" Tex
 	" {{{
 	:augroup web
 	:  autocmd FileType tex :setlocal tabstop=2
@@ -406,6 +407,7 @@
 	:  if exists("+breakindent")
 	:    autocmd FileType tex :setlocal breakindent
 	:  endif
+	:  autocmd FileType tex :command! Preview call LatexPreview()
 	:augroup END
 	" }}}
 
@@ -736,12 +738,18 @@
 		:endfunction
 		" }}}
 
-		:function! NewHTML()
+	" }}}
+
+	" Latex
+	" {{{
+		:function!LatexPreview()
 		" {{{
-		:  if filereadable($HOME . "/.vim/templates/template.html")
-		:    execute "%!cat ". $HOME . "/.vim/templates/template.html"
-		:    call winrestview({'lnum': 4, 'leftcol': 0, 'col': 8, 'topfill': 0, 'topline': 1, 'coladd': 0, 'skipcol': 0, 'curswant': 8})
+		:  if executable("latex2pdf")
+		:    autocmd BufWritePost <buffer> call system("latex2pdf " . expand("%"))
+		:    write
 		:  endif
+		:  let l:filename = substitute(expand("%"), "\.tex$", ".pdf", "")
+		:  call system('xdg-open '. l:filename. ' >/dev/null 2>/dev/null &')
 		:endfunction
 		" }}}
 	" }}}
@@ -1145,6 +1153,15 @@
 		:function! BufEnter()
 		" {{{
 		: 
+		:endfunction
+		" }}}
+
+		:function! NewFile()
+		" {{{
+		:  let l:fn = &filetype
+		:  if filereadable($HOME . "/.vim/templates/" . l:fn)
+		:    execute "%!cat " . $HOME . "/.vim/templates/" . l:fn
+		:  endif
 		:endfunction
 		" }}}
 	" }}}

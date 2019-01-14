@@ -130,6 +130,11 @@ if [ -f ~/.git-completion.bash ]; then
 	source ~/.git-completion.bash
 fi
 
+if [ -f ~/.bash-completion.bash ]; then
+	#source ~/.bash-completion.bash
+	true
+fi
+
 
 RED="\[`tput setaf 1`\]"
 GREEN="\[`tput setaf 2`\]"
@@ -162,9 +167,18 @@ git_branch()
 		echo -en " $GREEN($(git rev-parse --abbrev-ref HEAD | tr -d "\n\f")$(timeout 0.5s git status 2>/dev/null | grep -q clean || echo "*"))$CLEAR"
 	fi
 }
+maybe_newline()
+{
+	s1=$(echo "$(whoami | wc -c) + $(pwd | sed "s:$HOME:~:" | wc -c) + $(battery | wc -c)" | bc)
+	s2=$(git_branch | wc -c | awk '{print $1 ? int($1 - 20) : 0}')
+	sum=$(echo "($s1 + $s2) * 1.5 / 1" | bc)
+	if [ $sum -gt $(tput cols) ]; then
+		echo "\n"
+	fi
+}
 prompt_command()
 {
-	PS1="$(return_val)$(battery)$PROMPT_SAVE$(git_branch)\$ "
+	PS1="$(return_val)$(battery)$PROMPT_SAVE$(git_branch)$(maybe_newline)\$ "
 }
 
 export HISTCONTROL=ignoreboth
