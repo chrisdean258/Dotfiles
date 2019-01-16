@@ -404,6 +404,7 @@
 	:  autocmd FileType tex :setlocal expandtab
 	:  autocmd FileType tex :setlocal wrap
 	:  autocmd FileType tex :setlocal linebreak
+	:  autocmd FileType tex :setlocal commentstring=%\ %s
 	:  if exists("+breakindent")
 	:    autocmd FileType tex :setlocal breakindent
 	:  endif
