@@ -407,6 +407,7 @@
 	:  if exists("+breakindent")
 	:    autocmd FileType tex :setlocal breakindent
 	:  endif
+	:  autocmd FileType tex :inoremap <expr><buffer><CR> LatexCarriageReturn()
 	:  autocmd FileType tex :command! Preview call LatexPreview()
 	:augroup END
 	" }}}
@@ -742,7 +743,7 @@
 
 	" Latex
 	" {{{
-		:function!LatexPreview()
+		:function! LatexPreview()
 		" {{{
 		:  if executable("latex2pdf")
 		:    autocmd BufWritePost <buffer> call system("latex2pdf " . expand("%"))
@@ -750,6 +751,16 @@
 		:  endif
 		:  let l:filename = substitute(expand("%"), "\.tex$", ".pdf", "")
 		:  call system('xdg-open '. l:filename. ' >/dev/null 2>/dev/null &')
+		:endfunction
+		" }}}
+
+		:function! LatexCarriageReturn()
+		" {{{
+		:  if getline('.') =~ '^\s*\\begin{.*}$'
+		:    let l:line = substitute(getline('.'), "begin", "end", "")
+		:    return "\<CR>" . l:line . "\<esc>O"
+		:  endif
+		:  return "\<CR>"
 		:endfunction
 		" }}}
 	" }}}
