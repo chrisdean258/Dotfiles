@@ -1,28 +1,16 @@
 #!/bin/bash
-dir=`basename $PWD`
-up=".."
 
-while ! echo "$dir" | grep "[0-9]" &>/dev/null && ! [ -d ${up}/.git ]; do
-	dir=$(basename $(realpath $up))/$dir
-	up=$up"/.."
-done
+_run()
+{
+	tput bold
+	echo "$@"
+	tput sgr0
+	"$@"
+}
 
-tput bold
-echo git pull
-tput sgr0
-git pull
+comment=`echo ${GIT_PREFIX:-./} | sed 's/[\.\/-]/ /g'`
 
-tput bold
-echo git add .
-tput sgr0
-git add .
-
-tput bold
-echo git commit -m "\"$dir notes\""
-tput sgr0
-git commit -m "$dir notes"
-
-tput bold
-echo git push
-tput sgr0
-git push
+_run git pull
+_run git add -A .
+_run git commit -m "Notes: $comment"
+_run git push
