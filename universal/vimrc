@@ -461,6 +461,7 @@
 	:  autocmd Filetype markdown :setlocal breakindent
 	:endif
 	:autocmd Filetype markdown :cabbrev markdown call NotesMDFormat()
+	:autocmd FileType markdown :command! Preview call MDPreview()
 	:augroup END
 	" }}}
 
@@ -741,6 +742,18 @@
 		:endfunction
 		" }}}
 
+		:function! MDPreview()
+		" {{{
+		:  let l:filename = substitute(expand("%"), "\.md$", ".pdf", "")
+		:  if executable("pandoc")
+		:    autocmd! BufWritePost <buffer> :call system("pandoc " . expand("%"). " -s -o " . substitute(expand("%"), "\.md$", ".pdf", ""))
+		:    write
+		:  endif
+		:  call system('xdg-open "'. l:filename. '" >/dev/null 2>/dev/null &')
+		:endfunction
+		" }}}
+
+
 	" }}}
 
 	" Latex
@@ -748,7 +761,7 @@
 		:function! LatexPreview()
 		" {{{
 		:  if executable("latex2pdf")
-		:    autocmd BufWritePost <buffer> call system("latex2pdf " . expand("%"))
+		:    autocmd! BufWritePost <buffer> call system("latex2pdf " . expand("%"))
 		:    write
 		:  endif
 		:  let l:filename = substitute(expand("%"), "\.tex$", ".pdf", "")
