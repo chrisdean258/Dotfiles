@@ -409,6 +409,7 @@
 	:    autocmd FileType tex :setlocal breakindent
 	:  endif
 	:  autocmd FileType tex :inoremap <expr><buffer><CR> LatexCarriageReturn()
+	:  autocmd FileType tex :nnoremap <buffer>; mqviwv`<i\<esc>`ql
 	:  autocmd FileType tex :command! Preview call LatexPreview()
 	:augroup END
 	" }}}
@@ -759,7 +760,7 @@
 		" {{{
 		:  if getline('.') =~ '^\s*\\begin{.*}$'
 		:    let l:line = substitute(getline('.'), "begin", "end", "")
-		:    return "\<CR>" . l:line . "\<esc>O"
+		:    return "\<CR>" . l:line . "\<esc>==O"
 		:  endif
 		:  return "\<CR>"
 		:endfunction
