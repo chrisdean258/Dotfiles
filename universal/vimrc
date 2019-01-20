@@ -57,6 +57,9 @@
 	:set termencoding=utf-8                  " use utf-8 everywhere
 	:set cinoptions=(8,N-s,l1                " indent 8 for every open paren
 	:setlocal complete-=t                    " Turn off completion using tag files for all except c/c++ projects
+	:if getcwd() == expand("~")               " Turn off included file completion for home directory stuff
+	:  set complete-=i
+	:endif
 	:set matchpairs+=<:>                     " adding a matched pair for highlighting and wrapping
 
 	" Create needed folders for backups and undo files
@@ -231,8 +234,7 @@
 	:nnoremap <leader><space> <c-w><c-w>
 
 	" creating and navigating tabs
-	:nnoremap <silent><tab>         :tabnext<CR>
-	:nnoremap <silent><S-tab>       :tabprev<CR>
+	:nnoremap <silent><S-tab>       :tabnext<CR>
 	:nnoremap <silent><leader><tab> :tabnew<CR>
 
 	" Pasting from clipboard
@@ -604,7 +606,7 @@
 		" }}}
 	" }}}
 
-	" HTML/Markdown
+	" HTML
 	" {{{
 		:let s:unclosed = [ "area", "base", "br", "col", "command", "embed", "hr", "img", "input", "keygen", "link", "meta", "param", "source", "track", "wbr", "canvas" ]
 		:function! GetEndTagHTML()
@@ -674,6 +676,21 @@
 		:endfunction
 		" }}}
 
+		:function! HTMLPreview()
+		" {{{
+		:  let l:refresh = '<meta http-equiv="refresh" content="1">'
+		:  execute ':g/'.l:refresh.'/d'
+		:  execute ':g/<head>/normal! o'.l:refresh
+		:  write
+		:  silent !xdg-open % >/dev/null 2>/dev/null &
+		:endfunction
+		" }}}
+
+
+	" }}}
+
+	" Markdown
+	" {{{
 		:function! MDNewline(in)
 		"  {{{
 		:  let l:allowable_starts = [ '>', '\*', '-', '+', ]
@@ -733,27 +750,16 @@
 		:endfunction
 		" }}}
 
-		:function! HTMLPreview()
-		" {{{
-		:  let l:refresh = '<meta http-equiv="refresh" content="1">'
-		:  execute ':g/'.l:refresh.'/d'
-		:  execute ':g/<head>/normal! o'.l:refresh
-		:  write
-		:  silent !xdg-open % >/dev/null 2>/dev/null &
-		:endfunction
-		" }}}
-
 		:function! MDPreview()
 		" {{{
-		:  let l:filename = substitute(expand("%"), "\.md$", ".pdf", "")
-		:  if executable("pandoc")
-		:    autocmd! BufWritePost <buffer> :call system("pandoc " . expand("%"). " -s -o " . substitute(expand("%"), "\.md$", ".pdf", ""))
+		:  if executable("grip")
 		:    write
+		:    call system('grip ' . expand('%') . ' > /dev/null 2>/dev/null &')
+		:    call system('xdg-open http://localhost:6419 > /dev/null 2>/dev/null &')
+		:    autocmd VimLeave * :call system("pkill grip")
 		:  endif
-		:  call system('xdg-open "'. l:filename. '" >/dev/null 2>/dev/null &')
 		:endfunction
 		" }}}
-
 
 	" }}}
 
