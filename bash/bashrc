@@ -134,12 +134,7 @@ if [ -f ~/.bash-completion.bash ]; then
 	source ~/.bash-completion.bash
 fi
 
-
-RED="\[`tput setaf 1`\]"
-GREEN="\[`tput setaf 2`\]"
-YELLOW="\[`tput setaf 3`\]"
-BLUE="\[`tput setaf 4`\]"
-PURPLE="\[`tput setaf 5`\]"
+RED="\[`tput setaf 1`\]" GREEN="\[`tput setaf 2`\]" YELLOW="\[`tput setaf 3`\]" BLUE="\[`tput setaf 4`\]" PURPLE="\[`tput setaf 5`\]"
 AQUA="\[`tput setaf 6`\]"
 WHITE="\[`tput setaf 7`\]"
 BLACK="\[`tput setaf 8`\]"
@@ -170,8 +165,10 @@ maybe_newline()
 {
 	s1=$(echo "$(whoami | wc -c) + $(pwd | sed "s:$HOME:~:" | wc -c) + $(battery | wc -c)" | bc)
 	s2=$(git_branch | wc -c | awk '{print $1 ? int($1 - 20) : 0}')
-	sum=$(echo "($s1 + $s2) * 1.5 / 1" | bc)
-	if [ $sum -gt $(tput cols) ]; then
+	cols=$(tput cols)
+	nc=$(echo "($s1 + $s2)" | bc)
+	sum=$(echo "$nc * 1.5 / 1" | bc)
+	if [ $sum -gt $cols ] && [ $nc -lt $cols ]; then
 		echo "\n"
 	fi
 }
