@@ -328,7 +328,10 @@
 	:autocmd!
 	:autocmd OptionSet relativenumber :let &number=&relativenumber   " Turn on and off number when we toggle reelative number
 	:autocmd OptionSet wrap           :let &linebreak=&wrap          " break on words when were wrapping
-	:autocmd OptionSet spell          :setlocal spelllang=en         " set spell langage when we turn on spell
+	:autocmd OptionSet spell          :setlocal spelllang=en         " set spell language when we turn on spell
+	:autocmd OptionSet spell          :setlocal spelllang=en         " set spell language when we turn on spell
+	:autocmd OptionSet spell          :nnoremap <silent><buffer><localleader>s :call SpellReplace()<CR>
+	:autocmd OptionSet spell          :inoremap <silent><buffer><localleader>s <esc>:call SpellReplace()<CR>a
 	:augroup END
 	:endif
 	" }}}
