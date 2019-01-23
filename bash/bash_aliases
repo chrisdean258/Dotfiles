@@ -9,15 +9,12 @@ alias python="python3"
 alias xcut="xclip -sel clip"
 alias xpaste="xclip -o -sel clip"
 
-if [ "`which xdg-open`" ]; then
-	alias open="xdg-open"
-fi
-
-
 if [ "`which bc`" ]; then 
 	alias head="head -n \$(echo \$(tput lines)-2|bc)"
 	alias tail="tail -n \$(echo \$(tput lines)-2|bc)"
 fi
+
+alias open="open"
 
 
 alias cd..="cd .."
