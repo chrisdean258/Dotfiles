@@ -771,7 +771,7 @@
 		:function! LatexPreview()
 		" {{{
 		:  if executable("latex2pdf")
-		:    autocmd! BufWritePost <buffer> call system("latex2pdf " . expand("%"))
+		:    autocmd! BufWritePost <buffer> call system("cat /dev/null | latex2pdf " . expand("%"))
 		:    write
 		:  endif
 		:  let l:filename = substitute(expand("%"), "\.tex$", ".pdf", "")
