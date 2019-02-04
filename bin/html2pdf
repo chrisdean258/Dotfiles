@@ -1,0 +1,12 @@
+#!/bin/bash
+
+if [ $# -eq 0 ]; then
+	echo "Usage: pdf filename <args>"
+	exit 1
+fi
+
+file=$1
+shift
+out=`echo $file | sed "s/\(.*\)\..*/\1.pdf/"`
+
+wkhtmltopdf "$@" $file $out

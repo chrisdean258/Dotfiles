@@ -1,0 +1,30 @@
+#!/usr/bin/env python3
+
+import json
+import sys
+import os
+
+keys = {
+	"volhacks" : "xoxp-39232845171-86272366945-404756854566-2dba9ca050f5a73c4aaedf1f9728870c",
+	"hackutk"  : "xoxp-4181443650-144730109926-404472915847-918ee6819680e997f5446cd2ed8afc0f",
+	"neuromorphic-utk" : "xoxp-61274996613-372682390384-404755772886-83e67cf9c00a44f79d0f0fa5e11f3291",
+	"utkml" : "xoxp-118174652500-164795849568-404759307238-36ce1469c7c65757de5f5d66db816c2f",
+	"acm" : "xoxp-325562355012-326440570726-403305358883-e584cb60b45f4d5f5d49fef604912424",
+	"mos" : "xoxp-332303918307-332405108530-402725084240-92c5ab99bcd8e6a1d0caee431eed7092",
+}
+
+if len(sys.argv) > 1:
+    for k in keys:
+        if sys.argv[1].lower() in k:
+            key = keys[k]
+            break
+    else:
+        key = ""
+    if key:
+        j = json.loads(open("/home/chris/.slack-term", "r").read())
+        j["slack_token"] = key
+
+        with open("/home/chris/.slack-term", "w") as f:
+            f.write(json.dumps(j))
+
+os.system("slack-term")

@@ -1,0 +1,18 @@
+#!/bin/bash
+
+if [ $# -eq 0 ]; then
+	echo "Usage: latex2pdf filenames" >&2
+	exit 1
+fi
+
+
+while [ $# -gt 0 ]; do
+	if ! [ -f $1 ]; then
+		shift
+		continue
+	fi
+	filename=`echo $1 | sed 's/\.tex//g'`
+	pdflatex $1 -interaction errorstopmode #&> /dev/null
+	rm -f $filename.aux $filename.log
+	shift
+done

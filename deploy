@@ -23,5 +23,11 @@ ln -s `realpath .`/dirs/git_scripts ~/bin/git
 rm -rf ~/.git_template
 ln -s `realpath .`/dirs/git_template ~/.git_template
 
+for f in bin/*; do
+	rm -f ~/$f
+	ln $f ~/$f
+done
+
+
 deploy universal
 deploy $shell

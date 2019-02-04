@@ -1,0 +1,49 @@
+#!/bin/bash
+
+spawn()
+{
+	tput bold
+	echo "$@"
+	tput sgr0
+	"$@"
+}
+
+base=`find ~ -name Dotfiles -type d | head -n 1`
+if [ -z "$base" ]; then
+	echo "Please clone the dotfiles repo into a directory called Dotfiles" >&2
+	exit 1
+fi
+	
+
+
+if [ $# -lt 1 ]; then
+	echo "Usage: dots save|deploy (--force)"
+	exit 1
+fi
+
+cd "$base"
+if [ "$1" = "save" ] || [ "$1" = "push" ] || [ "$1" = "commit" ]; then
+	if [ $# -gt 1 ]; then
+		shift
+		comment="$* "
+	else
+		comment=""
+	fi
+	comment="$comment`git diff --name-only`"
+	spawn git add .
+	spawn git commit -m "$comment"
+	spawn git push
+elif [ "$1" = "deploy" ]; then
+	if git status 2>/dev/null | grep -q clean; then
+		git pull >/dev/null
+	elif [ "$2" = "--force" ]; then
+		git reset --hard >/dev/null
+		git pull >/dev/null
+	else
+		echo "You have unsaved changes in your dotfiles"
+	fi
+	./deploy
+else
+	git "$@"
+fi
+

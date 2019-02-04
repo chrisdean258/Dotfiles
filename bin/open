@@ -1,0 +1,6 @@
+#!/bin/bash
+
+while [ $# -gt 0 ]; do
+	xdg-open "$1" >/dev/null 2>/dev/null & 
+	shift
+done
