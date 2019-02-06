@@ -252,6 +252,9 @@
 	:nnoremap <silent><localleader>\ :call Comment()<CR>
 	:vnoremap <silent><localleader>\ :call Comment("visual")<CR>
 
+	" Arg swap
+	:nnoremap <silent><leader>sw :call SwapArgs()<CR>
+
 	" Paste mode
 	:nnoremap \p :set paste<CR>
 
@@ -1200,6 +1203,20 @@
 		:  endif
 		:endfunction
 		" }}}
+
+		:function! SwapArgs()
+		" {{{
+		:  let l:window = winsaveview()
+		:  exec 'normal! "ayi('
+		:  let l:args = reverse(split(@a, ","))
+		:  call map(l:args, 'Strip(v:val)')
+		:  let @a = join(l:args, ", ")
+		:  exec 'normal! vi("ap'
+		:  call winrestview(l:window)
+		:endfunction
+		" }}}
+
+
 	" }}}
 
 " }}}
