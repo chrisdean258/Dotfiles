@@ -1108,7 +1108,7 @@
 
 		:function! IfScript()
 		" {{{
-		:  if getline(1) =~ '^#!/'
+		:  if getline(1) =~ '^#!/' && exists("*setfperm")
 		:    let perm = getfperm(expand("%"))
 		:    let perm = perm[:1] . "x" . perm[3:]
 		:    call setfperm(expand("%"), perm)
@@ -1215,7 +1215,6 @@
 		:  call winrestview(l:window)
 		:endfunction
 		" }}}
-
 
 	" }}}
 
