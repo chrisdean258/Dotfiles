@@ -160,6 +160,7 @@
 	" move up and down visually rather than linewise
 	:nnoremap j gj
 	:nnoremap k gk
+	:nnoremap gI g^i
 
 	" Use jk instead of escape
 	:inoremap <expr> jk CleverEsc()
