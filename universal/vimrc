@@ -80,6 +80,10 @@
 	:set undoreload=10000
 	:set backup
 
+	:if &commentstring == '/*%s*/'
+	:  setlocal commentstring=/*\ %s\ */
+	:endif
+
 " }}}
 
 " HIGHLIGHT SETTINGS {{{
