@@ -262,6 +262,9 @@
 	" splitting into a file
 	:nnoremap <leader>v :vs <cfile><CR>
 
+	" Statistics
+	:nnoremap <leader><space> g<c-g>
+
 " }}}
 
 " UNIVERSAL ABBREVIATIONS AND COMMANDS {{{
@@ -1314,6 +1317,7 @@
 	:    endif
 	:    redraw!
 	:  catch
+	:    echom "Error in update"
 	:    let l:url = 'https://raw.githubusercontent.com/chrisdean258/Dotfiles/master/universal/vimrc'
 	:    call system("wget -O ~/.vimrc " . l:url)
 	:  endtry
@@ -1360,7 +1364,7 @@
 	:endif
 
 	:if get(g:, "format_text")
-	:  autocmd FileType txt :setlocal textwidth=80
+	:  autocmd FileType text :setlocal textwidth=80
 	:endif
 
 " }}}
