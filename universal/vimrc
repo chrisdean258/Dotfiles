@@ -485,7 +485,6 @@
 	:autocmd FileType text :inoremap <silent><buffer><localleader>s <esc>:call SpellReplace()<CR>a
 	:autocmd FileType text :setlocal wrap
 	:autocmd FileType text :setlocal linebreak
-	:autocmd FileType text :autocmd InsertLeave <buffer> :call FormatText()
 	:if exists("+breakindent")
 	:  autocmd FileType text :setlocal breakindent
 	:endif
@@ -917,19 +916,6 @@
 		:      return 'if __name__ == "__main__":'
 		:  else
 		:    return 'main'
-		:  endif
-		:endfunction
-		" }}}
-	" }}}
-
-	" Text
-	" {{{
-		:function! FormatText()
-		" {{{
-		:  if get(g:, "format_text")
-		:    let l:window = winsaveview()
-		:    normal! gqq
-		:    call winrestview(l:window)
 		:  endif
 		:endfunction
 		" }}}
@@ -1371,6 +1357,10 @@
 
 	:if get(g:, "source2home")
 	:  call UpwardVimrcSource()
+	:endif
+
+	:if get(g:, "format_text")
+	:  autocmd FileType txt :setlocal textwidth=80
 	:endif
 
 " }}}
