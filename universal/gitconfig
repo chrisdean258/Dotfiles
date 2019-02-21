@@ -19,6 +19,7 @@
 	reload-hooks = !~/bin/git/reload-hooks
 	issues = !ghi
 	i = !ghi
+	keep = !~/bin/git/keep
 [merge]
 	tool = vimdiff
 [core]

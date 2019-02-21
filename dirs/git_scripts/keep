@@ -1,0 +1,11 @@
+#!/bin/bash
+
+while [ $# -gt 0 ]; do
+	file="$GIT_PREFIX/$1/.gitignore"
+	if ! [ -f $file ]; then
+		touch "$file"
+		shift
+	else
+		echo "Ignoring $1. Already has gitignore file"
+	fi
+done
