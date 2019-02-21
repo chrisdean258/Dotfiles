@@ -920,7 +920,7 @@
 		:function! PythonMainAbbrev()
 		" {{{
 		:  if getline('.') =~ '^$'
-		:      return 'if __name__ == "__main__":'
+		:      return "def main():\npass\n\nif __name__ == \"__main__\":\nmain()"
 		:  else
 		:    return 'main'
 		:  endif
