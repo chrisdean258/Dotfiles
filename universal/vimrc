@@ -185,8 +185,8 @@
 	:nnoremap <silent>. :call RepeatFunc()<CR>.
 
 	" move lines up and down respectively
-	:nnoremap <expr>_ MoveLineDown()
-	:nnoremap <expr>- MoveLineUp()
+	:nnoremap <expr>- MoveLineDown()
+	:nnoremap <expr>_ MoveLineUp()
 
 	" indent entire file
 	:nnoremap <silent><leader>g :call Indent()<CR>
