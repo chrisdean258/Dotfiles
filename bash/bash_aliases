@@ -24,3 +24,7 @@ alias lc="ls -1"
 
 alias moo="fortune|cowsay"
 alias jarva="java -jar"
+
+if [ "`which colordiff`" ]; then
+	alias diff="colordiff"
+fi
