@@ -182,7 +182,10 @@ shopt -s histappend
 
 [ -x "$(command -v python3)" ] || source /opt/rh/python33/enable
 
-if ! diff ~/..bash_update <(date +%j) &>/dev/null; then
+! [ -f ~/.bash_update ] && touch ~/.bash_update
+
+if ! diff ~/.bash_update <(date +%j) &>/dev/null; then
+	echo hi
 	dots deploy
 	date +%j > ~/.bash_update
 fi
