@@ -185,7 +185,6 @@ shopt -s histappend
 ! [ -f ~/.bash_update ] && touch ~/.bash_update
 
 if ! diff ~/.bash_update <(date +%j) &>/dev/null; then
-	echo hi
 	dots deploy
 	date +%j > ~/.bash_update
 fi
