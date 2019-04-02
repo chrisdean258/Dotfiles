@@ -56,31 +56,21 @@ j()
 		new_dir=$(
 		tac $jmps |
 		grep -i "$pattern" |
-		awk '{ if (!a[$0]++) print $0 }' |
-		awk '{ print $0; if(!a) a = $0 }; END { print a }' |
+		awk '{ if (!a[$0]++) print $0; if(!b) b = $0 }; END { print b }' |
 		grep -m 1 -A 1 "^$PWD$" |
 		\tail -1
 		)
 	else
-		new_dir=$(
-		tac $jmps |
-		grep -i "$pattern" |
-		awk '{ if (!a[$0]++) print $0 }' |
-		\head -n 1
-		)
-
+		new_dir=$(grep -i "$pattern" $jmps | \tail -n 1)
 	fi
 
-	if ! [ -z "$new_dir" ]
+	if [ "$new_dir" ]
 	then 
 		if [ -d "$new_dir" ]
 		then
 			builtin cd $new_dir 
 		else
-			temp=$(mktemp)
-			mv $jmps $temp
-			grep -v "^$new_dir$" $temp > $jmps
-			rm $temp
+			sed -i "/^$new_dir$/d" $jmps
 			j "$@"
 		fi
 	fi
