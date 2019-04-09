@@ -880,27 +880,38 @@
 		:function! SplitIf()
 		" {{{
 		:  let l:window = winsaveview()
-		:  let l:split = 0
-		:  if getline('.') =~ '.\+(.*).\+'
-		:    let l:split = 1
-		:  elseif getline(line('.')) . getline(line('.')+1) =~ '.\+(.*).\+'
-		:    normal! J
-		:    let l:split = 1
-		:  elseif line('.') != 1 && getline(line('.')-1) . getline(line('.')) =~ '.\+(.*).\+'
-		:    normal! kJ
-		:    let l:split = 1
+		:  if getline('.') =~ '^\s*else\s.\+'
+		:    execute "normal! 0feel"
+		:    call SplitIf_Internal()
+		:  elseif line('.') != line('$') && getline(line('.')) . getline(line('.')+1) =~ '^\s*else\s.\+'
+		:    execute "normal! J0feel"
+		:    call SplitIf_Internal()
+		:  elseif line('.') != 1 && getline(line('.')-1) . getline(line('.')) =~ '^\s*else\s.\+'
+		:    execute "normal! kJ0feel"
+		:    call SplitIf_Internal()
+		:  elseif getline('.') =~ '^\s*.\+(.*).\+'
+		:    execute "normal! 0f(%l"
+		:    call SplitIf_Internal()
+		:  elseif line('.') != line('$') && getline(line('.')) . getline(line('.')+1) =~ '^\s*.\+(.*).\+'
+		:    execute "normal! J0f(%l"
+		:    call SplitIf_Internal()
+		:  elseif line('.') != 1 && getline(line('.')-1) . getline(line('.')) =~ '^\s*.\+(.*).\+'
+		:    execute "normal! kJ0f(%l"
+		:    call SplitIf_Internal()
 		:  endif
-		:  execute "normal! 0f(%"
-		:  if l:split
-		:    if get(g:, "inline_braces")
-		:      execute "normal! a{\<CR>\<esc>o}"
-		:      call winrestview(l:window)
-		:      normal! j^
-		:    else
-		:      execute "normal! a\<CR>{\<CR>\<esc>o}"
-		:      call winrestview(l:window)
-		:      normal! 2j^
-		:    endif
+		:  call winrestview(l:window)
+		:endfunction
+		" }}}
+
+		:function! SplitIf_Internal()
+		" {{{
+		:  if get(g:, "inline_braces")
+		:    execute "normal! i{\<CR>\<esc>o}"
+		:    call winrestview(l:window)
+		:    normal! j^
+		:  else
+		:    execute "normal! i\<CR>{\<CR>\<esc>o}"
+		:    normal! 2j^
 		:  endif
 		:endfunction
 		" }}}
@@ -1394,8 +1405,8 @@
 	:  autocmd FileType text :setlocal textwidth=80
 	:endif
 
+	:if get(g:, "light_folds")
+	:  highlight Folded ctermfg=DarkGrey guifg=DarkGrey
+	:endif
+
 " }}}
-
-
-" If you cannot see anything add the following line to ~/.vimrc.local without the double quote
-" :highlight Folded ctermfg=DarkGrey guifg=DarkGrey
