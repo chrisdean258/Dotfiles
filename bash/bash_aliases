@@ -1,29 +1,7 @@
-alias 1v="!v"
-alias 1vi="!vi"
-alias c="clear"
-
 alias bashrc=". ~/.bashrc"
-
-alias python="python3"
-
-alias xcut="xclip -sel clip"
-alias xpaste="xclip -o -sel clip"
-
-if [ "`which bc`" ]; then 
-	alias head="head -n \$(echo \$(tput lines)-2|bc)"
-	alias tail="tail -n \$(echo \$(tput lines)-2|bc)"
-fi
-
-alias open="open"
-
 
 alias cd..="cd .."
 alias ..="cd .."
-
-alias lc="ls -1"
-
-alias moo="fortune|cowsay"
-alias jarva="java -jar"
 
 if [ "`which colordiff 2>/dev/null`" ]; then
 	alias diff="colordiff"
