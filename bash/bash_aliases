@@ -58,7 +58,11 @@ j()
 	if [ $# -ne 0 ]
 	then
 		pattern=".*$(echo "$@" | sed "s/\s\+/.*\/.*/g")[^\/]*$"
+	else
+		builtin cd "$(tail -n 1 $jmps)"
+		return 0
 	fi
+
 
 	if [ "$1" = "--setup" ]; then
 		rm -rf $jmps
