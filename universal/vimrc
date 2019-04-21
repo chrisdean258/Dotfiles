@@ -889,14 +889,14 @@
 		:  elseif line('.') != 1 && getline(line('.')-1) . getline(line('.')) =~ '^\s*else\s.\+'
 		:    execute "normal! kJ0feel"
 		:    call SplitIf_Internal()
-		:  elseif getline('.') =~ '^\s*.\+(.*).\+'
+		:  elseif getline('.') =~ '^\s*.\+(.*)\+[^)].*'
 		:    execute "normal! 0f(%l"
 		:    call SplitIf_Internal()
-		:  elseif line('.') != line('$') && getline(line('.')) . getline(line('.')+1) =~ '^\s*.\+(.*).\+'
-		:    execute "normal! J0f(%l"
+		:  elseif line('.') != line('$') && getline(line('.')) . getline(line('.')+1) =~ '^\s*.\+(.*)\+[^)].*'
+		:    execute "normal! J"
 		:    call SplitIf_Internal()
-		:  elseif line('.') != 1 && getline(line('.')-1) . getline(line('.')) =~ '^\s*.\+(.*).\+'
-		:    execute "normal! kJ0f(%l"
+		:  elseif line('.') != 1 && getline(line('.')-1) . getline(line('.')) =~ '^\s*.\+(.*)\+[^)].*'
+		:    execute "normal! kJ"
 		:    call SplitIf_Internal()
 		:  endif
 		:  call winrestview(l:window)
