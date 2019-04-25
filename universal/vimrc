@@ -947,8 +947,7 @@
 		" {{{
 		:  let l:window = winsaveview()
 		:  if get(a:, 1, "") ==# 'visual'
-		:    let l:num = line("'<") - line("'>") + 1
-		:    exec "normal '<" . l:num .'\\'
+		:    '<,'>call Comment()
 		:    call winrestview(l:window)
 		:    return
 		:  endif
