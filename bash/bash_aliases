@@ -4,9 +4,8 @@ alias bashrc=". ~/.bashrc"
 alias cd..="cd .."
 alias ..="cd .."
 
-if [ "`which colordiff 2>/dev/null`" ]; then
-	alias diff="colordiff"
-fi
+[ -x colordiff ] && alias diff="colordiff"
+[ -x neomutt   ] && alias mutt="neomutt"
 
 -()
 {
