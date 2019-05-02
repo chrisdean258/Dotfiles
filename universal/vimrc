@@ -148,8 +148,6 @@
 	" Linting python
 	:if executable("flake8")
 	:  let g:syntastic_python_checkers = [ "flake8" ]
-	:else
-	:  SyntasticToggleMode
 	:endif
 	:let g:syntastic_python_flake8_args=['--ignore=F841,F405,F403,F402,F401']
 	:let g:syntastic_always_populate_loc_list = 1
@@ -1273,13 +1271,11 @@
 	
 	:function! UpwardVimrcSource()
 	:  let l:dir = getcwd()
-	:  let l:i = 100
-	:  while l:dir =~ "\/" && l:dir != $HOME && l:i > 0
+	:  while l:dir =~ "\/" && l:dir != $HOME
 	:    if filereadable(l:dir . "/.vimrc")
 	:      execute "source " . l:dir . "/.vimrc"
 	:    endif
 	:    let l:dir = fnamemodify(l:dir, ":p:h:h")
-	:    let l:i = l:i - 1
 	:  endwhile
 	:endfunction
 
@@ -1337,6 +1333,24 @@
 		" {{{
 		:  if exists("*getwininfo") && len(getwininfo()) == 1 && bufname("%") =~ '^!'
 		:    q!
+		:  endif
+		:endfunction
+		" }}}
+
+		:function! BackGroundPython()
+		" {{{
+		:  let g:python_proc_directory = get(g:, python_proc_directory)
+		:  if g:python_proc_directory == 0
+		:    let l:python = "python3"
+		:    if getline(1) =~ "python$"
+		:      let l:python = "python"
+		:    endif
+		:    let g:python_proc_directory = system("mktemp -d vim-python.XXXXXXXXXX")
+		:    let g:python_input_pipe = g:python_proc_directory . '/input'
+		:    let g:python_output_pipe = g:python_proc_directory . '/output'
+		:    call system("mknod p ".g:python_input_pipe)
+		:    call system("mknod p ".g:python_output_pipe)
+		:    autocmd VimLeave * :call system("rm -rf ".g:python_proc_directory)
 		:  endif
 		:endfunction
 		" }}}
