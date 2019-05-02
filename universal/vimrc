@@ -148,6 +148,8 @@
 	" Linting python
 	:if executable("flake8")
 	:  let g:syntastic_python_checkers = [ "flake8" ]
+	:else
+	:  SyntasticToggleMode
 	:endif
 	:let g:syntastic_python_flake8_args=['--ignore=F841,F405,F403,F402,F401']
 	:let g:syntastic_always_populate_loc_list = 1
@@ -1271,11 +1273,13 @@
 	
 	:function! UpwardVimrcSource()
 	:  let l:dir = getcwd()
-	:  while l:dir =~ "\/" && l:dir != $HOME
+	:  let l:i = 100
+	:  while l:dir =~ "\/" && l:dir != $HOME && l:i > 0
 	:    if filereadable(l:dir . "/.vimrc")
 	:      execute "source " . l:dir . "/.vimrc"
 	:    endif
 	:    let l:dir = fnamemodify(l:dir, ":p:h:h")
+	:    let l:i = l:i - 1
 	:  endwhile
 	:endfunction
 
