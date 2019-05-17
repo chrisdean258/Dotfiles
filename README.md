@@ -14,6 +14,10 @@ This git repository is for storing and backing up my vimrc
 ```sh
 wget https://raw.githubusercontent.com/chrisdean258/Dotfiles/master/universal/vimrc -O $HOME/.vimrc
 ```
+or
+```sh
+curl https://raw.githubusercontent.com/chrisdean258/Dotfiles/master/universal/vimrc > $HOME/.vimrc
+```
 
 ### Install Notes
 

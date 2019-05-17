@@ -445,6 +445,7 @@
 	:autocmd FileType python  :setlocal tabstop=4
 	:autocmd FileType python  :setlocal expandtab
 	:autocmd FileType python  :setlocal nosmartindent
+	:autocmd FileType python  :setlocal complete-=i
 	:autocmd FileType python  :iabbrev inport import
 	:autocmd FileType python  :call RemoveTrailingWhitespace_AU()
 	:autocmd FileType python  :iabbrev <buffer> main <C-R>=PythonMainAbbrev()<CR>
@@ -1427,8 +1428,10 @@
 	:  autocmd FileType text :setlocal textwidth=80
 	:endif
 
-	:if get(g:, "light_folds")
+	:if get(g:, "dark_folds") != 1
 	:  highlight Folded ctermfg=DarkGrey guifg=DarkGrey
+	:  highlight tabline ctermfg=DarkGrey guifg=DarkGrey
+	:  highlight tablinesel ctermfg=Grey guifg=Grey
 	:endif
 
 " }}}
