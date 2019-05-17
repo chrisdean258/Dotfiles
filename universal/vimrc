@@ -1341,9 +1341,9 @@
 		" {{{
 		:  let g:python_proc_directory = get(g:, python_proc_directory)
 		:  if g:python_proc_directory == 0
-		:    let l:python = "python3"
+		:    let l:python = "python3 -i"
 		:    if getline(1) =~ "python$"
-		:      let l:python = "python"
+		:      let l:python = "python -i"
 		:    endif
 		:    let g:python_proc_directory = system("mktemp -d vim-python.XXXXXXXXXX")
 		:    let g:python_input_pipe = g:python_proc_directory . '/input'
