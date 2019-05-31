@@ -245,7 +245,7 @@
 
 	" creating and navigating tabs
 	:nnoremap <silent><S-tab>       :tabnext<CR>
-	:nnoremap <silent><C-S-tab>     :tabprevious<CR>
+	:nnoremap <silent><S-q>         :tabprevious<CR>
 	:nnoremap <silent><leader><tab> :tabnew<CR>
 
 	" Pasting from clipboard
