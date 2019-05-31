@@ -245,6 +245,7 @@
 
 	" creating and navigating tabs
 	:nnoremap <silent><S-tab>       :tabnext<CR>
+	:nnoremap <silent><C-S-tab>     :tabprevious<CR>
 	:nnoremap <silent><leader><tab> :tabnew<CR>
 
 	" Pasting from clipboard
@@ -1262,6 +1263,19 @@
 		:  return '"add"ap'
 		:endfunction
 		" }}}
+		
+		:function! CloseMatches()
+                " {{{
+                :  let l:pairs = split(&matchpairs, ",")
+                :  for pair in l:pairs
+                :    let l:temp = split(pair, ":")
+                :    let l:begin = l:temp[0]
+                :    let l:end = l:temp[1]
+                :    exec "inoremap " . l:begin . l:end . " " . l:begin . l:end . "<left>"
+                :    exec "inoremap <expr> " . l:end . ' (getline(".")[col(".")-1] == "' . l:end . '" ? "\<right>" : "' . l:end . '")'
+                :  endfor
+                :endfunction
+                " }}}
 
 	" }}}
 
@@ -1433,5 +1447,9 @@
 	:  highlight tabline ctermfg=DarkGrey guifg=DarkGrey
 	:  highlight tablinesel ctermfg=Grey guifg=Grey
 	:endif
+	
+	:if get(g:, "close_matches")
+        :  call CloseMatches()
+        :endif
 
 " }}}
