@@ -1268,12 +1268,14 @@
                 " {{{
                 :  let l:pairs = split(&matchpairs, ",")
                 :  for pair in l:pairs
-                :    let l:temp = split(pair, ":")
-                :    let l:begin = l:temp[0]
-                :    let l:end = l:temp[1]
-                :    exec "inoremap " . l:begin . l:end . " " . l:begin . l:end . "<left>"
-                :    exec "inoremap <expr> " . l:end . ' (getline(".")[col(".")-1] == "' . l:end . '" ? "\<right>" : "' . l:end . '")'
-                :  endfor
+                :    if maparg(l:begin.l:end, "i") == "" && maparg(l:end, "i") == ""
+                :      let l:temp = split(pair, ":") 
+                :      let l:begin = l:temp[0]
+                :      let l:end = l:temp[1]
+                :      exec "inoremap " . l:begin . l:end . " " . l:begin . l:end . "<left>"
+                :      exec "inoremap <expr> " . l:end . ' (getline(".")[col(".")-1] == "' . l:end . '" ? "\<right>" : "' . l:end . '")' 
+                :    endif
+		:  endfor
                 :endfunction
                 " }}}
 
