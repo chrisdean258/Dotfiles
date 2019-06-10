@@ -1,7 +1,7 @@
 # If not running interactively, don't do anything
 echo $- | grep -q "i" || return
 
-HISTCONTROLignoreboth
+HISTCONTROL=ignoreboth
 HISTSIZE=
 HISTFILESIZE=
 P_RED="\[`tput setaf 1`\]" 
@@ -75,13 +75,13 @@ prompt_command()
 		git_branch=$(echo -en " $P_GREEN($(git rev-parse --abbrev-ref HEAD | tr -d "\n\f")$(timeout 0.5s git status 2>/dev/null | grep -q clean || echo "*"))$P_CLEAR")
 	fi
 	maybe_newline=""
-	s1=$(echo "$(whoami | wc -c) + $(pwd | sed "s:$HOME:~:" | wc -c) + $(battery | wc -c)" | bc)
-	s2=$(git_branch | wc -c | awk '{print $1 ? int($1 - 20) : 0}')
+	s1=$(echo "$(whoami | wc -c) + $(pwd | sed "s:$HOME:~:" | wc -c) + $(echo $battery | wc -c)" | bc)
+	s2=$(echo $git_branch | wc -c | awk '{print $1 ? int($1 - 20) : 0}')
 	cols=$(tput cols)
 	nc=$(echo "($s1 + $s2)" | bc)
 	sum=$(echo "$nc * 1.5 / 1" | bc)
 	if [ $sum -gt $cols ] && [ $nc -lt $cols ]; then
-		maybe_newline=$(echo "\n"$)
+		maybe_newline=$(echo "\n")
 	fi
 	PS1="${return_val}${battery}$PROMPT_SAVE${git_branch}${maybe_newline}\$ "
 }
