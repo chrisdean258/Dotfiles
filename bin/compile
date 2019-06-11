@@ -1,0 +1,25 @@
+#!/bin/bash
+
+compile()
+{
+
+	case "$1" in
+		*.md) echo pandoc "$1" -o ${1/md/pdf} -V geometry:margin=0.5in ;;
+		*.c) make "$1" ;;
+		*) echo "Cannot compile $1"
+	esac
+}
+
+
+if ls | grep -q "akefile"; then
+	make
+	exit $?
+fi
+
+files="$@"
+if [ $# -eq 0 ]; then files=$(ls); fi
+for file in $files; do
+	compile "$file"
+done
+
+
