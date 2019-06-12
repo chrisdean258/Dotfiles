@@ -70,7 +70,7 @@ This section contains mappings available in every file opened in vim
 | *\<leader-tab\>*       | Open new tab                                                                       |
 | *\<leader-p\>*         | Paste from system keyboard (follows case)                                          |
 | *Y*                    | Yank to the end of the line                                                        |
-| *\<localleader\>\\\*   | Comment in or out a line or lines                                                  |
+| *\<localleader\>\\*    | Comment in or out a line or lines                                                  |
 
 #### Insert mode
 
