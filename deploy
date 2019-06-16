@@ -1,33 +1,28 @@
-#!/bin/bash
+#!/usr/bin/env python3
 
-deploy()
-{
-	for file in $1/*; do
-		if [ -f $file ]; then
-			rm -rf ~/.`basename $file`
-			ln $file ~/.`basename $file`
-		fi
-	done
+from glob import glob
+import itertools
+import os
 
-}
+IGNORE_FILE = ".ignore"
+HOME = os.environ["HOME"]
+HERE = os.getcwd()
 
-shell="${1:-bash}"
+ignores = [ (".ignore", ".git") ]
+if os.access(IGNORE_FILE, os.R_OK):
+    with open(".ignore", "r") as f:
+        ignores += [ glob(line.strip()) for line in f ]
+    ignores = set(itertools.chain.from_iterable(ignores))
 
-mkdir -p ~/bin
-rm -f ~/bin/dots
-ln dots ~/bin/dots
-mkdir -p ~/bin
-rm -rf ~/bin/git
-ln -s `realpath .`/dirs/git_scripts ~/bin/git
+files = [ f for f in os.listdir('.') if f not in ignores ]
 
-rm -rf ~/.git_template
-ln -s `realpath .`/dirs/git_template ~/.git_template
+for f in files:
+    myfile = os.path.join(HERE, f)
+    link = os.path.join(HOME, f)
+    try:
+        os.remove(link)
+    except FileNotFoundError:
+        pass
+    os.symlink(myfile, link)
+    print(f"{link} -> {myfile}")
 
-for f in bin/*; do
-	rm -f ~/$f
-	ln $f ~/$f
-done
-
-
-deploy universal
-deploy $shell
