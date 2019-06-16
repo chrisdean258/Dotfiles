@@ -13,13 +13,15 @@
 	ignore = update-index --skip-worktree
 	unignore = update-index --no-skip-worktree
 	ignored = !git ls-files -v | grep \"^S\"
-	b = !~/bin/git/branch
-	save = !~/bin/git/save
-	note = !~/bin/git/notes
-	reload-hooks = !~/bin/git/reload-hooks
+	b = !~/.git_scripts/branch
+	save = !~/.git_scripts/save
+	note = !~/.git_scripts/notes
+	reload-hooks = !~/.git_scripts/reload-hooks
 	issues = !ghi
 	i = !ghi
-	keep = !~/bin/git/keep
+	keep = !~/.git_scripts/keep
+	new-repo = !~/.git_scripts/new_github_repo
+	delete-repo = !~/.git_scripts/delete_github_repo
 [merge]
 	tool = vimdiff
 [core]
