@@ -6,7 +6,7 @@ import itertools
 import os
 
 verbose = False
-if len(sys.argv) > 0 and (sys.argv[1] == "--verbose" or sys.argv[1] == "-v"):
+if len(sys.argv) > 1 and (sys.argv[1] == "--verbose" or sys.argv[1] == "-v"):
     verbose = True
 
 IGNORE_FILE = ".ignore"
