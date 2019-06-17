@@ -353,7 +353,6 @@
 	" {{{ 
 	:augroup c_style
 	:  autocmd!
-	":  autocmd FileType c,cpp,javascript,java,perl,cs :nnoremap <silent><buffer><localleader>\ :call CommentBL('\/\/')<CR>
 	:  autocmd FileType c,cpp,javascript,java,perl,cs :setlocal commentstring=//%s
 	:  autocmd FileType c,cpp,javascript,java,perl,cs :nnoremap <silent><buffer><localleader>s :call SplitIf()<CR>
 	:  autocmd FileType c,cpp,javascript,java,perl,cs :nnoremap <silent><buffer>; :call AppendSemicolon()<CR>
@@ -437,7 +436,6 @@
 	" {{{
 	:augroup python_
 	:autocmd!
-	" :autocmd FileType python,matlab,shell,sh,bash  :nnoremap <silent><buffer><localleader>\ :call CommentBL('#')<CR>
 	:autocmd FileType python  :setlocal tabstop=4
 	:autocmd FileType python  :setlocal expandtab
 	:autocmd FileType python  :setlocal nosmartindent
@@ -449,6 +447,7 @@
 	:autocmd FileType python  :let g:pyindent_nested_paren = '&sw'
 	:autocmd FileType python  :let g:pyindent_continue = '0'
 	:autocmd FileType python  :autocmd BufEnter <buffer> :if getline(1) !~ '^#' | call append(0, "#!/usr/bin/env python3") | endif
+	:autocmd FileType python  :autocmd CursorMoved,CursorMovedI <buffer> call HighlightAfterColumn(79)
 	:augroup END
 	" }}}
 
