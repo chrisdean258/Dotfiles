@@ -12,3 +12,4 @@ for branch in $(git branch --format='%(refname:short)' | grep -v "master"); do
 done
 
 
+git co "$cur_branch"
