@@ -22,6 +22,7 @@
 	keep = !~/.git_scripts/keep
 	new-repo = !~/.git_scripts/new_github_repo
 	delete-repo = !~/.git_scripts/delete_github_repo
+	rebase-all = !~/.git_scripts/rebase_all
 [merge]
 	tool = vimdiff
 [core]
