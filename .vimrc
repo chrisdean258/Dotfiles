@@ -264,6 +264,7 @@
 
 	" splitting into a file
 	:nnoremap <leader>v :vs <cfile><CR>
+	:nnoremap <leader>t :tabnew <cfile><CR>
 
 	" Statistics
 	:nnoremap <leader><space> g<c-g>
