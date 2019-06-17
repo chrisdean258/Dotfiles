@@ -16,8 +16,7 @@ if ls | grep -q "akefile"; then
 	exit $?
 fi
 
-files="$@"
-if [ $# -eq 0 ]; then files=$(ls); fi
+files="${@:-$(ls)}"
 for file in $files; do
 	compile "$file"
 done
