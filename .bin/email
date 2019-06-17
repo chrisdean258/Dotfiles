@@ -87,7 +87,7 @@ def main(argv):
 
     if not args["user"]: args["user"] = os.environ.get("email")
     if not args["from"]: args["from"] = os.environ.get("email")
-    if not args["subject"]: args["subject"] = input("Subject: ")
+    if not args["subject"]: args["subject"] = (input("Subject: "),)
 
     if not args["message"]:
         args["message_stream"] = sys.stdin
