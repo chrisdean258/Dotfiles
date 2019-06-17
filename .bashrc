@@ -21,11 +21,12 @@ export PATH=$PATH:$HOME/bin:$HOME/.bin
 export EDITOR=vim
 export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
 
-shopt -s histappend
-shopt -s cdspell
-shopt -s autocd 
-shopt -s checkwinsize
-shopt -s globstar
+shopt -s histappend   2>/dev/null
+shopt -s cdspell      2>/dev/null
+shopt -s autocd       2>/dev/null
+shopt -s checkwinsize 2>/dev/null
+shopt -s globstar     2>/dev/null
+shopt -s checkhash    2>/dev/null
 
 set -o vi
 
