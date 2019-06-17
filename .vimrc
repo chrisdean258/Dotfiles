@@ -223,6 +223,9 @@
 	:nnoremap <silent><leader>w :set opfunc=Wrap<CR>g@
 	:vnoremap <silent><leader>w :call Wrap("visual")<CR>
 
+	:nnoremap <silent><leader>sw :set opfunc=SwapArgs<CR>g@
+	:vnoremap <silent><leader>sw :call SwapArgs("visual")<CR>
+
 	" Resizing split
 	:nnoremap <silent><S-right> :vertical resize +5 <CR>
 	:nnoremap <silent><S-left>  :vertical resize -5 <CR>
@@ -257,7 +260,7 @@
 	:vnoremap <silent><localleader>\ :call Comment("visual")<CR>
 
 	" Arg swap
-	:nnoremap <silent><leader>sw :call SwapArgs()<CR>
+	" :nnoremap <silent><leader>sw :call SwapArgs()<CR>
 
 	" Paste mode
 	:nnoremap \p :set paste<CR>
@@ -1225,14 +1228,29 @@
 		:endfunction
 		" }}}
 
-		:function! SwapArgs()
+		:function! SwapArgs(type) range
 		" {{{
 		:  let l:window = winsaveview()
-		:  exec 'normal! "ayi('
+		:  let l:sel_save = &selection
+		:  let &selection = "inclusive"
+		:  if a:type ==# "line"
+		:    silent execute "normal! `[V`]$V"
+		:  elseif a:type ==# "char"
+		:    silent execute "normal! `[v`]v"
+		:  elseif a:type ==# "block"
+		:    silent execute "normal! `[\<C-V>`]\<C-V>"
+		:  endif
+		:  exec 'normal! gv"ay'
 		:  let l:args = reverse(split(@a, ","))
-		:  call map(l:args, 'Strip(v:val)')
-		:  let @a = join(l:args, ", ")
-		:  exec 'normal! vi("ap'
+		:  if len(l:args) > 1
+		:    call map(l:args, 'Strip(v:val)')
+		:    let @a = join(l:args, ", ")
+		:    exec 'normal! gv"ap'
+		:  else
+		:    let @a = join(reverse(split(@a)), " ")
+		:    exec 'normal! gv"ap'
+		:  endif
+		:  let &selection = l:sel_save
 		:  call winrestview(l:window)
 		:endfunction
 		" }}}
