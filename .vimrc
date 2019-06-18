@@ -1400,7 +1400,7 @@
 	:    endif
 	:    echom "updating"
 	:    call system("date +%j > ~/.vim/update")
-	:    let l:url = 'https://raw.githubusercontent.com/chrisdean258/Dotfiles/master/universal/vimrc'
+	:    let l:url = 'https://raw.githubusercontent.com/chrisdean258/Dotfiles/master/.vimrc'
 	:    call system("wget -O ~/.vimrc.temp " . l:url)
 	:    if system("cat  ~/.vimrc.temp") =~ '\S'
 	:      call system("mv ~/.vimrc.temp ~/.vimrc")
