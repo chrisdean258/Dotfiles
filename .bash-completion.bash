@@ -5,8 +5,7 @@ __complete_cd()
 	local cur dir
 	COMPREPLY=()
 	cur="${COMP_WORDS[COMP_CWORD]}"
-	dir=`dirname "$cur"`
-	COMPREPLY=( $(find . -prune -type d -ipath "./${cur}*" | sed "s/^..//" ) )
+	COMPREPLY=( $(compgen -d -G "${cur}*") )
 
 	return 0
 }
