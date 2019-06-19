@@ -3,7 +3,7 @@
 cur_branch=$(git branch | grep "^\*" | sed "s/^\* //")
 
 
-for branch in $(git branch --format='%(refname:short)' | grep -v "master"); do
+for branch in $(git branch | sed "s/[ \s\*]//g" | grep -v "master"); do
 	git co "$branch"
 	git pull --rebase
 	git rebase master
