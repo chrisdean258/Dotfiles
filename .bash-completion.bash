@@ -34,4 +34,4 @@ __complete_vim()
 	return 0
 }
 
-complete -o nosort -o default -F __complete_vim vim
+# complete -o nosort -o default -F __complete_vim vim
