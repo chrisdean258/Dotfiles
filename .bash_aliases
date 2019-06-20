@@ -64,9 +64,12 @@ j()
 
 
 	if [ "$1" = "--setup" ]; then
-		rm -rf $jmps
-		time=$(date +%D --date="-2 month")
-		find $HOME -type d -not -path "*/\.*" -newermt $time > $jmps
+		rm -rf "$jmps"
+		time=$(date +%D --date="-2 month" 2>/dev/null)
+		[ -z "$time" ] && time=$(date -v-2m "+%D")
+		cat <(find "$HOME" -type d -not -path "*/\.*" -newermt "$time") > "$jmps"
+		size="$(cat "$jmps" | wc -l)"
+		[ "$size" -lt 1000 ] && yes "" | head -n "$(echo $size | awk '{print 1000 - $1}')" >> "$jmps"
 		return 0
 	fi
 
