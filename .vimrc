@@ -628,7 +628,7 @@
 		:function! System(arg)
 		" {{{
 		:  let l:return = system(a:arg)
-		:  if v:shell_error != 1
+		:  if v:shell_error != 0
 		:    throw "Error: system(". a:arg . ") returned ".v:shell_error
 		:  endif
 		:  return l:return
