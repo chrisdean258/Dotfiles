@@ -278,14 +278,14 @@
 "_______________________________________________________________________________________________________
 
 	" Vertical splitting is better than horizontal splitting
-	:cabbrev help <C-R>=CommandLine(":", "vert help", "help")
-	:cabbrev sp <C-R>=CommandLine(":", "vs", "sp")
+	:cabbrev help <C-R>=CommandLine(":", "vert help", "help")<CR>
+	:cabbrev sp <C-R>=CommandLine(":", "vs", "sp")<CR>
 
 	" Quitting cause Im bad at typing
-	:cabbrev W <C-R>=CommandLine(":", "w", "W")
-	:cabbrev Q <C-R>=CommandLine(":", "q", "Q")
-	:cabbrev Wq <C-R>=CommandLine(":", "wq", "Wq")
-	:cabbrev WQ <C-R>=CommandLine(":", "wq", "WQ")
+	:cabbrev W <C-R>=CommandLine(":", "w", "W")<CR>
+	:cabbrev Q <C-R>=CommandLine(":", "q", "Q")<CR>
+	:cabbrev Wq <C-R>=CommandLine(":", "wq", "Wq")<CR>
+	:cabbrev WQ <C-R>=CommandLine(":", "wq", "WQ")<CR>
 
 	" Expanding for substitutions
 	:cabbrev S <C-R>=CommandLine(":", "%s", "S")<CR>
@@ -821,6 +821,7 @@
 
 		:function! CFold()
 		" {{{
+		:  ownsyntax c
 		:  setlocal foldtext=CFoldText()
 		:  setlocal fillchars=fold:\ "
 		:  highlight Folded guifg=DarkGreen ctermfg=DarkGreen
