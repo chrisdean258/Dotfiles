@@ -624,6 +624,17 @@
 		:  return Strip(LineBeforeCursor())
 		:endfunction
 		" }}}
+
+		:function! System(arg)
+		" {{{
+		:  let l:return = system(a:arg)
+		:  if v:shell_error != 1
+		:    throw "Error: system(". a:arg . ") returned ".v:shell_error
+		:  endif
+		:  return l:return
+		:endfunction
+		" }}}
+
 	" }}}
 
 	" HTML
@@ -1399,17 +1410,16 @@
 	:      redraw!
 	:      return
 	:    endif
-	:    echom "updating"
-	:    call system("date +%j > ~/.vim/update")
-	:    call system("wget -O ~/.vimrc.temp " . l:url)
-	:    if system("cat  ~/.vimrc.temp") =~ '\S'
-	:      call system("cat ~/.vimrc.temp > ~/.vimrc")
-	:      call system("rm ~/.vimrc.temp")
+	:    echom "Updating"
+	:    call System("date +%j > ~/.vim/update")
+	:    call System("wget -O ~/.vimrc.temp " . l:url)
+	:    if System("cat  ~/.vimrc.temp") =~ '\S'
+	:      call System("cat ~/.vimrc.temp > ~/.vimrc")
+	:      call System("rm ~/.vimrc.temp")
 	:    endif
 	:    redraw!
 	:  catch
-	:    echom "Error in update"
-	:    call system("wget -O ~/.vimrc " . l:url)
+	:    echom v:exception. ". Contact Chris if you think this was not caused by lack of internet"
 	:  endtry
 	:endfunction
 	" }}}
