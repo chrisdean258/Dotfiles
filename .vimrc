@@ -289,10 +289,9 @@
 	:cabbrev WQ wq
 
 	" Expanding for substitutions
-	:cabbrev S %s
-	:cabbrev a 'a,.s
-	:cabbrev $$ .,$s
-	:cabbrev Set setlocal
+	:cabbrev S <C-R>=CommandLine(":", "%s", "S")<CR>
+	:cabbrev a <C-R>=CommandLine(":", "'a,.s", "a")<CR>
+	:cabbrev $$ <C-R>=CommandLine(":", ".,$s", "$$")<CR>
 	" :cabbrev term term ++close ++rows=15
 
 	" Force writing
@@ -622,16 +621,6 @@
 		:function! TextBeforeCursor()
 		" {{{
 		:  return Strip(LineBeforeCursor())
-		:endfunction
-		" }}}
-
-		:function! System(arg)
-		" {{{
-		:  let l:return = system(a:arg)
-		:  if v:shell_error != 0
-		:    throw "Error: system(". a:arg . ") returned ".v:shell_error
-		:  endif
-		:  return l:return
 		:endfunction
 		" }}}
 
@@ -1302,6 +1291,22 @@
 		:  endfor
                 :endfunction
                 " }}}
+
+		:function! System(arg)
+		" {{{
+		:  let l:return = system(a:arg)
+		:  if v:shell_error != 0
+		:    throw "Error: system(". a:arg . ") returned ".v:shell_error
+		:  endif
+		:  return l:return
+		:endfunction
+		" }}}
+
+		:function! CommandLine(type, arg, default)
+		" {{{
+		:  return getcmdtype() == a:type ? a:arg : a:default
+		:endfunction
+		" }}}
 
 	" }}}
 
