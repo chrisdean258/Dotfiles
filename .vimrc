@@ -278,15 +278,14 @@
 "_______________________________________________________________________________________________________
 
 	" Vertical splitting is better than horizontal splitting
-	:cabbrev help vert help
-	:cabbrev sp vs
-	:cabbrev help vert help
+	:cabbrev help <C-R>=CommandLine(":", "vert help", "help")
+	:cabbrev sp <C-R>=CommandLine(":", "vs", "sp")
 
 	" Quitting cause Im bad at typing
-	:cabbrev W w
-	:cabbrev Q q
-	:cabbrev Wq wq
-	:cabbrev WQ wq
+	:cabbrev W <C-R>=CommandLine(":", "w", "W")
+	:cabbrev Q <C-R>=CommandLine(":", "q", "Q")
+	:cabbrev Wq <C-R>=CommandLine(":", "wq", "Wq")
+	:cabbrev WQ <C-R>=CommandLine(":", "wq", "WQ")
 
 	" Expanding for substitutions
 	:cabbrev S <C-R>=CommandLine(":", "%s", "S")<CR>
