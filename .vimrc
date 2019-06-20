@@ -1403,7 +1403,8 @@
 	:    call system("date +%j > ~/.vim/update")
 	:    call system("wget -O ~/.vimrc.temp " . l:url)
 	:    if system("cat  ~/.vimrc.temp") =~ '\S'
-	:      call system("mv ~/.vimrc.temp ~/.vimrc")
+	:      call system("cat ~/.vimrc.temp > ~/.vimrc")
+	:      call system("rm ~/.vimrc.temp")
 	:    endif
 	:    redraw!
 	:  catch
