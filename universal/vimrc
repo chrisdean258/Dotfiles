@@ -278,19 +278,21 @@
 "_______________________________________________________________________________________________________
 
 	" Vertical splitting is better than horizontal splitting
-	:cabbrev help <C-R>=CommandLine(":", "vert help", "help")<CR>
-	:cabbrev sp <C-R>=CommandLine(":", "vs", "sp")<CR>
+	:cabbrev help vert help
+	:cabbrev sp vs
+	:cabbrev help vert help
 
 	" Quitting cause Im bad at typing
-	:cabbrev W <C-R>=CommandLine(":", "w", "W")<CR>
-	:cabbrev Q <C-R>=CommandLine(":", "q", "Q")<CR>
-	:cabbrev Wq <C-R>=CommandLine(":", "wq", "Wq")<CR>
-	:cabbrev WQ <C-R>=CommandLine(":", "wq", "WQ")<CR>
+	:cabbrev W w
+	:cabbrev Q q
+	:cabbrev Wq wq
+	:cabbrev WQ wq
 
 	" Expanding for substitutions
-	:cabbrev S <C-R>=CommandLine(":", "%s", "S")<CR>
-	:cabbrev a <C-R>=CommandLine(":", "'a,.s", "a")<CR>
-	:cabbrev $$ <C-R>=CommandLine(":", ".,$s", "$$")<CR>
+	:cabbrev S %s
+	:cabbrev a 'a,.s
+	:cabbrev $$ .,$s
+	:cabbrev Set setlocal
 	" :cabbrev term term ++close ++rows=15
 
 	" Force writing
@@ -622,7 +624,6 @@
 		:  return Strip(LineBeforeCursor())
 		:endfunction
 		" }}}
-
 	" }}}
 
 	" HTML
@@ -821,7 +822,6 @@
 
 		:function! CFold()
 		" {{{
-		:  ownsyntax c
 		:  setlocal foldtext=CFoldText()
 		:  setlocal fillchars=fold:\ "
 		:  highlight Folded guifg=DarkGreen ctermfg=DarkGreen
@@ -1292,22 +1292,6 @@
                 :endfunction
                 " }}}
 
-		:function! System(arg)
-		" {{{
-		:  let l:return = system(a:arg)
-		:  if v:shell_error != 0
-		:    throw "Error: system(". a:arg . ") returned ".v:shell_error
-		:  endif
-		:  return l:return
-		:endfunction
-		" }}}
-
-		:function! CommandLine(type, arg, default)
-		" {{{
-		:  return getcmdtype() == a:type ? a:arg : a:default
-		:endfunction
-		" }}}
-
 	" }}}
 
 " }}}
@@ -1415,16 +1399,17 @@
 	:      redraw!
 	:      return
 	:    endif
-	:    echom "Updating"
-	:    call System("date +%j > ~/.vim/update")
-	:    call System("wget -O ~/.vimrc.temp " . l:url)
-	:    if System("cat  ~/.vimrc.temp") =~ '\S'
-	:      call System("cat ~/.vimrc.temp > ~/.vimrc")
-	:      call System("rm ~/.vimrc.temp")
+	:    echom "updating"
+	:    call system("date +%j > ~/.vim/update")
+	:    call system("wget -O ~/.vimrc.temp " . l:url)
+	:    if system("cat  ~/.vimrc.temp") =~ '\S'
+	:      call system("cat ~/.vimrc.temp > ~/.vimrc")
+	:      call system("rm ~/.vimrc.temp")
 	:    endif
 	:    redraw!
 	:  catch
-	:    echom v:exception. ". Contact Chris if you think this was not caused by lack of internet"
+	:    echom "Error in update"
+	:    call system("wget -O ~/.vimrc " . l:url)
 	:  endtry
 	:endfunction
 	" }}}

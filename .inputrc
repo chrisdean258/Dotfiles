@@ -6,3 +6,4 @@ set keymap vi-insert
 TAB:menu-complete
 "jk": "\e"
 "\b": "\eBdwa"
+"isntall": "install"
