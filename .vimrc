@@ -994,11 +994,7 @@
 
 		:function! CleverEsc()
 		" {{{
-		:  if col('.') == 1
-		:    return "\<esc>"
-		:  else
-		:    return "\<esc>l"
-		:  endif
+		:  return "\<esc>`^"
 		:endfunction
 		" }}}
 
