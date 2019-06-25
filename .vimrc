@@ -259,9 +259,6 @@
 	:nnoremap <silent><localleader>\ :call Comment()<CR>
 	:vnoremap <silent><localleader>\ :call Comment("visual")<CR>
 
-	" Arg swap
-	" :nnoremap <silent><leader>sw :call SwapArgs()<CR>
-
 	" Paste mode
 	:nnoremap \p :set paste<CR>
 
