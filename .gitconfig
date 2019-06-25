@@ -24,6 +24,7 @@
 	delete-repo = !~/.git_scripts/delete_github_repo
 	rebase-all = !~/.git_scripts/rebase_all
 	merge-all = !~/.git_scripts/merge_all
+	ppp = !~/.git_scripts/push_pull_pop
 [merge]
 	tool = vimdiff
 [core]
