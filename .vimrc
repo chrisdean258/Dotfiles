@@ -882,23 +882,24 @@
 		:function! SplitIf()
 		" {{{
 		:  let l:window = winsaveview()
-		:  if getline('.') =~ '^\s*else\s.\+'
+		:  let l:match0   = SplitIf_Match(0)
+		:  let l:match01  = SplitIf_Match(0, 1)
+		:  let l:matchm10 = SplitIf_Match(0, -1)
+		:  if l:match0 == 2
 		:    execute "normal! 0feel"
 		:    call SplitIf_Internal()
-		:  elseif line('.') != line('$') && getline(line('.')) . getline(line('.')+1) =~ '^\s*else\s.\+'
-		:    execute "normal! J0feel"
-		:    call SplitIf_Internal()
-		:  elseif line('.') != 1 && getline(line('.')-1) . getline(line('.')) =~ '^\s*else\s.\+'
-		:    execute "normal! kJ0feel"
-		:    call SplitIf_Internal()
-		:  elseif getline('.') =~ '^\s*.\+(.*)\+[^)].*'
+		:  elseif l:match01 == 2
+		:    execute "normal! j0feel"
+		:  elseif l:matchm10 == 2
+		:    execute "normal! kj0feel"
+		:  elseif l:match0
 		:    execute "normal! 0f(%l"
-		:    call SplitIf_Internal()
-		:  elseif line('.') != line('$') && getline(line('.')) . getline(line('.')+1) =~ '^\s*.\+(.*)\+[^)].*'
-		:    execute "normal! J"
-		:    call SplitIf_Internal()
-		:  elseif line('.') != 1 && getline(line('.')-1) . getline(line('.')) =~ '^\s*.\+(.*)\+[^)].*'
-		:    execute "normal! kJ"
+		:  elseif l:match01
+		:    execute "normal! j"
+		:  elseif l:matchm10
+		:    execute "normal! kj"
+		:  endif
+		:  if l:matchm10 || l:match0 || l:match10
 		:    call SplitIf_Internal()
 		:  endif
 		:  call winrestview(l:window)
@@ -917,6 +918,27 @@
 		:  endif
 		:endfunction
 		" }}}
+
+		:function! SplitIf_Match(...)
+		" {{{
+		:  let l:regex = '^\s*.\+(.*)\+[^)].*'
+		:  let l:elseregex = '^\s*else\s.\+'
+		:  let l:line = ""
+		:  let l:base = line('.')
+		:  for value in a:000
+		:    let l:linenum = l:base + value
+		:    if value < 1 || value > line('$')
+		:      return 0
+		:    endif
+		:    let l:line .= getline(l:linenum)
+		:  endfor
+		:  if l:line =~ l:elseregex
+		:    return 2
+		:  endif
+		:  return l:line =~ l:regex
+		:endfunction
+		" }}}
+
 
 		:function! CFormat()
 		" {{{
