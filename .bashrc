@@ -21,12 +21,20 @@ export PATH=$HOME/bin:$HOME/.bin:$PATH
 export EDITOR=vim
 export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
 
+<<<<<<< Updated upstream
 shopt -s histappend   2>/dev/null
 shopt -s cdspell      2>/dev/null
 shopt -s autocd       2>/dev/null
 shopt -s checkwinsize 2>/dev/null
 shopt -s globstar     2>/dev/null
 shopt -s checkhash    2>/dev/null
+=======
+shopt -s histappend
+shopt -s cdspell
+# shopt -s autocd 
+shopt -s checkwinsize
+# shopt -s globstar
+>>>>>>> Stashed changes
 
 set -o vi
 
@@ -43,8 +51,8 @@ fi
 
 [ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
 [ -x "$(command -v python3)" ] || source /opt/rh/python33/enable
-[ -r ~/.bash_aliases ] && . ~/.bash_aliases
 [ -r ~/.bash_profile ] && . ~/.bash_profile
+[ -r ~/.bash_aliases ] && . ~/.bash_aliases
 [ -r ~/.git-completion.bash ] && source ~/.git-completion.bash
 [ -r ~/.bash-completion.bash ] && source ~/.bash-completion.bash
 if ! shopt -oq posix; then
@@ -91,8 +99,12 @@ prompt_command()
 
 ! [ -f ~/.bash_update ] && touch ~/.bash_update
 if ! diff ~/.bash_update <(date +%j) &>/dev/null; then
+<<<<<<< Updated upstream
 	dots stash
 	dots pull
 	dots stash pop
+=======
+	# dots deploy
+>>>>>>> Stashed changes
 	date +%j > ~/.bash_update
 fi
