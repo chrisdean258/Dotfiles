@@ -91,6 +91,8 @@ prompt_command()
 
 ! [ -f ~/.bash_update ] && touch ~/.bash_update
 if ! diff ~/.bash_update <(date +%j) &>/dev/null; then
-	dots deploy
+	dots stash
+	dots pull
+	dots stash pop
 	date +%j > ~/.bash_update
 fi
