@@ -19,9 +19,9 @@ cdls()
 	builtin cd "$@" 
 	success=$?
 	if [ "$success" -eq 0 ]; then
-		[ `ls | wc -l` -lt 100 ] && ls 
-		echo `realpath .` >> ~/.jmp && 
-		sed -i 1d ~/.jmp
+		[ `ls | wc -l` -lt 100 ] && ls -G
+		echo `realpath .` >> ~/.jmp #&& 
+		# sed -i 1d ~/.jmp
 	fi
 }
 
