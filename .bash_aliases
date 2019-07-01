@@ -4,6 +4,22 @@ alias bashrc=". ~/.bashrc"
 alias cd..="cd .."
 alias ..="cd .."
 
+alias ll='ls -alF'
+alias la='ls -A'
+alias l='ls -CF'
+if [ -x /usr/bin/dircolors ]; then
+	test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
+	alias ls='ls --color=auto --group-directories-first'
+	alias grep='grep --color=auto'
+	alias fgrep='fgrep --color=auto'
+	alias egrep='egrep --color=auto'
+elif [ -n "$MAC" ]; then
+	alias ls='ls -G'
+	alias grep='grep --color'
+	alias fgrep='fgrep --color'
+	alias egrep='egrep --color'
+fi
+
 command -v colordiff &>/dev/null && alias diff="colordiff"
 command -v neomutt &>/dev/null   && alias mutt="neomutt"
 
@@ -16,12 +32,11 @@ alias cd="cdls"
 
 cdls()
 {
-	builtin cd "$@" 
-	success=$?
-	if [ "$success" -eq 0 ]; then
-		[ `ls | wc -l` -lt 100 ] && ls 
+	if builtin cd "$@"; then
+		[ `ls | wc -l` -lt 100 ] && ([ -z "$MAC" ] && ls) || ls -G
 		echo `realpath .` >> ~/.jmp && 
-		sed -i 1d ~/.jmp
+			[ -z "$MAC" ] &&
+			sed -i 1d ~/.jmp
 	fi
 }
 
@@ -77,10 +92,10 @@ j()
 	then
 		new_dir=$(
 		tac $jmps |
-		grep -i "$pattern" |
-		awk '{ if (!a[$0]++) print $0; if(!b) b = $0 }; END { print b }' |
-		grep -m 1 -A 1 "^$PWD$" |
-		\tail -1
+			grep -i "$pattern" |
+			awk '{ if (!a[$0]++) print $0; if(!b) b = $0 }; END { print b }' |
+			grep -m 1 -A 1 "^$PWD$" |
+			\tail -1
 		)
 	else
 		new_dir=$(grep -i "$pattern" $jmps | \tail -n 1)

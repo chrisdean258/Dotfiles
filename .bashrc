@@ -1,5 +1,14 @@
 # If not running interactively, don't do anything
 echo $- | grep -q "i" || return
+[ -z "$BASH_SOURCED" ] || return
+BASH_SOURCED="yes"
+
+[ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
+[ -x "$(command -v python3)" ] || source /opt/rh/python33/enable
+[ -r ~/.bash_profile ] && . ~/.bash_profile
+[ -r ~/.bash_aliases ] && . ~/.bash_aliases
+[ -r ~/.git-completion.bash ] && source ~/.git-completion.bash
+[ -r ~/.bash-completion.bash ] && source ~/.bash-completion.bash
 
 HISTCONTROL=ignoreboth
 HISTSIZE=
@@ -30,23 +39,7 @@ shopt -s checkhash    2>/dev/null
 
 set -o vi
 
-alias ll='ls -alF'
-alias la='ls -A'
-alias l='ls -CF'
-if [ -x /usr/bin/dircolors ]; then
-	test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
-	alias ls='ls --color=auto --group-directories-first'
-	alias grep='grep --color=auto'
-	alias fgrep='fgrep --color=auto'
-	alias egrep='egrep --color=auto'
-fi
 
-[ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
-[ -x "$(command -v python3)" ] || source /opt/rh/python33/enable
-[ -r ~/.bash_aliases ] && . ~/.bash_aliases
-[ -r ~/.bash_profile ] && . ~/.bash_profile
-[ -r ~/.git-completion.bash ] && source ~/.git-completion.bash
-[ -r ~/.bash-completion.bash ] && source ~/.bash-completion.bash
 if ! shopt -oq posix; then
 	if [ -f /usr/share/bash-completion/bash_completion ]; then
 		. /usr/share/bash-completion/bash_completion
@@ -69,30 +62,28 @@ PROMPT_COMMAND=prompt_command
 PROMPT_SAVE=`echo $PS1 | sed 's/..$//g'`
 prompt_command()
 {
-        rv_save=$?
-        return_val=$([ $rv_save -ne 0 ] && echo -n "$P_RED[$rv_save]$P_CLEAR ")
-        battery=$(command -v low_battery &> /dev/null && low_battery && echo -en "$P_RED[Low Battery] $P_CLEAR")
-        git_branch=""
-        if git rev-parse --abbrev-ref HEAD >/dev/null 2>&1; then
-                git_branch=$(echo -en " $P_GREEN($(git rev-parse --abbrev-ref HEAD | tr -d "\n\f")$(timeout 0.5s git status 2>/dev/null | grep -q clean || echo "*"))$P_CLEAR")
-        fi  
-        nc=$(awk "BEGIN { print $(whoami | wc -c) \
-                + $(pwd | sed "s:$HOME:~:" | wc -c) \
-                + $(echo $battery | wc -c) \
-                + $(echo $git_branch | wc -c | awk '{print $1 ? int($1 - 20) : 0}')\
-        }")
-        sum=$(awk "BEGIN{print int($nc * 1.5) } ")
-        maybe_newline=""
-        if [ $sum -gt $COLUMNS ] && [ $nc -lt $COLUMNS ]; then
-                maybe_newline=$(echo "\n")
-        fi  
-        PS1="${return_val}${battery}$PROMPT_SAVE${git_branch}${maybe_newline}\$ "
+	rv_save=$?
+	return_val=$([ $rv_save -ne 0 ] && echo -n "$P_RED[$rv_save]$P_CLEAR ")
+	battery=$(command -v low_battery &> /dev/null && low_battery && echo -en "$P_RED[Low Battery] $P_CLEAR")
+	git_branch=""
+	if git rev-parse --abbrev-ref HEAD >/dev/null 2>&1; then
+		git_branch=$(echo -en " $P_GREEN($(git rev-parse --abbrev-ref HEAD | tr -d "\n\f")$(timeout 0.5s git status 2>/dev/null | grep -q clean || echo "*"))$P_CLEAR")
+	fi  
+	nc=$(awk "BEGIN { print $(whoami | wc -c) \
+		+ $(pwd | sed "s:$HOME:~:" | wc -c) \
+		+ $(echo $battery | wc -c) \
+		+ $(echo $git_branch | wc -c | awk '{print $1 ? int($1 - 20) : 0}')\
+	}")
+	sum=$(awk "BEGIN{print int($nc * 1.5) } ")
+	maybe_newline=""
+	if [ $sum -gt $COLUMNS ] && [ $nc -lt $COLUMNS ]; then
+		maybe_newline=$(echo "\n")
+	fi  
+	PS1="${return_val}${battery}$PROMPT_SAVE${git_branch}${maybe_newline}\$ "
 }
 
 ! [ -f ~/.bash_update ] && touch ~/.bash_update
 if ! diff ~/.bash_update <(date +%j) &>/dev/null; then
-	dots stash
-	dots pull
-	dots stash pop
+	[ -z "$NO_UPDATE" ] && dots deploy
 	date +%j > ~/.bash_update
 fi
