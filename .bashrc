@@ -1,5 +1,15 @@
 # If not running interactively, don't do anything
 echo $- | grep -q "i" || return
+
+if [ -z "$TMUX" ] ;then
+	ID="$( tmux ls | grep -vm1 attached | cut -d: -f1 )"
+	if [ -z "$ID" ]; then 
+		exec tmux 
+	else
+		exec tmux attach
+	fi
+fi
+
 [ -z "$BASH_SOURCED" ] || return
 BASH_SOURCED="yes"
 
