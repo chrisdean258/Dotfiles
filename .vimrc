@@ -275,19 +275,19 @@
 "_______________________________________________________________________________________________________
 
 	" Vertical splitting is better than horizontal splitting
-	:cabbrev help <C-R>=CommandLine(":", "vert help", "help")<CR>
-	:cabbrev sp <C-R>=CommandLine(":", "vs", "sp")<CR>
+	:cabbrev help <C-R>=CommandLineStart(":", "vert help", "help")<CR>
+	:cabbrev sp <C-R>=CommandLineStart(":", "vs", "sp")<CR>
 
 	" Quitting cause Im bad at typing
-	:cabbrev W <C-R>=CommandLine(":", "w", "W")<CR>
-	:cabbrev Q <C-R>=CommandLine(":", "q", "Q")<CR>
-	:cabbrev Wq <C-R>=CommandLine(":", "wq", "Wq")<CR>
-	:cabbrev WQ <C-R>=CommandLine(":", "wq", "WQ")<CR>
+	:cabbrev W <C-R>=CommandLineStart(":", "w", "W")<CR>
+	:cabbrev Q <C-R>=CommandLineStart(":", "q", "Q")<CR>
+	:cabbrev Wq <C-R>=CommandLineStart(":", "wq", "Wq")<CR>
+	:cabbrev WQ <C-R>=CommandLineStart(":", "wq", "WQ")<CR>
 
 	" Expanding for substitutions
-	:cabbrev S <C-R>=CommandLine(":", "%s", "S")<CR>
-	:cabbrev a <C-R>=CommandLine(":", "'a,.s", "a")<CR>
-	:cabbrev $$ <C-R>=CommandLine(":", ".,$s", "$$")<CR>
+	:cabbrev S <C-R>=CommandLineStart(":", "%s", "S")<CR>
+	:cabbrev a <C-R>=CommandLineStart(":", "'a,.s", "a")<CR>
+	:cabbrev $$ <C-R>=CommandLineStart(":", ".,$s", "$$")<CR>
 	" :cabbrev term term ++close ++rows=15
 
 	" Force writing
@@ -939,7 +939,6 @@
 		:endfunction
 		" }}}
 
-
 		:function! CFormat()
 		" {{{
 		:  let l:window = winsaveview()
@@ -1317,9 +1316,9 @@
 		:endfunction
 		" }}}
 
-		:function! CommandLine(type, arg, default)
+		:function! CommandLineStart(type, arg, default)
 		" {{{
-		:  return getcmdtype() == a:type ? a:arg : a:default
+		:  return (getcmdtype() == a:type && getcmdline() == "") ? a:arg : a:default
 		:endfunction
 		" }}}
 
