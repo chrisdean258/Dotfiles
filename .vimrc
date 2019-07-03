@@ -426,7 +426,8 @@
 	:  endif
 	:  autocmd FileType tex :inoremap <expr><buffer><CR> LatexCarriageReturn()
 	:  autocmd FileType tex :inoremap <buffer>{} {}<left>
-	:  autocmd FileType tex :nnoremap <buffer>; mqviwv`<i\<esc>`ql
+	:  autocmd FileType tex :nnoremap <buffer>; :call LatexBackslashBeginning()<CR>
+	" :  autocmd FileType tex :nnoremap <buffer>; mqviwv`<i\<esc>`ql
 	:  autocmd FileType tex :command! Preview call LatexPreview()
 	:augroup END
 	" }}}
@@ -454,7 +455,6 @@
 	" {{{
 	:augroup vim_
 	:autocmd!
-	" :autocmd FileType vim :nnoremap <silent><buffer><localleader>\ :call CommentBL('" ')<CR>
 	:autocmd FileType vim :setlocal foldmethod=marker
 	:autocmd FileType vim :setlocal commentstring=\"\ %s
 	:autocmd FileType vim :setlocal foldenable
@@ -799,6 +799,20 @@
 		:    return "\<CR>" . l:line . "\<esc>==O"
 		:  endif
 		:  return "\<CR>"
+		:endfunction
+		" }}}
+
+		:function! LatexBackslashBeginning()
+		" {{{
+		:  let l:window = winsaveview()
+		:  let l:word = split(LineBeforeCursor())[-1]
+		:  echo l:word
+		:  if l:word[0] == '\'
+		:    normal! Bx
+		:  else
+		:    normal! Bi\
+		:  endif
+		:  call winrestview(l:window)
 		:endfunction
 		" }}}
 	" }}}
