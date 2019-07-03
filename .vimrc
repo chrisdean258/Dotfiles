@@ -702,7 +702,6 @@
 		:endfunction
 		" }}}
 
-
 	" }}}
 
 	" Markdown
@@ -806,7 +805,6 @@
 		" {{{
 		:  let l:window = winsaveview()
 		:  let l:word = split(LineBeforeCursor())[-1]
-		:  echo l:word
 		:  if l:word[0] == '\'
 		:    normal! Bx
 		:  else
