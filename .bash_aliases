@@ -36,7 +36,7 @@ cdls()
 		[ `ls | wc -l` -lt 100 ] && ([ -z "$MAC" ] && ls) || ls -G
 		echo `realpath .` >> ~/.jmp && 
 			[ -z "$MAC" ] &&
-			sed -i 1d ~/.jmp
+			sed -i 1d ~/.jmp || true
 	fi
 }
 
