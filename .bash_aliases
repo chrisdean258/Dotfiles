@@ -7,6 +7,7 @@ alias ..="cd .."
 alias ll='ls -alF'
 alias la='ls -A'
 alias l='ls -CF'
+alias car="cat"
 if [ -x /usr/bin/dircolors ]; then
 	test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
 	alias ls='ls --color=auto --group-directories-first'
