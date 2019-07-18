@@ -21,8 +21,8 @@ elif [ -n "$MAC" ]; then
 	alias egrep='egrep --color'
 fi
 
-command -v colordiff &>/dev/null && alias diff="colordiff"
-command -v neomutt &>/dev/null   && alias mutt="neomutt"
+[ -n "$(command -v colordiff)" ] && alias diff="colordiff"
+[ -n "$(command -v neomutt)" ] && alias mutt="neomutt"
 
 -()
 {
@@ -111,5 +111,14 @@ j()
 			sed -i "/^$new_dir$/d" $jmps
 			j "$@"
 		fi
+	fi
+}
+
+retry()
+{
+	if [ $# -eq 0 ]; then
+		while ! "$BASH" -c "$(history -p !!)"; do :; done
+	else
+		while ! "$@"; do :; done
 	fi
 }
