@@ -1,9 +1,5 @@
 #!/bin/sh
 
-if [ $# -eq 0 ]; then
-	echo 'usage: nidaViz [option] vnet-file' >&2
-	echo '       If you are using nidaViz to process events, they go on standard input' >&2
-	exit 1
-fi
+: ${1?"usage: nidaViz [option] vnet-file\n       If you are using nidaViz to process events, they go on standard input" }
 
-love /home/chris/research/neuro/models/nida/viz/bin/nidaViz.love $*
+exec love /home/chris/research/neuro/models/nida/viz/bin/nidaViz.love "$@"

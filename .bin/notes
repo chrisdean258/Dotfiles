@@ -10,9 +10,9 @@ title="$(echo $* | sed 's/[ ]/_/g')"
 date=$(date +%Y%m%d)
 
 fn="$date.$extension"
-if [ "$title" ]; then
+if [ -n "$title" ]; then
 	fn="$date-$title.$extension"
-elif ls | grep "$date" -q; then
+elif ls | grep -v "\.pdf$" | grep "$date" -q; then
 	fn=($(ls | grep "$date" | grep -v "\.pdf$"))
 fi
 
