@@ -11,7 +11,7 @@ compile()
 }
 
 
-if ls | grep -q "akefile"; then
+if ls | grep -q "[Mm]akefile"; then
 	make
 	exit $?
 fi
