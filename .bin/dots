@@ -20,7 +20,7 @@ cd "$base"
 if [ "$1" = "save" ]; then
 	if [ $# -gt 1 ]; then
 		shift
-		comment="$* -- "
+		comment="$* --"
 	else
 		comment=""
 	fi

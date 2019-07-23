@@ -261,6 +261,7 @@
 
 	" Paste mode
 	:nnoremap \p :set paste<CR>
+	:inoremap \p <esc>:set paste<CR>i
 
 	" splitting into a file
 	:nnoremap <leader>v :vs <cfile><CR>
