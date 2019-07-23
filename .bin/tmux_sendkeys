@@ -1,5 +1,20 @@
 #!/bin/bash
 
-for _pane in $(tmux list-panes | cut -d: -f1); do
-	tmux send-keys -t ${_pane} "$(printf "$@")"
+panes=$(tmux list-panes | cut -d: -f1)
+cmd=()
+cr=$(printf "\r")
+
+[ "$1" = raw ] && cr=
+
+for string in "$@"; do
+	cmd+=("$string")
+	shift
+	if [ $string = "--" ]; then
+		panes="$@"
+		break
+	fi
+done
+
+for pane in $panes; do
+	tmux send-keys -t ${pane} "$(printf "${cmd[@]} $cr")"
 done

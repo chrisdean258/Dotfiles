@@ -78,7 +78,6 @@ j()
 		return 0
 	fi
 
-
 	if [ "$1" = "--setup" ]; then
 		rm -rf "$jmps"
 		time=$(date +%D --date="-2 month" 2>/dev/null)
@@ -106,6 +105,7 @@ j()
 	then 
 		if [ -d "$new_dir" ]
 		then
+			echo "$@" >> ${jmps}_complete
 			builtin cd $new_dir 
 		else
 			sed -i "/^$new_dir$/d" $jmps

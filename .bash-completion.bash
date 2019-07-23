@@ -33,3 +33,23 @@ __complete_vim()
 }
 
 complete -o bashdefault -o default -o nospace -F __complete_vim vim
+
+__complete_j()
+{
+	local cur
+	local expanded
+	local files
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}	
+
+	COMPREPLY=( $(cat ~/.jmp_complete | grep "^$cur") )
+
+	[ ${#COMPREPLY[@]} -eq 0 ] && COMPREPLY=( $(cat ~/.jmp_complete | grep "$cur") )
+
+	return 0
+}
+
+complete -o bashdefault -o default -o nospace -F __complete_j j
+
+
