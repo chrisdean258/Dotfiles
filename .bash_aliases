@@ -122,3 +122,13 @@ retry()
 		while ! "$@"; do :; done
 	fi
 }
+
+redo()
+{
+	if [ $# -eq 0 ]; then
+		"$BASH" -c "$(history -p !!)"
+	else
+		"$BASH" -c "$(history 1000 | grep "^ $*\>" | sed "s/^ [0-9]*"//")")"
+	fi
+	
+}

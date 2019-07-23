@@ -5,7 +5,7 @@ __complete_cd()
 	local cur dir
 	COMPREPLY=()
 	cur="${COMP_WORDS[COMP_CWORD]}"
-	COMPREPLY=( $(cat <(compgen -d) <(compgen -G "${cur}*") | sort | uniq -d) )
+	COMPREPLY=( $(compgen -d -- "${cur}") )
 
 	return 0
 }
@@ -52,4 +52,10 @@ __complete_j()
 
 complete -o bashdefault -o default -o nospace -F __complete_j j
 
+__complete_redo()
+{
+  COMPREPLY=($(compgen -W "$(fc -l -50 | sed 's/\t//')" -- "${COMP_WORDS[COMP_CWORD]}"))
+}
+
+complete -o bashdefault -o default -o nospace -F __complete_redo redo
 
