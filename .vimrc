@@ -165,6 +165,7 @@
 	:nnoremap gI g^i
 
 	" Use jk instead of escape
+	:vnoremap <expr> jk CleverEsc()
 	:inoremap <expr> jk CleverEsc()
 	:imap Jk jk
 	:imap JK jk
