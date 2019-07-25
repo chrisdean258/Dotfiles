@@ -54,8 +54,24 @@ complete -o bashdefault -o default -o nospace -F __complete_j j
 
 __complete_redo()
 {
-  COMPREPLY=($(compgen -W "$(fc -l -50 | sed 's/\\t//')" -- "${COMP_WORDS[COMP_CWORD]}"))
+	local words 
+	words="$(fc -l -50 | sed 's/\t//')"
+	COMPREPLY=($(compgen -W "$words" -- "${COMP_WORDS[COMP_CWORD]}"))
 }
 
 complete -o bashdefault -o default -o nospace -F __complete_redo redo
 
+__complete_ssh() 
+{
+	local cur opts prog
+	COMPREPLY=()
+	cur="${COMP_WORDS[COMP_CWORD]}"
+	prog="${COMP_WORDS[0]}"
+	opts=$(grep '^Host' ~/.ssh/config ~/.ssh/config.d/* 2>/dev/null | grep -v '[?*]' | cut -d ' ' -f 2-)
+	[ "$prog" = "scp" ] && opts=$(echo "$opts" | sed "s/$/:/g")
+
+	COMPREPLY=( $(compgen -W "$opts" -- ${cur}) )
+	return 0
+}
+complete -o bashdefault -o default -o nospace -F __complete_ssh ssh
+complete -o bashdefault -o default -o nospace -F __complete_ssh scp
