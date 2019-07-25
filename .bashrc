@@ -54,6 +54,8 @@ if ! shopt -oq posix; then
 	elif [ -f /etc/bash_completion ]; then
 		. /etc/bash_completion
 	fi
+elif [ -f $(brew --prefix)/etc/bash_completion ]; then
+	. $(brew --prefix)/etc/bash_completion
 fi
 
 if [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then

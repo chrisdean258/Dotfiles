@@ -1,16 +1,6 @@
 #!/bin/bash
 
-__complete_cd()
-{
-	local cur dir
-	COMPREPLY=()
-	cur="${COMP_WORDS[COMP_CWORD]}"
-	COMPREPLY=( $(compgen -d -- "${cur}") )
-
-	return 0
-}
-
-complete -o bashdefault -o default -o nospace -F __complete_cd cd
+complete -d cd
 
 __complete_vim()
 {
