@@ -54,7 +54,7 @@ complete -o bashdefault -o default -o nospace -F __complete_j j
 
 __complete_redo()
 {
-  COMPREPLY=($(compgen -W "$(fc -l -50 | sed 's/\t//')" -- "${COMP_WORDS[COMP_CWORD]}"))
+  COMPREPLY=($(compgen -W "$(fc -l -50 | sed 's/\\t//')" -- "${COMP_WORDS[COMP_CWORD]}"))
 }
 
 complete -o bashdefault -o default -o nospace -F __complete_redo redo
