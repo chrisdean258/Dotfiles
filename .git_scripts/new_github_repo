@@ -13,7 +13,7 @@ if [ -z "$USER" ]; then
 	USER=$(git config user.email | sed "s/@.*//")
 fi
 
-read -s -p "Password:" PASSWORD
+read -s -p "Password: " PASSWORD
 echo
 
 mkdir -p "$REPO"

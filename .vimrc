@@ -169,6 +169,7 @@
 	:imap Jk jk
 	:imap JK jk
 	:noremap <space> <nop>
+	:imap <C-z> jk<C-z>i
 
 	" insert a single char
 	" use the s<F12> mapping to prevent evaluation of the macro until another character is input
