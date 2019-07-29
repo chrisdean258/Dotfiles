@@ -9,5 +9,6 @@ then
 	git co "$@"
 else
 	git co -b "$@"
+	git branch --set-upstream-to origin/"$@"
 fi
 
