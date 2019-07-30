@@ -13,7 +13,7 @@ if [ -z "$USER" ]; then
 	USER=$(git config user.email | sed "s/@.*//")
 fi
 
-read -s -p "Password:" PASSWORD
+read -s -p "Password: " PASSWORD
 echo
 
 mkdir -p "$REPO"
@@ -21,8 +21,11 @@ cd "$REPO"
 
 git init
 
-curl -u "$USER:$PASSWORD" "https://api.github.com/user/repos" -d "{\"name\":\"$REPO\"}"
+if command -v jq 2>/dev/null; then
+	curl -u "$USER:$PASSWORD" "https://api.github.com/user/repos" -d "{\"name\":\"$REPO\"}" | tee >(jq .message -r | sed "s/null//") | jq 
+
 git remote add origin "git@github.com:$USER/$REPO.git"
+git branch --set-upstream-to origin/master
 
 echo "# $REPO" > README.md
 touch .gitigore

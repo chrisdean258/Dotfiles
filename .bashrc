@@ -4,7 +4,7 @@ echo $- | grep -q "i" || return
 if [ -z "$TMUX" ] && [ -x "$(which tmux 2>/dev/null)" ]; then
 	ID="$( tmux ls 2>/dev/null | grep -vm1 attached | cut -d: -f1 )"
 	[ -n "$ID" ] && a="attach"
-	[ -z "$SSH_TTY" ] && exec tmux $a
+	[ -z "$SSH_TTY" ] && exec tmux $a || export SSH_TTY
 fi
 
 [ -z "$BASH_SOURCED" ] || return
@@ -37,6 +37,7 @@ fi
 export PATH=$HOME/bin:$HOME/.bin:$PATH
 export EDITOR=vim
 export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
+export HISTIGNORE="ls:cd"
 
 shopt -s histappend   2>/dev/null
 shopt -s cdspell      2>/dev/null
@@ -47,13 +48,14 @@ shopt -s checkhash    2>/dev/null
 
 set -o vi
 
-
 if ! shopt -oq posix; then
 	if [ -f /usr/share/bash-completion/bash_completion ]; then
 		. /usr/share/bash-completion/bash_completion
 	elif [ -f /etc/bash_completion ]; then
 		. /etc/bash_completion
 	fi
+elif [ -f $(brew --prefix)/etc/bash_completion ]; then
+	. $(brew --prefix)/etc/bash_completion
 fi
 
 if [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then

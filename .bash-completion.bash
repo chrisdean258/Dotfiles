@@ -1,16 +1,6 @@
 #!/bin/bash
 
-__complete_cd()
-{
-	local cur dir
-	COMPREPLY=()
-	cur="${COMP_WORDS[COMP_CWORD]}"
-	COMPREPLY=( $(cat <(compgen -d) <(compgen -G "${cur}*") | sort | uniq -d) )
-
-	return 0
-}
-
-complete -o bashdefault -o default -o nospace -F __complete_cd cd
+complete -d cd
 
 __complete_vim()
 {
@@ -52,4 +42,26 @@ __complete_j()
 
 complete -o bashdefault -o default -o nospace -F __complete_j j
 
+__complete_redo()
+{
+	local words 
+	words="$(fc -l -50 | sed 's/\t//')"
+	COMPREPLY=($(compgen -W "$words" -- "${COMP_WORDS[COMP_CWORD]}"))
+}
 
+complete -o bashdefault -o default -o nospace -F __complete_redo redo
+
+__complete_ssh() 
+{
+	local cur opts prog
+	COMPREPLY=()
+	cur="${COMP_WORDS[COMP_CWORD]}"
+	prog="${COMP_WORDS[0]}"
+	opts=$(grep '^Host' ~/.ssh/config ~/.ssh/config.d/* 2>/dev/null | grep -v '[?*]' | cut -d ' ' -f 2-)
+	[ "$prog" = "scp" ] && opts=$(echo "$opts" | sed "s/$/:/g")
+
+	COMPREPLY=( $(compgen -W "$opts" -- ${cur}) )
+	return 0
+}
+complete -o bashdefault -o default -o nospace -F __complete_ssh ssh
+complete -o bashdefault -o default -o nospace -F __complete_ssh scp
