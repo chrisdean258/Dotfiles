@@ -1,0 +1,9 @@
+#!/bin/bash
+
+_tmux_send_keys_all_panes_ () {
+	for _pane in $(tmux list-panes -F '#P'); do
+		tmux send-keys -t ${_pane} "$@"
+	done
+}
+
+_tmux_send_keys_all_panes_ "clear"

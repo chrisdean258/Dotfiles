@@ -2,7 +2,7 @@
 echo $- | grep -q "i" || return
 
 if [ -z "$TMUX" ] && [ -x "$(which tmux 2>/dev/null)" ]; then
-	ID="$( tmux ls | grep -vm1 attached | cut -d: -f1 )"
+	ID="$( tmux ls 2>/dev/null | grep -vm1 attached | cut -d: -f1 )"
 	[ -n "$ID" ] && a="attach"
 	[ -z "$SSH_TTY" ] && exec tmux $a
 fi
@@ -10,7 +10,7 @@ fi
 [ -z "$BASH_SOURCED" ] || return
 BASH_SOURCED="yes"
 
-[ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
+[ -x "$(command -v lesspipe)" ] && eval "$(SHELL=/bin/sh lesspipe)"
 [ -x "$(command -v python3)" ] || source /opt/rh/python33/enable
 [ -r ~/.bash_profile ] && . ~/.bash_profile
 [ -r ~/.bash_aliases ] && . ~/.bash_aliases
