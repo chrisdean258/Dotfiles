@@ -24,7 +24,7 @@ if [ "$1" = "save" ]; then
 	else
 		comment=""
 	fi
-	comment="${comment}$(git diff --name-only)"
+	comment="$comment$(git diff --name-only | tr '\n' ' ')"
 	spawn git add .
 	spawn git commit -m "$comment"
 	spawn git push
