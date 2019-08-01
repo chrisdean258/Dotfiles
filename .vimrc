@@ -852,14 +852,15 @@
 
 		:function! HighlightAfterColumn(col)
 		" {{{
-		:  for match in getmatches()
-		:    if match["group"] ==? "LongLine"
-		:      call matchdelete(match["id"])
-		:    endif
+		:  for match in get(s:, 'longlinematches', [])
+		:  try
+		:    call matchdelete(match)
+		:  catch
+		:  endtry
 		:  endfor
 		:  let s:longlinematches = []
 		:  if get(g:, "hllonglines", 1) && getline('.') !~ 'printf' && getline('.') !~ '[^=]*<<[^=]*' && getline('.') !~ '\/\/' && getline('.') !~ '\/\*' && getline('.') !~ '\*\/'
-		:    call matchadd('LongLine', '\%'.line('.').'l\%>'.(a:col).'v.')
+		:    call add(s:longlinematches, matchadd('LongLine', '\%'.line('.').'l\%>'.(a:col).'v.'))
 		:  endif
 		:endfunction
 		" }}}
