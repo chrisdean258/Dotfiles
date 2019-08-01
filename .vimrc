@@ -81,7 +81,6 @@
 	:set backup
 	:set wildmode=longest,list,full
 
-
 " }}}
 
 " HIGHLIGHT SETTINGS {{{
@@ -129,7 +128,6 @@
 	:endfunction
 
 	:call SourceOrInstallSyntastic()
-
 
 	" Linting c/c++
 	" Some of this stuff has to do with my research like anything to do with eo
@@ -634,11 +632,9 @@
 		:    return ""
 		:  endif
 		:  let l:tag = split(split(split(l:line, "<")[-1], ">")[0], " ")[0]
-		:  for tag_ in s:unclosed
-		:    if tag_ ==? l:tag
-		:      return ""
-		:    endif
-		:  endfor
+		:  if l:tag =~ '^' . join(s:unclosed, '$\|^') . '$'
+		:    return ""
+		:  endif
 		:  return "</".l:tag.">"
 		:endfunction
 		" }}}
@@ -852,6 +848,7 @@
 
 		:function! HighlightAfterColumn(col)
 		" {{{
+		:  let s:exclude_patterns = [ '[^=]*<<[^=]*', '\/\/', '\/\*', '\*\/', '^\s*#', 'print', 'cout', 'cerr' ]
 		:  for match in get(s:, 'longlinematches', [])
 		:  try
 		:    call matchdelete(match)
@@ -859,7 +856,7 @@
 		:  endtry
 		:  endfor
 		:  let s:longlinematches = []
-		:  if get(g:, "hllonglines", 1) && getline('.') !~ 'printf' && getline('.') !~ '[^=]*<<[^=]*' && getline('.') !~ '\/\/' && getline('.') !~ '\/\*' && getline('.') !~ '\*\/'
+		:  if get(g:, "hllonglines", 1) && getline('.') !~ join(s:exclude_patterns, '\|')
 		:    call add(s:longlinematches, matchadd('LongLine', '\%'.line('.').'l\%>'.(a:col).'v.'))
 		:  endif
 		:endfunction
@@ -883,10 +880,11 @@
 		:function! CMainAbbrev()
 		" {{{
 		:  if getline('.') =~ '^$'
+		:    call getchar()
 		:    if get(g:, 'inline_braces')
-		:      return "int main(int argc, char ** argv){\<CR>}\<up>" . repeat("\<right>", 50)
+		:      return "int main(int argc, char ** argv){\<CR>}\<up>\<esc>o"
 		:    else
-		:      return "int main(int argc, char ** argv)\<CR>{\<CR>}\<up>"
+		:      return "int main(int argc, char ** argv)\<CR>{\<CR>}\<up>\<esc>o"
 		:    endif
 		:  else
 		:    return 'main'
