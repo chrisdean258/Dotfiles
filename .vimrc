@@ -1410,18 +1410,21 @@
 
 		:function! BackGroundPython()
 		" {{{
-		:  let g:python_proc_directory = get(g:, python_proc_directory)
-		:  if g:python_proc_directory == 0
-		:    let l:python = "python3 -i"
+		:  let g:python_proc_directory = get(g:, "python_proc_directory", "")
+		:  if g:python_proc_directory == ""
+		:    let l:python_cmd = '-ic ''import sys; sys.ps1, sys.ps2 = "", ""'' '
+		:    let l:python = 'python3 '
 		:    if getline(1) =~ "python$"
-		:      let l:python = "python -i"
+		:      let l:python = "python"
 		:    endif
 		:    let g:python_proc_directory = system("mktemp -d vim-python.XXXXXXXXXX")
 		:    let g:python_input_pipe = g:python_proc_directory . '/input'
 		:    let g:python_output_pipe = g:python_proc_directory . '/output'
 		:    call system("mknod p ".g:python_input_pipe)
 		:    call system("mknod p ".g:python_output_pipe)
-		:    autocmd VimLeave * :call system("rm -rf ".g:python_proc_directory)
+		:    call system(l:python . l:python_cmd . " < " . g:python_input_pipe . " > " . g:python_output_pipe)
+		:    autocmd VimLeave * :call system("rm -rf ". g:python_proc_directory)
+		:    vnoremap <leader>py execute ":'<'>w " .g:python_input_pipe \| execute "sp " . g:python_output_pipe
 		:  endif
 		:endfunction
 		" }}}
