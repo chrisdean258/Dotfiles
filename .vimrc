@@ -127,8 +127,6 @@
 	:  endtry
 	:endfunction
 
-	:call SourceOrInstallSyntastic()
-
 	" Linting c/c++
 	" Some of this stuff has to do with my research like anything to do with eo
 	:let g:syntastic_check_on_wq = 0
@@ -1487,26 +1485,38 @@
 	:  endif
 	:endif
 	
-	:if get(g:,"hardmode")
+	:if get(g:,"hardmode", 0)
 	:  call HardMode()
 	:endif
 
-	:if get(g:, "source2home")
+	:if get(g:, "source2home", 0)
 	:  call UpwardVimrcSource()
 	:endif
 
-	:if get(g:, "format_text")
+	:if get(g:, "format_text", 0)
 	:  autocmd FileType text :setlocal textwidth=80
 	:endif
 
-	:if get(g:, "dark_folds") != 1
+	:if get(g:, "light_folds", 1)
 	:  highlight Folded ctermfg=DarkGrey guifg=DarkGrey
 	:  highlight tabline ctermfg=DarkGrey guifg=DarkGrey
 	:  highlight tablinesel ctermfg=Grey guifg=Grey
 	:endif
 	
-	:if get(g:, "close_matches")
+	:if get(g:, "close_matches", 0)
         :  call CloseMatches()
         :endif
+
+	:if get(g:, "use_syntastic", 1)
+	:  call SourceOrInstallSyntastic()
+	:endif
+
+	:if get(g:,"auto_update", 1)
+	:  if has("autocmd") && &filetype !~ "vim" && expand("%") !~ "\.vimrc$"
+	:  augroup vim_update
+	:    autocmd VimEnter * :call Update_Vimrc()
+	:  augroup END
+	:  endif
+	:endif
 
 " }}}

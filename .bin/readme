@@ -1,0 +1,14 @@
+#!/bin/bash
+
+file="README.md"
+
+if ! [ -r "$file" ]; then
+	# Basename of directory with spaces instead of - and _ ald spaces before capitals
+	echo "# $(echo ${*:-$(basename "$PWD" | sed "s/[-_\.]/ /g" | sed "s/\([^[:blank:]]\)\([[:upper:]]\)/\1 \2/g")})" > "$file"
+fi
+
+vim "$file"
+exit $?
+
+
+
