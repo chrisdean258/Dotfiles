@@ -1454,12 +1454,6 @@
 	:endfunction
 	" }}}
 
-	:if has("autocmd") && &filetype !~ "vim" && expand("%") !~ "\.vimrc$"
-	:augroup vim_update
-	:  autocmd VimEnter * :call Update_Vimrc()
-	:augroup END
-	:endif
-
 	:command! Update call Update_Vimrc(1)
 
 	:if filereadable(expand("~") . "/.vimrc.local")
