@@ -395,19 +395,19 @@
 	" {{{
 	:augroup web
 	:  autocmd!
-	:  autocmd FileType html,php :setlocal tabstop=2
-	:  autocmd FileType html,php :setlocal expandtab
-	:  autocmd FileType html,php :setlocal wrap
-	:  autocmd FileType html,php :setlocal linebreak
+	:  autocmd FileType html,php,htmldjango :setlocal tabstop=2
+	:  autocmd FileType html,php,htmldjango :setlocal expandtab
+	:  autocmd FileType html,php,htmldjango :setlocal wrap
+	:  autocmd FileType html,php,htmldjango :setlocal linebreak
 	:  if exists("+breakindent")
-	:    autocmd FileType html,php :setlocal breakindent
+	:    autocmd FileType html,php,htmldjango :setlocal breakindent
 	:  endif
-	:  autocmd FileType html,php :inoremap <silent><buffer>> ><esc>:call EndTagHTML()<CR>a
-	:  autocmd FileType html,php :inoremap <expr><buffer><CR> HTMLCarriageReturn()
+	:  autocmd FileType html,php,htmldjango :inoremap <silent><buffer>> ><esc>:call EndTagHTML()<CR>a
+	:  autocmd FileType html,php,htmldjango :inoremap <expr><buffer><CR> HTMLCarriageReturn()
 	:let g:html_indent_script1 = "inc"
 	:let g:html_indent_style1 = "inc"
 	:let g:html_indent_inctags = "address,article,aside,audio,blockquote,canvas,dd,div,dl,fieldset,figcaption,figure,footer,form,h1,h2,h3,h4,h5,h6,header,hgroup,hr,main,nav,noscript,ol,output,p,pre,section,table,tfoot,ul,video"
-	:  autocmd FileType html,php :command! Preview call HTMLPreview()
+	:  autocmd FileType html,php,htmldjango :command! Preview call HTMLPreview()
 	:  autocmd FileType css,php :nnoremap <silent><buffer>; :call AppendSemicolon()<CR>
 	:  autocmd FileType css :inoremap <buffer>{} {<CR>}<esc>O
 	:augroup END
