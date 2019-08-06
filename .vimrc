@@ -130,8 +130,8 @@
 	" Linting c/c++
 	" Some of this stuff has to do with my research like anything to do with eo
 	:let g:syntastic_check_on_wq = 0
-        :let g:syntastic_cpp_compiler = "g++"
-        :let g:syntastic_cpp_compiler_options = "-std=c++98 -Wall"
+	:let g:syntastic_cpp_compiler = "g++"
+	:let g:syntastic_cpp_compiler_options = "-std=c++98 -Wall"
 	:let g:syntastic_cpp_include_dirs = [ "../../include",  "../include", "include", ".", $HOME."/include"]
 
 	" Linting python
@@ -289,7 +289,9 @@
 	" :cabbrev term term ++close ++rows=15
 
 	" Force writing
-	:cabbrev w!! %!sudo tee > /dev/null %
+	if !has('win32')
+		:cabbrev w!! %!sudo tee > /dev/null %
+	endif
 
 	" Making a tags file for jumping
 	:command! MakeTags !ctags -Rf .tags
@@ -763,11 +765,11 @@
 
 		:function! MDPreview()
 		" {{{
-		:  if executable("grip")
+		:  if executable("grip") && !has('win32')
 		:    write
-		:    call system('grip ' . expand('%') . ' > /dev/null 2>/dev/null &')
-		:    call system('xdg-open http://localhost:6419 > /dev/null 2>/dev/null &')
-		:    autocmd VimLeave * :call system("pkill grip")
+		:    call System('grip ' . expand('%') . ' > /dev/null 2>/dev/null &')
+		:    call System('xdg-open http://localhost:6419 > /dev/null 2>/dev/null &')
+		:    autocmd VimLeave * :call System("pkill grip")
 		:  endif
 		:endfunction
 		" }}}
@@ -778,12 +780,12 @@
 	" {{{
 		:function! LatexPreview()
 		" {{{
-		:  if executable("latex2pdf")
-		:    autocmd! BufWritePost <buffer> call system("cat /dev/null | latex2pdf " . expand("%"))
+		:  if executable("latex2pdf") && !has('win32')
+		:    autocmd! BufWritePost <buffer> call System("cat /dev/null | latex2pdf " . expand("%"))
 		:    write
 		:  endif
 		:  let l:filename = substitute(expand("%"), "\.tex$", ".pdf", "")
-		:  call system('xdg-open '. l:filename. ' >/dev/null 2>/dev/null &')
+		:  call System('xdg-open '. l:filename. ' >/dev/null 2>/dev/null &')
 		:endfunction
 		" }}}
 
@@ -1319,6 +1321,9 @@
 
 		:function! System(arg)
 		" {{{
+		:  if has('win32')
+		:    throw "Calls to system() not supported on windows"
+		:  endif
 		:  let l:return = system(a:arg)
 		:  if v:shell_error != 0
 		:    throw "Error: system(". a:arg . ") returned ".v:shell_error
@@ -1355,7 +1360,7 @@
 " DEV {{{
 "_______________________________________________________________________________________________________
 
-:if get(g:, "dev")
+:if get(g:, "dev") && !has('win32')
 
 		:function! WinEnter()
 		" {{{
@@ -1417,13 +1422,13 @@
 		:    if getline(1) =~ "python$"
 		:      let l:python = "python"
 		:    endif
-		:    let g:python_proc_directory = system("mktemp -d vim-python.XXXXXXXXXX")
+		:    let g:python_proc_directory = System("mktemp -d vim-python.XXXXXXXXXX")
 		:    let g:python_input_pipe = g:python_proc_directory . '/input'
 		:    let g:python_output_pipe = g:python_proc_directory . '/output'
-		:    call system("mknod p ".g:python_input_pipe)
-		:    call system("mknod p ".g:python_output_pipe)
-		:    call system(l:python . l:python_cmd . " < " . g:python_input_pipe . " > " . g:python_output_pipe)
-		:    autocmd VimLeave * :call system("rm -rf ". g:python_proc_directory)
+		:    call System("mknod p ".g:python_input_pipe)
+		:    call System("mknod p ".g:python_output_pipe)
+		:    call System(l:python . l:python_cmd . " < " . g:python_input_pipe . " > " . g:python_output_pipe)
+		:    autocmd VimLeave * :call System("rm -rf ". g:python_proc_directory)
 		:    vnoremap <leader>py execute ":'<'>w " .g:python_input_pipe \| execute "sp " . g:python_output_pipe
 		:  endif
 		:endfunction
@@ -1438,7 +1443,7 @@
 	" {{{
 	:  let l:url = 'https://raw.githubusercontent.com/chrisdean258/Dotfiles/master/.vimrc'
 	:  try
-	:    let l:output = system("diff <(date +%j) ~/.vim/update")
+	:    let l:output = System("diff <(date +%j) ~/.vim/update")
 	:    if l:output == "" && !get(a:, 1)
 	:      redraw!
 	:      return
@@ -1473,12 +1478,14 @@
 	:    call HJKL()
 	:  endif
 	:else
-	:  let s:response = confirm("I'm about to turn off the arrow keys. Use h,j,k,l for left, up, right, down respectively", "y\nn", "y")
-	:  if s:response < 2
-	:    call HJKL()
-	:    call system("echo :let g:imawimp = 0 >> ~/.vimrc.local")
-	:  else
-	:    call system("echo :let g:imawimp = 1 >> ~/.vimrc.local")
+	:  if !has('win32')
+	:    let s:response = confirm("I'm about to turn off the arrow keys. Use h,j,k,l for left, up, right, down respectively", "y\nn", "y")
+	:    if s:response < 2
+	:      call HJKL()
+	:      call System("echo :let g:imawimp = 0 >> ~/.vimrc.local")
+	:    else
+	:      call System("echo :let g:imawimp = 1 >> ~/.vimrc.local")
+	:    endif
 	:  endif
 	:endif
 	
@@ -1504,11 +1511,11 @@
         :  call CloseMatches()
         :endif
 
-	:if get(g:, "use_syntastic", 1)
+	:if get(g:, "use_syntastic", 1) && !has('win32')
 	:  call SourceOrInstallSyntastic()
 	:endif
 
-	:if get(g:,"auto_update", 1)
+	:if get(g:,"auto_update", 1) && !has('win32')
 	:  if has("autocmd") && &filetype !~ "vim" && expand("%") !~ "\.vimrc$"
 	:  augroup vim_update
 	:    autocmd VimEnter * :call Update_Vimrc()
