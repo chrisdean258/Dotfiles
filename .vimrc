@@ -897,7 +897,7 @@
 		:  let l:window = winsaveview()
 		:  let l:match0   = SplitIf_Match(0)
 		:  let l:match01  = SplitIf_Match(0, 1)
-		:  let l:matchm10 = SplitIf_Match(0, -1)
+		:  let l:matchm10 = SplitIf_Match(-1, 0)
 		:  if l:match0 == 2
 		:    execute "normal! 0feel"
 		:    call SplitIf_Internal()
@@ -933,8 +933,8 @@
 		" }}}
 
 		:function! SplitIf_Match(...)
-		" {{
-		:  let l:regex = '^\s*.\+(.*)\+[^)].*'
+		" {{{
+		:  let l:regex = '^\s*\(if\|for\|while\)\s*(.*)\+[^)].*'
 		:  let l:elseregex = '^\s*else\s.\+'
 		:  let l:line = ""
 		:  let l:base = line('.')
