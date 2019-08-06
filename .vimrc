@@ -898,9 +898,6 @@
 		:  let l:match0   = SplitIf_Match(0)
 		:  let l:match01  = SplitIf_Match(0, 1)
 		:  let l:matchm10 = SplitIf_Match(0, -1)
-		:  echom "match0 ".match0
-		:  echom "match01 ".match01
-		:  echom "matchm10 ".matchm10
 		:  if l:match0 == 2
 		:    execute "normal! 0feel"
 		:    call SplitIf_Internal()
