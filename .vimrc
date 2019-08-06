@@ -908,9 +908,9 @@
 		:  elseif l:match0
 		:    execute "normal! 0f(%l"
 		:  elseif l:match01
-		:    execute "normal! j"
+		:    execute "normal! J"
 		:  elseif l:matchm10
-		:    execute "normal! kj"
+		:    execute "normal! kJ"
 		:  endif
 		:  if l:matchm10 || l:match0 || l:match01
 		:    call SplitIf_Internal()
@@ -934,7 +934,7 @@
 
 		:function! SplitIf_Match(...)
 		" {{{
-		:  let l:regex = '^\s*\(if\|for\|while\)\s*(.*)\+[^)].*'
+		:  let l:regex = '^\s*\(if\|for\|while\)\s*(.*)\+[^)].*;\s*$'
 		:  let l:elseregex = '^\s*else\s.\+'
 		:  let l:line = ""
 		:  let l:base = line('.')
