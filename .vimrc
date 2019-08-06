@@ -898,6 +898,9 @@
 		:  let l:match0   = SplitIf_Match(0)
 		:  let l:match01  = SplitIf_Match(0, 1)
 		:  let l:matchm10 = SplitIf_Match(0, -1)
+		:  echom "match0 ".match0
+		:  echom "match01 ".match01
+		:  echom "matchm10 ".matchm10
 		:  if l:match0 == 2
 		:    execute "normal! 0feel"
 		:    call SplitIf_Internal()
@@ -912,7 +915,7 @@
 		:  elseif l:matchm10
 		:    execute "normal! kj"
 		:  endif
-		:  if l:matchm10 || l:match0 || l:match10
+		:  if l:matchm10 || l:match0 || l:match01
 		:    call SplitIf_Internal()
 		:  endif
 		:  call winrestview(l:window)
@@ -933,14 +936,14 @@
 		" }}}
 
 		:function! SplitIf_Match(...)
-		" {{{
+		" {{
 		:  let l:regex = '^\s*.\+(.*)\+[^)].*'
 		:  let l:elseregex = '^\s*else\s.\+'
 		:  let l:line = ""
 		:  let l:base = line('.')
 		:  for value in a:000
 		:    let l:linenum = l:base + value
-		:    if value < 1 || value > line('$')
+		:    if l:linenum < 1 || l:linenum > line('$')
 		:      return 0
 		:    endif
 		:    let l:line .= getline(l:linenum)
