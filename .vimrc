@@ -1443,7 +1443,7 @@
 	" {{{
 	:  let l:url = 'https://raw.githubusercontent.com/chrisdean258/Dotfiles/master/.vimrc'
 	:  try
-	:    let l:output = System("diff <(date +%j) ~/.vim/update")
+	:    let l:output = system("diff <(date +%j) ~/.vim/update")
 	:    if l:output == "" && !get(a:, 1)
 	:      redraw!
 	:      return
