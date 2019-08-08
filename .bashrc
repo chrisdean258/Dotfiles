@@ -16,7 +16,7 @@ BASH_SOURCED="yes"
 [ -r ~/.bash_aliases ] && . ~/.bash_aliases
 [ -r ~/.git-completion.bash ] && source ~/.git-completion.bash
 [ -r ~/.bash-completion.bash ] && source ~/.bash-completion.bash
-[ -x "$(command -v dircolors)" ] && eval "$(dircolors -b)"
+[ -x "$(command -v dircolors)" ] && eval "$(dircolors -b ~/.dircolors)" 
 
 HISTCONTROL=ignoreboth
 HISTSIZE=
