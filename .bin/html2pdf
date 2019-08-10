@@ -7,4 +7,4 @@ out=${file%.*}.pdf
 
 shift
 
-wkhtmltopdf "$@" $1 ${1%.*}.pdf
+wkhtmltopdf "$@" $file $out
