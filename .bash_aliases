@@ -106,7 +106,7 @@ j()
 		if [ -d "$new_dir" ]
 		then
 			echo "$@" >> ${jmps}_complete
-			builtin cd $new_dir 
+			builtin cd "$new_dir" 
 		else
 			sed -i "/^$new_dir$/d" $jmps
 			j "$@"
