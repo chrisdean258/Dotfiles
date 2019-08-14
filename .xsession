@@ -10,7 +10,6 @@ while true; do
 		extra=$(echo $battery_num | awk '{ print $1 * 2 + 10 }')
 		battery=$(printf "%-${extra}s" $(yes ░ | head -n ${battery_num} | tr -d "\n"))
 
-
 		nettype=$(nmcli device | grep connected | head -n 1 | awk '{ print $2 }')
 		network="No Network"
 		[ "$nettype" = "wifi" ] && network=$(nmcli device wifi | awk '/\*/ { print $2 " (" $5 " " $6 ")" }' 2>/dev/null )
@@ -33,4 +32,5 @@ if [ $# -eq 0 ]; then
 	monitor detect
 	feh --bg-scale ~/Documents/background-black.png
 	exec dwm
+	echo "DWM failed to start" > ~/dwm.error
 fi
