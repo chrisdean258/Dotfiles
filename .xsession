@@ -31,6 +31,6 @@ if [ $# -eq 0 ]; then
 		xfce4-power-manager &
 	fi
 	monitor detect
-	feh --bg-scale Documents/Desktop/background-black.png
+	feh --bg-scale ~/Documents/background-black.png
 	exec dwm
 fi
