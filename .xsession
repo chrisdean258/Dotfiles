@@ -5,7 +5,7 @@ while true; do
 	xsetroot -name "$(python -c 'print " " * 1000')"
 	while ! [ -f ~/.xresetroot ]; do
 		longest=0
-		batteryp=$(upower --dump | grep -E "percentage" | sort | uniq | sed "s/^.\{25\}//")
+		batteryp=$(upower --dump | grep -E "percentage" | sort | uniq | sed "s/^.\{25\}//" | tail -n 1)
 		battery_num=$(echo $batteryp | sed "s/.%//")
 		extra=$(echo $battery_num | awk '{ print $1 * 2 + 10 }')
 		battery=$(printf "%-${extra}s" $(yes ░ | head -n ${battery_num} | tr -d "\n"))
