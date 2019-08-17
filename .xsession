@@ -25,11 +25,11 @@ while true; do
 done &
 
 if [ $# -eq 0 ]; then
-	xrdb -merge .Xresources
+	# xrdb -merge .Xresources
 	if [ -x /usr/bin/xfce4-power-manager ] ; then
 		xfce4-power-manager &
 	fi
-	monitor detect
+	# monitor detect
 	feh --bg-scale ~/Documents/background-black.png
 	exec dwm
 	echo "DWM failed to start" > ~/dwm.error
