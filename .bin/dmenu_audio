@@ -1,0 +1,13 @@
+#!/bin/sh
+
+sinks="$(audio list sinks)"
+sources="$(audio list sources)"
+
+[ -z "$sources" ] && exec audio
+
+args=$(echo "$sinks" | dmenu -l 10 -p "audio")
+
+[ -z "$args" ] && exit
+
+exec audio "$args"
+

@@ -1,0 +1,8 @@
+#!/bin/sh
+
+if [ $# -gt 0 ]; then
+	mac=$(bt-device -l | grep "$*")
+fi
+
+exec blueman-manager
+
