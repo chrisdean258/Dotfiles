@@ -20,7 +20,6 @@ cd "$base"
 if [ "$1" = "save" ]; then
 	shift
 	comment="$*${*:+ -- }$(git diff --name-only | tr '\n' ' ')"
-	echo $comment
 	spawn git add .
 	spawn git commit -m "$comment"
 	spawn git push
