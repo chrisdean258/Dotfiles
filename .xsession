@@ -25,11 +25,12 @@ done &
 
 if [ $# -eq 0 ]; then
 	# xrdb -merge .Xresources
+	export PATH=$PATH:$HOME/.bin
 	if [ -x /usr/bin/xfce4-power-manager ] ; then
 		xfce4-power-manager &
 	fi
 	# monitor detect
 	feh --bg-scale ~/Documents/background-black.png
-	exec dwm
+	exec dwm &> ~/dwm.error
 	echo "DWM failed to start" > ~/dwm.error
 fi
