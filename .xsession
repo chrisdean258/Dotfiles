@@ -16,8 +16,7 @@ while true; do
 		[ "$nettype" = "ethernet" ] && network="Connected via ethernet"
 		time=$(date +"%F %I:%M %p")
 
-		name="     [$battery] $batteryp | $network | $time "
-
+		name="$(printf %100s "") [$battery] $batteryp | $network | $time "
 		xsetroot -name "$name"
 		sleep 10
 	done
