@@ -9,7 +9,7 @@ sinks="$(pactl list sinks | grep -E "Sink #|alsa.card_name = " | sed '$!N;s/\n/ 
 sources="$(pactl list sink-inputs | grep -E "Sink Input #|application.name = " |  sed '$!N;s/\n/ /' | sed "s/Sink Input #\([0-9]*\).*\"\(.*\)\"/\1 \2/g")"
 
 if [ "$1" = "--help" ] || [ "$1" = "-h" ]; then
-	echo "Usage: audio [[list [sources|sinks]] | [source] sink]" 1>&2
+	echo "Usage: audio [list [sources|sinks] | [source] sink | restart]" 1>&2
 	exit 1
 elif [ "$1" = "list" ]; then
 	if [ $# -eq 1 ]; then
@@ -23,6 +23,8 @@ elif [ "$1" = "list" ]; then
 		echo "$sources" | grep .
 	fi
 	exit 0
+elif [ "$1" = "restart" ]; then
+	exec pulseaudio -k
 fi
 
 if [ $# -eq 1 ]; then
