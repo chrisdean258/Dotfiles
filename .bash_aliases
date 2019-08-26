@@ -88,7 +88,7 @@ j()
 		return 0
 	fi
 
-	if echo $PWD | grep -qi "$pattern"
+	if echo "$PWD" | grep -qi "$pattern"
 	then
 		new_dir=$(
 		tac $jmps |
@@ -101,14 +101,14 @@ j()
 		new_dir=$(grep -i "$pattern" $jmps | \tail -n 1)
 	fi
 
-	if [ "$new_dir" ]
+	if [ -n "$new_dir" ]
 	then 
 		if [ -d "$new_dir" ]
 		then
 			echo "$@" >> ${jmps}_complete
 			builtin cd "$new_dir" 
 		else
-			sed -i "/^$new_dir$/d" $jmps
+			sed -i "/^$new_dir$/d" "$jmps"
 			j "$@"
 		fi
 	fi
