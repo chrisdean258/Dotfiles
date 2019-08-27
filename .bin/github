@@ -6,17 +6,19 @@ import json
 import subprocess
 import functools
 import re
+import os
+from path import Path
 
-def call(*args, **kwargs):
+def sh(*args, **kwargs):
     kwargs["shell"] = kwargs.get("shell", True)
     kwargs["universal_newlines"] = kwargs.get("universal_newlines", True)
     return subprocess.check_output(*args, **kwargs)
 
 BASE_URL = "https://api.github.com/"
 try:
-    USER = call("git config user.username")
+    USER = sh("git config user.username")
 except:
-    email = call("git config user.email")
+    email = sh("git config user.email")
     USER = email[:email.index("@")]
 
 def usage(*args):
@@ -51,10 +53,27 @@ def list_repos():
 
 @auth_request(requests.post, "user/repos")
 def new_repo(*args):
-    name = [ a for a in args if not a.startswith("-") ][-1]
+    names = [ a for a in args if not a.startswith("-") ]
+    name = names[0]
+    dirname = names[-1]
     data = { "name": name[0], "private": ("-p" in args or "--private" in args) }
     response = yield data
     print(f"Name: {response['name']}\nFull Name: {response['full_name']}")
+
+    os.mkdir(dirname)
+    os.chdir(dirname)
+
+    with open("README.md", "w") as f:
+        f.write(f"# {name}")
+    open(".gitignore").close()
+
+    sh("git init")
+    sh(f'git remote add origin "git@github.com:{USER}/{name}.git"')
+    sh("git add -A .")
+    sh('git commit -m "Initial Commit"')
+    sh("git push -u origin master")
+
+    os.chdir("..")
 
 @auth_request(requests.delete)
 def delete_repo(*args):
