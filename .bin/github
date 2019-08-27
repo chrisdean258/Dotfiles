@@ -5,27 +5,24 @@ import getpass
 import json
 import subprocess
 import functools
-from decorator import decorator
-
-
-BASE_URL = "https://api.github.com/"
+import re
 
 def call(*args, **kwargs):
     kwargs["shell"] = kwargs.get("shell", True)
     kwargs["universal_newlines"] = kwargs.get("universal_newlines", True)
     return subprocess.check_output(*args, **kwargs)
 
-def authenticate():
-    try:
-        user = call("git config user.username")
-    except:
-        email = call("git config user.email")
-        user = email[:email.index("@")]
+BASE_URL = "https://api.github.com/"
+try:
+    USER = call("git config user.username")
+except:
+    email = call("git config user.email")
+    USER = email[:email.index("@")]
 
-    pwd = getpass.getpass()
-    return (user, pwd)
+def usage(*args):
+    print("Usage: github list|ls|delete-repo|new_repo [repo]")
 
-def auth_request(method, url):
+def auth_request(method, url=None):
     def internal(func):
         @functools.wraps(func)
         def cbl(*args, **kwargs):
@@ -33,14 +30,16 @@ def auth_request(method, url):
             nonlocal url
             nonlocal method
             running = func(*args, **kwargs)
-            response = method(BASE_URL + url, data = next(running), auth=authenticate())
+            if url is None: url = next(running)
+            response = method(BASE_URL + url, json = next(running), auth=(USER, getpass.getpass()))
             if response.status_code // 100 != 2:
-                print(f"status code = {response.status_code}")
-                return
-            try:
-                running.send(json.loads(response.text))
-            except StopIteration:
-                pass
+                print(f"status code = {response.status_code}\n{response.text}")
+            if response.text:
+                try:
+                    running.send(json.loads(response.text))
+                except StopIteration:
+                    pass
+
         return cbl
     return internal
 
@@ -50,11 +49,29 @@ def list_repos():
     for repo in response:
         print(repo["full_name"])
 
+@auth_request(requests.post, "user/repos")
+def new_repo(*args):
+    name = [ a for a in args if not a.startswith("-") ][-1]
+    data = { "name": name[0], "private": ("-p" in args or "--private" in args) }
+    response = yield data
+    print(f"Name: {response['name']}\nFull Name: {response['full_name']}")
 
-def main():
-    list_repos()
+@auth_request(requests.delete)
+def delete_repo(*args):
+    yield f"repos/{USER}/{args[-1]}"
+    yield
+
+def main(argv):
+    {
+        "delete": delete_repo,
+        "new-repo": new_repo,
+        "list": list_repos,
+        "ls": list_repos
+        }.get(argv[1], usage)(*argv[2:])
+
 
 if __name__ == "__main__":
-    main()
+    import sys
+    main(sys.argv)
 
 
