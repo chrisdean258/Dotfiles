@@ -18,7 +18,7 @@ fi
 
 files="${@:-$(ls)}"
 for file in $files; do
-	compile "$file"
+	! [ -d "$file" ] && compile "$file"
 done
 
 

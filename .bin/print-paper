@@ -1,4 +1,4 @@
 #!/bin/sh
 
 
-lp -o number-up=2 -o sides=two-sided-long-edge "$@"
+lp -o number-up=2 -o sides=two-sided-short-edge "$@"
