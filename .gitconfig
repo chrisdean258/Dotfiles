@@ -22,7 +22,7 @@
 	keep = !~/.git_scripts/keep
 	rebase-all = !~/.git_scripts/rebase_all
 	merge-all = !~/.git_scripts/merge_all
-	ppp = !~/.git_scripts/push_pull_pop
+	p = !~/.git_scripts/stash_pull_pop
 	commits = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
 [merge]
 	tool = vimdiff
