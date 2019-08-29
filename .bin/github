@@ -7,7 +7,6 @@ import subprocess
 import functools
 import re
 import os
-from path import Path
 
 def sh(*args, **kwargs):
     kwargs["shell"] = kwargs.get("shell", True)

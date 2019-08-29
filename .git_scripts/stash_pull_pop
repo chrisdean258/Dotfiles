@@ -1,6 +1,10 @@
 #!/bin/bash
 
-set -e
-git stash
+git stash | grep -q "No local changes to save"
+rv=$?
 git pull "$@"
-git stash pop
+[ "$rv" -ne 0 ] && git stash pop >/dev/null
+
+
+
+
