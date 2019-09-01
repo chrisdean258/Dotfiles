@@ -6,19 +6,22 @@ while true; do
 	counter=0
 	while ! [ -f ~/.xresetroot ]; do
 		longest=0
-		batteryp=$(upower --dump | grep -E "percentage" | sort | uniq | sed "s/^.\{25\}//" | tail -n 1)
-		battery_num=$(echo $batteryp | sed "s/.%//")
-		extra=$(echo $battery_num | awk '{ print $1 * 2 + 10 }')
-		battery=$(printf "%-${extra}s" $(yes ░ | head -n ${battery_num} | tr -d "\n"))
-
-		nettype=$(nmcli device | grep connected | head -n 1 | awk '{ print $2 }')
-		network="No Network"
-		[ "$nettype" = "wifi" ] && network=$(nmcli device wifi | awk '/\*/ { print $2 }' 2>/dev/null )
+		battery_num="$(upower --dump | awk '/percentage/ {print int($NF)}' | sort -n | tail -n 1)"
+		width=$(echo $battery_num | awk '{ print 3*int(($1+5)/10) }')
+		other=$(echo $battery_num | awk '{ print 10-int(($1+5)/10) }')
+		battery="$(printf "%.*s%*s" $width ░░░░░░░░░░ $other "")"
+		old_network="$network"
+		nettype=$(nmcli device | awk '/connected/ { print $2 }' | head -n 1)
+		network=
+		[ "$nettype" = "wifi" ] && network=$(nmcli device wifi | awk '/\*/ { print $2 }')
 		[ "$nettype" = "ethernet" ] && network="Connected via ethernet"
+		if [ "$old_network" != "$network" ]; then
+			counter="0"
+		fi
 		[ "$counter" -eq 0 ] && netspeed="$(speedtest-cli --simple | awk 'BEGIN{RS="~"} {printf("(%d/%d Mb/s, %d ms)", $5, $8, $2) }')"
 		time=$(date +"%F %I:%M %p")
 
-		name="$(printf %100s "") [$battery] $batteryp | $network ${netspeed+ $netspeed} | $time "
+		name="$(printf %100s "") [$battery] ${battery_num}% | ${network:-No Network} ${netspeed+$netspeed }| $time "
 
 		xsetroot -name "$name"
 		[ "$counter" -ne 0 ] && sleep 10
