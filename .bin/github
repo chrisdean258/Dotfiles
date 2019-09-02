@@ -58,15 +58,31 @@ def Delete(url):
 
 
 @click.group()
-def main():
-    pass
+@click.option(
+    "--username", "-u",
+    default=user,
+    help="Github username"
+)
+@click.option(
+    "--password", "-p",
+    default=getpass.getpass,
+    help="Github password"
+)
+def main(username, password):
+    global USER
+    global PASSWORD
+    if username:
+        USER = username
+    if password:
+        PASSWORD = password
 
 
 @main.command("new-repo")
 @click.argument("name")
-@click.argument("dirname", default=None)
-@click.option("--private", "-p", default=False, help="Create private repo")
+@click.argument("dirname", required=False)
+@click.option("--private", "-p", is_flag=True, help="Create private repo")
 def NewRepo(name, dirname=None, private=False):
+    """ Create new github repo """
     if dirname is None:
         dirname = name
     data = {"name": name, "private": private}
@@ -100,13 +116,24 @@ def NewRepo(name, dirname=None, private=False):
 
 @main.command("list-repos")
 def ListRepos():
+    """ List github repos """
+    resp = Get("user/repos")
+    for repo in resp:
+        print(repo["full_name"])
+
+
+@main.command()
+def ls():
+    """ Alias fort list-repos """
     resp = Get("user/repos")
     for repo in resp:
         print(repo["full_name"])
 
 
 @main.command("delete-repo")
+@click.argument("name")
 def DeleteRepo(name):
+    """ Delete github repo """
     Delete(f"repos/{user()}/{name}")
 
 
