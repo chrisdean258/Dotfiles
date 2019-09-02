@@ -138,8 +138,8 @@
 	:if executable("flake8")
 	:  let g:syntastic_python_checkers = [ "flake8" ]
 	:endif
-	:let g:syntastic_python_flake8_args=['--ignore=F841,F405,F403,F402,F401']
-	:let g:syntastic_quiet_messages = { "type": "style" }
+	" :let g:syntastic_python_flake8_args=['--ignore=F841,F405,F403,F402,F401']
+	" :let g:syntastic_quiet_messages = { "type": "style" }
 	:let g:syntastic_always_populate_loc_list = 1
 	:let g:syntastic_loc_list_height= 3
 

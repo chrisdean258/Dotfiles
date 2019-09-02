@@ -15,10 +15,8 @@ while true; do
 		network=
 		[ "$nettype" = "wifi" ] && network=$(nmcli device wifi | awk '/\*/ { print $2 }')
 		[ "$nettype" = "ethernet" ] && network="Connected via ethernet"
-		if [ "$old_network" != "$network" ]; then
-			counter="0"
-		fi
-		[ "$counter" -eq 0 ] && netspeed="$(speedtest-cli --simple | awk 'BEGIN{RS="~"} {printf("(%d/%d Mb/s, %d ms)", $5, $8, $2) }')"
+		[ "$old_network" != "$network" ] && counter="0"
+		[ "$counter" -eq 0 ] && netspeed="$(speedtest-cli --simple | awk 'BEGIN{RS="~"} {printf("(%d/%d/%d)", $5, $8, $2) }')"
 		time=$(date +"%F %I:%M %p")
 
 		name="$(printf %100s "") [$battery] ${battery_num}% | ${network:-No Network} ${netspeed+$netspeed }| $time "

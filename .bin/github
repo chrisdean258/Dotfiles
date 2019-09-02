@@ -1,139 +1,118 @@
 #!/usr/bin/env python3
 
-import requests
+import click
 import getpass
-import json
-import subprocess
 import os
-from contextlib import suppress
+import json
+import re
+import requests
+from sh import git
 
 
-PRINT = True
+QUIET = False
+USER = None
+PASSWORD = None
+AUTH = None
+BASEURL = "https://api.github.com/"
 
 
-def sh(*args, **kwargs):
-    kwargs["shell"] = kwargs.get("shell", True)
-    kwargs["universal_newlines"] = kwargs.get("universal_newlines", True)
-    return subprocess.check_output(*args, **kwargs)
+def user():
+    global USER
+    if not USER:
+        try:
+            USER = git.config("user.username").strip()
+        except Exception:
+            email = git.config("user.email").strip()
+            USER = email[:email.index("@")]
+    return USER
 
 
-def qprint(*args):
-    if PRINT:
-        print(*args)
+def auth():
+    global PASSWORD
+    if not PASSWORD:
+        PASSWORD = getpass.getpass()
+    return (user(), PASSWORD)
 
 
-def usage(*args):
-    print("Usage: github list|ls|delete-repo|new_repo [repo]")
+def Request(callback, url, *args, **kwargs):
+    resp = callback(BASEURL + url, *args, **kwargs, auth=auth())
+    if resp.status_code // 100 != 2:
+        raise Exception(f"status code = {resp.status_code}\n{resp.text}")
+    items = {}
+    try:
+        items = json.loads(resp.text)
+    finally:
+        return items
 
 
-class Request():
-    def __init__(self, callback, url, auth=None, *args, **kwargs):
-        self._user = None
-        if auth is None:
-            auth = (self.user(), getpass.getpass())
-        resp = callback(url, *args, **kwargs, auth=auth)
-        if resp.status_code // 100 != 2:
-            raise Exception(f"status code = {resp.status_code}\n{resp.text}")
-        self._items = {}
-        with suppress(json.decoder.JSONDecodeError):
-            self._items = json.loads(resp.text)
-
-    def __get_item__(self, string):
-        return self._items[string]
-
-    def __iter__(self):
-        return iter(self._items)
-
-    def __len__(self):
-        return len(self._items)
-
-    def baseurl(self):
-        return "https://api.github.com/"
-
-    def user(self):
-        if not self._user:
-            try:
-                return sh("git config user.username")
-            except Exception:
-                email = sh("git config user.email")
-                return email[:email.index("@")]
-        return self._user
+def Post(url, json):
+    return Request(requests.post, url, json=json)
 
 
-class Post(Request):
-    def __init__(self, url, json):
-        super().__init__(requests.post, self.baseurl() + url, json=json)
+def Get(url):
+    return Request(requests.get, url)
 
 
-class Get(Request):
-    def __init__(self, url):
-        super().__init__(requests.get, self.baseurl() + url)
+def Delete(url):
+    return Request(requests.delete, url)
 
 
-class Delete(Request):
-    def __init__(self, url):
-        super().__init__(requests.delete, self.baseurl() + url)
+@click.group()
+def main():
+    pass
 
 
-class NewRepo(Post):
-    def __init__(self, *args):
-        names = [a for a in args if not a.startswith("-")]
-        name = names[0]
-        dirname = names[-1]
-        data = {"name": name, "private": ("-p" in args or "--private" in args)}
+@main.command("new-repo")
+@click.argument("name")
+@click.argument("dirname", default=None)
+@click.option("--private", "-p", default=False, help="Create private repo")
+def NewRepo(name, dirname=None, private=False):
+    if dirname is None:
+        dirname = name
+    data = {"name": name, "private": private}
 
-        super().__init__("user/repos", json=data)
+    resp = Post("user/repos", data)
 
-        qprint(f"Name: {self['name']}")
-        qprint(f"Full Name: {self['full_name']}")
-        qprint(f"SSH URL: {self['ssh_url']}")
-        qprint(f"Clone Url: {self['clone_url']}")
+    if not QUIET:
+        print(f"Name: {resp['name']}")
+        print(f"Full Name: {resp['full_name']}")
+        print(f"SSH URL: {resp['ssh_url']}")
+        print(f"Clone Url: {resp['clone_url']}")
 
-        os.mkdir(dirname)
-        os.chdir(dirname)
+    os.mkdir(dirname)
+    os.chdir(dirname)
 
-        with open("README.md", "w") as f:
-            f.write(f"# {name}")
-        open(".gitignore").close()
+    title = name.replace("-", " ").replace("_", " ")
+    title = re.sub(r"(?<=\w)([A-Z])", r" \1", title).title()
 
-        sh("git init")
-        sh(f'git remote add origin "git@github.com:{self.user()}/{name}.git"')
-        sh("git add -A .")
-        sh('git commit -m "Initial Commit"')
-        sh("git push -u origin master")
+    with open("README.md", "w") as f:
+        f.write(f"# {title}")
+    open(".gitignore").close()
 
-        os.chdir("..")
+    git.init()
+    git.remote.add.origin(f"git@github.com:{user()}/{name}.git")
+    git.add("-A", ".")
+    git.commit("-m", "Initial commit")
+    git.push("-u", "origin", "master")
 
-
-class ListRepos(Get):
-    def __init__(self):
-        super().__init__("user/repos")
-        for repo in self:
-            qprint(repo["full_name"])
-
-
-class DeleteRepo(Delete):
-    def __init__(self, *args):
-        super().__init__(f"repos/{self.user()}/{args[-1]}")
+    os.chdir("..")
 
 
-def main(argv):
-    global PRINT
-    if "-q" in argv:
-        PRINT = False
-        argv = argv[:argv.index("-q")] + argv[argv.index("-q") + 1:]
-    {
-        "delete-repo": DeleteRepo,
-        "new-repo": NewRepo,
-        "list": ListRepos,
-        "ls": ListRepos
-        }.get(argv[1], usage)(*argv[2:])
+@main.command("list-repos")
+def ListRepos():
+    resp = Get("user/repos")
+    for repo in resp:
+        print(repo["full_name"])
+
+
+@main.command("delete-repo")
+def DeleteRepo(name):
+    Delete(f"repos/{user()}/{name}")
 
 
 if __name__ == "__main__":
-    import sys
     try:
-        main(sys.argv)
+        main()
     except Exception as e:
         print(str(e))
         exit(1)
