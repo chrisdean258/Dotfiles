@@ -5,7 +5,7 @@ sources="$(audio list sources)"
 
 [ -z "$sources" ] && [ "$#" -eq 0 ] && exec audio
 
-args=$(echo "$sinks" | dmenu -l 10 -p "audio")
+args=$(echo "$sinks" | dmenu -i -l 10 -p "audio")
 
 [ -z "$args" ] && exit
 
