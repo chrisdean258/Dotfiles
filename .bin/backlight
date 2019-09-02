@@ -1,0 +1,19 @@
+#!/bin/sh
+
+brightness=$(xrandr --verbose | awk '/Brightness/ { print $2 }')
+
+if [ $# -eq 0 ]; then 
+	echo "$brightness" | awk '{ print int($1 * 100) }'
+	exit
+fi
+
+new_bright="$(echo "$1" | awk '{ print $1 / 100.0 }')"
+if echo "$1" | grep -q "^[+-]"; then
+	new_bright=$(echo "$brightness" "$new_bright" | awk '{ print $1 + $2 }')
+fi
+
+
+xrandr --output "eDP-1-1" --brightness "$new_bright"
+
+
+
