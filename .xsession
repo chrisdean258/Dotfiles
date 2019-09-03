@@ -15,7 +15,13 @@ while true; do
 		network=
 		[ "$nettype" = "wifi" ] && network=$(nmcli device wifi | awk '/\*/ { print $2 }')
 		[ "$nettype" = "ethernet" ] && network="Connected via ethernet"
-		[ "$old_network" != "$network" ] && counter="0"
+		if [ "$old_network" != "$network" ]; then
+			counter="0"
+			if [ "$network" = "eduroam"]; then
+				nmcli con down "eduroam [b7d37ed6]"
+				nmcli con up "eduroam [b7d37ed6]"
+			fi
+		fi
 		[ "$counter" -eq 0 ] && netspeed="$(speedtest-cli --simple | awk 'BEGIN{RS="~"} {printf("(%d/%d/%d)", $5, $8, $2) }')"
 		time=$(date +"%F %I:%M %p")
 
