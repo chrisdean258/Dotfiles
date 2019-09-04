@@ -8,7 +8,8 @@ alias ll='ls -alF'
 alias la='ls -A'
 alias l='ls -CF'
 alias car="cat"
-if [ -x /usr/bin/dircolors ]; then
+
+if exe dircolors; then
 	test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
 	alias ls='ls --color=auto --group-directories-first'
 	alias grep='grep --color=auto'
@@ -21,33 +22,26 @@ elif [ -n "$MAC" ]; then
 	alias egrep='egrep --color'
 fi
 
-[ -n "$(command -v colordiff)" ] && alias diff="colordiff"
-[ -n "$(command -v neomutt)" ] && alias mutt="neomutt"
-
-exe()
-{
-	[ -n "$(command -v "$1")" ]
-	return $?
-}
+exe colordiff && alias diff="colordiff"
+exe neomutt && alias mutt="neomutt"
 
 cat()
 {
-	if ! [ -t 1 ]; then
-		cat "$@"
+	CAT="$(which cat)"
+	if ! [ -t 1 ] || [ $# -eq 0 ]; then
+		echo $CAT "$@"
+		$CAT "$@"
 		exit "$?"
 	fi
 	for f in "$@"; do
 		[ -d "$f" ] && ls "$f" && continue
-		exe vimcat && file -b --mime-type "$f" | grep -q "text" && vimcat "$f" && break
-		exe pdftotext && file -b --mime-type "$f" | grep -q "pdf" && pdftotext "$f" - && break
-		cat "$f"
+		exe vimcat && file -b --mime-type "$f" | grep -q "text" && vimcat "$f" && continue
+		exe pdftotext && file -b --mime-type "$f" | grep -q "pdf" && pdftotext "$f" - && continue
+		$CAT "$f"
 	done
 }
 
--()
-{
-	builtin cd -
-}
+-() { builtin cd -; }
 
 alias cd="cdls"
 
@@ -61,10 +55,7 @@ cdls()
 	fi
 }
 
-md()
-{
-	mkdir "$@" && cd "$@"
-}
+md() { mkdir "$@" && cd "$@"; }
 
 pip3()
 {

@@ -10,13 +10,14 @@ fi
 [ -z "$BASH_SOURCED" ] || return
 BASH_SOURCED="yes"
 
-[ -x "$(command -v lesspipe)" ] && eval "$(SHELL=/bin/sh lesspipe)"
-[ -x "$(command -v python3)" ] || source /opt/rh/python33/enable
+exe() { [ -x "$(command -v "$1")" ]; }
+
 [ -r ~/.bash_profile ] && . ~/.bash_profile
 [ -r ~/.bash_aliases ] && . ~/.bash_aliases
 [ -r ~/.git-completion.bash ] && source ~/.git-completion.bash
 [ -r ~/.bash-completion.bash ] && source ~/.bash-completion.bash
-[ -x "$(command -v dircolors)" ] && eval "$(dircolors -b ~/.dircolors)" 
+exe lesspipe && eval "$(SHELL=/bin/sh lesspipe)"
+exe dircolors && eval "$(dircolors -b ~/.dircolors)" 
 
 HISTCONTROL=ignoreboth
 HISTSIZE=
@@ -59,7 +60,7 @@ elif [ -f $(brew --prefix)/etc/bash_completion ]; then
 	. $(brew --prefix)/etc/bash_completion
 fi
 
-if [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then
+if exe tput && tput setaf 1 >&/dev/null; then
 	if hostname | grep -qE "$(whoami)|localhost"; then
 		PS1='\[\033[01;32m\]\u\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
 	else
