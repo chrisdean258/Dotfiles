@@ -4,8 +4,10 @@ compile()
 {
 
 	case "$1" in
-		*.md) echo pandoc "$1" -o ${1%.md}.pdf -V geometry:margin=0.5in ;;
+		*.md) pandoc "$1" -o ${1%.md}.pdf -V geometry:margin=0.5in ;;
 		*.c) make "${1%.c}" ;;
+		*.pdf) true ;;
+		*.tex) pandoc "$1" -o ${1%.tex}.pdf -V geometry:margin=0.5in ;;
 		*) echo "Cannot compile $1"
 	esac
 }

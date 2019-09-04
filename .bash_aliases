@@ -24,6 +24,26 @@ fi
 [ -n "$(command -v colordiff)" ] && alias diff="colordiff"
 [ -n "$(command -v neomutt)" ] && alias mutt="neomutt"
 
+exe()
+{
+	[ -n "$(command -v "$1")" ]
+	return $?
+}
+
+cat()
+{
+	if ! [ -t 1 ]; then
+		cat "$@"
+		exit "$?"
+	fi
+	for f in "$@"; do
+		[ -d "$f" ] && ls "$f" && continue
+		exe vimcat && file -b --mime-type "$f" | grep -q "text" && vimcat "$f" && break
+		exe pdftotext && file -b --mime-type "$f" | grep -q "pdf" && pdftotext "$f" - && break
+		cat "$f"
+	done
+}
+
 -()
 {
 	builtin cd -

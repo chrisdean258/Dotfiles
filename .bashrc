@@ -36,6 +36,7 @@ fi
 
 export PATH=$HOME/bin:$HOME/.bin:$PATH
 export EDITOR=vim
+export VUISUAL=vim
 export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
 export HISTIGNORE="ls:cd"
 
