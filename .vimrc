@@ -782,10 +782,8 @@
 	" {{{
 		:function! LatexPreview()
 		" {{{
-		:  if executable("latex2pdf") && !has('win32')
-		:    autocmd! BufWritePost <buffer> call System("cat /dev/null | latex2pdf " . expand("%"))
-		:    write
-		:  endif
+		:  autocmd! BufWritePost <buffer> call Compile()
+		:  write
 		:  let l:filename = substitute(expand("%"), "\.tex$", ".pdf", "")
 		:  call System('xdg-open '. l:filename. ' >/dev/null 2>/dev/null &')
 		:endfunction
@@ -1345,6 +1343,16 @@
 		:function! CommandLineStart(type, arg, default)
 		" {{{
 		:  return (getcmdtype() == a:type && getcmdline() == "") ? a:arg : a:default
+		:endfunction
+		" }}}
+
+		:function! Compile()
+		" {{{
+		:  try
+		:    call System("compile ".expand("%"))
+		:  catch
+		:    echom v:exception
+		:  endtry
 		:endfunction
 		" }}}
 
