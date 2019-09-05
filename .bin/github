@@ -65,7 +65,6 @@ def Delete(url):
 )
 @click.option(
     "--password", "-p",
-    default=getpass.getpass,
     help="Github password"
 )
 def main(username, password):
