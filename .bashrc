@@ -61,7 +61,7 @@ elif [ -f $(brew --prefix)/etc/bash_completion ]; then
 fi
 
 if exe tput && tput setaf 1 >&/dev/null; then
-	if [ -n "$SSH_TTY"]; then
+	if [ -n "$SSH_TTY" ]; then
 		PS1='\[\033[01;32m\]\u\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
 	else
 		PS1='\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '

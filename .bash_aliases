@@ -24,6 +24,7 @@ fi
 
 exe colordiff && alias diff="colordiff"
 exe neomutt && alias mutt="neomutt"
+exe vimpager && alias less="vimpager"
 
 cat()
 {
