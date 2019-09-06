@@ -5,7 +5,6 @@ while true; do
 	xsetroot -name "$(python -c 'print " " * 1000')"
 	counter=0
 	while ! [ -f ~/.xresetroot ]; do
-		longest=0
 		battery_num="$(upower --dump | awk '/percentage/ {print int($NF)}' | sort -n | tail -n 1)"
 		width=$(echo $battery_num | awk '{ print 3*int(($1+5)/10) }')
 		other=$(echo $battery_num | awk '{ print 10-int(($1+5)/10) }')
@@ -22,7 +21,7 @@ while true; do
 				nmcli con up "eduroam [b7d37ed6]"
 			fi
 		fi
-		[ "$counter" -eq 0 ] && netspeed="$(speedtest-cli --simple | awk 'BEGIN{RS="~"} {printf("(%d/%d/%d)", $5, $8, $2) }')"
+		[ "$counter" -eq 1 ] && netspeed="$(speedtest-cli --simple | awk 'BEGIN{RS="~"} {printf("(%d/%d/%d)", $5, $8, $2) }')"
 		time=$(date +"%F %I:%M %p")
 
 		name="$(printf %100s "") [$battery] ${battery_num}% | ${network:-No Network} ${netspeed+$netspeed }| $time "
