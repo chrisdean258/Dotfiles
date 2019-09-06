@@ -421,13 +421,15 @@
 	:  autocmd FileType tex :setlocal tabstop=2
 	:  autocmd FileType tex :setlocal expandtab
 	:  autocmd FileType tex :setlocal wrap
+	:  autocmd FileType tex :setlocal fo+=a
 	:  autocmd FileType tex :setlocal linebreak
 	:  autocmd FileType tex :setlocal commentstring=%\ %s
 	:  if exists("+breakindent")
 	:    autocmd FileType tex :setlocal breakindent
 	:  endif
 	:  autocmd FileType tex :inoremap <expr><buffer><CR> LatexCarriageReturn()
-	:  autocmd FileType tex :inoremap <buffer>{} {}<left>
+	:  autocmd FileType tex :inoremap <expr><buffer>{ (strlen(getline('.')) + 1 == col('.')) ? "{}\<left>" : "{"
+	:  autocmd FileType tex :inoremap <expr><buffer>} (getline(".")[col(".")-1] == "}") ? "\<right>" : "}"
 	:  autocmd FileType tex :nnoremap <buffer>; :call LatexBackslashBeginning()<CR>
 	" :  autocmd FileType tex :nnoremap <buffer>; mqviwv`<i\<esc>`ql
 	:  autocmd FileType tex :command! Preview call LatexPreview()
