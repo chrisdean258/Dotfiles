@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 spawn()
 {
 	tput bold
@@ -19,7 +21,7 @@ fi
 cd "$base"
 if [ "$1" = "save" ]; then
 	shift
-	comment="$*${*:+ -- }$(git diff --name-only | tr '\n' ' ')"
+	comment="${*:+$* -- }$(git diff --name-only | tr '\n' ' ')"
 	spawn git stash
 	spawn git pull
 	spawn git stash pop
