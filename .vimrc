@@ -1464,9 +1464,11 @@
 	:  let l:url = 'https://raw.githubusercontent.com/chrisdean258/Dotfiles/master/.vimrc'
 	:  try
 	:    let l:output = system("diff <(date +%j) ~/.vim/update")
-	:    if l:output == "" && !get(a:, 1)
-	:      redraw!
-	:      return
+	:    if !get(a:, 1)
+	:      if l:output == "" || system("date +%H") < "04"
+	:        redraw!
+	:        return
+	:      endif
 	:    endif
 	:    echom "Updating"
 	:    call System("date +%j > ~/.vim/update")
