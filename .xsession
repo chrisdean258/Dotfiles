@@ -24,7 +24,7 @@ while true; do
 		[ "$counter" -eq 1 ] && netspeed="$(speedtest-cli --simple | awk 'BEGIN{RS="~"} {printf("(%d/%d/%d)", $5, $8, $2) }')"
 		time=$(date +"%F %I:%M %p")
 
-		name="$(printf %100s "") [$battery] ${battery_num}% | ${network:-No Network} ${netspeed+$netspeed }| $time "
+		name="$(printf %100s "") [$battery] ${battery_num}% | ${network:-No Network} ${netspeed:+$netspeed }| $time "
 
 		xsetroot -name "$name"
 		[ "$counter" -ne 0 ] && sleep 10
