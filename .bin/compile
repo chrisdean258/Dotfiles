@@ -7,7 +7,7 @@ compile()
 		*.md) pandoc "$1" -o ${1%.md}.pdf -V geometry:margin=0.5in ;;
 		*.c) make "${1%.c}" ;;
 		*.pdf) true ;;
-		*.tex) pandoc "$1" -o ${1%.tex}.pdf -V geometry:margin=0.5in ;;
+		*.tex) latex2pdf "$1" ;; 
 		*) echo "Cannot compile $1"
 	esac
 }

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if ! command -v xdg-open 2>/dev/null; then
+if ! [ -n "$(command -v xdg-open 2>/dev/null)" ]; then
 	/usr/bin/open "$@"
 	exit $?
 fi

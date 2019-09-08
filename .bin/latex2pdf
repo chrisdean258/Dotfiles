@@ -8,7 +8,11 @@ while [ $# -gt 0 ]; do
 		continue
 	fi
 	filename=${1%.tex}
-	pdflatex $1 -interaction errorstopmode #&> /dev/null
+	echo q | pdflatex $1 -interaction errorstopmode #&> /dev/null
+	rv=$?
+	if [ $rv -ne 0 ]; then
+		exit $rv
+	fi
 	rm -f $filename.aux $filename.log
 	shift
 done
