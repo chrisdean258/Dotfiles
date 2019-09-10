@@ -17,7 +17,6 @@ while true; do
 		if [ "$old_network" != "$network" ]; then
 			counter="0"
 			if [ "$network" = "eduroam"]; then
-				nmcli con down "eduroam [b7d37ed6]"
 				nmcli con up "eduroam [b7d37ed6]"
 			fi
 		fi
