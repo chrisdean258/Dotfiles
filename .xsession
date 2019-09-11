@@ -40,6 +40,6 @@ if [ $# -eq 0 ]; then
 	fi
 	# monitor detect
 	feh --bg-scale ~/Documents/background-black.png
-	exec dwm #&> ~/dwm.error
+	exec dwm
 	echo "DWM failed to start" > ~/dwm.error
 fi
