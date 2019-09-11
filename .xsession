@@ -9,21 +9,24 @@ while true; do
 		width=$(echo $battery_num | awk '{ print 3*int(($1+5)/10) }')
 		other=$(echo $battery_num | awk '{ print 10-int(($1+5)/10) }')
 		battery="$(printf "%.*s%*s" $width ░░░░░░░░░░ $other "")"
-		old_network="$network"
-		nettype=$(nmcli device | awk '/connected/ { print $2 }' | head -n 1)
 		network=
-		[ "$nettype" = "wifi" ] && network=$(nmcli device wifi | awk '/\*/ { print $2 }')
+		nettype=$(nmcli --terse device | cut -d : -f 2 | head -n 1)
+		[ "$nettype" = "wifi" ] && network=$(nmcli --terse device wifi | grep "^\*" | cut -d : -f 2)
 		[ "$nettype" = "ethernet" ] && network="Connected via ethernet"
-		if [ "$old_network" != "$network" ]; then
+
+		[ -z "${netspeed#No Access}" ] && netspeed="Connected"
+		timeout 1 ping -c 1 google.com >/dev/null 2>/dev/null || netspeed="No Access"
+		if [ "$netspeed" = "No Access" ]; then
+			con=$(nmcli --terse con show --active | cut -d : -f 1)
+			[ -n "$con" ] && nmcli con up "$con"
 			counter="0"
-			if [ "$network" = "eduroam"]; then
-				nmcli con up "eduroam [b7d37ed6]"
-			fi
+		elif [ "$counter" -eq 1 ]; then
+			netspeed="$(speedtest-cli --simple | awk 'BEGIN{RS="~"} {printf("%d/%d/%d", $5, $8, $2) }')"
 		fi
-		[ "$counter" -eq 1 ] && netspeed="$(speedtest-cli --simple | awk 'BEGIN{RS="~"} {printf("(%d/%d/%d)", $5, $8, $2) }')"
+		[ -n "$network" ] && network="$network (${netspeed})"
 		time=$(date +"%F %I:%M %p")
 
-		name="$(printf %100s "") [$battery] ${battery_num}% | ${network:-No Network} ${netspeed:+$netspeed }| $time "
+		name="$(printf %100s "") [$battery] ${battery_num}% | ${network:-No Network} | $time "
 
 		xsetroot -name "$name"
 		[ "$counter" -ne 0 ] && sleep 10
