@@ -7,7 +7,6 @@ compile()
 		*.md) pandoc "$1" -o ${1%.md}.pdf -V geometry:margin=0.5in ;;
 		*.c | *.cpp) make "${1%.*}" ;;
 		*.tex) latex2pdf "$1" ;; 
-		*) echo "Skipping $1"
 	esac
 }
 
