@@ -22,7 +22,7 @@ cd "$base"
 if [ "$1" = "save" ]; then
 	shift
 	comment="${*:+$* -- }$(git diff --name-only | tr '\n' ' ')"
-	spawn git fetch && spawn git stash && spawn git pull && spawn git stash pop
+	spawn git fetch | grep "^" && spawn git stash && spawn git pull && spawn git stash pop
 	spawn git add .
 	spawn git commit -m "$comment"
 	spawn git push
