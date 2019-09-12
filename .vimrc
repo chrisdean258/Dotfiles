@@ -381,6 +381,7 @@
 	:  autocmd FileType cpp    :iabbrev <buffer> nstd using namespace std;<CR>
 	:  autocmd FileType cpp    :autocmd CursorMoved,CursorMovedI <buffer> call HighlightAfterColumn(100)
 	:  autocmd FileType c      :autocmd CursorMoved,CursorMovedI <buffer> call HighlightAfterColumn(80)
+	:  autocmd FileType c      :setlocal commentstring=/*\ %s\ */
 	:augroup END
 	" }}}
 
@@ -473,12 +474,13 @@
 	:autocmd!
 	:autocmd Filetype markdown :inoremap <buffer><tab> <c-r>=MDTab(CleverTab())<CR>
 	:autocmd Filetype markdown :inoremap <expr><silent><buffer><CR> MDNewline("\r")
-	:autocmd Filetype markdown :inoremap <silent><buffer><localleader>s <esc>:call SpellReplace()<CR>a
 	:autocmd Filetype markdown :nnoremap <expr><silent><buffer>o MDNewline("o")
+	:autocmd Filetype markdown :inoremap <silent><buffer><localleader>s <esc>:call SpellReplace()<CR>a
 	:autocmd Filetype markdown :nnoremap <silent><buffer><localleader>s :call SpellReplace()<CR>
 	:autocmd FileType markdown :highlight link markdownError NONE
 	:autocmd Filetype markdown :setlocal wrap
 	:autocmd Filetype markdown :setlocal linebreak
+	:autocmd Filetype markdown :setlocal commentstring=<!--\ %s\ -->
 	:if exists("+breakindent")
 	:  autocmd Filetype markdown :setlocal breakindent
 	:endif
