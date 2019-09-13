@@ -60,14 +60,13 @@ elif [ -f $(brew --prefix)/etc/bash_completion ]; then
 	. $(brew --prefix)/etc/bash_completion
 fi
 
+PS1='\u@\h:\w\$ '
 if exe tput && tput setaf 1 >&/dev/null; then
 	if [ -z "$SSH_TTY" ]; then
 		PS1='\[\033[01;32m\]\u\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
 	else
 		PS1='\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
 	fi
-else
-	PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
 fi
 
 PROMPT_COMMAND=prompt_command
