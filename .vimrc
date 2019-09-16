@@ -345,7 +345,6 @@
 	:autocmd OptionSet relativenumber :let &number=&relativenumber   " Turn on and off number when we toggle reelative number
 	:autocmd OptionSet wrap           :let &linebreak=&wrap          " break on words when were wrapping
 	:autocmd OptionSet spell          :setlocal spelllang=en         " set spell language when we turn on spell
-	:autocmd OptionSet spell          :setlocal spelllang=en         " set spell language when we turn on spell
 	:autocmd OptionSet spell          :nnoremap <silent><buffer><localleader>s :call SpellReplace()<CR>
 	:autocmd OptionSet spell          :inoremap <silent><buffer><localleader>s <esc>:call SpellReplace()<CR>a
 	:augroup END
@@ -424,7 +423,6 @@
 	:  autocmd FileType tex :setlocal tabstop=2
 	:  autocmd FileType tex :setlocal expandtab
 	:  autocmd FileType tex :setlocal wrap
-	:  autocmd FileType tex :setlocal fo+=a
 	:  autocmd FileType tex :setlocal linebreak
 	:  autocmd FileType tex :setlocal commentstring=%\ %s
 	:  if exists("+breakindent")
@@ -480,6 +478,8 @@
 	:autocmd Filetype markdown :inoremap <silent><buffer><localleader>s <esc>:call SpellReplace()<CR>a
 	:autocmd Filetype markdown :nnoremap <silent><buffer><localleader>s :call SpellReplace()<CR>
 	:autocmd FileType markdown :highlight link markdownError NONE
+	:autocmd FileType markdown :setlocal spelllang=en
+	:autocmd Filetype markdown :setlocal spell
 	:autocmd Filetype markdown :setlocal wrap
 	:autocmd Filetype markdown :setlocal linebreak
 	:autocmd Filetype markdown :setlocal commentstring=<!--\ %s\ -->
