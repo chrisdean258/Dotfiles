@@ -267,6 +267,8 @@
 	" Statistics
 	:nnoremap <leader><space> g<c-g>
 
+	" Opening files
+	:nnoremap gf :call Open(expand("<cfile>"))<CR>
 " }}}
 
 " UNIVERSAL ABBREVIATIONS AND COMMANDS {{{
@@ -1360,6 +1362,19 @@
 		:endfunction
 		" }}}
 
+		:function! Open(file)
+		"{{{
+		:  echom a:file
+		:  if executable("open")
+		:    let l:type = System("file $(realpath ".a:file.")")
+		:    if l:type !~ 'text\|empty'
+		:      call System("open ".a:file)
+		:      return
+		:    endif
+		:  endif
+		:  normal! gf
+		:endfunction
+		" }}}
 	" }}}
 
 " }}}
