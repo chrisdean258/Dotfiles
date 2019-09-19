@@ -431,6 +431,7 @@
 	:  if exists("+breakindent")
 	:    autocmd FileType tex :setlocal breakindent
 	:  endif
+	:  autocmd FileType tex :inoremap <buffer> \pa \pa 
 	:  autocmd FileType tex :inoremap <expr><buffer><CR> LatexCarriageReturn()
 	:  autocmd FileType tex :inoremap <expr><buffer>{ (strlen(getline('.')) + 1 == col('.')) ? "{}\<left>" : "{"
 	:  autocmd FileType tex :inoremap <expr><buffer>} (getline(".")[col(".")-1] == "}") ? "\<right>" : "}"
@@ -812,9 +813,7 @@
 		" {{{
 		:  let l:window = winsaveview()
 		:  let l:word = split(LineBeforeCursor())[-1]
-		:  if l:word[0] == '\'
-		:    normal! Bx
-		:  else
+		:  if l:word[0] != '\'
 		:    normal! Bi\
 		:  endif
 		:  call winrestview(l:window)
