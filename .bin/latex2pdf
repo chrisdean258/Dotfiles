@@ -9,11 +9,11 @@ while [ $# -gt 0 ]; do
 	fi
 	filename=${1%.tex}
 	# echo q | pdflatex $1 -interaction errorstopmode #&> /dev/null
-	echo q | lualatex $1 -interaction errorstopmode #&> /dev/null
+	echo q | timeout 5s lualatex $1 -interaction errorstopmode #&> /dev/null
 	rv=$?
 	if [ $rv -ne 0 ]; then
 		exit $rv
 	fi
-	rm -f $filename.aux $filename.log
+	#rm -f $filename.aux $filename.log
 	shift
 done

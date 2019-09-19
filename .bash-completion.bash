@@ -16,7 +16,7 @@ __complete_vim()
 	files=$(compgen -G "$cur*")
 
 	if [ -n "$files" ]; then
-		COMPREPLY=( $(echo "$files" | xargs file -L | grep -E "ASCII|text|empty" | cut -d: -f1 ) )
+		COMPREPLY=( $(echo "$files" | grep -v -E "\.log|\aux" | xargs file -L | grep -E "ASCII|text|empty" | cut -d: -f1 ) )
 	fi
 
 	return 0
