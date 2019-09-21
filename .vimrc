@@ -138,8 +138,11 @@
 	:if executable("flake8")
 	:  let g:syntastic_python_checkers = [ "flake8" ]
 	:endif
+	:let g:syntastic_tex_checkers = []
 	" :let g:syntastic_python_flake8_args=['--ignore=F841,F405,F403,F402,F401']
 	" :let g:syntastic_quiet_messages = { "type": "style" }
+	:let g:syntastic_quiet_messages = { 'regex': "space" }
+	:let g:syntastic_tex_chktex_args = ["--nowarn", "39"]
 	:let g:syntastic_always_populate_loc_list = 1
 	:let g:syntastic_loc_list_height= 3
 
@@ -345,7 +348,6 @@
 	:autocmd OptionSet relativenumber :let &number=&relativenumber   " Turn on and off number when we toggle reelative number
 	:autocmd OptionSet wrap           :let &linebreak=&wrap          " break on words when were wrapping
 	:autocmd OptionSet spell          :setlocal spelllang=en         " set spell language when we turn on spell
-	:autocmd OptionSet spell          :setlocal spelllang=en         " set spell language when we turn on spell
 	:autocmd OptionSet spell          :nnoremap <silent><buffer><localleader>s :call SpellReplace()<CR>
 	:autocmd OptionSet spell          :inoremap <silent><buffer><localleader>s <esc>:call SpellReplace()<CR>a
 	:augroup END
@@ -424,12 +426,12 @@
 	:  autocmd FileType tex :setlocal tabstop=2
 	:  autocmd FileType tex :setlocal expandtab
 	:  autocmd FileType tex :setlocal wrap
-	:  autocmd FileType tex :setlocal fo+=a
 	:  autocmd FileType tex :setlocal linebreak
 	:  autocmd FileType tex :setlocal commentstring=%\ %s
 	:  if exists("+breakindent")
 	:    autocmd FileType tex :setlocal breakindent
 	:  endif
+	:  autocmd FileType tex :inoremap <buffer> \pa \pa 
 	:  autocmd FileType tex :inoremap <expr><buffer><CR> LatexCarriageReturn()
 	:  autocmd FileType tex :inoremap <expr><buffer>{ (strlen(getline('.')) + 1 == col('.')) ? "{}\<left>" : "{"
 	:  autocmd FileType tex :inoremap <expr><buffer>} (getline(".")[col(".")-1] == "}") ? "\<right>" : "}"
@@ -480,6 +482,8 @@
 	:autocmd Filetype markdown :inoremap <silent><buffer><localleader>s <esc>:call SpellReplace()<CR>a
 	:autocmd Filetype markdown :nnoremap <silent><buffer><localleader>s :call SpellReplace()<CR>
 	:autocmd FileType markdown :highlight link markdownError NONE
+	:autocmd FileType markdown :setlocal spelllang=en
+	:autocmd Filetype markdown :setlocal spell
 	:autocmd Filetype markdown :setlocal wrap
 	:autocmd Filetype markdown :setlocal linebreak
 	:autocmd Filetype markdown :setlocal commentstring=<!--\ %s\ -->
@@ -799,7 +803,7 @@
 		" {{{
 		:  if getline('.') =~ '^\s*\\begin{.*}$'
 		:    let l:line = substitute(getline('.'), "begin", "end", "")
-		:    return "\<CR>" . l:line . "\<esc>==O"
+		:    return "\<esc>A\<CR>" . l:line . "\<esc>==O"
 		:  endif
 		:  return "\<CR>"
 		:endfunction
@@ -809,9 +813,7 @@
 		" {{{
 		:  let l:window = winsaveview()
 		:  let l:word = split(LineBeforeCursor())[-1]
-		:  if l:word[0] == '\'
-		:    normal! Bx
-		:  else
+		:  if l:word[0] != '\'
 		:    normal! Bi\
 		:  endif
 		:  call winrestview(l:window)

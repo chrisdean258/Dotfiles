@@ -13,7 +13,10 @@ if echo "$1" | grep -q "^[+-]"; then
 fi
 
 
-xrandr --output "eDP-1-1" --brightness "$new_bright"
+new_bright=$(echo "$new_bright" | awk '$1 <= 1.50 && $1 > 0')
+
+echo xrandr --output "eDP-1-1" --brightness "${new_bright:-$brightness}"
+xrandr --output "eDP-1-1" --brightness "${new_bright:-$brightness}"
 
 
 
