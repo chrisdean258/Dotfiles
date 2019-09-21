@@ -16,7 +16,7 @@ while true; do
 
 		[ -z "${netspeed#No Access}" ] && netspeed="Connected"
 		timeout 1 ping -c 1 google.com >/dev/null 2>/dev/null || netspeed="No Access"
-		if [ "$netspeed" = "No Access" ]; then
+		if [ "$netspeed" = "No Access" ] && [ "$counter" -gt 15 ]; then
 			con=$(nmcli --terse con show --active | cut -d : -f 1)
 			[ -n "$con" ] && nmcli con up "$con"
 			counter="0"
@@ -43,6 +43,6 @@ if [ $# -eq 0 ]; then
 	fi
 	# monitor detect
 	feh --bg-scale ~/Documents/background-black.png
-	exec dwm
+	exec dwm &> ~/.xsession-errors
 	echo "DWM failed to start" > ~/dwm.error
 fi
