@@ -7,10 +7,10 @@
 	:set relativenumber                     " show line numbers relative to your current line
 	:colorscheme elflord                    " Hells yeah elflord
 
+	:setlocal tabstop=8                     " Tabs should be 8 wide. Dont even argue you are wrong
 	:set scrolloff=5                        " Keep cursor 5 lines in
 	:set sidescroll=1                       " Move one character at a time off the screen rather than jumping
 	:set sidescrolloff=5                    " Keep the cursor 5 characters from the left side of the screen
-	:set tabstop=8                          " Tabs should be 8 wide. Dont even argue you are wrong
 	:set softtabstop=-1                     " Keep defaults to shiftwidth
 	:set shiftwidth=0                       " defaults to tabstop
 
@@ -272,6 +272,8 @@
 
 	" Opening files
 	:nnoremap gf :call Open(expand("<cfile>"))<CR>
+
+	:inoremap gqq <esc>gqqa
 " }}}
 
 " UNIVERSAL ABBREVIATIONS AND COMMANDS {{{
@@ -428,6 +430,7 @@
 	:  autocmd FileType tex :setlocal wrap
 	:  autocmd FileType tex :setlocal linebreak
 	:  autocmd FileType tex :setlocal commentstring=%\ %s
+	:  autocmd FileType tex :setlocal indentexpr=LatexIndent()
 	:  if exists("+breakindent")
 	:    autocmd FileType tex :setlocal breakindent
 	:  endif
@@ -438,6 +441,7 @@
 	:  autocmd FileType tex :nnoremap <buffer>; :call LatexBackslashBeginning()<CR>
 	" :  autocmd FileType tex :nnoremap <buffer>; mqviwv`<i\<esc>`ql
 	:  autocmd FileType tex :command! Preview call LatexPreview()
+	:  autocmd FileType tex :let g:tex_flavor = 'latex'
 	:augroup END
 	" }}}
 
@@ -819,6 +823,34 @@
 		:  call winrestview(l:window)
 		:endfunction
 		" }}}
+		
+		:function! LatexIndent()
+		" {{{
+		:  let l:lineno = line('.')
+		:  if l:lineno == 1
+		:    return 0
+		:  endif
+		:  let l:off = 1
+		:  while getline(l:lineno - l:off) =~ "^\s*$" && l:off < l:lineno
+		:    let l:off += 1
+		:  endwhile
+		:  j
+		:  let l:line = getline('.')
+		:  let l:other = getline(l:lineno - l:off)
+		:  let l:offset = 0
+		:  let l:offset -= l:line =~ '^\s*\\item' && l:other !~ '\\begin{\(enumerate\|itemize\)}'
+		:  let l:offset += l:other =~ '^\s*\\item' && l:other !~ '\\end{\(enumerate\|itemize\)}'
+		:  let l:offset -= l:line =~ '\\end{\(enumerate\|itemize\)}'
+		:  let l:inc_off = ['\\begin', '{', '[']
+		:  let l:dec_off = ['\\end', '}', ']']
+		:  let l:offset += l:other =~ ('^\s*' . join(l:dec_off, '\|^\s*'))
+		:  let l:offset -= l:line =~ ('^\s*' . join(l:dec_off, '\|^\s*'))
+		:  let l:offset += len(split(l:other, join(l:inc_off, '\|'), 1)) - 1
+		:  let l:offset -= len(split(l:other, join(l:dec_off, '\|'), 1)) - 1
+		:  return indent(l:lineno - l:off) + l:offset * shiftwidth()
+		:endfunction
+		" }}}
+
 	" }}}
 
 	" C Style Function
