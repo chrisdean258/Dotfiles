@@ -273,7 +273,7 @@
 	" Opening files
 	:nnoremap gf :call Open(expand("<cfile>"))<CR>
 
-	:inoremap gqq <esc>gqqa
+	:inoremap gqq <esc>gqqA
 " }}}
 
 " UNIVERSAL ABBREVIATIONS AND COMMANDS {{{
@@ -834,7 +834,6 @@
 		:  while getline(l:lineno - l:off) =~ "^\s*$" && l:off < l:lineno
 		:    let l:off += 1
 		:  endwhile
-		:  j
 		:  let l:line = getline('.')
 		:  let l:other = getline(l:lineno - l:off)
 		:  let l:offset = 0
