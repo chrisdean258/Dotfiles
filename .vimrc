@@ -274,6 +274,9 @@
 	:nnoremap gf :call Open(expand("<cfile>"))<CR>
 
 	:inoremap gqq <esc>gqqA
+	:nnoremap VJ Vj
+	:nnoremap VJJ Vjj
+	:nnoremap VJJJ Vjjj
 " }}}
 
 " UNIVERSAL ABBREVIATIONS AND COMMANDS {{{
@@ -337,7 +340,7 @@
 	" :autocmd WinCreate *      :call WinNew()
 	:autocmd BufEnter *    :call BufEnter()
 	:autocmd BufLeave *    :call BufLeave()
-	:autocmd BufNewFile *.tex :set filetype=tex
+	:autocmd BufRead *.tex :set filetype=tex
 	:autocmd BufNewFile *  :call NewFile()
 	:augroup END
 	" }}}
@@ -461,6 +464,7 @@
 	:autocmd FileType python  :let g:pyindent_continue = '0'
 	:autocmd FileType python  :autocmd BufEnter <buffer> :if getline(1) !~ '^#' | call append(0, "#!/usr/bin/env python3") | endif
 	:autocmd FileType python  :autocmd CursorMoved,CursorMovedI <buffer> call HighlightAfterColumn(79)
+	:autocmd FileType python  :autocmd BufWrite <buffer> :call PythonBlankLineFix()
 	:augroup END
 	" }}}
 
@@ -1021,6 +1025,21 @@
 		:SyntasticCheck
 		:endfunction
 		" }}}
+		
+		:function! PythonBlankLineFix()
+		" {{{
+		:  let l:window = winsaveview()
+		:  if !get(g:, "python_blank_line_fix")
+		:    return
+		:  endif
+		:  %s/\(\n\n\n\)\n\+/\1/e
+		:  while getline('$') == ''
+		:    $d
+		:  endwhile
+		:  call winrestview(l:window)
+		:endfunction
+		" }}}
+
 	" }}}
 
 	" Universally used function
