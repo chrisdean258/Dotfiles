@@ -10,7 +10,7 @@ spawn()
 	"$@"
 }
 
-base=$(find ~ -name Dotfiles -type d | head -n 1)
+base=$(find -L ~ -name Dotfiles -type d | head -n 1)
 if [ -z "$base" ]; then
 	echo "please clone the dotfiles repo into a directory called Dotfiles" >&2
 	exit 1
