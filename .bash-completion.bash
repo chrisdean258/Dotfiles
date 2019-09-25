@@ -5,24 +5,28 @@ complete -d cd
 __complete_vim()
 {
 	local cur
-	local expanded
-	local files
 
-	COMPREPLY=()
 	cur=${COMP_WORDS[COMP_CWORD]}	
 
-	cur=`echo $cur | sed 's:^~:$HOME:'`
-
-	files=$(compgen -G "$cur*")
-
-	if [ -n "$files" ]; then
-		COMPREPLY=( $(echo "$files" | grep -v -E "\.log|\aux" | xargs file -L | grep -E "ASCII|text|empty" | cut -d: -f1 ) )
-	fi
+	COMPREPLY=( $(compgen -W "$(ls | grep -v -E "\.log|\aux" | xargs file -L | grep -E "ASCII|text|empty" | cut -d: -f1 )" -- "$cur" ) )
 
 	return 0
 }
 
 complete -o bashdefault -o default -o nospace -F __complete_vim vim
+
+__complete_open()
+{
+	local cur
+
+	cur=${COMP_WORDS[COMP_CWORD]}	
+
+	COMPREPLY=( $(compgen -W "$(ls | xargs file -L | grep -v -E "ASCII|text|empty" | cut -d: -f1 )" -- "$cur" ) )
+
+	return 0
+}
+
+complete -o bashdefault -o default -o nospace -F __complete_open open
 
 __complete_j()
 {
