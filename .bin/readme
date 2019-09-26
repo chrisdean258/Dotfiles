@@ -1,14 +1,19 @@
 #!/bin/bash
 
 file="README.md"
+if [ $# -eq 1 ]; then
+	cd "$1"
+fi
 
 if ! [ -r "$file" ]; then
 	# Basename of directory with spaces instead of - and _ add spaces before capitals
 	def=$(basename "$PWD" | sed "s/[-_\.]/ /g" | sed "s/\([^[:blank:]]\)\([[:upper:]]\)/\1 \2/g" |  sed 's/[^ ]\+/\L\u&/g')
-	echo "# ${*:-$def}" > "$file"
+	echo "# $def" > "$file"
 fi
 
-vim "$file"
+if [ $# -eq 0 ]; then
+	vim "$file"
+fi
 exit $?
 
 
