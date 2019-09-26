@@ -641,6 +641,30 @@
 		" }}}
 
 	" }}}
+	
+	" Vim
+	" {{{
+		:function! VimIndent()
+		" {{{
+		:  let l:lineno = line('.')
+		:  if l:lineno == 1
+		:    return 0
+		:  endif
+		:  let l:off = 1
+		:  while getline(l:lineno - l:off) =~ "^\s*$" && l:off < l:lineno
+		:    let l:off += 1
+		:  endwhile
+		:  let l:line = getline('.')
+		:  let l:other = getline(l:lineno - l:off)
+		:  let l:offset = 0
+		:  let l:offset += l:other =~ '{{{$'
+		:  let l:offset -= l:line =~ '}}}$'
+		:  let l:offset += l:other =~ '"_\+$'
+		:  let l:offset -= l:line =~ '"_\+$'
+		:  return indent(l:lineno - l:off) + l:offset * shiftwidth()
+		:endfunction
+		" }}}
+	" }}}
 
 	" HTML
 	" {{{
