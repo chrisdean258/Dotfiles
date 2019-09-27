@@ -1,0 +1,76 @@
+#!/usr/bin/env python3
+import sys
+import os
+# import re
+from collections import namedtuple
+from sh import arandr, xrandr, dmenu, ls, sh
+from pprint import pprint
+
+dmenu = dmenu.bake("-i")
+
+
+def getdisplays():
+    Monitor = namedtuple(
+        "Monitor",
+        ["name", "width", "height", "offx", "offy", "primary"]
+        )
+    displays = {}
+    monitors = [a.split() for a in xrandr().split("\n") if " connected" in a]
+
+    for monitor in monitors:
+        name = monitor[0]
+        primary = False
+        loc = monitor[2]
+        if monitor[2] == "primary":
+            primary = True
+            loc = monitor[3]
+
+        width, height, offx, offy = loc.replace("x", "+").split("+")
+        displays[name] = Monitor(name, width, height, offx, offy, primary)
+
+    return displays
+
+
+def main(argv):
+    displays = getdisplays()
+    pprint(displays)
+    if len(argv) == 1:
+        scripts = ls("~/.screenlayout").split("\n")
+        if "HDMI1" in displays or "HDMI-1" in displays:
+            scripts.remove("two.sh")
+            scripts = ["two.sh"] + scripts
+        choice = dmenu(_in="\n".join(scripts))
+        if choice not in scripts:
+            sys.exit(1)
+        sh(os.path.join("~/.screenlayout", choice))
+    elif argv[1] == "detect":
+        if len(displays) == 0:
+            arandr()
+        if len(displays) == 1:
+            xrandr("--output", displays[0].name, "--primary", "--auto")
+        if len(displays) == 2:
+            primary = [a for a in displays if a.primary][0]
+            second = [a for a in displays if not a.primary][0]
+            xrandr("--output", second.name, "--auto", "--right-of",
+                   primary.name, "--output", primary.name,
+                   "--primary", "--auto")
+    elif argv[1] == "mirror":
+        displays = displays()
+        if len(displays) == 2:
+            primary = [a for a in displays if a.primary][0]
+            second = [a for a in displays if not a.primary][0]
+            xrandr("--output", second.name, "--auto", "--same-as",
+                   primary.name, "--output", primary.name,
+                   "--primary", "--auto")
+            xrandr("--output", primary.name, "--mode",
+                   f"{second.width}x{second.height}")
+    else:
+        scripts = ls("~/.screenlayout").split("\n")
+        for script in scripts:
+            if argv[1] in script:
+                sh(os.path.join("~/.screenlayout", choice))
+                break
+
+
+if __name__ == "__main__":
+    main(sys.argv)
