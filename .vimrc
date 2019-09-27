@@ -1059,7 +1059,7 @@
 		:  let l:startshort = substitute(l:start, ' $', '', '')
 		:  let l:endshort = substitute(l:end, '^ ', '', '')
 		:  if l:end ==# ""
-		:    execute "silent ".a:firstline.",".a:lastline.'s:^\(\s*\):\1'.l:start.':e'
+		:    execute "silent ".a:firstline.",".a:lastline.'s:^\(\s*\)\(.\):\1'.l:start.'\2:e'
 		:    execute "silent ".a:firstline.",".a:lastline.'s:^\(\s*\)'.l:start.l:startshort.' \{,1}:\1:e'
 		:  else
 		:    execute "silent ".a:firstline.'s:^\(\s*\)\(.\):\1'.l:start.'\2:e'

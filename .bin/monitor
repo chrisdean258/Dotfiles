@@ -7,6 +7,7 @@ from sh import arandr, xrandr, dmenu, ls, sh
 from pprint import pprint
 
 dmenu = dmenu.bake("-i")
+HOME = os.environ["HOME"]
 
 
 def getdisplays():
@@ -35,7 +36,10 @@ def main(argv):
     displays = getdisplays()
     pprint(displays)
     if len(argv) == 1:
-        scripts = ls("~/.screenlayout").split("\n")
+        scripts = ls(os.path.join(HOME, ".screenlayout")).split("\n")
+        scripts = [a for a in scripts if a != '']
+        if len(scripts) == 0:
+            sys.exit(1)
         if "HDMI1" in displays or "HDMI-1" in displays:
             scripts.remove("two.sh")
             scripts = ["two.sh"] + scripts
