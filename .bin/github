@@ -127,6 +127,19 @@ def ls():
     resp = Get("user/repos")
     for repo in resp:
         print(repo["full_name"])
+        print(repo)
+
+
+@main.command()
+@click.argument("name")
+@click.argument("to", required=False)
+def clone(name, to=None):
+    resp = Get("user/repos")
+    for repo in resp:
+        if name.casefold() in repo["full_name"].casefold():
+            print("Cloning", repo["full_name"])
+            to = to or repo["name"]
+            git.clone(repo["clone_url"], to)
 
 
 @main.command("delete-repo")
