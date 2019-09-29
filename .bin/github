@@ -127,7 +127,6 @@ def ls():
     resp = Get("user/repos")
     for repo in resp:
         print(repo["full_name"])
-        print(repo)
 
 
 @main.command()
