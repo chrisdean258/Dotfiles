@@ -6,32 +6,33 @@ complete -d cd
 __complete_vim()
 {
 	local cur
-	local old
+	local words
 
 	cur=${COMP_WORDS[COMP_CWORD]}	
 
-	old="$IFS"
-	IFS="\n"
-	COMPREPLY=( $(compgen -W "$(find -maxdepth 1 -print0 | xargs -0 file -L | grep -v -E "\.log|\aux" | grep -E "ASCII|text|empty" | cut -d: -f1 | sed "s:\./\.::g")" -- "$cur" ) )
-	IFS="$old"
+	words="$(file -L * | grep -v -E "\.log|\.aux|directory" | grep -E "ASCII|text|empty" | cut -d: -f1 | sed "s:^\.\/::g")"
+	COMPREPLY=( $(compgen -W "$words" -- "$cur" ) )
 
 	return 0
 }
 
 complete -o bashdefault -o default -o nospace -F __complete_vim vim
 
-# __complete_open()
-# {
-	# local cur
+__complete_open()
+{
+	local cur
+	local old
+	local words
 
-	# cur=${COMP_WORDS[COMP_CWORD]}	
+	cur=${COMP_WORDS[COMP_CWORD]}	
 
-	# COMPREPLY=( $(compgen -W "$(find -maxdepth 1 -print0 | xargs -0 file -L | grep -v -E "ASCII|text|empty" | cut -d: -f1 | sed "s:\./\.::g")" -- "$cur" ) )
+	words="$(file -L *| grep -v -E "ASCII|text|empty|directory" | cut -d: -f1 | sed "s:^\.\/::g")"
+	COMPREPLY=( $(compgen -W "$words" -- "$cur" ) )
 
-	# return 0
-# }
+	return 0
+}
 
-# complete -o bashdefault -o default -o nospace -F __complete_open open
+complete -o bashdefault -o default -o nospace -F __complete_open open
 
 __complete_j()
 {
