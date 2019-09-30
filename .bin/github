@@ -12,6 +12,7 @@ from sh import git
 QUIET = False
 USER = None
 PASSWORD = None
+ACCESS_TOKEN = None
 AUTH = None
 BASEURL = "https://api.github.com/"
 
@@ -27,6 +28,15 @@ def user():
     return USER
 
 
+def access():
+    global ACCESS_TOKEN
+    if not ACCESS_TOKEN:
+        ACCESS_TOKEN = os.environ.get("GITHUB_ACCESS_TOKEN")
+    if ACCESS_TOKEN:
+        return {'Authorization': f'token {ACCESS_TOKEN}'}
+    return None
+
+
 def auth():
     global PASSWORD
     if not PASSWORD:
@@ -35,7 +45,11 @@ def auth():
 
 
 def Request(callback, url, *args, **kwargs):
-    resp = callback(BASEURL + url, *args, **kwargs, auth=auth())
+    header = access()
+    if header:
+        resp = callback(BASEURL + url, *args, **kwargs, headers=header)
+    else:
+        resp = callback(BASEURL + url, *args, **kwargs, auth=auth())
     if resp.status_code // 100 != 2:
         raise Exception(f"status code = {resp.status_code}\n{resp.text}")
     items = {}
@@ -102,7 +116,7 @@ def NewRepo(name, dirname=None, private=False):
 
     with open("README.md", "w") as f:
         f.write(f"# {title}")
-    open(".gitignore").close()
+    open(".gitignore", "w").close()
 
     git.init()
     git.remote.add.origin(f"git@github.com:{user()}/{name}.git")
@@ -138,7 +152,7 @@ def clone(name, to=None):
         if name.casefold() in repo["full_name"].casefold():
             print("Cloning", repo["full_name"])
             to = to or repo["name"]
-            git.clone(repo["clone_url"], to)
+            git.clone(repo["ssh_url"], to)
 
 
 @main.command("delete-repo")
@@ -153,4 +167,5 @@ if __name__ == "__main__":
         main()
     except Exception as e:
         print(str(e))
+        raise e
         exit(1)

@@ -1,16 +1,19 @@
 #!/bin/bash
 
-IFS="\n"
 
 complete -d cd
 
 __complete_vim()
 {
 	local cur
+	local old
 
 	cur=${COMP_WORDS[COMP_CWORD]}	
 
+	old="$IFS"
+	IFS="\n"
 	COMPREPLY=( $(compgen -W "$(find -maxdepth 1 -print0 | xargs -0 file -L | grep -v -E "\.log|\aux" | grep -E "ASCII|text|empty" | cut -d: -f1 | sed "s:\./\.::g")" -- "$cur" ) )
+	IFS="$old"
 
 	return 0
 }
