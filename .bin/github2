@@ -3,9 +3,10 @@
 import click
 import getpass
 import os
-import json
 import re
 import requests
+import simplejson
+from contextlib import suppress
 from sh import git
 
 
@@ -14,6 +15,11 @@ PASSWORD = None
 ACCESS_TOKEN = None
 AUTH = None
 BASEURL = "https://api.github.com/"
+
+
+class InvalidRequestStatus(Exception):
+    def __init__(self, resp):
+        super().__init__(f"status code = {resp.status_code}\n{resp.text}")
 
 
 def user():
@@ -38,24 +44,19 @@ def access():
 
 def auth():
     global PASSWORD
+    if ACCESS_TOKEN:
+        return None
     if not PASSWORD:
         PASSWORD = getpass.getpass()
     return (user(), PASSWORD)
 
 
 def Request(callback, url, *args, **kwargs):
-    header = access()
-    if header:
-        resp = callback(BASEURL + url, *args, **kwargs, headers=header)
-    else:
-        resp = callback(BASEURL + url, *args, **kwargs, auth=auth())
+    head = access()
+    resp = callback(BASEURL + url, *args, **kwargs, headers=head, auth=auth())
     if resp.status_code // 100 != 2:
-        raise Exception(f"status code = {resp.status_code}\n{resp.text}")
-    items = {}
-    try:
-        items = json.loads(resp.text)
-    finally:
-        return items
+        raise InvalidRequestStatus(resp)
+    return resp.json()
 
 
 def Post(url, json):
@@ -67,12 +68,14 @@ def Get(url):
 
 
 def Delete(url):
-    return Request(requests.delete, url)
+    with suppress(simplejson.errors.JSONDecodeError):
+        return Request(requests.delete, url)
 
 
 @click.group()
 @click.option(
     "--username", "-u",
+
     default=user,
     help="Github username"
 )
@@ -80,13 +83,20 @@ def Delete(url):
     "--password", "-p",
     help="Github password"
 )
-def main(username, password):
+@click.option(
+    "--access-token", "-t",
+    help="Github password"
+)
+def main(username, password, access_token):
     global USER
     global PASSWORD
+    global ACCESS_TOKEN
     if username:
         USER = username
     if password:
         PASSWORD = password
+    if access_token:
+        ACCESS_TOKEN = access_token
 
 
 @main.command("new-repo")
@@ -95,8 +105,7 @@ def main(username, password):
 @click.option("--private", "-p", is_flag=True, help="Create private repo")
 def NewRepo(name, dirname=None, private=False):
     """ Create new github repo """
-    if dirname is None:
-        dirname = name
+    dirname = dirname or name
     data = {"name": name, "private": private}
 
     resp = Post("user/repos", data)
@@ -104,7 +113,7 @@ def NewRepo(name, dirname=None, private=False):
     print(f"Name: {resp['name']}")
     print(f"Full Name: {resp['full_name']}")
     print(f"SSH URL: {resp['ssh_url']}")
-    print(f"Clone Url: {resp['clone_url']}")
+    print(f"Clone URL: {resp['clone_url']}")
 
     os.mkdir(dirname)
     os.chdir(dirname)
@@ -112,9 +121,8 @@ def NewRepo(name, dirname=None, private=False):
     title = name.replace("-", " ").replace("_", " ")
     title = re.sub(r"(?<=\w)([A-Z])", r" \1", title).title()
 
-    with open("README.md", "w") as f:
-        f.write(f"# {title}")
-    open(".gitignore", "w").close()
+    with open("README.md", "w") as readme, open(".gitignore", "w"):
+        readme.write(f"# {title}")
 
     git.init()
     git.remote.add.origin(f"git@github.com:{user()}/{name}.git")
@@ -135,11 +143,10 @@ def ListRepos():
 
 @main.command()
 def ls():
-    """ Alias fort list-repos """
+    """ Alias for list-repos """
     resp = Get("user/repos")
     for repo in resp:
         print(repo["full_name"])
-        __import__("pprint").pprint(repo)
 
 
 @main.command()
