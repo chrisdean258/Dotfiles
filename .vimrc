@@ -340,6 +340,7 @@
 	" :autocmd WinCreate *      :call WinNew()
 	:autocmd BufEnter *    :call BufEnter()
 	:autocmd BufLeave *    :call BufLeave()
+	:autocmd BufNew *.tex  :set filetype=tex
 	:autocmd BufRead *.tex :set filetype=tex
 	:autocmd BufNewFile *  :call NewFile()
 	:augroup END
