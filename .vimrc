@@ -353,6 +353,7 @@
 	:autocmd OptionSet relativenumber :let &number=&relativenumber   " Turn on and off number when we toggle reelative number
 	:autocmd OptionSet wrap           :let &linebreak=&wrap          " break on words when were wrapping
 	:autocmd OptionSet spell          :setlocal spelllang=en         " set spell language when we turn on spell
+	:autocmd OptionSet spell          :syntax spell toplevel
 	:autocmd OptionSet spell          :nnoremap <silent><buffer><localleader>s :call SpellReplace()<CR>
 	:autocmd OptionSet spell          :inoremap <silent><buffer><localleader>s <esc>:call SpellReplace()<CR>a
 	:augroup END
@@ -809,9 +810,26 @@
 
 		:function! LatexCarriageReturn()
 		" {{{
-		:  if getline('.') =~ '^\s*\\begin{.*}$'
+		:  let l:line = getline('.')
+		:  if l:line =~ '^\s*\\begin{.*}$'
 		:    let l:line = substitute(getline('.'), "begin", "end", "")
 		:    return "\<esc>A\<CR>" . l:line . "\<esc>==O"
+		:  elseif l:line =~ '^\s*\\FOR'
+		:    return "\<esc>A\<CR>" . '\ENDFOR ' . "\<esc>==O\\STATE "
+		:  elseif l:line =~ '^\s*\\IF'
+		:    return "\<esc>A\<CR>" . '\ENDIF ' . "\<esc>==O\\STATE "
+		:  elseif l:line =~ '^\s*\\STATE'
+		:    return "\<esc>A\<CR>" . '\STATE ' . "\<esc>==A"
+		:  elseif l:line =~ '^\s*\\WHILE'
+		:    return "\<esc>A\<CR>" . '\ENDWHILE ' . "\<esc>==O\\State "
+		:  elseif l:line =~ '^\s*\\While'
+		:    return "\<esc>A\<CR>" . '\EndWhile ' . "\<esc>==O\\State "
+		:  elseif l:line =~ '^\s*\\For'
+		:    return "\<esc>A\<CR>" . '\EndFor ' . "\<esc>==O\\State "
+		:  elseif l:line =~ '^\s*\\If'
+		:    return "\<esc>A\<CR>" . '\EndIf ' . "\<esc>==O\\State "
+		:  elseif l:line =~ '^\s*\\State'
+		:    return "\<esc>A\<CR>" . '\State ' . "\<esc>==A"
 		:  endif
 		:  return "\<CR>"
 		:endfunction
@@ -841,11 +859,14 @@
 		:  let l:line = getline('.')
 		:  let l:other = getline(l:lineno - l:off)
 		:  let l:offset = 0
+		:  if l:other =~ '\s*%'
+		:     return indent(l:lineno - l:off)
+		:  endif
 		:  let l:offset -= l:line =~ '^\s*\\item' && l:other !~ '\\begin{\(enumerate\|itemize\)}'
 		:  let l:offset += l:other =~ '^\s*\\item' && l:other !~ '\\end{\(enumerate\|itemize\)}'
 		:  let l:offset -= l:line =~ '\\end{\(enumerate\|itemize\)}'
-		:  let l:inc_off = ['\\begin', '{', '[']
-		:  let l:dec_off = ['\\end', '}', ']']
+		:  let l:inc_off = ['\\begin', '{', '[', '\\FOR', '\\IF', '\\WHILE', '\\If', '\\For', '\\While']
+		:  let l:dec_off = ['\\end', '}', ']', '\\END', '\\End']
 		:  let l:offset += l:other =~ ('^\s*' . join(l:dec_off, '\|^\s*'))
 		:  let l:offset -= l:line =~ ('^\s*' . join(l:dec_off, '\|^\s*'))
 		:  let l:offset += len(split(l:other, join(l:inc_off, '\|'), 1)) - 1
@@ -1139,11 +1160,20 @@
 		:  endif
 		:  if l:begin ==? "s"
 		:    call inputsave()
-		:    let l:input = input("tag: ")
+		:    let l:input = input("string: ")
 		;    call inputrestore()
 		:    if l:input != ""
 		:      let l:begin = l:input
 		:      let l:end = l:input
+		:    endif
+		:  endif
+		:  if l:begin ==? "r"
+		:    call inputsave()
+		:    let l:input = input("string: ")
+		;    call inputrestore()
+		:    if l:input != ""
+		:      let l:begin = l:input
+		:      let l:end = join(reverse(split(l:input, '.\zs')), '')
 		:    endif
 		:  endif
 		:  return [l:begin, l:end]
