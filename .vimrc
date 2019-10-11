@@ -447,6 +447,7 @@
 	" :  autocmd FileType tex :nnoremap <buffer>; mqviwv`<i\<esc>`ql
 	:  autocmd FileType tex :command! Preview call LatexPreview()
 	:  autocmd FileType tex :let g:tex_flavor = 'latex'
+	:  autocmd FileType tex :iabbrev eqiv equiv
 	:augroup END
 	" }}}
 
@@ -831,6 +832,8 @@
 		:    return "\<esc>A\<CR>" . '\EndIf ' . "\<esc>==O\\State "
 		:  elseif l:line =~ '^\s*\\State'
 		:    return "\<esc>A\<CR>" . '\State ' . "\<esc>==A"
+		:  elseif l:line =~ '^\s*\\Note'
+		:    return "\<esc>A\<CR>" . '\Note ' . "\<esc>==A"
 		:  endif
 		:  return "\<CR>"
 		:endfunction
@@ -865,6 +868,15 @@
 		:  endif
 		:  let l:offset -= l:line =~ '^\s*\\item' && l:other !~ '\\begin{\(enumerate\|itemize\)}'
 		:  let l:offset += l:other =~ '^\s*\\item' && l:other !~ '\\end{\(enumerate\|itemize\)}'
+		:  let l:offset -= l:line =~ '^\s*\\section'
+		:  let l:offset -= l:line =~ '^\s*\\subsection'
+		:  let l:offset += l:other =~ '^\s*\\section'
+		:  let l:offset += l:other =~ '^\s*\\subsection'
+		:  let l:offset -= l:line =~ '\\end{\(enumerate\|itemize\)}'
+		:  let l:offset -= l:line =~ '^\s*\\Title'
+		:  let l:offset -= l:line =~ '^\s*\\Subtitle'
+		:  let l:offset += l:other =~ '^\s*\\Title'
+		:  let l:offset += l:other =~ '^\s*\\Subtitle'
 		:  let l:offset -= l:line =~ '\\end{\(enumerate\|itemize\)}'
 		:  let l:inc_off = ['\\begin', '{', '[', '\\FOR', '\\IF', '\\WHILE', '\\If', '\\For', '\\While']
 		:  let l:dec_off = ['\\end', '}', ']', '\\END', '\\End']
