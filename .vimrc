@@ -828,6 +828,8 @@
 		:    return "\<esc>A\<CR>" . '\EndWhile ' . "\<esc>==O\\State "
 		:  elseif l:line =~ '^\s*\\For'
 		:    return "\<esc>A\<CR>" . '\EndFor ' . "\<esc>==O\\State "
+		:  elseif l:line =~ '^\s*\\Procedure'
+		:    return "\<esc>A\<CR>" . '\EndProcedure ' . "\<esc>==O\\State "
 		:  elseif l:line =~ '^\s*\\If'
 		:    return "\<esc>A\<CR>" . '\EndIf ' . "\<esc>==O\\State "
 		:  elseif l:line =~ '^\s*\\State'
@@ -878,7 +880,7 @@
 		:  let l:offset += l:other =~ '^\s*\\Title'
 		:  let l:offset += l:other =~ '^\s*\\Subtitle'
 		:  let l:offset -= l:line =~ '\\end{\(enumerate\|itemize\)}'
-		:  let l:inc_off = ['\\begin', '{', '[', '\\FOR', '\\IF', '\\WHILE', '\\If', '\\For', '\\While']
+		:  let l:inc_off = ['\\begin', '{', '[', '\\FOR', '\\IF', '\\WHILE', '\\If', '\\For', '\\While', '\\Procedure']
 		:  let l:dec_off = ['\\end', '}', ']', '\\END', '\\End']
 		:  let l:offset += l:other =~ ('^\s*' . join(l:dec_off, '\|^\s*'))
 		:  let l:offset -= l:line =~ ('^\s*' . join(l:dec_off, '\|^\s*'))
