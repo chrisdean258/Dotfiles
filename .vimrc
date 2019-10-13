@@ -448,6 +448,7 @@
 	:  autocmd FileType tex :command! Preview call LatexPreview()
 	:  autocmd FileType tex :let g:tex_flavor = 'latex'
 	:  autocmd FileType tex :iabbrev eqiv equiv
+	:  autocmd FileType tex :inoremap \sum \sum
 	:augroup END
 	" }}}
 
@@ -870,16 +871,11 @@
 		:  endif
 		:  let l:offset -= l:line =~ '^\s*\\item' && l:other !~ '\\begin{\(enumerate\|itemize\)}'
 		:  let l:offset += l:other =~ '^\s*\\item' && l:other !~ '\\end{\(enumerate\|itemize\)}'
-		:  let l:offset -= l:line =~ '^\s*\\section'
-		:  let l:offset -= l:line =~ '^\s*\\subsection'
-		:  let l:offset += l:other =~ '^\s*\\section'
-		:  let l:offset += l:other =~ '^\s*\\subsection'
 		:  let l:offset -= l:line =~ '\\end{\(enumerate\|itemize\)}'
-		:  let l:offset -= l:line =~ '^\s*\\Title'
-		:  let l:offset -= l:line =~ '^\s*\\Subtitle'
-		:  let l:offset += l:other =~ '^\s*\\Title'
-		:  let l:offset += l:other =~ '^\s*\\Subtitle'
-		:  let l:offset -= l:line =~ '\\end{\(enumerate\|itemize\)}'
+		:  let l:unindented = [ 'section', 'subsection', 'Title', 'Subtitle', 'Subsubtitle' ]
+		:  let l:inendent_expr = '^\s*\\' . join(l:unindented, '\|^\s*\\')
+		:  let l:offset += l:other =~ l:inendent_expr
+		:  let l:offset -= l:line =~ l:inendent_expr
 		:  let l:inc_off = ['\\begin', '{', '[', '\\FOR', '\\IF', '\\WHILE', '\\If', '\\For', '\\While', '\\Procedure']
 		:  let l:dec_off = ['\\end', '}', ']', '\\END', '\\End']
 		:  let l:offset += l:other =~ ('^\s*' . join(l:dec_off, '\|^\s*'))

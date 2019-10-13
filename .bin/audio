@@ -5,7 +5,7 @@ if [ $# -eq 0 ]; then
 	exec pavucontrol
 fi
 
-sinks="$(pactl list sinks | grep -E "Sink #|alsa.card_name = " | sed '$!N;s/\n/ /' | sed "s/Sink #\([0-9]*\).*\"\(.*\)\"/\1 \2/g" | sed "s/HDA Intel PCH$/Speakers/g")"
+sinks="$(pactl list sinks | grep -E "Sink #|device.description = " | sed '$!N;s/\n/ /' | sed "s/Sink #\([0-9]*\).*\"\(.*\)\"/\1 \2/g" | sed "s/Built-in Audio Analog Stereo$/Speakers/g")"
 sources="$(pactl list sink-inputs | grep -E "Sink Input #|application.name = " |  sed '$!N;s/\n/ /' | sed "s/Sink Input #\([0-9]*\).*\"\(.*\)\"/\1 \2/g")"
 
 if [ "$1" = "--help" ] || [ "$1" = "-h" ]; then
