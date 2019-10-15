@@ -9,5 +9,5 @@ args=$(echo "$sinks" | dmenu -i -l 10 -p "audio")
 
 [ -z "$args" ] && exit
 
+echo "$args"
 exec audio "$args"
-
