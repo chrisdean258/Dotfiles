@@ -29,10 +29,10 @@ fi
 
 if [ $# -eq 1 ]; then
 	src=$(echo "$sources" | awk '{print $1}')
-	sink=$(echo "$sinks"  | awk "index(\$0, $1) {print \$1; exit(0)}")
+	sink=$(echo "$sinks"  | awk "index(\$0, \"$1\") {print \$1; exit(0)}")
 else
-	src=$(echo "$sources" | awk "index(\$0, $1) {print \$1}")
-	sink=$(echo "$sinks"  | awk "index(\$0, $2) {print \$1; exit(0)}")
+	src=$(echo "$sources" | awk "index(\$0, \"$1\") {print \$1}")
+	sink=$(echo "$sinks"  | awk "index(\$0, \"$2\") {print \$1; exit(0)}")
 fi
 
 for i in $src; do 
