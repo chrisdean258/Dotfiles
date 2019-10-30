@@ -731,15 +731,29 @@
 		:function! MDNewline(in)
 		"  {{{
 		:  let l:allowable_starts = [ '>', '\*', '-', '+', ]
-		:  let l:line = Text('.')
-		:  for starting in l:allowable_starts
-		:    if l:line =~ '^' . starting . '\s*$'
-		:      return "\<esc>^C"
-		:    elseif l:line =~ '^' . starting . ' '
-		:      return a:in.l:line[:stridx(l:line, " ")]
-		:    endif
-		:  endfor
-		:  if l:line =~ '^\d\+.\s*$' || l:line =~ '^\d\+)\s*'
+		:  let l:line = getline('.')
+		:  let l:clean = Strip(l:line)
+		:  let l:left = LineBeforeCursor()
+		:  let l:column = col('.')
+		:  if l:line =~ '^'.join(l:allowable_starts, '\s*$\|^').'\s*$'
+		:    return "\<esc>^C"
+		:  endif
+		:  if l:left =~ '^\s*'.join(l:allowable_starts, '\s*$\|^\s*').'\s*$'
+		:    let l:indent = indent('.')
+		:    let l:other = line('.') - 1
+		:    while indent(l:other) >= l:indent
+		:      if l:other == 1
+		:        return a:in
+		:      endif
+		:      let l:other -= 1
+		:    endwhile
+		:    let l:diff = l:indent - indent(l:other)
+		:    return "\<esc>0C". l:line[l:diff:] . repeat("\<left>", strlen(l:line) - l:column + 1)
+		:  endif
+		:  if l:line =~ '^\s*'.join(l:allowable_starts, '\|^\s*').'$'
+		:    return a:in.l:clean[:stridx(l:clean, " ")]
+		:  endif
+		:  if l:line =~ '^\d\+[\.)]\s*$'
 		:    return "\<esc>^C"
 		:  elseif l:line =~ '^\d\+. '
 		:    return a:in.(l:line + 1).'. '
