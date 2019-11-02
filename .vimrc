@@ -340,8 +340,8 @@
 	" :autocmd WinCreate *      :call WinNew()
 	:autocmd BufEnter *    :call BufEnter()
 	:autocmd BufLeave *    :call BufLeave()
-	:autocmd BufNew *.tex  :set filetype=tex
-	:autocmd BufRead *.tex :set filetype=tex
+	:autocmd BufNew *.tex  :setlocal filetype=tex
+	:autocmd BufRead *.tex :setlocal filetype=tex
 	:autocmd BufNewFile *  :call NewFile()
 	:augroup END
 	" }}}
@@ -731,15 +731,29 @@
 		:function! MDNewline(in)
 		"  {{{
 		:  let l:allowable_starts = [ '>', '\*', '-', '+', ]
-		:  let l:line = Text('.')
-		:  for starting in l:allowable_starts
-		:    if l:line =~ '^' . starting . '\s*$'
-		:      return "\<esc>^C"
-		:    elseif l:line =~ '^' . starting . ' '
-		:      return a:in.l:line[:stridx(l:line, " ")]
-		:    endif
-		:  endfor
-		:  if l:line =~ '^\d\+.\s*$' || l:line =~ '^\d\+)\s*'
+		:  let l:line = getline('.')
+		:  let l:clean = Strip(l:line)
+		:  let l:left = LineBeforeCursor()
+		:  let l:column = col('.')
+		:  if l:line =~ '^'.join(l:allowable_starts, '\s*$\|^').'\s*$'
+		:    return "\<esc>^C"
+		:  endif
+		:  if l:left =~ '^\s*'.join(l:allowable_starts, '\s*$\|^\s*').'\s*$'
+		:    let l:indent = indent('.')
+		:    let l:other = line('.') - 1
+		:    while indent(l:other) >= l:indent
+		:      if l:other == 1
+		:        return a:in
+		:      endif
+		:      let l:other -= 1
+		:    endwhile
+		:    let l:diff = l:indent - indent(l:other)
+		:    return "\<esc>0C". l:line[l:diff:] . repeat("\<left>", strlen(l:line) - l:column + 1)
+		:  endif
+		:  if l:line =~ '^\s*'.join(l:allowable_starts, '\|^\s*').'$'
+		:    return a:in.l:clean[:stridx(l:clean, " ")]
+		:  endif
+		:  if l:line =~ '^\d\+[\.)]\s*$'
 		:    return "\<esc>^C"
 		:  elseif l:line =~ '^\d\+. '
 		:    return a:in.(l:line + 1).'. '
@@ -859,30 +873,29 @@
 		:  if l:lineno == 1
 		:    return 0
 		:  endif
-		:  let l:off = 1
-		:  while getline(l:lineno - l:off) =~ "^\s*$" && l:off < l:lineno
-		:    let l:off += 1
+		:  let l:unindented = [ '\\section', '\\subsection', '\\Title', '\\Subtitle', '\\Subsubtitle' ]
+		:  let l:inc_off = ['\\begin', '{', '[', '\\FOR', '\\IF', '\\WHILE', '\\If', '\\For', '\\While', '\\Procedure', '\\Else']
+		:  let l:dec_off = ['\\end', '}', ']', '\\END', '\\End', '\\Else']
+		:  let l:otherno = l:lineno - 1
+		:  while getline(l:otherno) =~ "^\s*$" && l:otherno > 0
+		:    let l:otherno -= 1
 		:  endwhile
 		:  let l:line = getline('.')
-		:  let l:other = getline(l:lineno - l:off)
-		:  let l:offset = 0
+                :  let l:other = getline(l:otherno)
 		:  if l:other =~ '\s*%'
-		:     return indent(l:lineno - l:off)
+                :     return indent(l:otherno)
 		:  endif
+		" Special cases for \item tags
+		:  let l:offset  = l:other =~ '^\s*\\item' && l:other !~ '\\end{\(enumerate\|itemize\)}'
 		:  let l:offset -= l:line =~ '^\s*\\item' && l:other !~ '\\begin{\(enumerate\|itemize\)}'
-		:  let l:offset += l:other =~ '^\s*\\item' && l:other !~ '\\end{\(enumerate\|itemize\)}'
 		:  let l:offset -= l:line =~ '\\end{\(enumerate\|itemize\)}'
-		:  let l:unindented = [ 'section', 'subsection', 'Title', 'Subtitle', 'Subsubtitle' ]
-		:  let l:inendent_expr = '^\s*\\' . join(l:unindented, '\|^\s*\\')
-		:  let l:offset += l:other =~ l:inendent_expr
-		:  let l:offset -= l:line =~ l:inendent_expr
-		:  let l:inc_off = ['\\begin', '{', '[', '\\FOR', '\\IF', '\\WHILE', '\\If', '\\For', '\\While', '\\Procedure']
-		:  let l:dec_off = ['\\end', '}', ']', '\\END', '\\End']
+		:  call extend(l:inc_off, l:unindented)
+		:  call extend(l:dec_off, l:unindented)
 		:  let l:offset += l:other =~ ('^\s*' . join(l:dec_off, '\|^\s*'))
 		:  let l:offset -= l:line =~ ('^\s*' . join(l:dec_off, '\|^\s*'))
 		:  let l:offset += len(split(l:other, join(l:inc_off, '\|'), 1)) - 1
 		:  let l:offset -= len(split(l:other, join(l:dec_off, '\|'), 1)) - 1
-		:  return indent(l:lineno - l:off) + l:offset * shiftwidth()
+		:  return indent(l:otherno) + l:offset * shiftwidth()
 		:endfunction
 		" }}}
 
