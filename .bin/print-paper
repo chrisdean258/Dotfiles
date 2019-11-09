@@ -1,4 +1,7 @@
 #!/bin/sh
 
-
-lp -o number-up=2 -o sides=two-sided-short-edge "$@"
+if [ $1 = "-2" ]; then
+	lp -o number-up=2 -o sides=two-sided-short-edge "$@"
+else
+	lp -o sides=two-sided-long-edge "$@"
+fi 

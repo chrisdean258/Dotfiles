@@ -937,15 +937,9 @@
 		:function! HighlightAfterColumn(col)
 		" {{{
 		:  let s:exclude_patterns = [ '[^=]*<<[^=]*', '\/\/', '\/\*', '\*\/', '^\s*#', 'print', 'cout', 'cerr' ]
-		:  for match in get(s:, 'longlinematches', [])
-		:  try
-		:    call matchdelete(match)
-		:  catch
-		:  endtry
-		:  endfor
-		:  let s:longlinematches = []
+		:  call clearmatches()
 		:  if get(g:, "hllonglines", 1) && getline('.') !~ join(s:exclude_patterns, '\|')
-		:    call add(s:longlinematches, matchadd('LongLine', '\%'.line('.').'l\%>'.(a:col).'v.'))
+		:    call matchadd('LongLine', '\%'.line('.').'l\%>'.(a:col).'v.')
 		:  endif
 		:endfunction
 		" }}}
@@ -1470,14 +1464,16 @@
 
 		:function! Open(file)
 		"{{{
-		:  echom a:file
-		:  if executable("open")
-		:    let l:type = System("file $(realpath ".a:file.")")
-		:    if l:type !~ 'text\|empty'
-		:      call System("open ".a:file)
-		:      return
+		:  try 
+		:    if executable("open")
+		:      let l:type = System("file $(realpath ".a:file.")")
+		:      if l:type !~ 'text\|empty'
+		:        call System("open ".a:file)
+		:        return
+		:      endif
 		:    endif
-		:  endif
+		:  catch
+		:  endtry
 		:  normal! gf
 		:endfunction
 		" }}}
