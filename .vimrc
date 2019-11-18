@@ -1050,7 +1050,7 @@
 		:function! PythonMainAbbrev()
 		" {{{
 		:  if getline('.') =~ '^$'
-		:      return "def main():\npass\n\nif __name__ == \"__main__\":\nmain()"
+		:      return "def main():\npass\n\n\nif __name__ == \"__main__\":\nmain()"
 		:  else
 		:    return 'main'
 		:  endif
