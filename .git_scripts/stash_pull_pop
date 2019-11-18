@@ -4,7 +4,4 @@ git stash | grep -q "No local changes to save"
 rv=$?
 git pull "$@"
 [ "$rv" -ne 0 ] && git stash pop >/dev/null
-
-
-
-
+git push

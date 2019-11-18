@@ -17,8 +17,6 @@
 	save = !~/.git_scripts/save
 	note = !~/.git_scripts/notes
 	reload-hooks = !~/.git_scripts/reload-hooks
-	issues = !ghi
-	i = !ghi
 	keep = !~/.git_scripts/keep
 	rebase-all = !~/.git_scripts/rebase_all
 	merge-all = !~/.git_scripts/merge_all

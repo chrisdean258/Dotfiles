@@ -3,59 +3,37 @@
 import click
 import getpass
 import os
-import json
 import re
 import requests
+import simplejson
+from contextlib import suppress
 from sh import git
 
 
-USER = None
 PASSWORD = None
-ACCESS_TOKEN = None
-AUTH = None
-BASEURL = "https://api.github.com/"
+GH_TOKEN = os.environ.get("GITHUB_ACCESS_TOKEN")
+GH_HEADER = GH_TOKEN and {'Authorization': f'token {GH_TOKEN}'}
+GH_URL = "https://api.github.com/"
+EMAIL = git.config("user.email").strip()
+USER = EMAIL[:EMAIL.index("@")]
 
 
-def user():
-    global USER
-    if not USER:
-        try:
-            USER = git.config("user.username").strip()
-        except Exception:
-            email = git.config("user.email").strip()
-            USER = email[:email.index("@")]
-    return USER
-
-
-def access():
-    global ACCESS_TOKEN
-    if not ACCESS_TOKEN:
-        ACCESS_TOKEN = os.environ.get("GITHUB_ACCESS_TOKEN")
-    if ACCESS_TOKEN:
-        return {'Authorization': f'token {ACCESS_TOKEN}'}
-    return None
-
-
-def auth():
+def get_auth():
     global PASSWORD
-    if not PASSWORD:
-        PASSWORD = getpass.getpass()
-    return (user(), PASSWORD)
+    global GH_TOKEN
+    if GH_TOKEN:
+        return None
+    PASSWORD = PASSWORD or getpass.getpass()
+    return (USER, PASSWORD)
 
 
-def Request(callback, url, *args, **kwargs):
-    header = access()
-    if header:
-        resp = callback(BASEURL + url, *args, **kwargs, headers=header)
-    else:
-        resp = callback(BASEURL + url, *args, **kwargs, auth=auth())
-    if resp.status_code // 100 != 2:
-        raise Exception(f"status code = {resp.status_code}\n{resp.text}")
-    items = {}
-    try:
-        items = json.loads(resp.text)
-    finally:
-        return items
+def Request(callback, url, headers=None, auth=None, **kwargs):
+    resp = callback(
+        GH_URL + url,
+        headers=headers or GH_HEADER,
+        auth=auth or get_auth(),
+        **kwargs)
+    return resp.json()
 
 
 def Post(url, json):
@@ -67,26 +45,20 @@ def Get(url):
 
 
 def Delete(url):
-    return Request(requests.delete, url)
+    with suppress(simplejson.errors.JSONDecodeError):
+        return Request(requests.delete, url)
 
 
 @click.group()
-@click.option(
-    "--username", "-u",
-    default=user,
-    help="Github username"
-)
-@click.option(
-    "--password", "-p",
-    help="Github password"
-)
-def main(username, password):
+@click.option("--username", "-u", default=USER, help="Github username")
+@click.option("--access-token", "-t", help="Github password")
+def main(username, access_token):
     global USER
-    global PASSWORD
-    if username:
-        USER = username
-    if password:
-        PASSWORD = password
+    global GH_TOKEN
+    global GH_HEADER
+    USER = username or USER
+    GH_TOKEN = access_token or GH_TOKEN
+    GH_HEADER = GH_TOKEN and {'Authorization': f'token {GH_TOKEN}'}
 
 
 @main.command("new-repo")
@@ -95,8 +67,8 @@ def main(username, password):
 @click.option("--private", "-p", is_flag=True, help="Create private repo")
 def NewRepo(name, dirname=None, private=False):
     """ Create new github repo """
-    if dirname is None:
-        dirname = name
+    global USER
+    dirname = dirname or name
     data = {"name": name, "private": private}
 
     resp = Post("user/repos", data)
@@ -104,25 +76,21 @@ def NewRepo(name, dirname=None, private=False):
     print(f"Name: {resp['name']}")
     print(f"Full Name: {resp['full_name']}")
     print(f"SSH URL: {resp['ssh_url']}")
-    print(f"Clone Url: {resp['clone_url']}")
+    print(f"Clone URL: {resp['clone_url']}")
 
     os.mkdir(dirname)
     os.chdir(dirname)
 
     title = name.replace("-", " ").replace("_", " ")
     title = re.sub(r"(?<=\w)([A-Z])", r" \1", title).title()
-
-    with open("README.md", "w") as f:
-        f.write(f"# {title}")
-    open(".gitignore", "w").close()
+    with open("README.md", "w") as readme:
+        readme.write(f"# {title}")
 
     git.init()
-    git.remote.add.origin(f"git@github.com:{user()}/{name}.git")
+    git.remote.add.origin(f"git@github.com:{USER}/{name}.git")
     git.add("-A", ".")
     git.commit("-m", "Initial commit")
     git.push("-u", "origin", "master")
-
-    os.chdir("..")
 
 
 @main.command("list-repos")
@@ -135,11 +103,10 @@ def ListRepos():
 
 @main.command()
 def ls():
-    """ Alias fort list-repos """
+    """ Alias for list-repos """
     resp = Get("user/repos")
     for repo in resp:
         print(repo["full_name"])
-        __import__("pprint").pprint(repo)
 
 
 @main.command()
@@ -148,18 +115,18 @@ def ls():
 def clone(name, to=None):
     """ Clone a github repo by partial name match """
     resp = Get("user/repos")
-    for repo in resp:
-        if name.casefold() in repo["full_name"].casefold():
-            print("Cloning", repo["full_name"])
-            to = to or repo["name"]
-            git.clone(repo["ssh_url"], to)
+    for repo in (a for a in resp if name.lower() in a.lower()):
+        print("Cloning", repo["full_name"])
+        to = to or repo["name"]
+        git.clone(repo["ssh_url"], to)
 
 
 @main.command("delete-repo")
 @click.argument("name")
 def DeleteRepo(name):
     """ Delete github repo """
-    Delete(f"repos/{user()}/{name}")
+    global USER
+    Delete(f"repos/{USER}/{name}")
 
 
 if __name__ == "__main__":
