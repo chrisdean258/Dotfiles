@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if svn info 2>&1 >/dev/null; then
+if svn info >/dev/null 2>&1; then
 	snv commit -m "$*"
 	exit $?
 fi
