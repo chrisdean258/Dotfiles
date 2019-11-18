@@ -5,7 +5,16 @@ if svn info 2>&1 >/dev/null; then
 	exit $?
 fi
 
+comment="$*"
+
+if [ "$*" = "..." ]; then
+	comment="$(git log -1 --pretty=%B)"
+	echo -n "\"$comment\"? "
+	read resp
+	[ -n "$resp" ] && comment="$resp"
+fi
+
 git add .
-git commit -m "$*"
+git commit -m "$comment"
 git push
 
