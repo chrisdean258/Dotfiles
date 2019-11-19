@@ -63,7 +63,7 @@ pip3()
 	[ -z "$pip3" ] && echo "pip3 not installed" && return 1
 	echo "$*" | grep -q -e "[-]-user" && $pip3 "$@" && return $?
 	sudo="$(groups | grep -q "sudo" && echo "sudo")"
-	$sudo $pip3 "$@"
+	$sudo -H $pip3 "$@"
 }
 
 j()

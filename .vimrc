@@ -443,6 +443,7 @@
 	:  autocmd FileType tex :inoremap <expr><buffer><CR> LatexCarriageReturn()
 	:  autocmd FileType tex :inoremap <expr><buffer>{ (strlen(getline('.')) + 1 == col('.')) ? "{}\<left>" : "{"
 	:  autocmd FileType tex :inoremap <expr><buffer>} (getline(".")[col(".")-1] == "}") ? "\<right>" : "}"
+	:  autocmd FileType tex :nnoremap <buffer> <leader>m mqlBi$<esc>Ea$<esc>`q
 	:  autocmd FileType tex :nnoremap <buffer>; :call LatexBackslashBeginning()<CR>
 	" :  autocmd FileType tex :nnoremap <buffer>; mqviwv`<i\<esc>`ql
 	:  autocmd FileType tex :command! Preview call LatexPreview()
@@ -861,7 +862,7 @@
 		:  let l:window = winsaveview()
 		:  let l:word = split(LineBeforeCursor())[-1]
 		:  if l:word[0] != '\'
-		:    normal! Bi\
+		:    normal! lBi\
 		:  endif
 		:  call winrestview(l:window)
 		:endfunction
