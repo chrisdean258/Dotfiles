@@ -9,6 +9,8 @@ alias la='ls -A'
 alias l='ls -CF'
 alias car="cat"
 
+exe() { [ -x "$(command -v "$1")" ]; }
+
 if exe dircolors; then
 	test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
 	alias ls='ls --color=auto --group-directories-first'
