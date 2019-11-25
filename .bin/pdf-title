@@ -6,28 +6,43 @@ from pdfrw import PdfReader
 from glob import glob
 
 
-def title(fn):
-    t = PdfReader(fn).Info.Title
+def title(t):
     if t and t.startswith("(") and t.endswith(")"):
         t = t[1:-1]
     return t
 
+
 def filename(string):
     return string.replace(" ", "_") + ".pdf"
 
+
 def main(argv):
     move = False
-    if argv and argv[0] == "-m":
-        move = True
+    interactive = False
+    while argv and argv[0] in ("-m", "-i"):
+        if argv[0] == "-m":
+            move = True
+        if argv[0] == "-i":
+            interactive = True
         argv = argv[1:]
 
     files = argv or glob("*.pdf")
-    titles = ((f, title(f)) for f in files if title(f))
+    pdfs = {fn: PdfReader(fn) for fn in files}
 
-    for f, t in titles:
-        print(f, "-->", t)
-        if move:
-            os.rename(f, filename(t))
+    for fn, pdf in pdfs.items():
+        paper_title = None
+        if pdf.Info.Title:
+            paper_title = title(pdf.Info.Title)
+        if interactive:
+            print(pdf.Info)
+            page = pdf.pages[0]
+            print(page.extractText)
+            paper_title = input("title: ")
+        if paper_title:
+            new_fn = filename(paper_title)
+            print(fn, "-->", new_fn)
+            if move:
+                os.rename(fn, new_fn)
 
 
 if __name__ == "__main__":
