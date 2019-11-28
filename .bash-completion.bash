@@ -10,7 +10,7 @@ __complete_vim()
 
 	cur=${COMP_WORDS[COMP_CWORD]}	
 
-	words="$(file -L * | grep -v -E "\.log|\.aux|directory" | grep -E "ASCII|text|empty" | cut -d: -f1 | sed "s:^\.\/::g")"
+	words="$(file -L * | grep -v -E "\.log|\.aux|\.nav|\.out|\.snm|\.toc|directory" | grep -E "ASCII|text|empty" | cut -d: -f1 | sed "s:^\.\/::g")"
 	COMPREPLY=( $(compgen -W "$words" -- "$cur" ) )
 
 	return 0
