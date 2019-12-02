@@ -876,7 +876,7 @@
 		:  endif
 		:  let l:unindented = [ '\\section', '\\subsection', '\\Title', '\\Subtitle', '\\Subsubtitle' ]
 		:  let l:inc_off = ['\\begin', '{', '[', '\\FOR', '\\IF', '\\WHILE', '\\If', '\\For', '\\While', '\\Procedure', '\\Else']
-		:  let l:dec_off = ['\\end', '}', ']', '\\END', '\\End', '\\Else']
+		:  let l:dec_off = ['\\end', '}', '\\\=]', '\\END', '\\End', '\\Else']
 		:  let l:otherno = l:lineno - 1
 		:  while getline(l:otherno) =~ "^\s*$" && l:otherno > 0
 		:    let l:otherno -= 1
