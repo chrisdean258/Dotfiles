@@ -450,6 +450,8 @@
 	:  autocmd FileType tex :let g:tex_flavor = 'latex'
 	:  autocmd FileType tex :iabbrev eqiv equiv
 	:  autocmd FileType tex :inoremap \sum \sum
+	:  autocmd FileType tex :inoremap \sec \sec
+	:  autocmd FileType tex :inoremap \pau \pau
 	:augroup END
 	" }}}
 
@@ -860,7 +862,7 @@
 		:function! LatexBackslashBeginning()
 		" {{{
 		:  let l:window = winsaveview()
-		:  let l:word = split(LineBeforeCursor())[-1]
+		:  let l:word = split(LineUntilCursor())[-1]
 		:  if l:word[0] != '\'
 		:    normal! lBi\
 		:  endif
