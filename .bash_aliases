@@ -70,6 +70,7 @@ pip3()
 
 j()
 {
+	local new_dir
 	jmps="$HOME/.jmp"
 	[ $# -ne 0 ] && pattern=".*$(echo "$@" | sed "s/\s\+/.*\/.*/g")[^\/]*$"
 
@@ -84,7 +85,12 @@ j()
 		new_dir=$(tac "$jmps" | grep -i "$pattern" | awk '!a[$0]++' | sed -e '1h;$G' | grep -m 1 -A 1 "^$PWD$" | tail -n 1)
 	fi
 
-	[ -d "$new_dir" ] && builtin cd "$new_dir" && echo "$@" >> ${jmps}_complete 
+	if [ -d "$new_dir" ]; then 
+		builtin cd "$new_dir" && echo "$@" >> ${jmps}_complete
+	else
+		grep -v "^$new_dir$" "$jmps" > "$HOME/tmp" 
+		mv "$HOME/tmp" "$jmps"
+	fi
 	return $?
 }
 
