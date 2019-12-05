@@ -864,7 +864,11 @@
 		:  let l:window = winsaveview()
 		:  let l:word = split(LineUntilCursor())[-1]
 		:  if l:word[0] != '\'
-		:    normal! lBi\
+		:    if LineAfterCursor() == ""
+		:      normal! Bi\
+		:    else
+		:      normal! lBi\
+		:    endif
 		:  endif
 		:  call winrestview(l:window)
 		:endfunction
