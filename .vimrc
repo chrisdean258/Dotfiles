@@ -391,6 +391,7 @@
 	:  autocmd FileType cpp    :iabbrev <buffer> enld endl
 	:  autocmd FileType cpp    :iabbrev <buffer> nstd using namespace std;<CR>
 	:  autocmd FileType cpp    :autocmd CursorMoved,CursorMovedI <buffer> call HighlightAfterColumn(100)
+	:  autocmd FileType cpp    :set syntax=cpp
 	:  autocmd FileType c      :autocmd CursorMoved,CursorMovedI <buffer> call HighlightAfterColumn(80)
 	:  autocmd FileType c      :setlocal commentstring=/*\ %s\ */
 	:augroup END
