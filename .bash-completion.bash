@@ -1,6 +1,8 @@
 #!/bin/bash
 
 complete -d cd
+complete -G "*.pdf" pdf-title
+complete -G "*.pdf" pdfhead
 
 __complete_vim()
 {
