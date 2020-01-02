@@ -7,7 +7,7 @@ if [ $# -gt 0 ] && [ $1 = "tex" ]; then
 fi
 
 title="$(echo $* | sed 's/[ ]/_/g')"
-date=$(date +%Y%m%d)
+date=$(date +%Y-%m-%d)
 
 fn="$date.$extension"
 if [ -n "$title" ]; then
