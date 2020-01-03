@@ -1,0 +1,55 @@
+#!/usr/bin/env python3
+import imaplib
+import email
+import os
+from getpass import getpass
+
+""" This module should extract the labs from your email.
+    It saves submissions in the directory submissions.
+    It saves Meta-data in meta-data
+"""
+
+
+# do the login
+def auth(user, password, imap_url, imap_port):
+    con = imaplib.IMAP4_SSL(imap_url, imap_port)
+    con.login(user, password)
+    return con
+
+
+# extracts the body from the email
+def get_body(msg):
+    if msg.is_multipart():
+        return get_body(msg.get_payload(0))
+    else:
+        return msg.get_payload(None, True)
+
+
+# search for a particular email
+def search(key, value, con):
+    result, data = con.search(None, key, '"{}"'.format(value))
+    return data
+
+
+# extracts emails from byte array
+def get_emails(con, result_bytes):
+    mail_num = result_bytes[0].split()[-1]
+    typ, data = con.fetch(mail_num, '(RFC822)')
+    mail = email.message_from_bytes(data[0][1])
+    body = get_body(mail).decode('utf-8').replace("\r\n", "\n")
+    return body.replace("~~~", "\n")
+
+
+def main():
+    con = auth(
+        "chrisdean258@gmail.com",
+        os.environ.get("email_") or getpass(),
+        "imap.gmail.com", 993)
+    con.select('"[Gmail]/All Mail"')
+    msgs = search("Subject", "TimeTrackerFlush", con)
+    lines = get_emails(con, msgs)
+    print("\n".join(lines))
+
+
+if __name__ == "__main__":
+    main()

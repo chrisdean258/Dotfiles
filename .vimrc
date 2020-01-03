@@ -1085,8 +1085,8 @@
 		:  while getline('$') == ''
 		:    $d
 		:  endwhile
-		:  silent %s/^def/\r\r&/e
-		:  silent %s/\n\+\(\n\n\ndef\)/\1/e
+		" :  silent %s/^def/\r\r&/e
+		" :  silent %s/\n\+\(\n\n\ndef\)/\1/e
 		:  call winrestview(l:window)
 		:endfunction
 		" }}}

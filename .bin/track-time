@@ -4,6 +4,7 @@ import sys
 import os
 import json
 import datetime
+from sh import git
 
 
 def usage():
@@ -42,20 +43,21 @@ def category():
         "Coding",
         "Video Games",
         "Food",
-        "Social Time",
-        "Social Media",
+        "Friends",
+        "Reddit",
+        "Youtube"
         ]
     print("\n".join(f"{i}. {s}" for i, s in enumerate(categories)))
     choice = input("Choose categories: ")
     cat = categories[int(choice)] if choice else "Misc"
 
-    if cat in {"Sleep", "Shower"}:
+    if cat in {"Sleep", "Shower", "Reddit"}:
         activity = cat
     else:
         activity = input("Activity: ") or cat
 
     people = []
-    while cat not in {"Sleep", "Shower"}:
+    while cat not in {"Sleep", "Shower", "Reddit", "Youtube"}:
         person = input("Person: ").strip().title()
         if not person:
             break
@@ -94,6 +96,11 @@ def main():
 
     with open("time_tracking.json", "w") as f:
         json.dump(items, f)
+
+    if "-n" not in sys.argv:
+        git.add("time_tracking.json")
+        git.commit(m="time tracking update")
+        git.push()
 
 
 if __name__ == "__main__":
