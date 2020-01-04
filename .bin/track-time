@@ -14,11 +14,13 @@ def usage():
 
 def time():
     now = datetime.datetime.now()
-    print(now)
     hour, _, minute = input("End time: ").partition(":")
     hour = int(hour)
     minute = int(minute or 0)
-    day_offset = -int(input("Days ago: ") or 0)
+
+    day_offset = 0
+    if "-o" in sys.argv:
+        day_offset = -int(input("Days ago: ") or 0)
     end_time = now + datetime.timedelta(days=day_offset)
     end_time = end_time.replace(hour=hour, minute=minute)
     return end_time.strftime("%Y-%m-%d %H:%M")
@@ -45,7 +47,8 @@ def category():
         "Food",
         "Friends",
         "Reddit",
-        "Youtube"
+        "Youtube",
+        "Shopping"
         ]
     print("\n".join(f"{i}. {s}" for i, s in enumerate(categories)))
     choice = input("Choose categories: ")
@@ -97,7 +100,7 @@ def main():
     with open("time_tracking.json", "w") as f:
         json.dump(items, f)
 
-    if "-n" not in sys.argv:
+    if "-p" in sys.argv:
         git.add("time_tracking.json")
         git.commit(m="time tracking update")
         git.push()

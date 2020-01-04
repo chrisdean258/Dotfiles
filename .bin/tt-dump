@@ -48,7 +48,7 @@ def main():
     con.select('"[Gmail]/All Mail"')
     msgs = search("Subject", "TimeTrackerFlush", con)
     lines = get_emails(con, msgs)
-    print("\n".join(lines))
+    print(lines)
 
 
 if __name__ == "__main__":
