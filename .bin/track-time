@@ -20,7 +20,8 @@ def time():
 
     day_offset = 0
     if "-o" in sys.argv:
-        day_offset = -int(input("Days ago: ") or 0)
+        ind = sys.argv.index("-o") + 1
+        day_offset = -int(sys.argv[ind])
     end_time = now + datetime.timedelta(days=day_offset)
     end_time = end_time.replace(hour=hour, minute=minute)
     return end_time.strftime("%Y-%m-%d %H:%M")
