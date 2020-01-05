@@ -115,4 +115,5 @@ def main():
     git.push()
 
 
-if __name__ == "__add_item__":
+if __name__ == "__main__":
+    main()
