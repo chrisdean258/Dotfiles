@@ -4,7 +4,7 @@ import sys
 import os
 import json
 import datetime
-from sh import git
+from sh import git, tt_dump
 
 
 def usage():
@@ -15,6 +15,8 @@ def usage():
 def time():
     now = datetime.datetime.now()
     hour, _, minute = input("End time: ").partition(":")
+    if not hour:
+        return None
     hour = int(hour)
     minute = int(minute or 0)
 
@@ -87,6 +89,8 @@ def add_item():
     new_entry = {}
     new_entry["begin_time"] = last_entry["end_time"]
     new_entry["end_time"] = time()
+    if not new_entry["end_time"]:
+        return
     new_entry["location"] = input("Location: ") or last_entry["location"]
     cat, activity, people = category()
     new_entry["category"] = cat
@@ -103,9 +107,16 @@ def add_item():
 def main():
     HOME = os.environ["HOME"]
     os.chdir(HOME + "/git/personal_notes")
+    git.pull()
+
     if len(sys.argv) > 1 and not sys.argv[1].startswith("-"):
         with open(sys.argv[1], "r") as f:
             for line in f:
+                print(line, end="")
+                add_item()
+    elif len(sys.argv) > 1 and sys.argv[1] == "-d":
+        for line in tt_dump():
+            if line().strip():
                 print(line, end="")
                 add_item()
     else:
