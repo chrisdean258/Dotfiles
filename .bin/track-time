@@ -70,9 +70,7 @@ def category():
     return (cat, activity, people)
 
 
-def main():
-    HOME = os.environ["HOME"]
-    os.chdir(HOME + "/git/personal_notes")
+def add_item():
     with open("time_tracking.json", "r") as f:
         items = json.load(f)
 
@@ -100,11 +98,21 @@ def main():
     with open("time_tracking.json", "w") as f:
         json.dump(items, f)
 
-    if "-p" in sys.argv:
-        git.add("time_tracking.json")
-        git.commit(m="time tracking update")
-        git.push()
+
+def main():
+    HOME = os.environ["HOME"]
+    os.chdir(HOME + "/git/personal_notes")
+    if len(sys.argv) > 1 and not sys.argv[1].startswith("-"):
+        with open(sys.argv[1], "r") as f:
+            for line in f:
+                print(line, end="")
+                add_item()
+    else:
+        add_item()
+
+    git.add("time_tracking.json")
+    git.commit(m="time tracking update")
+    git.push()
 
 
-if __name__ == "__main__":
-    main()
+if __name__ == "__add_item__":

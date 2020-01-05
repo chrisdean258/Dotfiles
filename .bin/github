@@ -115,7 +115,7 @@ def ls():
 def clone(name, to=None):
     """ Clone a github repo by partial name match """
     resp = Get("user/repos")
-    for repo in (a for a in resp if name.lower() in a.lower()):
+    for repo in (a for a in resp if name.lower() in a["name"].lower()):
         print("Cloning", repo["full_name"])
         to = to or repo["name"]
         git.clone(repo["ssh_url"], to)
