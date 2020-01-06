@@ -46,6 +46,8 @@ class Activity:
 
     @classmethod
     def from_csv_line(cls, line):
+        if len(line) != 6:
+            print(line)
         inst = cls()
         inst.start_time = line[0]
         inst.end_time = line[1]
@@ -150,6 +152,6 @@ if __name__ == "__main__":
 
     main()
 
-    git.add("time_tracking.csv")
+    git.add("time-tracking.csv")
     git.commit(m="time tracking update")
     git.push()
