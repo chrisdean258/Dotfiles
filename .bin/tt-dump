@@ -2,54 +2,154 @@
 import imaplib
 import email
 import os
+import sys
+import csv
+import datetime
+import tempfile
 from getpass import getpass
-
-""" This module should extract the labs from your email.
-    It saves submissions in the directory submissions.
-    It saves Meta-data in meta-data
-"""
+from sh import git
 
 
-# do the login
-def auth(user, password, imap_url, imap_port):
-    con = imaplib.IMAP4_SSL(imap_url, imap_port)
-    con.login(user, password)
-    return con
+class Activity:
+    categories = [
+        "Sleep",
+        "Shower",
+        "Travel",
+        "TV",
+        "Research",
+        "Coding",
+        "Video Games",
+        "Food",
+        "Friends",
+        "Reddit",
+        "Youtube",
+        "Shopping"
+        ]
+
+    def __init__(self):
+        self.start_time = ""
+        self.end_time = ""
+        self.category = ""
+        self.location = ""
+        self.activity = ""
+        self.people = []
+
+    def as_list(self):
+        return [
+            self.start_time,
+            self.end_time,
+            self.location,
+            self.category,
+            self.activity,
+            ",".join(self.people)
+            ]
+
+    @classmethod
+    def from_csv_line(cls, line):
+        inst = cls()
+        inst.start_time = line[0]
+        inst.end_time = line[1]
+        inst.location = line[2]
+        inst.category = line[3]
+        inst.activity = line[4]
+        inst.people = line[5].split(",")
+        return inst
+
+    @classmethod
+    def from_csv(cls, filename, delimiter=","):
+        with open(filename, "r") as csvfile:
+            next(csvfile)
+            reader = csv.reader(csvfile, delimiter=delimiter)
+            return [Activity.from_csv_line(a) for a in reader]
+
+    @staticmethod
+    def to_csv(activities, filename, delimiter=","):
+        for a1, a2 in zip(activities, activities[1:]):
+            a2.start_time = a1.end_time
+            if a2.location == "":
+                a2.location = a1.location
+
+        with open(filename, 'w', newline='') as csvfile:
+            csvwriter = csv.writer(csvfile, delimiter=delimiter)
+            header = [
+                "start_time", "end_time", "category",
+                "location", "activity", "people"]
+            csvwriter.writerow(header)
+            for activity in activities:
+                csvwriter.writerow(activity.as_list())
+
+    @classmethod
+    def parse_tasker(cls, line):
+        date, _, line = line.partition(" ")
+        time, _, line = line.partition(" ")
+        line, _, people = line.partition(" with ")
+        activity, _, location = line.partition(" at ")
+        if " at " in people:
+            people, _, location = people.partition(" at ")
+
+        mon, day, yr = [int(a) for a in date.split("-")]
+        hr, m = [int(a) for a in time.split(".")]
+        yr = 2000 + yr
+        dt = datetime.datetime(year=yr, month=mon, day=day, hour=hr, minute=m)
+        end_time = dt.strftime("%Y-%m-%d %H:%M")
+        people = [a.strip().title() for a in people.split(",")]
+        cat = "misc"
+        for category in reversed(Activity.categories):
+            if category.lower() in activity.lower():
+                print(category.lower(), "in", activity.lower())
+                cat = category
+
+        act = cls()
+        act.location = location
+        act.end_time = end_time
+        act.category = cat
+        act.activity = activity
+        act.people = people
+
+        return act
 
 
-# extracts the body from the email
-def get_body(msg):
-    if msg.is_multipart():
-        return get_body(msg.get_payload(0))
-    else:
-        return msg.get_payload(None, True)
+def get_new_activities():
+    # Login
+    con = imaplib.IMAP4_SSL("imap.gmail.com", 993)
+    con.login("chrisdean258@gmail.com", os.environ.get("email_") or getpass())
 
+    # Select mailbox and search
+    con.select('"[Gmail]/All Mail"')
+    result, msgs = con.search(None, "Subject", '"TimeTrackerFlush"')
 
-# search for a particular email
-def search(key, value, con):
-    result, data = con.search(None, key, '"{}"'.format(value))
-    return data
-
-
-# extracts emails from byte array
-def get_emails(con, result_bytes):
-    mail_num = result_bytes[0].split()[-1]
+    # Get last message Number and query for message
+    mail_num = msgs[0].split()[-1]
     typ, data = con.fetch(mail_num, '(RFC822)')
+
+    # Read email and return resulting activities
     mail = email.message_from_bytes(data[0][1])
-    body = get_body(mail).decode('utf-8').replace("\r\n", "\n")
-    return body.replace("~~~", "\n")
+    body = mail.get_payload(None, True).decode('utf-8').replace("\r\n", "\n")
+    return body.split("~~~")
 
 
 def main():
-    con = auth(
-        "chrisdean258@gmail.com",
-        os.environ.get("email_") or getpass(),
-        "imap.gmail.com", 993)
-    con.select('"[Gmail]/All Mail"')
-    msgs = search("Subject", "TimeTrackerFlush", con)
-    lines = get_emails(con, msgs)
-    print(lines)
+    new_activities = [Activity.parse_tasker(a) for a in get_new_activities()]
+    old_activities = Activity.from_csv("time-tracking.csv")
+
+    new_activities[0].start_time = old_activities[-1].end_time
+
+    temp_file = tempfile.NamedTemporaryFile(mode="r")
+    Activity.to_csv(new_activities, temp_file.name, delimiter="\t")
+    if os.system(f'vim "{temp_file.name}"') != 0:
+        sys.exit(1)
+    new_activities = Activity.from_csv(temp_file.name, delimiter="\t")
+    activities = old_activities + new_activities
+    Activity.to_csv(activities, "time-tracking.csv")
 
 
 if __name__ == "__main__":
+    HOME = os.environ["HOME"]
+    os.chdir(HOME + "/git/personal_notes")
+    git.pull()
+
     main()
+
+    git.add("time_tracking.csv")
+    git.commit(m="time tracking update")
+    git.push()
