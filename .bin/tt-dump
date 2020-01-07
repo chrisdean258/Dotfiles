@@ -117,7 +117,7 @@ def get_new_activities():
 
     # Select mailbox and search
     con.select('"[Gmail]/All Mail"')
-    result, msgs = con.search(None, "Subject", '"TimeTrackerFlush"')
+    result, msgs = con.search(None, "Subject", '"TimeTrackerflush"')
 
     # Get last message Number and query for message
     mail_num = msgs[0].split()[-1]
@@ -130,8 +130,11 @@ def get_new_activities():
 
 
 def main():
+    print("Gathering new activities...", end="", flush=True)
     new_activities = [Activity.parse_tasker(a) for a in get_new_activities()]
+    print("Done\nGathering old activities...", end="", flush=True)
     old_activities = Activity.from_csv("time-tracking.csv")
+    print("Done")
 
     if old_activities[-1].end_time >= new_activities[0].end_time:
         if input("Possibly reprocessing activities. Quit[Y/n]? ") != "n":
@@ -157,6 +160,8 @@ if __name__ == "__main__":
 
     main()
 
+    print("Committing new activities...", end="", flush=True)
     git.add("time-tracking.csv")
     git.commit(m="time tracking update")
     git.push()
+    print("Done")
