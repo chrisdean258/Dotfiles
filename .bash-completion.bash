@@ -2,8 +2,8 @@
 
 
 complete -d cd
-complete -G "*.pdf" pdf-title
-complete -G "*.pdf" pdfhead
+complete -f -X "!*.pdf" pdf-title
+complete -f -X "!*.pdf" pdfhead
 
 __complete_vim()
 {

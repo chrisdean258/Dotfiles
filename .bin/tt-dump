@@ -38,9 +38,9 @@ class Activity:
         return [
             self.start_time,
             self.end_time,
-            self.location,
+            self.location.strip(),
             self.category,
-            self.activity,
+            self.activity.strip(),
             ",".join(self.people)
             ]
 
@@ -98,7 +98,6 @@ class Activity:
         cat = "misc"
         for category in reversed(Activity.categories):
             if category.lower() in activity.lower():
-                print(category.lower(), "in", activity.lower())
                 cat = category
 
         act = cls()
@@ -126,15 +125,21 @@ def get_new_activities():
 
     # Read email and return resulting activities
     mail = email.message_from_bytes(data[0][1])
-    body = mail.get_payload(None, True).decode('utf-8').replace("\r\n", "\n")
-    return body.split("~~~")
+    body = mail.get_payload(None, True).decode('utf-8')
+    return body.split("\r\n")
 
 
 def main():
     new_activities = [Activity.parse_tasker(a) for a in get_new_activities()]
     old_activities = Activity.from_csv("time-tracking.csv")
 
+    if old_activities[-1].end_time >= new_activities[0].end_time:
+        if input("Possibly reprocessing activities. Quit[Y/n]? ") != "n":
+            sys.exit(1)
+
     new_activities[0].start_time = old_activities[-1].end_time
+    if not new_activities[0].location:
+        new_activities[0].location = old_activities[-1].location
 
     temp_file = tempfile.NamedTemporaryFile(mode="r")
     Activity.to_csv(new_activities, temp_file.name, delimiter="\t")
