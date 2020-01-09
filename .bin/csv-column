@@ -1,0 +1,50 @@
+#!/usr/bin/env python3
+
+import sys
+import csv
+from itertools import zip_longest
+
+
+def usage():
+    print("Usage: csv-column", file=sys.stderr)
+    sys.exit(1)
+
+
+def to_csv(f):
+    items = [[item.strip() for item in line.split(" | ")] for line in f]
+    csv_writer = csv.writer(sys.stdout)
+    for item in items:
+        csv_writer.writerow(item)
+
+
+def to_columns(f):
+    offsets = []
+    lines = f.readlines()
+    csv_reader = csv.reader(lines)
+    for items in csv_reader:
+        lengths = (len(a) for a in items)
+        offsets = [max(a, b) for a, b in zip_longest(lengths, offsets, fillvalue=0)]
+    csv_reader = csv.reader(lines)
+    for items in csv_reader:
+        print(" | ".join(f"{i:{l}}" for i, l in zip(items, offsets)))
+
+
+def main():
+    close_file = False
+    read_from = sys.stdin
+    for arg in sys.argv[1:]:
+        if not arg.startswith("-"):
+            read_from = open(arg, "r")
+            close_file = True
+
+    if "-u" in sys.argv:
+        to_csv(read_from)
+    else:
+        to_columns(read_from)
+
+    if close_file:
+        read_from.close()
+
+
+if __name__ == "__main__":
+    main()
