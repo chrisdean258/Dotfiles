@@ -6,6 +6,7 @@ import sys
 import csv
 import datetime
 import tempfile
+from itertools import zip_longest as zipl
 from getpass import getpass
 from sh import git
 
@@ -24,7 +25,12 @@ class Activity:
         "Reddit",
         "Youtube",
         "Shopping"
+        "Class"
         ]
+
+    header = [
+        "start_time", "end_time", "location",
+        "category", "activity", "people"]
 
     def __init__(self):
         self.start_time = ""
@@ -73,10 +79,7 @@ class Activity:
 
         with open(filename, 'w', newline='') as csvfile:
             csvwriter = csv.writer(csvfile, delimiter=delimiter)
-            header = [
-                "start_time", "end_time", "category",
-                "location", "activity", "people"]
-            csvwriter.writerow(header)
+            csvwriter.writerow(Activity.header)
             for activity in activities:
                 csvwriter.writerow(activity.as_list())
 
@@ -108,6 +111,32 @@ class Activity:
         act.people = people
 
         return act
+
+    @staticmethod
+    def to_columns(activities, filename):
+        for a1, a2 in zip(activities, activities[1:]):
+            a2.start_time = a1.end_time
+            if a2.location == "":
+                a2.location = a1.location
+        offsets = []
+        for items in activities:
+            items = items.as_list()
+            lens = (len(a) for a in items)
+            offsets = [max(a, b) for a, b in zipl(lens, offsets, fillvalue=0)]
+        with open(filename, "w") as f:
+            formatted = (f"{i:{l}}" for i, l in zip(Activity.header, offsets))
+            print(" | ".join(formatted), file=f)
+            for items in activities:
+                items = items.as_list()
+                formatted = (f"{i:{l}}" for i, l in zip(items, offsets))
+                print(" | ".join(formatted), file=f)
+
+    @staticmethod
+    def from_columns(filename):
+        with open(filename, "r") as f:
+            next(f)
+            items = [[item.strip() for item in l.split(" | ")] for l in f]
+        return [Activity.from_csv_line(item) for item in items]
 
 
 def get_new_activities():
@@ -145,10 +174,10 @@ def main():
         new_activities[0].location = old_activities[-1].location
 
     temp_file = tempfile.NamedTemporaryFile(mode="r")
-    Activity.to_csv(new_activities, temp_file.name, delimiter="\t")
+    Activity.to_columns(new_activities, temp_file.name)
     if os.system(f'vim "{temp_file.name}"') != 0:
         sys.exit(1)
-    new_activities = Activity.from_csv(temp_file.name, delimiter="\t")
+    new_activities = Activity.from_columns(temp_file.name)
     activities = old_activities + new_activities
     Activity.to_csv(activities, "time-tracking.csv")
 
