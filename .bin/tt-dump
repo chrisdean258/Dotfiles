@@ -6,6 +6,7 @@ import sys
 import csv
 import datetime
 import tempfile
+import re
 from itertools import zip_longest as zipl
 from getpass import getpass
 from sh import git
@@ -39,6 +40,9 @@ class Activity:
         self.location = ""
         self.activity = ""
         self.people = []
+
+    def __repr__(self):
+        return repr(self.__dict__)
 
     def as_list(self):
         return [
@@ -87,17 +91,20 @@ class Activity:
     def parse_tasker(cls, line):
         date, _, line = line.partition(" ")
         time, _, line = line.partition(" ")
-        line, _, people = line.partition(" with ")
-        activity, _, location = line.partition(" at ")
-        if " at " in people:
-            people, _, location = people.partition(" at ")
+
+        regex = "(" + "|".join((" with ", " at ", " ending ")) + ")"
+        pieces = re.split(regex, line)
+        activity = pieces[0]
+        args = dict(zip(pieces[1::2], pieces[2::2]))
+        location = args.get(" at ", "")
+        people = [a.strip().title() for a in args.get(" with ", "").split(",")]
+        time = args.get(" ending ", time)
 
         mon, day, yr = [int(a) for a in date.split("-")]
-        hr, m = [int(a) for a in time.split(".")]
+        hr, m = [int(a) for a in re.split(r":|\.", time)]
         yr = 2000 + yr
         dt = datetime.datetime(year=yr, month=mon, day=day, hour=hr, minute=m)
         end_time = dt.strftime("%Y-%m-%d %H:%M")
-        people = [a.strip().title() for a in people.split(",")]
         cat = "misc"
         for category in reversed(Activity.categories):
             if category.lower() in activity.lower():
@@ -109,6 +116,7 @@ class Activity:
         act.category = cat
         act.activity = activity
         act.people = people
+        print(act)
 
         return act
 
