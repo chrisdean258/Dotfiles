@@ -503,6 +503,7 @@
 	:autocmd Filetype markdown :setlocal wrap
 	:autocmd Filetype markdown :setlocal linebreak
 	:autocmd Filetype markdown :setlocal commentstring=<!--\ %s\ -->
+	:autocmd Filetype markdown :autocmd InsertLeave <buffer> :%s/^\(\s*- \)\(.\)/\1\U\2/e
 	:if exists("+breakindent")
 	:  autocmd Filetype markdown :setlocal breakindent
 	:endif
@@ -752,7 +753,7 @@
 		:      let l:other -= 1
 		:    endwhile
 		:    let l:diff = l:indent - indent(l:other)
-		:    return "\<esc>0C". l:line[l:diff:] . repeat("\<left>", strlen(l:line) - l:column + 1)
+		:    return "\<esc>0" . repeat("x", l:diff) . repeat("l",l:column - l:diff)
 		:  endif
 		:  if l:line =~ '^\s*'.join(l:allowable_starts, '\|^\s*').'$'
 		:    return a:in.l:clean[:stridx(l:clean, " ")]
