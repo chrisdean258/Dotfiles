@@ -2,70 +2,30 @@
 import imaplib
 import email
 import os
-import sys
 import csv
-import datetime
 import tempfile
 import re
-from itertools import zip_longest as zipl
+from datetime import datetime
 from getpass import getpass
 from sh import git
 
 
 class Activity:
-    categories = [
-        "Sleep",
-        "Shower",
-        "Travel",
-        "TV",
-        "Research",
-        "Coding",
-        "Video Games",
-        "Food",
-        "Friends",
-        "Reddit",
-        "Youtube",
-        "Shopping"
-        "Class"
-        ]
-
-    header = [
-        "start_time", "end_time", "location",
-        "category", "activity", "people"]
-
-    def __init__(self):
-        self.start_time = ""
-        self.end_time = ""
-        self.category = ""
-        self.location = ""
-        self.activity = ""
-        self.people = []
-
-    def __repr__(self):
-        return repr(self.__dict__)
+    header = ["start", "end", "location", "category", "activity", "people"]
+    categories = ["Sleep", "Shower", "Travel", "TV", "Research", "Coding",
+                  "Video Games", "Food", "Friends", "Reddit", "Youtube",
+                  "Shopping", "Class"]
 
     def as_list(self):
-        return [
-            self.start_time,
-            self.end_time,
-            self.location.strip(),
-            self.category,
-            self.activity.strip(),
-            ",".join(self.people)
-            ]
+        return [self.start, self.end, self.location.strip(), self.category,
+                self.activity.strip(), ",".join(self.people)]
 
     @classmethod
     def from_csv_line(cls, line):
-        if len(line) != 6:
-            print(line)
-        inst = cls()
-        inst.start_time = line[0]
-        inst.end_time = line[1]
-        inst.location = line[2]
-        inst.category = line[3]
-        inst.activity = line[4]
-        inst.people = line[5].split(",")
-        return inst
+        a = cls()
+        a.start, a.end, a.location, a.category, a.activity, a.people = line
+        a.people = a.people.split(",")
+        return a
 
     @classmethod
     def from_csv(cls, filename, delimiter=","):
@@ -77,7 +37,7 @@ class Activity:
     @staticmethod
     def to_csv(activities, filename, delimiter=","):
         for a1, a2 in zip(activities, activities[1:]):
-            a2.start_time = a1.end_time
+            a2.start = a1.end
             if a2.location == "":
                 a2.location = a1.location
 
@@ -89,55 +49,46 @@ class Activity:
 
     @classmethod
     def parse_tasker(cls, line):
+        act = cls()
+        splitters = ("with", "at", "ending")
         date, _, line = line.partition(" ")
         time, _, line = line.partition(" ")
 
-        regex = "(" + "|".join((" with ", " at ", " ending ")) + ")"
-        pieces = re.split(regex, line)
-        activity = pieces[0]
-        args = dict(zip(pieces[1::2], pieces[2::2]))
-        location = args.get(" at ", "")
-        people = [a.strip().title() for a in args.get(" with ", "").split(",")]
-        time = args.get(" ending ", time)
+        regex = "( " + " | ".join(splitters) + " )"
+        act.activity, *pieces = [s.strip() for s in re.split(regex, line)]
+        pd = dict(zip(pieces[0::2], pieces[1::2]))
+        act.location = pd.get("at", "")
+        act.people = [a.strip().title() for a in pd.get("with", "").split(",")]
+        time = pd.get("ending", time).replace(".", ":")
 
         mon, day, yr = [int(a) for a in date.split("-")]
-        hr, m = [int(a) for a in re.split(r":|\.", time)]
-        yr = 2000 + yr
-        dt = datetime.datetime(year=yr, month=mon, day=day, hour=hr, minute=m)
-        end_time = dt.strftime("%Y-%m-%d %H:%M")
-        cat = "misc"
+        hr, m = [int(a) for a in time.split(":")]
+        dt = datetime(year=yr + 2000, month=mon, day=day, hour=hr, minute=m)
+        act.end = dt.strftime("%Y-%m-%d %H:%M")
+        act.category = "misc"
         for category in reversed(Activity.categories):
-            if category.lower() in activity.lower():
-                cat = category
-
-        act = cls()
-        act.location = location
-        act.end_time = end_time
-        act.category = cat
-        act.activity = activity
-        act.people = people
-        print(act)
+            if category.lower() in act.activity.lower():
+                act.category = category
 
         return act
 
     @staticmethod
     def to_columns(activities, filename):
+        def colprint(items, offsets, file):
+            formed = (f"{i:{l}}" for i, l in zip(items, offsets))
+            print(" | ".join(formed), file=file)
+
         for a1, a2 in zip(activities, activities[1:]):
-            a2.start_time = a1.end_time
-            if a2.location == "":
-                a2.location = a1.location
-        offsets = []
-        for items in activities:
-            items = items.as_list()
-            lens = (len(a) for a in items)
-            offsets = [max(a, b) for a, b in zipl(lens, offsets, fillvalue=0)]
+            a2.start = a1.end
+            a2.location = a2.location or a1.location
+        offsets = [len(a) for a in Activity.header]
+        for activity in activities:
+            lens = (len(a) for a in activity.as_list())
+            offsets = [max(a, b) for a, b in zip(lens, offsets)]
         with open(filename, "w") as f:
-            formatted = (f"{i:{l}}" for i, l in zip(Activity.header, offsets))
-            print(" | ".join(formatted), file=f)
-            for items in activities:
-                items = items.as_list()
-                formatted = (f"{i:{l}}" for i, l in zip(items, offsets))
-                print(" | ".join(formatted), file=f)
+            colprint(Activity.header, offsets, f)
+            for activity in activities:
+                colprint(activity.as_list(), offsets, f)
 
     @staticmethod
     def from_columns(filename):
@@ -173,18 +124,18 @@ def main():
     old_activities = Activity.from_csv("time-tracking.csv")
     print("Done")
 
-    if old_activities[-1].end_time >= new_activities[0].end_time:
+    if old_activities[-1].end >= new_activities[0].end:
         if input("Possibly reprocessing activities. Quit[Y/n]? ") != "n":
             sys.exit(1)
 
-    new_activities[0].start_time = old_activities[-1].end_time
+    new_activities[0].start = old_activities[-1].end
     if not new_activities[0].location:
         new_activities[0].location = old_activities[-1].location
 
     temp_file = tempfile.NamedTemporaryFile(mode="r")
     Activity.to_columns(new_activities, temp_file.name)
     if os.system(f'vim "{temp_file.name}"') != 0:
-        sys.exit(1)
+        return
     new_activities = Activity.from_columns(temp_file.name)
     activities = old_activities + new_activities
     Activity.to_csv(activities, "time-tracking.csv")
