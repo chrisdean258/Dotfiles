@@ -313,6 +313,7 @@
 	:command! HardMode :call HardMode()
 
 	:command! Style :call PythonStyle()
+	:command! Compile :call Compile()
 
 " }}}
 
@@ -503,7 +504,7 @@
 	:autocmd Filetype markdown :setlocal wrap
 	:autocmd Filetype markdown :setlocal linebreak
 	:autocmd Filetype markdown :setlocal commentstring=<!--\ %s\ -->
-	:autocmd Filetype markdown :autocmd InsertLeave <buffer> :%s/^\(\s*- \)\(.\)/\1\U\2/e
+	:autocmd Filetype markdown :autocmd InsertLeave <buffer> :call MDCapitals()
 	:if exists("+breakindent")
 	:  autocmd Filetype markdown :setlocal breakindent
 	:endif
@@ -814,6 +815,15 @@
 		:    call System('xdg-open http://localhost:6419 > /dev/null 2>/dev/null &')
 		:    autocmd VimLeave * :call System("pkill grip")
 		:  endif
+		:endfunction
+		" }}}
+
+		:function! MDCapitals()
+		" {{{
+		:  let l:window = winsaveview()
+		:  silent %s/^\(\s*- \)\(.\)/\1\U\2/e
+		:  call winrestview(l:window)
+		:  nohlsearch
 		:endfunction
 		" }}}
 
