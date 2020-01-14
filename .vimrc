@@ -494,8 +494,8 @@
 	:augroup Markdown
 	:autocmd!
 	:autocmd Filetype markdown :inoremap <buffer><tab> <c-r>=MDTab(CleverTab())<CR>
-	:autocmd Filetype markdown :inoremap <expr><silent><buffer><CR> MDNewline("\r")
-	:autocmd Filetype markdown :nnoremap <expr><silent><buffer>o MDNewline("o")
+	:autocmd Filetype markdown :inoremap <silent><buffer><CR> <c-r>=MDNewline("\r")<CR>
+	:autocmd Filetype markdown :nnoremap <silent><buffer>o <c-r>=MDNewline("o")<CR>
 	:autocmd Filetype markdown :inoremap <silent><buffer><localleader>s <esc>:call SpellReplace()<CR>a
 	:autocmd Filetype markdown :nnoremap <silent><buffer><localleader>s :call SpellReplace()<CR>
 	" :autocmd FileType markdown :highlight link markdownError NONE
@@ -754,7 +754,8 @@
 		:      let l:other -= 1
 		:    endwhile
 		:    let l:diff = l:indent - indent(l:other)
-		:    return "\<esc>0" . repeat("x", l:diff) . repeat("l",l:column - l:diff)
+		:    call setline('.', getline('.')[l:diff:])
+		:    return repeat("\<left>", l:diff)
 		:  endif
 		:  if l:line =~ '^\s*'.join(l:allowable_starts, '\|^\s*').'$'
 		:    return a:in.l:clean[:stridx(l:clean, " ")]
