@@ -36,7 +36,7 @@ def extend(displays):
     if len(displays) == 0:
         arandr()
     if len(displays) == 1:
-        xrandr("--output", displays.popitem().name, "--primary", "--auto")
+        xrandr("--output", displays.popitem()[1].name, "--primary", "--auto")
     if len(displays) == 2:
         primary = [a for a in displays.values() if a.primary][0]
         second = [a for a in displays.values() if not a.primary][0]
