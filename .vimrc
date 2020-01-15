@@ -314,6 +314,7 @@
 
 	:command! Style :call PythonStyle()
 	:command! Compile :call Compile()
+	:command! Template :call NewFile()
 
 " }}}
 
@@ -746,7 +747,7 @@
 		:    return ""
 		:  elseif l:left =~ '^\s*'.join(l:allowable_starts, '\s*$\|^\s*').'\s*$'
 		:    return MDUnindent()
-		:  elseif l:line =~ '^\s*'.join(l:allowable_starts, '\s*\|^\s*').'\s*'
+		:  elseif l:line =~ '^\s*'.join(l:allowable_starts, '\s\|^\s*').'\s'
 		:    echom l:start
 		:    call append('.', l:start . ' ')
 		:    return "\<down>\<right>"
