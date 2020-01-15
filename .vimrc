@@ -510,6 +510,7 @@
 	:endif
 	:autocmd Filetype markdown :cabbrev markdown call NotesMDFormat()
 	:autocmd FileType markdown :command! Preview call MDPreview()
+	:autocmd FileType markdown :setlocal filetype=rmd
 	:augroup END
 	" }}}
 
@@ -738,36 +739,41 @@
 		"  {{{
 		:  let l:allowable_starts = [ '>', '\*', '-', '+', ]
 		:  let l:line = getline('.')
-		:  let l:clean = Strip(l:line)
 		:  let l:left = LineBeforeCursor()
-		:  let l:column = col('.')
+		:  let l:start = substitute(l:line, '^\s*\(.\{-}\)\s.*', '\1', '')
 		:  if l:line =~ '^'.join(l:allowable_starts, '\s*$\|^').'\s*$'
-		:    return "\<esc>^C"
-		:  endif
-		:  if l:left =~ '^\s*'.join(l:allowable_starts, '\s*$\|^\s*').'\s*$'
-		:    let l:indent = indent('.')
-		:    let l:other = line('.') - 1
-		:    while indent(l:other) >= l:indent
-		:      if l:other == 1
-		:        return a:in
-		:      endif
-		:      let l:other -= 1
-		:    endwhile
-		:    let l:diff = l:indent - indent(l:other)
-		:    call setline('.', l:line[l:diff:])
-		:    return repeat("\<left>", l:diff)
-		:  endif
-		:  if l:line =~ '^\s*'.join(l:allowable_starts, '\|^\s*').'$'
-		:    return a:in.l:clean[:stridx(l:clean, " ")]
-		:  endif
-		:  if l:line =~ '^\d\+[\.)]\s*$'
-		:    return "\<esc>^C"
-		:  elseif l:line =~ '^\d\+. '
-		:    return a:in.(l:line + 1).'. '
-		:  elseif l:line =~ '^\d\+) '
-		:    return a:in.(l:line + 1).') '
+		:    call setline('.', '')
+		:    return ""
+		:  elseif l:left =~ '^\s*'.join(l:allowable_starts, '\s*$\|^\s*').'\s*$'
+		:    return MDUnindent()
+		:  elseif l:line =~ '^\s*'.join(l:allowable_starts, '\s*\|^\s*').'\s*'
+		:    echom l:start
+		:    call append('.', l:start . ' ')
+		:    return "\<down>\<right>"
+		:  elseif l:line =~ '^\d\+[\.)]\s*$'
+		:    call setline('.', '')
+		:    return ""
+		:  elseif l:left =~ '^\s*\d\+[\.)]\s*$'
+		:    return MDUnindent()
+		:  elseif l:line =~ '^\d\+[\.)]'
+		:    let l:char = substitute(l:line, '^\d\+\([\.)] \).*', '\1', '')
+		:    call append('.', l:line + 1 . l:char)
+		:    return "\<down>\<right>"
 		:  endif
 		:  return a:in
+		:endfunction
+		" }}}
+
+		:function! MDUnindent()
+		"  {{{
+		:  let l:indent = indent('.')
+		:  let l:other = line('.') - 1
+		:  while indent(l:other) >= l:indent && l:other > 1
+		:    let l:other -= 1
+		:  endwhile
+		:  let l:diff = l:indent - indent(l:other)
+		:  call setline('.', getline('.')[l:diff:])
+		:  return repeat("\<left>", l:diff)
 		:endfunction
 		" }}}
 
@@ -810,12 +816,10 @@
 
 		:function! MDPreview()
 		" {{{
-		:  if executable("grip") && !has('win32')
-		:    write
-		:    call System('grip ' . expand('%') . ' > /dev/null 2>/dev/null &')
-		:    call System('xdg-open http://localhost:6419 > /dev/null 2>/dev/null &')
-		:    autocmd VimLeave * :call System("pkill grip")
-		:  endif
+		:  autocmd! BufWritePost <buffer> call Compile()
+		:  write
+		:  let l:filename = substitute(expand("%"), "\.md$", ".pdf", "")
+		:  call System('xdg-open '. l:filename. ' >/dev/null 2>/dev/null &')
 		:endfunction
 		" }}}
 
