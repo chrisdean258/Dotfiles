@@ -512,6 +512,8 @@
 	:autocmd Filetype markdown :cabbrev markdown call NotesMDFormat()
 	:autocmd FileType markdown :command! Preview call MDPreview()
 	:autocmd FileType markdown :setlocal filetype=rmd
+	:autocmd FileType markdown :setlocal expandtab
+	:autocmd FileType markdown :setlocal tabstop=4
 	:augroup END
 	" }}}
 
@@ -782,17 +784,18 @@
 		"  {{{
 		:  let l:allowable_starts = [ '>', '\*', '-', '+', '|' , '\d\+.', '\d\+)' ]
 		:  let l:linenum = line('.') - 1
-		:  if linenum == 1
+		:  if l:linenum == 1
 		:    return a:default
 		:  endif
-		:  let lineabove = Text(linenum)
+		:  let lineabove = Text(l:linenum)
 		:  let line = TextBeforeCursor()
 		:  for starting in allowable_starts
 		:    if line =~ '^\s*' . starting .'\s*$'
-		:      let l:window = winsaveview()
-		:      let l:repeat =  stridx(l:lineabove, " ") + 1
+		:      let l:repeat = &tabstop
+		:      if &filetype != "rmd"
+		:        let l:repeat =  stridx(l:lineabove, " ") + 1
+		:      endif
 		:      call setline('.', repeat(" ", l:repeat) . getline('.'))
-		:      call winrestview(l:window)
 		:      return repeat("\<right>", l:repeat)
 		:    endif
 		:  endfor
@@ -1385,7 +1388,6 @@
 		
 		:function! BufEnter()
 		" {{{
-		: 
 		:endfunction
 		" }}}
 

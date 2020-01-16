@@ -4,6 +4,7 @@ import sys
 import os
 from pdfrw import PdfReader
 from glob import glob
+from sh import pdfhead
 
 
 def title(t):
@@ -13,7 +14,7 @@ def title(t):
 
 
 def filename(string):
-    return string.replace(" ", "_") + ".pdf"
+    return string.strip().replace(" ", "_") + ".pdf"
 
 
 def main(argv):
@@ -33,11 +34,8 @@ def main(argv):
         paper_title = None
         if pdf.Info.Title:
             paper_title = title(pdf.Info.Title)
-        if interactive:
-            print(pdf.Info)
-            page = pdf.pages[0]
-            print(page.extractText)
-            paper_title = input("title: ")
+        if not paper_title:
+            paper_title = pdfhead(fn, n=1)
         if paper_title:
             new_fn = filename(paper_title)
             print(fn, "-->", new_fn)
