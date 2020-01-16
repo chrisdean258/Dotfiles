@@ -30,5 +30,5 @@ for f in files:
         pass
     os.symlink(myfile, link)
     if verbose:
-        print(f"{link} -> {myfile}")
+        print(link, "->", myfile)
 
