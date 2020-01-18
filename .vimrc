@@ -288,7 +288,7 @@
 
 	" Quitting cause Im bad at typing
 	:cabbrev W <C-R>=CommandLineStart(":", "w", "W")<CR>
-	" :cabbrev Q <C-R>=CommandLineStart(":", "q", "Q")<CR>
+	:cabbrev Q <C-R>=CommandLineStart(":", "q", "Q")<CR>
 	:cabbrev Wq <C-R>=CommandLineStart(":", "wq", "Wq")<CR>
 	:cabbrev WQ <C-R>=CommandLineStart(":", "wq", "WQ")<CR>
 
@@ -315,7 +315,6 @@
 	:command! Style :call PythonStyle()
 	:command! Compile :call Compile()
 	:command! Template :call NewFile()
-	:command! Q :call Background()
 
 " }}}
 
@@ -1510,11 +1509,13 @@
 		:endfunction
 		" }}}
 		
-		:function! Background()
+		:function! Background(write)
 		"{{{
 		:  let l:save = &swapfile
 		:  set noswapfile
-		:  write
+		:  if a:write
+		:    write
+		:  endif
 		:  suspend
 		:  let &swapfile = l:save
 		:endfunction
@@ -1705,6 +1706,15 @@
 	:    autocmd VimEnter * :call Update_Vimrc()
 	:  augroup END
 	:  endif
+	:endif
+
+	:if get(g:, "suspend_on_quit")
+	:  cunabbrev Q
+	:  cunabbrev WQ
+	:  cunabbrev Wq
+	:  cabbrev Wq WQ
+	:  command! WQ :call Background(1)
+	:  command! Q  :call Background(0)
 	:endif
 
 " }}}
