@@ -1,0 +1,19 @@
+#!/bin/sh
+
+usage(){
+	echo "Usage: device-toggle [touchpad|touchscreen]"
+}
+
+if echo "touchpad" | grep -q "$1"; then
+	query="Touchpad"
+elif echo "touchscreen" | grep -q "$1"; then 
+	query="Finger touch"
+else
+	usage
+	exit 1
+fi
+
+device=$(xinput | grep "$query" | sed "s/.*=\([0-9]*\).*/\1/")
+
+xinput list-props "$device" | grep "Device Enabled" | awk '{ print 1-$NF }' | xargs xinput set-prop "$device" "Device Enabled"
+

@@ -2,8 +2,9 @@
 
 
 complete -d cd
-complete -f -X "!*.pdf" pdf-title
-complete -f -X "!*.pdf" pdfhead
+complete -o bashdefault -f -X "!*.pdf" pdf-title
+complete -o bashdefault -f -X "!*.pdf" pdfhead
+complete -o bashdefault -f -X "!*.pdf" print-paper
 
 __complete_vim()
 {
