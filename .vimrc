@@ -288,7 +288,7 @@
 
 	" Quitting cause Im bad at typing
 	:cabbrev W <C-R>=CommandLineStart(":", "w", "W")<CR>
-	:cabbrev Q <C-R>=CommandLineStart(":", "q", "Q")<CR>
+	" :cabbrev Q <C-R>=CommandLineStart(":", "q", "Q")<CR>
 	:cabbrev Wq <C-R>=CommandLineStart(":", "wq", "Wq")<CR>
 	:cabbrev WQ <C-R>=CommandLineStart(":", "wq", "WQ")<CR>
 
@@ -315,6 +315,7 @@
 	:command! Style :call PythonStyle()
 	:command! Compile :call Compile()
 	:command! Template :call NewFile()
+	:command! Q :call Background()
 
 " }}}
 
@@ -1508,6 +1509,17 @@
 		:  normal! gf
 		:endfunction
 		" }}}
+		
+		:function! Background()
+		"{{{
+		:  let l:save = &swapfile
+		:  set noswapfile
+		:  write
+		:  suspend
+		:  let &swapfile = l:save
+		:endfunction
+		" }}}
+
 	" }}}
 
 " }}}
