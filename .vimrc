@@ -511,7 +511,8 @@
 	:endif
 	:autocmd Filetype markdown :cabbrev markdown call NotesMDFormat()
 	:autocmd FileType markdown :command! Preview call MDPreview()
-	:autocmd FileType markdown :setlocal filetype=rmd
+	:autocmd FileType markdown :autocmd InsertLeave <buffer> :call CheckMD()
+	:autocmd FileType markdown :call CheckMD()
 	:autocmd FileType markdown :setlocal expandtab
 	:autocmd FileType markdown :setlocal tabstop=4
 	:augroup END
@@ -836,6 +837,17 @@
 		:endfunction
 		" }}}
 
+		:function! CheckMD()
+		" {{{
+		:  if toupper(expand("%")) =~ "README"
+		:    return
+		:  endif
+		:  let l:text = join(getline('.', '$'))
+		:  if l:text =~ '\$'
+		:    set ft=rmd
+		:  endif
+		:endfunction
+		" }}}
 	" }}}
 
 	" Latex
