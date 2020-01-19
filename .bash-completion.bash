@@ -79,3 +79,18 @@ __complete_ssh()
 }
 complete -o bashdefault -o default -o nospace -F __complete_ssh ssh
 complete -o bashdefault -o default -o nospace -F __complete_ssh scp
+
+__complete_vim()
+{
+	local cur
+	local words
+
+	cur=${COMP_WORDS[COMP_CWORD]}	
+
+	words="$(grep -o "^.*:" | sed "s/:$//g")"
+	COMPREPLY=( $(compgen -W "$words" -- "$cur" ) )
+
+	return 0
+}
+
+complete -o bashdefault -o default -o nospace -F __complete_vim vim
