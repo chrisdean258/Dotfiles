@@ -76,7 +76,7 @@ prompt_command()
 {
 	rv_save=$?
 	return_val=$([ $rv_save -ne 0 ] && echo -n "$P_RED[$rv_save]$P_CLEAR ")
-	battery=$(command -v low-battery &> /dev/null && low_battery && echo -en "$P_RED[Low Battery] $P_CLEAR")
+	battery=$(command -v low-battery &> /dev/null && low-battery && echo -en "$P_RED[Low Battery] $P_CLEAR")
 	git_branch=""
 	if git rev-parse --abbrev-ref HEAD >/dev/null 2>&1; then
 		git_branch=$(echo -en " $P_GREEN($(git rev-parse --abbrev-ref HEAD | tr -d "\n\f")$(timeout 0.5s git status 2>/dev/null | grep -q clean || echo "*"))$P_CLEAR")
