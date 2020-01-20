@@ -41,7 +41,8 @@ if [ $# -eq 0 ]; then
 	if [ -x /usr/bin/xfce4-power-manager ] ; then
 		xfce4-power-manager &
 	fi
-	sleep 1 && monitor detect &
+	/usr/lib/notification-daemon/notification-daemon &
+	monitor detect &
 	feh --bg-scale ~/Documents/background-black.png
 	exec dwm &> ~/.xsession-errors
 	echo "DWM failed to start" > ~/dwm.error
