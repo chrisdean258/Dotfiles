@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-import imaplib
-import email
-import os
 import csv
-import tempfile
+import email
+import imaplib
+import os
 import re
+import sys
+import tempfile
 from datetime import datetime
 from getpass import getpass
 from sh import git
@@ -100,6 +101,9 @@ class Activity:
 
 def get_new_activities():
     # Login
+    if len(sys.argv) == 2 and sys.argv:
+        with open(sys.argv[1], "r") as f:
+            return f.readlines()
     con = imaplib.IMAP4_SSL("imap.gmail.com", 993)
     con.login("chrisdean258@gmail.com", os.environ.get("email_") or getpass())
 
@@ -114,7 +118,7 @@ def get_new_activities():
     # Read email and return resulting activities
     mail = email.message_from_bytes(data[0][1])
     body = mail.get_payload(None, True).decode('utf-8')
-    return body.split("\r\n")
+    return body.splitlines()
 
 
 def main():
