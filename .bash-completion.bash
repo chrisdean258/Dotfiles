@@ -80,17 +80,17 @@ __complete_ssh()
 complete -o bashdefault -o default -o nospace -F __complete_ssh ssh
 complete -o bashdefault -o default -o nospace -F __complete_ssh scp
 
-__complete_vim()
+__complete_make()
 {
 	local cur
 	local words
 
 	cur=${COMP_WORDS[COMP_CWORD]}	
 
-	words="$(grep -o "^.*:" | sed "s/:$//g")"
+	words="$(cat *akefile | grep -o "^[a-zA-Z0-9_\-]*:" | sed "s/:$//g")"
 	COMPREPLY=( $(compgen -W "$words" -- "$cur" ) )
 
 	return 0
 }
 
-complete -o bashdefault -o default -o nospace -F __complete_vim vim
+complete -o bashdefault -o default -o nospace -F __complete_make make
