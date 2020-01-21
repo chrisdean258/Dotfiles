@@ -9,6 +9,7 @@ while true; do
 		width=$(echo $battery_num | awk '{ print 3*int(($1+5)/10) }')
 		other=$(echo $battery_num | awk '{ print 10-int(($1+5)/10) }')
 		battery="$(printf "%.*s%*s" $width ░░░░░░░░░░ $other "")"
+		battery_msg="$(acpi | grep -o "[0-9][0-9]:[0-9][0-9]:[0-9][0-9]")"
 		network=
 		nettype=$(nmcli --terse device | cut -d : -f 2 | head -n 1)
 		[ "$nettype" = "wifi" ] && network=$(nmcli --terse device wifi | grep "^\*" | cut -d : -f 2)
@@ -26,7 +27,7 @@ while true; do
 		[ -n "$network" ] && network="$network (${netspeed})"
 		time=$(date +"%F %I:%M %p")
 
-		name="$(printf %100s "") [$battery] ${battery_num}% | ${network:-No Network} | $time "
+		name="$(printf %100s "") [$battery] ${battery_num}% ($battery_msg) | ${network:-No Network} | $time "
 
 		xsetroot -name "$name"
 		[ "$counter" -ne 0 ] && sleep 10
