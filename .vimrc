@@ -744,7 +744,7 @@
 		:  let l:allowable_starts = [ '>', '\*', '-', '+', ]
 		:  let l:line = getline('.')
 		:  let l:left = LineBeforeCursor()
-		:  let l:start = substitute(l:line, '^\s*\(.\{-}\)\s.*', '\1', '')
+		:  let l:start = substitute(l:line, '^\(\s*.\{-}\)\s.*', '\1', '')
 		:  if l:line =~ '^'.join(l:allowable_starts, '\s*$\|^').'\s*$'
 		:    call setline('.', '')
 		:    return ""
