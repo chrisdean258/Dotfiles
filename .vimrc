@@ -131,7 +131,7 @@
 	" Some of this stuff has to do with my research like anything to do with eo
 	:let g:syntastic_check_on_wq = 0
 	:let g:syntastic_cpp_compiler = "g++"
-	:let g:syntastic_cpp_compiler_options = "-std=c++98 -Wall"
+	" :let g:syntastic_cpp_compiler_options = "-std=c++98 -Wall"
 	:let g:syntastic_cpp_include_dirs = [ "../../include",  "../include", "include", ".", $HOME."/include"]
 
 	" Linting python
