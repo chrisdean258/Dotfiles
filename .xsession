@@ -27,7 +27,7 @@ while true; do
 		[ -n "$network" ] && network="$network (${netspeed})"
 		time=$(date +"%F %I:%M %p")
 
-		name="$(printf %100s "") [$battery] ${battery_num}% ($battery_msg) | ${network:-No Network} | $time "
+		name="$(printf %100s "") [$battery] ${battery_num}% ${battery_msg:+($battery_msg) }| ${network:-No Network} | $time "
 
 		xsetroot -name "$name"
 		[ "$counter" -ne 0 ] && sleep 10
