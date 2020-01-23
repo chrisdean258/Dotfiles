@@ -19,12 +19,9 @@ def filename(string):
 
 def main(argv):
     move = False
-    interactive = False
     while argv and argv[0] in ("-m", "-i"):
         if argv[0] == "-m":
             move = True
-        if argv[0] == "-i":
-            interactive = True
         argv = argv[1:]
 
     files = argv or glob("*.pdf")
@@ -38,9 +35,10 @@ def main(argv):
             paper_title = pdfhead(fn, n=1)
         if paper_title:
             new_fn = filename(paper_title)
-            print(fn, "-->", new_fn)
-            if move:
-                os.rename(fn, new_fn)
+            if fn != new_fn:
+                print(fn, "-->", new_fn)
+                if move:
+                    os.rename(fn, new_fn)
 
 
 if __name__ == "__main__":
