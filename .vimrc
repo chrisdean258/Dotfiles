@@ -271,7 +271,7 @@
 	:nnoremap <leader><space> g<c-g>
 
 	" Opening files
-	:nnoremap gf :call Open(expand("<cfile>"))<CR>
+	" :nnoremap gf :call Open(expand("<cfile>"))<CR>
 
 	:inoremap gqq <esc>gqqA
 	:nnoremap VJ Vj
