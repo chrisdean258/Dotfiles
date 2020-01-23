@@ -1,6 +1,6 @@
 #!/bin/bash
 
-BATTINFO=`acpi -b`
+BATTINFO=`acpi -b 2>/dev/null`
 if [[ `echo $BATTINFO | grep Discharging` && `echo $BATTINFO | cut -f 5 -d " "` < 00:30:00 ]] ; then
 	exit 0
 fi
