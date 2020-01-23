@@ -15,7 +15,7 @@ class Activity:
     header = ["start", "end", "location", "category", "activity", "people"]
     categories = ["Sleep", "Shower", "Travel", "TV", "Research", "Coding",
                   "Video Games", "Food", "Friends", "Reddit", "Youtube",
-                  "Shopping", "Class", "Podcast", "Wasted"]
+                  "Shopping", "Class", "Podcast", "Wasted", "Bean"]
 
     def as_list(self):
         return [self.start, self.end, self.location.strip(), self.category,
