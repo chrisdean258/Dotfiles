@@ -13,8 +13,7 @@ SCREENLAYOUTS = os.path.join(HOME, ".screenlayout")
 def getdisplays():
     Monitor = namedtuple(
         "Monitor",
-        ["name", "width", "height", "offx", "offy", "primary"]
-        )
+        ["name", "width", "height", "offx", "offy", "primary"])
     displays = {}
     monitors = [a.split() for a in xrandr().split("\n") if " connected" in a]
 
@@ -26,7 +25,8 @@ def getdisplays():
             primary = True
             loc = monitor[3]
 
-        width, height, offx, offy = loc.replace("x", "+").split("+")
+        loc = loc.replace("x", "+")
+        width, height, offx, offy, *rest = loc.split("+") + [0, 0]
         displays[name] = Monitor(name, width, height, offx, offy, primary)
 
     return displays
