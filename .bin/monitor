@@ -32,15 +32,21 @@ def getdisplays():
     return displays
 
 
+def _xrandr(*args, **kwargs):
+    call = xrandr.bake(*args, **kwargs)
+    print(call)
+    call()
+
+
 def extend(displays):
     if len(displays) == 0:
         arandr()
     if len(displays) == 1:
-        xrandr("--output", displays.popitem()[1].name, "--primary", "--auto")
+        _xrandr("--output", displays.popitem()[1].name, "--primary", "--auto")
     if len(displays) == 2:
         primary = [a for a in displays.values() if a.primary][0]
         second = [a for a in displays.values() if not a.primary][0]
-        xrandr("--output", second.name, "--auto", "--right-of",
+        _xrandr("--output", second.name, "--auto", "--right-of",
                primary.name, "--output", primary.name,
                "--primary", "--auto")
 
@@ -49,10 +55,10 @@ def mirror(displays):
     if len(displays) == 2:
         primary = [a for a in displays.values() if a.primary][0]
         second = [a for a in displays.values() if not a.primary][0]
-        xrandr("--output", second.name, "--auto", "--same-as",
+        _xrandr("--output", second.name, "--auto", "--same-as",
                primary.name, "--output", primary.name,
                "--primary", "--auto")
-        xrandr("--output", primary.name, "--mode",
+        _xrandr("--output", primary.name, "--mode",
                f"{second.width}x{second.height}")
 
 
