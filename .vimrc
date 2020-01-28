@@ -775,8 +775,9 @@
 		:    let l:other -= 1
 		:  endwhile
 		:  let l:diff = l:indent - indent(l:other)
+		:  call cursor('.', col('.')-l:diff)
 		:  call setline('.', getline('.')[l:diff:])
-		:  return repeat("\<left>", l:diff)
+		:  return ""
 		:endfunction
 		" }}}
 
