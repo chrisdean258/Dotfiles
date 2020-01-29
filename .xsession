@@ -44,7 +44,8 @@ if [ $# -eq 0 ]; then
 	fi
 	/usr/lib/notification-daemon/notification-daemon &
 	monitor detect &
-	feh --bg-scale ~/Documents/background-black.png
+	xset r rate 500 300 #Repeat rate
+	xsetroot -solid black
 	exec dwm &> ~/.xsession-errors
 	echo "DWM failed to start" > ~/dwm.error
 fi
