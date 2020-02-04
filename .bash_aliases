@@ -1,5 +1,4 @@
 #!/bin/bash
-alias bashrc=". ~/.bashrc"
 
 alias cd..="cd .."
 alias ..="cd .."
@@ -8,6 +7,7 @@ alias ll='ls -alF'
 alias la='ls -A'
 alias l='ls -CF'
 alias car="cat"
+alias matlab="matlab -nodesktop"
 
 exe() { [ -x "$(command -v "$1")" ]; }
 
