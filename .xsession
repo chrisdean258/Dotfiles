@@ -10,6 +10,14 @@ while true; do
 		other=$(echo $battery_num | awk '{ print 10-int(($1+5)/10) }')
 		battery="$(printf "%.*s%*s" $width ░░░░░░░░░░ $other "")"
 		battery_msg="$(acpi | grep -o "[0-9][0-9]:[0-9][0-9]:[0-9][0-9]")"
+
+		[ $battery_num -ge 90 ] && battery="$(echo -e "\x06$battery\x01")"
+		[ $battery_num -le 15 ] && battery="$(echo -e "\x05$battery\x01")"
+		if acpi | grep -q "\<[cC]harging\>"; then
+			battery_msg="$(echo -e "\x06$battery_msg\x01")"
+		elif [ $battery_num -le 15 ]; then
+			battery_msg="$(echo -e "\x05$battery_msg\x01")"
+		fi
 		network=
 		nettype=$(nmcli --terse device | cut -d : -f 2 | head -n 1)
 		[ "$nettype" = "wifi" ] && network=$(nmcli --terse device wifi | grep "^\*" | cut -d : -f 2)
