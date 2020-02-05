@@ -51,7 +51,6 @@
 	:set textwidth=0                         " Dont insert random newlines for us
 	:set pumheight=15                        " Only see 15 options on completion
 	:set shortmess+=atI                      " Make more messages short
-	:set ttyfast                             " Increase buffer before redraw
 	:set encoding=utf-8                      " use utf-8 everywhere
 	:set fileencoding=utf-8                  " use utf-8 everywhere
 	:set termencoding=utf-8                  " use utf-8 everywhere
@@ -102,10 +101,6 @@
 	:highlight spellrare None
 	:highlight spellcap None
 	:highlight spelllocal None
-
-	" Unhighlight the next two lines if you cant see your tabline
-	" :highlight tabline ctermfg=DarkGrey guifg=DarkGrey
-	" :highlight tablinesel ctermfg=Grey guifg=Grey
 
 " }}}
 
