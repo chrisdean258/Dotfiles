@@ -10,7 +10,6 @@ alias car="cat"
 alias matlab="matlab -nodesktop"
 
 exe() { [ -x "$(command -v "$1")" ]; }
-
 if exe dircolors; then
 	test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
 	alias ls='ls --color=auto --group-directories-first'
@@ -90,6 +89,7 @@ j()
 	else
 		grep -v "^$new_dir$" "$jmps" > "$HOME/tmp" 
 		mv "$HOME/tmp" "$jmps"
+		return 1
 	fi
 	return $?
 }

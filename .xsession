@@ -53,6 +53,6 @@ if [ $# -eq 0 ]; then
 	monitor detect &
 	xset r rate 500 300 #Repeat rate
 	xsetroot -solid black
-	exec dwm &> ~/.xsession-errors
+	exec dwm bash $0 &> ~/.xsession-errors
 	echo "DWM failed to start" > ~/dwm.error
 fi

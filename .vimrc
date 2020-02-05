@@ -296,6 +296,7 @@
 	:cabbrev S <C-R>=CommandLineStart(":", "%s", "S")<CR>
 	:cabbrev a <C-R>=CommandLineStart(":", "'a,.s", "a")<CR>
 	:cabbrev $$ <C-R>=CommandLineStart(":", ".,$s", "$$")<CR>
+	:cabbrev Q! <C-R>=CommandLineStart(":", "q!", "Q!")<CR>
 	" :cabbrev term term ++close ++rows=15
 
 	" Force writing
