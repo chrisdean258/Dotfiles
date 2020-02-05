@@ -2,7 +2,7 @@
 
 while true; do
 	rm -f ~/.xresetroot
-	xsetroot -name "$(python -c 'print " " * 1000')"
+	xsetroot -name "$(printf %1000s "")"
 	counter=0
 	while ! [ -f ~/.xresetroot ]; do
 		battery_num="$(upower --dump | awk '/percentage/ {print int($NF)}' | sort -n | tail -n 1)"
@@ -47,9 +47,8 @@ done &
 if [ $# -eq 0 ]; then
 	# xrdb -merge .Xresources
 	export PATH=$PATH:$HOME/.bin
-	if [ -x /usr/bin/xfce4-power-manager ] ; then
-		xfce4-power-manager &
-	fi
+	hostname | grep -q XPS && export GDK_SCALE=2
+	[ -x /usr/bin/xfce4-power-manager ] && xfce4-power-manager &
 	/usr/lib/notification-daemon/notification-daemon &
 	monitor detect &
 	xset r rate 500 300 #Repeat rate
