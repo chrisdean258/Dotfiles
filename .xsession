@@ -32,7 +32,7 @@ while true; do
 		elif [ "$counter" -eq 1 ]; then
 			netspeed="$(speedtest-cli --simple | awk 'BEGIN{RS="~"} {printf("%d/%d/%d", $5, $8, $2) }')"
 		fi
-		[ -n "$network" ] && network="$network (${netspeed})"
+		[ -n "$network" ] && network="$network (${netspeed:-No Access})"
 		time=$(date +"%F %I:%M %p")
 
 		name="$(printf %100s "") [$battery] ${battery_num}% ${battery_msg:+($battery_msg) }| ${network:-No Network} | $time "

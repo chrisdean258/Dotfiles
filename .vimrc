@@ -56,6 +56,9 @@
 	:set termencoding=utf-8                  " use utf-8 everywhere
 	:set cinoptions=(8,N-s,l1                " indent 8 for every open paren
 	:setlocal complete-=t                    " Turn off completion using tag files for all except c/c++ projects
+	:if getcwd() == expand("~")               " Turn off included file completion for home directory stuff
+	:  set complete-=i
+	:endif
 	:set matchpairs+=<:>                     " adding a matched pair for highlighting and wrapping
 
 	" Create needed folders for backups and undo files
@@ -326,10 +329,15 @@
 	:autocmd CursorHold *  :if get(g:, "hltimeout", 1) | set nohlsearch | endif " turn off search highlighting after a few seconds of nonuse
 	:autocmd InsertLeave * :setlocal nopaste            " Turn off paste when leaving insert mode
 	:autocmd BufReadPost * :if line("'\"") > 0 && line ("'\"") <= line("$") | exe "normal! g'\"" | endif " Jump to where you were in a file
-	:autocmd VimEnter *    :if getcwd() ==# $HOME | set complete-=it | endif
+	:autocmd VimEnter *    :if getcwd() ==# $HOME | set complete-=t | endif
 	:autocmd VimEnter *    :if &commentstring == '/*%s*/' | setlocal commentstring=/*\ %s\ */ | endif
 	:autocmd VimEnter *    :if &commentstring == '#%s' | setlocal commentstring=#\ %s | endif
 	:autocmd SwapExists *  :call SwapExists()
+	:autocmd WinEnter *    :call WinEnter()
+	:autocmd WinLeave *    :call WinLeave()
+	" :autocmd WinCreate *      :call WinNew()
+	:autocmd BufEnter *    :call BufEnter()
+	:autocmd BufLeave *    :call BufLeave()
 	:autocmd BufNew *.tex  :setlocal filetype=tex
 	:autocmd BufRead *.tex :setlocal filetype=tex
 	:autocmd BufNewFile *  :call NewFile()
@@ -664,10 +672,40 @@
 
 		:function! EndTagHTML()
 		" {{{
-		:  if LineAfterCursor() =~ '^\s*$'
+		:  let l:window = winsaveview()
+		:  execute "normal! a".GetEndTagHTML()
+		:  call winrestview(l:window)
+		:endfunction
+		" }}}
+
+		:function! MatchHTMLTagPre()
+		" {{{
+		:  let l:linebefore = TextBeforeCursor()
+		:  let l:lineafter = TextFromCursor()
+		:  if (l:linebefore =~ '</[^>]*$' && l:lineafter =~ '^[^<]*>')
+		   || (l:linebefore =~ '<[^>]*$' && l:lineafter =~ '^/[^<]*>')
+		   || (l:lineafter =~ '^</[^<]*>')
 		:    let l:window = winsaveview()
-		:    execute "normal! a".GetEndTagHTML()
+		:    normal! vat
+		:    normal! `<
+		:    let s:match_tag = winsaveview()
 		:    call winrestview(l:window)
+		:  elseif (l:linebefore =~ '<[^>]*$' && l:lineafter =~ '^[^<]*>')
+		   || (l:lineafter =~ '^<[^<]*>')
+		:    let l:window = winsaveview()
+		:    normal! vat
+		:    let s:match_tag = winsaveview()
+		:    call winrestview(l:window)
+		:  else
+		:    let s:match = {}
+		:  endif
+		:endfunction
+		" }}}
+
+		:function! MatchHTMLTagPost()
+		" {{{
+		:  let s:match = get(s:, "match", {})
+		:  if len(s:match) > 0
 		:  endif
 		:endfunction
 		" }}}
@@ -685,6 +723,9 @@
 
 		:function! HTMLPreview()
 		" {{{
+		:  let l:refresh = '<meta http-equiv="refresh" content="1">'
+		:  execute ':g/'.l:refresh.'/d'
+		:  execute ':g/<head>/normal! o'.l:refresh
 		:  write
 		:  silent !xdg-open % >/dev/null 2>/dev/null &
 		:endfunction
@@ -705,7 +746,7 @@
 		:    return ""
 		:  elseif l:left =~ '^\s*'.join(l:allowable_starts, '\s*$\|^\s*').'\s*$'
 		:    return MDUnindent()
-		:  elseif l:line =~ '^\s*'.join(l:allowable_starts, '\s\|^\s*').'\s' && TextAfterCursor() == ""
+		:  elseif l:line =~ '^\s*'.join(l:allowable_starts, '\s\|^\s*').'\s'
 		:    call append('.', l:start . ' ')
 		:    return "\<down>\<right>"
 		:  elseif l:line =~ '^\d\+[\.)]\s*$'
@@ -713,10 +754,9 @@
 		:    return ""
 		:  elseif l:left =~ '^\s*\d\+[\.)]\s*$'
 		:    return MDUnindent()
-		:  elseif l:line =~ '^\s*\d\+[\.)]' && TextAfterCursor() == ""
-		:    let l:char = substitute(l:line, '^\s*\d\+\([\.)] \).*', '\1', '')
-		:    let l:nextnum = l:line[indent('.'):] + 1
-		:    call append('.', repeat(" ", indent('.')) . l:nextnum . l:char)
+		:  elseif l:line =~ '^\d\+[\.)]'
+		:    let l:char = substitute(l:line, '^\d\+\([\.)] \).*', '\1', '')
+		:    call append('.', l:line + 1 . l:char)
 		:    return "\<down>\<right>"
 		:  endif
 		:  return a:in
@@ -739,15 +779,15 @@
 
 		:function! MDTab(default)
 		"  {{{
-		:  let l:allowable_starts = [ '>', '\*', '-', '+', '|' , '\d\+\.', '\d\+)' ]
+		:  let l:allowable_starts = [ '>', '\*', '-', '+', '|' , '\d\+.', '\d\+)' ]
 		:  let l:linenum = line('.') - 1
-		:  if l:linenum <= 0
+		:  if l:linenum == 1
 		:    return a:default
 		:  endif
 		:  let lineabove = Text(l:linenum)
-		:  let l:line = TextBeforeCursor()
-		:  for starting in l:allowable_starts
-		:    if l:line =~ '^\s*' . starting .'\s*$'
+		:  let line = TextBeforeCursor()
+		:  for starting in allowable_starts
+		:    if line =~ '^\s*' . starting .'\s*$'
 		:      let l:repeat = &tabstop
 		:      if &filetype != "rmd"
 		:        let l:repeat =  stridx(l:lineabove, " ") + 1
@@ -757,6 +797,21 @@
 		:    endif
 		:  endfor
 		:  return a:default
+		:endfunction
+		" }}}
+
+		:function! NotesMDFormat()
+		" {{{
+		" The \{-} is the non greedy version of *
+		" Honestly there should be a *? but that who am I to judge
+		:  let l:window = winsaveview()
+		:  %s/__\(.\{-}\)__/<u>\1<\/u>/ge
+		:  %s/_\(.\{-}\)_\^\(.\{-}\)\^/<sup>\2<\/sup><sub style='position: relative; left: -.5em;'>\1<\/sub> /ge
+		:  %s/\^\(.\{-}\)\^_\(.\{-}\)_/<sup>\1<\/sup><sub style='position: relative; left: -.5em;'>\2<\/sub> /ge
+		:  %s/_\(.\{-}\)_/<sub>\1<\/sub>/ge
+		:  %s/\^\(.\{-}\)\^/<sup>\1<\/sup>/ge
+		:  call winrestview(l:window)
+		:  nohlsearch
 		:endfunction
 		" }}}
 
@@ -961,19 +1016,19 @@
 		:  let l:match0   = SplitIf_Match(0)
 		:  let l:match01  = SplitIf_Match(0, 1)
 		:  let l:matchm10 = SplitIf_Match(-1, 0)
-		:  if l:match0 == 1
-		:    execute "normal! 0f(%l"
-		:  elseif l:match01 == 1
-		:    execute "normal! J"
-		:  elseif l:matchm10 == 1
-		:    execute "normal! kJ"
-		:  elseif l:match0 == 2
+		:  if l:match0 == 2
 		:    execute "normal! 0feel"
 		:    call SplitIf_Internal()
 		:  elseif l:match01 == 2
 		:    execute "normal! j0feel"
 		:  elseif l:matchm10 == 2
 		:    execute "normal! kj0feel"
+		:  elseif l:match0
+		:    execute "normal! 0f(%l"
+		:  elseif l:match01
+		:    execute "normal! J"
+		:  elseif l:matchm10
+		:    execute "normal! kJ"
 		:  endif
 		:  if l:matchm10 || l:match0 || l:match01
 		:    call SplitIf_Internal()
@@ -997,8 +1052,8 @@
 
 		:function! SplitIf_Match(...)
 		" {{{
-		:  let l:regex = '^\s*\(else\s\+if\|if\|for\|while\)\s*(.*)\+[^)].*;\s*$'
-		:  let l:elseregex = '^\s*else.*;'
+		:  let l:regex = '^\s*\(if\|for\|while\)\s*(.*)\+[^)].*;\s*$'
+		:  let l:elseregex = '^\s*else\s.\+'
 		:  let l:line = ""
 		:  let l:base = line('.')
 		:  for value in a:000
@@ -1008,10 +1063,10 @@
 		:    endif
 		:    let l:line .= getline(l:linenum)
 		:  endfor
-		:  if l:line =~ l:regex
-		:    return 1
+		:  if l:line =~ l:elseregex
+		:    return 2
 		:  endif
-		:  return (l:line =~ l:elseregex) * 2
+		:  return l:line =~ l:regex
 		:endfunction
 		" }}}
 
@@ -1310,6 +1365,40 @@
 		:endfunction
 		" }}}
 
+		:function! Scanf(input, format)
+		" {{{
+		" Escape a bunch of characters
+		:  l:input = escape(a:input, '/\[].*')
+		:  l:input = substitute(l:input, "%s", '\([^\S]*\)', "g")
+		:  l:input = substitute(l:input, "%d", '\(-{0,1}\d\+\)', "g")
+		:endfunction
+		" }}}
+
+		:function! WinEnter()
+		" {{{
+		:endfunction
+		" }}}
+
+		:function! WinLeave()
+		" {{{
+		:endfunction
+		" }}}
+
+		:function! WinNew()
+		" {{{
+		:endfunction
+		" }}}
+		 
+		:function! BufLeave()
+		" {{{
+		:endfunction
+		" }}}
+		
+		:function! BufEnter()
+		" {{{
+		:endfunction
+		" }}}
+
 		:function! NewFile()
 		" {{{
 		:  let l:fn = &filetype
@@ -1428,7 +1517,114 @@
 		:endfunction
 		" }}}
 		
+		:function! Background(write)
+		"{{{
+		:  let l:save = &swapfile
+		:  set noswapfile
+		:  if a:write
+		:    write
+		:  endif
+		:  suspend
+		:  let &swapfile = l:save
+		:endfunction
+		" }}}
+
 	" }}}
+
+" }}}
+
+" VIMRC SOURCING {{{
+"_______________________________________________________________________________________________________
+	
+	:function! UpwardVimrcSource()
+	:  let l:dir = getcwd()
+	:  while l:dir =~ "\/" && l:dir != $HOME
+	:    if filereadable(l:dir . "/.vimrc")
+	:      execute "source " . l:dir . "/.vimrc"
+	:    endif
+	:    let l:dir = fnamemodify(l:dir, ":p:h:h")
+	:  endwhile
+	:endfunction
+
+" }}}
+
+" DEV {{{
+"_______________________________________________________________________________________________________
+
+:if get(g:, "dev") && !has('win32')
+
+		:function! WinEnter()
+		" {{{
+		:  if !get(g:, 'buffcmds', 1)
+		:    return
+		:  endif
+		:  exec (&columns / 20).'wincmd >'
+		:  exec (&lines / 20).'wincmd +'
+		:  if get(b:, 'relativenumber', &relativenumber)
+		:    setlocal relativenumber
+		:  endif
+		:endfunction
+		" }}}
+
+		:function! WinLeave()
+		" {{{
+		:  if !get(g:, 'buffcmds', 1)
+		:    return
+		:  endif
+		:  exec (&columns / 20).'wincmd <'
+		:  exec (&lines / 20).'wincmd -'
+		:  if bufname("%") =~ "^!"
+		:    exec 'resize '.(winline() / 10 + 10)
+		:    echo "hi"
+		:  endif
+		:  let b:relativenumber = &relativenumber
+		:  setlocal norelativenumber
+		:endfunction
+		" }}}
+
+		:function! WinNew()
+		" {{{
+		:  if bufname("%") =~ "^!"
+		:    exec 'resize '.(winline() / 10 + 10)
+		:  endif
+		:endfunction
+		" }}}
+
+		:function! BufLeave()
+		" {{{
+		: 
+		:endfunction
+		" }}}
+
+		:function! BufEnter()
+		" {{{
+		:  if exists("*getwininfo") && len(getwininfo()) == 1 && bufname("%") =~ '^!'
+		:    q!
+		:  endif
+		:endfunction
+		" }}}
+
+		:function! BackGroundPython()
+		" {{{
+		:  let g:python_proc_directory = get(g:, "python_proc_directory", "")
+		:  if g:python_proc_directory == ""
+		:    let l:python_cmd = '-ic ''import sys; sys.ps1, sys.ps2 = "", ""'' '
+		:    let l:python = 'python3 '
+		:    if getline(1) =~ "python$"
+		:      let l:python = "python"
+		:    endif
+		:    let g:python_proc_directory = System("mktemp -d vim-python.XXXXXXXXXX")
+		:    let g:python_input_pipe = g:python_proc_directory . '/input'
+		:    let g:python_output_pipe = g:python_proc_directory . '/output'
+		:    call System("mknod p ".g:python_input_pipe)
+		:    call System("mknod p ".g:python_output_pipe)
+		:    call System(l:python . l:python_cmd . " < " . g:python_input_pipe . " > " . g:python_output_pipe)
+		:    autocmd VimLeave * :call System("rm -rf ". g:python_proc_directory)
+		:    vnoremap <leader>py execute ":'<'>w " .g:python_input_pipe \| execute "sp " . g:python_output_pipe
+		:  endif
+		:endfunction
+		" }}}
+:endif
 
 " }}}
 
@@ -1459,7 +1655,7 @@
 	:endfunction
 	" }}}
 
-	:command! Update :call Update_Vimrc(1)
+	:command! Update call Update_Vimrc(1)
 
 	:if filereadable(expand("~") . "/.vimrc.local")
 	:  source ~/.vimrc.local
@@ -1490,6 +1686,10 @@
 	:  call HardMode()
 	:endif
 
+	:if get(g:, "source2home", 0)
+	:  call UpwardVimrcSource()
+	:endif
+
 	:if get(g:, "format_text", 0)
 	:  autocmd FileType text :setlocal textwidth=80
 	:endif
@@ -1514,6 +1714,15 @@
 	:    autocmd VimEnter * :call Update_Vimrc()
 	:  augroup END
 	:  endif
+	:endif
+
+	:if get(g:, "suspend_on_quit")
+	:  cunabbrev Q
+	:  cunabbrev WQ
+	:  cunabbrev Wq
+	:  cabbrev Wq WQ
+	:  command! WQ :call Background(1)
+	:  command! Q  :call Background(0)
 	:endif
 
 " }}}

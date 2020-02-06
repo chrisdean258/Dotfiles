@@ -7,7 +7,7 @@ alias ll='ls -alF'
 alias la='ls -A'
 alias l='ls -CF'
 alias car="cat"
-alias matlab="matlab -nodesktop"
+alias matlab="matlab -nodesktop -nosplash"
 
 exe() { [ -x "$(command -v "$1")" ]; }
 if exe dircolors; then
