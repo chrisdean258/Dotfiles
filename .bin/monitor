@@ -1,35 +1,30 @@
 #!/usr/bin/env python3
 import sys
-import os
-# import re
-from collections import namedtuple
-from sh import arandr, xrandr, dmenu, ls, sh
-
-dmenu = dmenu.bake("-i")
-HOME = os.environ["HOME"]
-SCREENLAYOUTS = os.path.join(HOME, ".screenlayout")
+from sh import arandr, xrandr
 
 
-def getdisplays():
-    Monitor = namedtuple(
-        "Monitor",
-        ["name", "width", "height", "offx", "offy", "primary"])
-    displays = {}
-    monitors = [a.split() for a in xrandr().split("\n") if " connected" in a]
+class Monitor:
+    def __init__(self, name, width, height, offx, offy, primary):
+        self.__dict__.update(locals())
 
-    for monitor in monitors:
-        name = monitor[0]
+    @staticmethod
+    def getdisplays():
+        lines = [line for line in xrandr().split("\n") if " connected" in line]
+        return [Monitor.xrandr_parse_display(a) for a in lines]
+
+    @classmethod
+    def xrandr_parse_display(cls, line):
+        fields = line.split()
+        name = fields[0]
         primary = False
-        loc = monitor[2]
-        if monitor[2] == "primary":
+        loc = fields[2]
+        if fields[2] == "primary":
             primary = True
-            loc = monitor[3]
+            loc = fields[3]
 
         loc = loc.replace("x", "+")
         width, height, offx, offy, *rest = loc.split("+") + [0, 0]
-        displays[name] = Monitor(name, width, height, offx, offy, primary)
-
-    return displays
+        return cls(name, width, height, offx, offy, primary)
 
 
 def _xrandr(*args, **kwargs):
@@ -39,16 +34,15 @@ def _xrandr(*args, **kwargs):
 
 
 def extend(displays):
-    if len(displays) == 0:
-        arandr()
     if len(displays) == 1:
-        _xrandr("--output", displays.popitem()[1].name, "--primary", "--auto")
+        _xrandr("--output", displays[0].name, "--primary", "--auto")
     if len(displays) == 2:
-        primary = [a for a in displays.values() if a.primary][0]
+        primary = [a for a in displays if a.primary][0]
         second = [a for a in displays.values() if not a.primary][0]
+
         _xrandr("--output", second.name, "--auto", "--right-of",
-               primary.name, "--output", primary.name,
-               "--primary", "--auto")
+                primary.name, "--output", primary.name,
+                "--primary", "--auto")
 
 
 def mirror(displays):
@@ -56,38 +50,20 @@ def mirror(displays):
         primary = [a for a in displays.values() if a.primary][0]
         second = [a for a in displays.values() if not a.primary][0]
         _xrandr("--output", second.name, "--auto", "--same-as",
-               primary.name, "--output", primary.name,
-               "--primary", "--auto")
+                primary.name, "--output", primary.name,
+                "--primary", "--auto")
         _xrandr("--output", primary.name, "--mode",
-               f"{second.width}x{second.height}")
-
-
-def default(displays):
-    scripts = ls(SCREENLAYOUTS).split("\n")
-    scripts = [a for a in scripts if a != '']
-    if "HDMI1" in displays or "HDMI-1" in displays:
-        scripts.remove("two.sh")
-        scripts = ["two.sh"] + scripts
-    choice = dmenu(_in="\n".join(scripts))
-    if choice not in scripts:
-        sys.exit(1)
-    sh(os.path.join(SCREENLAYOUTS, choice))
+                f"{second.width}x{second.height}")
 
 
 def main(argv):
-    displays = getdisplays()
-    if len(argv) == 1:
-        default(displays)
-    elif argv[1] in ("detect", "extend"):
+    displays = Monitor.getdisplays()
+    if len(argv) == 0:
         extend(displays)
     elif argv[1] == "mirror":
         mirror(displays)
     else:
-        scripts = ls("~/.screenlayout").split("\n")
-        for script in scripts:
-            if argv[1] in script:
-                sh(os.path.join("~/.screenlayout", script))
-                break
+        arandr()
 
 
 if __name__ == "__main__":

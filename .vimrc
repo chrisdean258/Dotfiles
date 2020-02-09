@@ -7,6 +7,7 @@
 	:set relativenumber                     " show line numbers relative to your current line
 	:colorscheme elflord                    " Hells yeah elflord
 
+	:setlocal tabstop=8                     " Tabs should be 8 wide. Dont even argue you are wrong
 	:set scrolloff=5                        " Keep cursor 5 lines in
 	:set sidescroll=1                       " Move one character at a time off the screen rather than jumping
 	:set sidescrolloff=5                    " Keep the cursor 5 characters from the left side of the screen
@@ -19,8 +20,12 @@
 	:set showcmd                            " show partial command before you finish typing it
 	:set wildmenu                           " show menu of completeion on command line
 	:set incsearch hlsearch                 " turn on search highlighting
+	:set backspace=eol,indent,start         " backspace across eol and farther than you started
 	:filetype plugin indent on              " indenting by filetype
 	:set path+=**                           " Cheap fuzzy find
+
+	:set omnifunc=syntaxcomplete#Complete   " Not 100% on this because I dont use omnicomplete
+	:set laststatus=1                       " Show statusline only if we have more than 1 window upen
 
 	:if &filetype !~ "vim"
 	:  setlocal nofoldenable                " Turn off folding except in vim files
@@ -43,14 +48,16 @@
 	:set switchbuf=usetab                    " default to jumping to a new tab
 	:set hidden                              " hide buffers instead of closing
 	:set tabpagemax=1000                     " Vim can handle a lot of tags
+	:set textwidth=0                         " Dont insert random newlines for us
 	:set pumheight=15                        " Only see 15 options on completion
 	:set shortmess+=atI                      " Make more messages short
 	:set encoding=utf-8                      " use utf-8 everywhere
 	:set fileencoding=utf-8                  " use utf-8 everywhere
 	:set termencoding=utf-8                  " use utf-8 everywhere
 	:set cinoptions=(8,N-s,l1                " indent 8 for every open paren
+	:setlocal complete-=t                    " Turn off completion using tag files for all except c/c++ projects
 	:if getcwd() == expand("~")               " Turn off included file completion for home directory stuff
-	:  set complete-=it
+	:  set complete-=i
 	:endif
 	:set matchpairs+=<:>                     " adding a matched pair for highlighting and wrapping
 
@@ -72,6 +79,7 @@
 	:set undoreload=10000
 	:set backup
 	:set wildmode=longest,list,full
+
 " }}}
 
 " HIGHLIGHT SETTINGS {{{
@@ -164,6 +172,7 @@
 	:nnoremap <silent>s<F12> <nop>
 	:nnoremap <silent>S<F12> <nop>
 
+
 	" Repeat mappings
 	" allow for repeated wrapping
 	:nnoremap <silent>. :call RepeatFunc()<CR>.
@@ -174,15 +183,18 @@
 
 	" indent entire file
 	:nnoremap <silent><leader>g :call Indent()<CR>
+	:nnoremap <silent><leader>f :call Format()<CR>
 
 	" edit and reload vimrc
 	:nnoremap <silent><leader>ev :vsplit $MYVIMRC<CR>
 	:nnoremap <silent><leader>sv :silent source $MYVIMRC<CR>
 	:nnoremap <silent><leader>s% :source %<CR>
 
+
 	" add an empty line right above or below current line
 	:nnoremap <leader>o o<esc>
 	:nnoremap <leader>O O<esc>
+
 
 	" clear highlighting from search
 	:nnoremap <silent><c-L> :nohlsearch<CR><c-L>
@@ -220,6 +232,7 @@
 	:nnoremap <leader>j <c-w>j
 	:nnoremap <leader>k <c-w>k
 	:nnoremap <leader>l <c-w>l
+	:nnoremap <leader><space> <c-w><c-w>
 
 	" creating and navigating tabs
 	:nnoremap <silent><S-tab>       :tabnext<CR>
@@ -253,6 +266,8 @@
 	:nnoremap <leader><space> g<c-g>
 
 	" Opening files
+	" :nnoremap gf :call Open(expand("<cfile>"))<CR>
+
 	:inoremap gqq <esc>gqqA
 	:nnoremap VJ Vj
 	:nnoremap VJJ Vjj
@@ -290,6 +305,10 @@
 	" Turn on folding
 	:command! Fold :setlocal foldenable | setlocal foldmethod=syntax
 
+	" Turn on hard mode
+	:command! HardMode :call HardMode()
+
+	:command! Style :call PythonStyle()
 	:command! Compile :call Compile()
 	:command! Template :call NewFile()
 
@@ -307,12 +326,20 @@
 	:autocmd!
 	:autocmd BufNewFile *  :autocmd BufWritePost * :call IfScript() " Mark files with shebang as executable
 	:autocmd BufRead *     :setlocal formatoptions-=cro " turn off autocommenting
-	:autocmd BufNewFile *  :setlocal formatoptions-=cro " turn off autocommenting
 	:autocmd CursorHold *  :if get(g:, "hltimeout", 1) | set nohlsearch | endif " turn off search highlighting after a few seconds of nonuse
 	:autocmd InsertLeave * :setlocal nopaste            " Turn off paste when leaving insert mode
 	:autocmd BufReadPost * :if line("'\"") > 0 && line ("'\"") <= line("$") | exe "normal! g'\"" | endif " Jump to where you were in a file
-	:autocmd VimEnter *    :let &commentstring = substitute(&commentstring, '\s*%s\s*', ' %s ', '')
+	:autocmd VimEnter *    :if getcwd() ==# $HOME | set complete-=t | endif
+	:autocmd VimEnter *    :if &commentstring == '/*%s*/' | setlocal commentstring=/*\ %s\ */ | endif
+	:autocmd VimEnter *    :if &commentstring == '#%s' | setlocal commentstring=#\ %s | endif
 	:autocmd SwapExists *  :call SwapExists()
+	:autocmd WinEnter *    :call WinEnter()
+	:autocmd WinLeave *    :call WinLeave()
+	" :autocmd WinCreate *      :call WinNew()
+	:autocmd BufEnter *    :call BufEnter()
+	:autocmd BufLeave *    :call BufLeave()
+	:autocmd BufNew *.tex  :setlocal filetype=tex
+	:autocmd BufRead *.tex :setlocal filetype=tex
 	:autocmd BufNewFile *  :call NewFile()
 	:augroup END
 	" }}}
@@ -336,6 +363,7 @@
 	" {{{ 
 	:augroup c_style
 	:  autocmd!
+	:  autocmd FileType c,cpp,javascript,java,perl,cs :setlocal commentstring=//%s
 	:  autocmd FileType c,cpp,javascript,java,perl,cs :nnoremap <silent><buffer><localleader>s :call SplitIf()<CR>
 	:  autocmd FileType c,cpp,javascript,java,perl,cs :nnoremap <silent><buffer>; :call AppendSemicolon()<CR>
 	:  autocmd FileType c,cpp,javascript,java,perl,cs :inoremap <buffer>{} {<CR>}<esc>O
@@ -361,7 +389,7 @@
 	:  autocmd FileType cpp    :iabbrev <buffer> enld endl
 	:  autocmd FileType cpp    :iabbrev <buffer> nstd using namespace std;<CR>
 	:  autocmd FileType cpp    :autocmd CursorMoved,CursorMovedI <buffer> call HighlightAfterColumn(100)
-	:  autocmd FileType cpp    :setlocal syntax=cpp
+	:  autocmd FileType cpp    :set syntax=cpp
 	:  autocmd FileType c      :autocmd CursorMoved,CursorMovedI <buffer> call HighlightAfterColumn(80)
 	:  autocmd FileType c      :setlocal commentstring=/*\ %s\ */
 	:augroup END
@@ -401,12 +429,11 @@
 	" Tex
 	" {{{
 	:augroup web
-	:  autocmd BufNew *.tex  :setlocal filetype=tex
-	:  autocmd BufRead *.tex :setlocal filetype=tex
 	:  autocmd FileType tex :setlocal tabstop=2
 	:  autocmd FileType tex :setlocal expandtab
 	:  autocmd FileType tex :setlocal wrap
 	:  autocmd FileType tex :setlocal linebreak
+	:  autocmd FileType tex :setlocal commentstring=%\ %s
 	:  autocmd FileType tex :setlocal indentexpr=LatexIndent()
 	:  if exists("+breakindent")
 	:    autocmd FileType tex :setlocal breakindent
@@ -417,6 +444,7 @@
 	:  autocmd FileType tex :inoremap <expr><buffer>} (getline(".")[col(".")-1] == "}") ? "\<right>" : "}"
 	:  autocmd FileType tex :nnoremap <buffer> <leader>m mqlBi$<esc>Ea$<esc>`q
 	:  autocmd FileType tex :nnoremap <buffer>; :call LatexBackslashBeginning()<CR>
+	" :  autocmd FileType tex :nnoremap <buffer>; mqviwv`<i\<esc>`ql
 	:  autocmd FileType tex :command! Preview call LatexPreview()
 	:  autocmd FileType tex :let g:tex_flavor = 'latex'
 	:  autocmd FileType tex :iabbrev eqiv equiv
@@ -451,6 +479,7 @@
 	:augroup vim_
 	:autocmd!
 	:autocmd FileType vim :setlocal foldmethod=marker
+	:autocmd FileType vim :setlocal commentstring=\"\ %s
 	:autocmd FileType vim :setlocal foldenable
 	:autocmd FileType vim :setlocal foldtext=MyFold()
 	:autocmd BufWritePost .vimrc :source %
@@ -461,23 +490,24 @@
 	" {{{
 	:augroup Markdown
 	:autocmd!
-	:autocmd Filetype markdown :autocmd InsertLeave <buffer> :call MDCapitals()
-	:autocmd FileType markdown :autocmd InsertLeave <buffer> :call CheckMD()
 	:autocmd Filetype markdown :inoremap <buffer><tab> <c-r>=MDTab(CleverTab())<CR>
 	:autocmd Filetype markdown :inoremap <silent><buffer><CR> <c-r>=MDNewline("\r")<CR>
 	:autocmd Filetype markdown :nmap <silent><buffer>o A<CR>
 	:autocmd Filetype markdown :inoremap <silent><buffer><localleader>s <esc>:call SpellReplace()<CR>a
 	:autocmd Filetype markdown :nnoremap <silent><buffer><localleader>s :call SpellReplace()<CR>
+	" :autocmd FileType markdown :highlight link markdownError NONE
 	:autocmd FileType markdown :setlocal spelllang=en
 	:autocmd Filetype markdown :setlocal spell
 	:autocmd Filetype markdown :setlocal wrap
 	:autocmd Filetype markdown :setlocal linebreak
 	:autocmd Filetype markdown :setlocal commentstring=<!--\ %s\ -->
+	:autocmd Filetype markdown :autocmd InsertLeave <buffer> :call MDCapitals()
 	:if exists("+breakindent")
 	:  autocmd Filetype markdown :setlocal breakindent
 	:endif
 	:autocmd Filetype markdown :cabbrev markdown call NotesMDFormat()
 	:autocmd FileType markdown :command! Preview call MDPreview()
+	:autocmd FileType markdown :autocmd InsertLeave <buffer> :call CheckMD()
 	:autocmd FileType markdown :call CheckMD()
 	:autocmd FileType markdown :setlocal expandtab
 	:autocmd FileType markdown :setlocal tabstop=4
@@ -488,13 +518,16 @@
 	" {{{
 	:augroup Text
 	:autocmd!
-	:autocmd FileType text :setlocal spell
+	:autocmd FileType text :setlocal wrap
+	:autocmd FileType text :setlocal encoding=utf-8
+	:autocmd FileType text :nnoremap <silent><buffer><localleader>s :call SpellReplace()<CR>
+	:autocmd FileType text :inoremap <silent><buffer><localleader>s <esc>:call SpellReplace()<CR>a
 	:autocmd FileType text :setlocal wrap
 	:autocmd FileType text :setlocal linebreak
-	:autocmd FileType text :setlocal syntax=
 	:if exists("+breakindent")
 	:  autocmd FileType text :setlocal breakindent
 	:endif
+	:autocmd FileType text :setlocal syntax=
 	:augroup END
 	" }}}
 
@@ -502,8 +535,17 @@
 	" {{{
 	:augroup Assembly
 	:autocmd!
-	:  autocmd FileType assembly,asm :setlocal commentstring=//\ %s
-	:  autocmd FileType assembly,asm :iunmap <tab>
+	:  autocmd FileType assembly :setlocal commentstring=//%s
+	:  autocmd FileType assembly :iunmap <tab>
+	:  autocmd FileType asm :setlocal commentstring=//%s
+	:  autocmd FileType asm :iunmap <tab>
+	:augroup END
+	" }}}
+
+	" Make
+	" {{{
+	:augroup make_
+	:  autocmd FileType make :inoremap <expr><buffer><tab> CleverTab()
 	:augroup END
 	" }}}
 
@@ -608,6 +650,7 @@
 		:  return Strip(LineBeforeCursor())
 		:endfunction
 		" }}}
+
 	" }}}
 	
 	" HTML
@@ -629,11 +672,9 @@
 
 		:function! EndTagHTML()
 		" {{{
-		:  if LineAfterCursor() == ""
-		:    let l:window = winsaveview()
-		:    execute "normal! a".GetEndTagHTML()
-		:    call winrestview(l:window)
-		:  endif
+		:  let l:window = winsaveview()
+		:  execute "normal! a".GetEndTagHTML()
+		:  call winrestview(l:window)
 		:endfunction
 		" }}}
 
@@ -689,6 +730,7 @@
 		:  silent !xdg-open % >/dev/null 2>/dev/null &
 		:endfunction
 		" }}}
+
 	" }}}
 
 	" Markdown
@@ -892,6 +934,7 @@
 		:  return indent(l:otherno) + l:offset * shiftwidth()
 		:endfunction
 		" }}}
+
 	" }}}
 
 	" C Style Function
@@ -973,19 +1016,19 @@
 		:  let l:match0   = SplitIf_Match(0)
 		:  let l:match01  = SplitIf_Match(0, 1)
 		:  let l:matchm10 = SplitIf_Match(-1, 0)
-		:  if l:match0 == 1
-		:    execute "normal! 0f(%l"
-		:  elseif l:match01 == 1
-		:    execute "normal! J"
-		:  elseif l:matchm10 == 1
-		:    execute "normal! kJ"
-		:  elseif l:match0 == 2
+		:  if l:match0 == 2
 		:    execute "normal! 0feel"
 		:    call SplitIf_Internal()
 		:  elseif l:match01 == 2
 		:    execute "normal! j0feel"
 		:  elseif l:matchm10 == 2
 		:    execute "normal! kj0feel"
+		:  elseif l:match0
+		:    execute "normal! 0f(%l"
+		:  elseif l:match01
+		:    execute "normal! J"
+		:  elseif l:matchm10
+		:    execute "normal! kJ"
 		:  endif
 		:  if l:matchm10 || l:match0 || l:match01
 		:    call SplitIf_Internal()
@@ -1010,7 +1053,7 @@
 		:function! SplitIf_Match(...)
 		" {{{
 		:  let l:regex = '^\s*\(if\|for\|while\)\s*(.*)\+[^)].*;\s*$'
-		:  let l:elseregex = '^\s*else\s.\+;'
+		:  let l:elseregex = '^\s*else\s.\+'
 		:  let l:line = ""
 		:  let l:base = line('.')
 		:  for value in a:000
@@ -1020,10 +1063,10 @@
 		:    endif
 		:    let l:line .= getline(l:linenum)
 		:  endfor
-		:  if l:line =~ l:regex
+		:  if l:line =~ l:elseregex
 		:    return 2
 		:  endif
-		:  return l:line =~ l:elseregex
+		:  return l:line =~ l:regex
 		:endfunction
 		" }}}
 
@@ -1035,6 +1078,7 @@
 		:  call winrestview(l:window)
 		:endfunction
 		" }}}
+
 	" }}}
 
 	" Python
@@ -1051,6 +1095,14 @@
 		:endfunction
 		" }}}
 
+		:function! PythonStyle()
+		" {{{
+		:let g:syntastic_quiet_messages = {}
+		:let g:syntastic_python_flake8_args = []
+		:SyntasticCheck
+		:endfunction
+		" }}}
+		
 		:function! PythonBlankLineFix()
 		" {{{
 		:  let l:window = winsaveview()
@@ -1061,16 +1113,17 @@
 		:  while getline('$') == ''
 		:    $d
 		:  endwhile
-		:  silent %s/\n\+\(\n\n\ndef\)/\1/e
-		:  silent %s/\([^\n]\)\(\n\ndef\)/\1\r\2/e
-		:  silent %s/\([^\n]\)\(\ndef\)/\1\r\r\2/e
+		" :  silent %s/^def/\r\r&/e
+		" :  silent %s/\n\+\(\n\n\ndef\)/\1/e
 		:  call winrestview(l:window)
 		:endfunction
 		" }}}
+
 	" }}}
 
 	" Universally used function
 	" {{{
+
 		:function! Comment(...) range
 		" {{{
 		:  let l:window = winsaveview()
@@ -1223,6 +1276,19 @@
 		:endfunction
 		" }}}
 
+		:function! Format()
+		" {{{
+		:  let l:window = winsaveview()
+		:  let l:save = &textwidth
+		:  let l:tw = &textwidth ? &textwidth : 80
+		:  let &textwidth = l:tw
+		:  execute ':g/.\{' . l:tw . ',\}/normal! gqq'
+		:  normal! gg=G
+		:  let &textwidth = l:save
+		:  call winrestview(l:window)
+		:endfunction
+		" }}}
+
 		:function! SpellReplace()
 		" {{{
 		:  let l:window = winsaveview()
@@ -1236,6 +1302,14 @@
 		:  return a:how . GetChar() . CleverEsc()
 		:endfunction
 		"}}}
+
+		:function! GetChar()
+		" {{{
+		:  while getchar(1) == 0
+		:  endwhile
+		:  return nr2char(getchar())
+		:endfunction
+		" }}}
 
 		:function! IfScript()
 		" {{{
@@ -1251,6 +1325,19 @@
 		" {{{
 		:  let s:repeat = get(s:, 'repeatstack', "")
 		:  let s:repeatstack = ""
+		:endfunction
+		" }}}
+
+		:function! HardMode()
+		" {{{
+		:  noremap <Up> <NOP>
+		:  noremap <Down> <NOP>
+		:  noremap <Left> <NOP>
+		:  noremap <Right> <NOP>
+		:  noremap h <NOP>
+		:  noremap j <NOP>
+		:  noremap k <NOP>
+		:  noremap l <NOP>
 		:endfunction
 		" }}}
 
@@ -1275,6 +1362,40 @@
 		" :    let v:swapchoice = "o"
 		" :    echohl WarningMsg | echom "Detected Swapfile. Opening Read only" | echohl None
 		:  endif
+		:endfunction
+		" }}}
+
+		:function! Scanf(input, format)
+		" {{{
+		" Escape a bunch of characters
+		:  l:input = escape(a:input, '/\[].*')
+		:  l:input = substitute(l:input, "%s", '\([^\S]*\)', "g")
+		:  l:input = substitute(l:input, "%d", '\(-{0,1}\d\+\)', "g")
+		:endfunction
+		" }}}
+
+		:function! WinEnter()
+		" {{{
+		:endfunction
+		" }}}
+
+		:function! WinLeave()
+		" {{{
+		:endfunction
+		" }}}
+
+		:function! WinNew()
+		" {{{
+		:endfunction
+		" }}}
+		 
+		:function! BufLeave()
+		" {{{
+		:endfunction
+		" }}}
+		
+		:function! BufEnter()
+		" {{{
 		:endfunction
 		" }}}
 
@@ -1336,6 +1457,21 @@
 		:endfunction
 		" }}}
 		
+		:function! CloseMatches()
+                " {{{
+                :  let l:pairs = split(&matchpairs, ",")
+                :  for pair in l:pairs
+                :    if maparg(l:begin.l:end, "i") == "" && maparg(l:end, "i") == ""
+                :      let l:temp = split(pair, ":") 
+                :      let l:begin = l:temp[0]
+                :      let l:end = l:temp[1]
+                :      exec "inoremap " . l:begin . l:end . " " . l:begin . l:end . "<left>"
+                :      exec "inoremap <expr> " . l:end . ' (getline(".")[col(".")-1] == "' . l:end . '" ? "\<right>" : "' . l:end . '")' 
+                :    endif
+		:  endfor
+                :endfunction
+                " }}}
+
 		:function! System(arg)
 		" {{{
 		:  if has('win32')
@@ -1380,7 +1516,115 @@
 		:  normal! gf
 		:endfunction
 		" }}}
+		
+		:function! Background(write)
+		"{{{
+		:  let l:save = &swapfile
+		:  set noswapfile
+		:  if a:write
+		:    write
+		:  endif
+		:  suspend
+		:  let &swapfile = l:save
+		:endfunction
+		" }}}
+
 	" }}}
+
+" }}}
+
+" VIMRC SOURCING {{{
+"_______________________________________________________________________________________________________
+	
+	:function! UpwardVimrcSource()
+	:  let l:dir = getcwd()
+	:  while l:dir =~ "\/" && l:dir != $HOME
+	:    if filereadable(l:dir . "/.vimrc")
+	:      execute "source " . l:dir . "/.vimrc"
+	:    endif
+	:    let l:dir = fnamemodify(l:dir, ":p:h:h")
+	:  endwhile
+	:endfunction
+
+" }}}
+
+" DEV {{{
+"_______________________________________________________________________________________________________
+
+:if get(g:, "dev") && !has('win32')
+
+		:function! WinEnter()
+		" {{{
+		:  if !get(g:, 'buffcmds', 1)
+		:    return
+		:  endif
+		:  exec (&columns / 20).'wincmd >'
+		:  exec (&lines / 20).'wincmd +'
+		:  if get(b:, 'relativenumber', &relativenumber)
+		:    setlocal relativenumber
+		:  endif
+		:endfunction
+		" }}}
+
+		:function! WinLeave()
+		" {{{
+		:  if !get(g:, 'buffcmds', 1)
+		:    return
+		:  endif
+		:  exec (&columns / 20).'wincmd <'
+		:  exec (&lines / 20).'wincmd -'
+		:  if bufname("%") =~ "^!"
+		:    exec 'resize '.(winline() / 10 + 10)
+		:    echo "hi"
+		:  endif
+		:  let b:relativenumber = &relativenumber
+		:  setlocal norelativenumber
+		:endfunction
+		" }}}
+
+		:function! WinNew()
+		" {{{
+		:  if bufname("%") =~ "^!"
+		:    exec 'resize '.(winline() / 10 + 10)
+		:  endif
+		:endfunction
+		" }}}
+
+		:function! BufLeave()
+		" {{{
+		: 
+		:endfunction
+		" }}}
+
+		:function! BufEnter()
+		" {{{
+		:  if exists("*getwininfo") && len(getwininfo()) == 1 && bufname("%") =~ '^!'
+		:    q!
+		:  endif
+		:endfunction
+		" }}}
+
+		:function! BackGroundPython()
+		" {{{
+		:  let g:python_proc_directory = get(g:, "python_proc_directory", "")
+		:  if g:python_proc_directory == ""
+		:    let l:python_cmd = '-ic ''import sys; sys.ps1, sys.ps2 = "", ""'' '
+		:    let l:python = 'python3 '
+		:    if getline(1) =~ "python$"
+		:      let l:python = "python"
+		:    endif
+		:    let g:python_proc_directory = System("mktemp -d vim-python.XXXXXXXXXX")
+		:    let g:python_input_pipe = g:python_proc_directory . '/input'
+		:    let g:python_output_pipe = g:python_proc_directory . '/output'
+		:    call System("mknod p ".g:python_input_pipe)
+		:    call System("mknod p ".g:python_output_pipe)
+		:    call System(l:python . l:python_cmd . " < " . g:python_input_pipe . " > " . g:python_output_pipe)
+		:    autocmd VimLeave * :call System("rm -rf ". g:python_proc_directory)
+		:    vnoremap <leader>py execute ":'<'>w " .g:python_input_pipe \| execute "sp " . g:python_output_pipe
+		:  endif
+		:endfunction
+		" }}}
+:endif
 
 " }}}
 
@@ -1412,14 +1656,15 @@
 	" }}}
 
 	:command! Update call Update_Vimrc(1)
-" }}}
-
-" FEATURE ADDITION {{{
-"_______________________________________________________________________________________________________
 
 	:if filereadable(expand("~") . "/.vimrc.local")
 	:  source ~/.vimrc.local
 	:endif
+
+" }}}
+
+" FEATURE ADDITION {{{
+"_______________________________________________________________________________________________________
 
 	:if exists("g:imawimp")
 	:  if !g:imawimp
@@ -1437,6 +1682,14 @@
 	:  endif
 	:endif
 	
+	:if get(g:,"hardmode", 0)
+	:  call HardMode()
+	:endif
+
+	:if get(g:, "source2home", 0)
+	:  call UpwardVimrcSource()
+	:endif
+
 	:if get(g:, "format_text", 0)
 	:  autocmd FileType text :setlocal textwidth=80
 	:endif
@@ -1447,6 +1700,10 @@
 	:  highlight tablinesel ctermfg=Grey guifg=Grey
 	:endif
 	
+	:if get(g:, "close_matches", 0)
+        :  call CloseMatches()
+        :endif
+
 	:if get(g:, "use_syntastic", 1) && !has('win32')
 	:  call SourceOrInstallSyntastic()
 	:endif
@@ -1457,6 +1714,15 @@
 	:    autocmd VimEnter * :call Update_Vimrc()
 	:  augroup END
 	:  endif
+	:endif
+
+	:if get(g:, "suspend_on_quit")
+	:  cunabbrev Q
+	:  cunabbrev WQ
+	:  cunabbrev Wq
+	:  cabbrev Wq WQ
+	:  command! WQ :call Background(1)
+	:  command! Q  :call Background(0)
 	:endif
 
 " }}}

@@ -5,7 +5,7 @@ while true; do
 	xsetroot -name "$(printf %1000s "")"
 	counter=0
 	while ! [ -f ~/.xresetroot ]; do
-		battery_num="$(upower --dump | awk '/percentage/ {print int($NF)}' | sort -n | tail -n 1)"
+		battery_num="$(acpi | sed "s/.* \([0-9]*\)\%.*/\1/g")"
 		width=$(echo $battery_num | awk '{ print 3*int(($1+5)/10) }')
 		other=$(echo $battery_num | awk '{ print 10-int(($1+5)/10) }')
 		battery="$(printf "%.*s%*s" $width ░░░░░░░░░░ $other "")"
