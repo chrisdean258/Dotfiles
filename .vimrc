@@ -1235,7 +1235,15 @@
 		" {{{
 		:  return a:how . GetChar() . CleverEsc()
 		:endfunction
-		"}}}
+		" }}}
+		
+		:function! GetChar()
+		" {{{
+		:  while getchar(1) == 0
+		:  endwhile
+		:  return nr2char(getchar())
+		:endfunction
+		" }}}
 
 		:function! IfScript()
 		" {{{

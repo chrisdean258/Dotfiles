@@ -50,7 +50,7 @@ if [ $# -eq 0 ]; then
 	hostname | grep -q XPS && export GDK_SCALE=2
 	[ -x /usr/bin/xfce4-power-manager ] && xfce4-power-manager &
 	/usr/lib/notification-daemon/notification-daemon &
-	monitor detect &
+	monitor
 	xset r rate 500 300 #Repeat rate
 	xsetroot -solid black
 	exec dwm bash $0 &> ~/.xsession-errors
