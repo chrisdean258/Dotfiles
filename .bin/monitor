@@ -40,9 +40,14 @@ def extend(displays):
         primary = [a for a in displays if a.primary][0]
         second = [a for a in displays.values() if not a.primary][0]
 
-        _xrandr("--output", second.name, "--auto", "--right-of",
-                primary.name, "--output", primary.name,
-                "--primary", "--auto")
+        if primary.width <= second.width:
+            _xrandr("--output", second.name, "--auto", "--right-of",
+                    primary.name, "--output", primary.name,
+                    "--primary", "--auto")
+        else:
+            w, h = primary.width, primary.height
+            _xrandr("--output", second.name, "--scale", "2x2",
+                    "--panning", "{}x{}+{}+0".format(w, h, w))
 
 
 def mirror(displays):
