@@ -6,11 +6,28 @@ from sh import arandr, xrandr
 class Monitor:
     def __init__(self, name, width, height, offx, offy, primary):
         self.__dict__.update(locals())
+        self.modes = []
 
     @staticmethod
     def getdisplays():
-        lines = [line for line in xrandr().split("\n") if " connected" in line]
-        return [Monitor.xrandr_parse_display(a) for a in lines]
+        lines = [line for line in xrandr().split("\n")[1:] if line]
+        mon_lines = [a for a in enumerate(lines) if " connected" in a[1]]
+        monitors = []
+
+        for i, line in mon_lines[:-1]:
+            monitors.append(Monitor.xrandr_parse_display(line))
+            modelines = lines[i+1:mon_lines[i+1][0]]
+            monitors[-1].modes = Monitor.parse_modes(modelines)
+
+        monitors.append(Monitor.xrandr_parse_display(mon_lines[-1][1]))
+        modelines = lines[mon_lines[-1][0]+1:]
+        monitors[-1].modes = Monitor.parse_modes(modelines)
+
+        return monitors
+
+    @staticmethod
+    def parse_modes(lines):
+        return [tuple(line.split()[0].split("x")) for line in lines]
 
     @classmethod
     def xrandr_parse_display(cls, line):
@@ -33,22 +50,29 @@ def _xrandr(*args, **kwargs):
     call()
 
 
-def extend(displays):
+def extend(displays, true_size=False):
     if len(displays) == 1:
         _xrandr("--output", displays[0].name, "--primary", "--auto")
     if len(displays) == 2:
         primary = [a for a in displays if a.primary][0]
         second = [a for a in displays if not a.primary][0]
+        pw, ph = primary.width, primary.height
+        sw, sh = second.width, second.height
 
-        if primary.width <= second.width and 0:
-            print(primary.width, second.width)
+        if true_size:
+            print(second.modes)
+            sw, sh = second.modes[0]
+            _xrandr("--output", second.name, "--scale", "1x1",
+                    "--panning", "{}x{}+{}+0".format(sw, sh, pw),
+                    "--mode", f"{sw}x{sh}")
+
+        if primary.width <= second.width or true_size:
             _xrandr("--output", second.name, "--auto", "--right-of",
                     primary.name, "--output", primary.name,
                     "--primary", "--auto")
         else:
-            w, h = primary.width, primary.height
             _xrandr("--output", second.name, "--scale", "2x2",
-                    "--panning", "{}x{}+{}+0".format(w, h, w))
+                    "--panning", "{}x{}+{}+0".format(pw, ph, pw))
 
 
 def mirror(displays):
@@ -64,8 +88,8 @@ def mirror(displays):
 
 def main(argv):
     displays = Monitor.getdisplays()
-    if len(argv) == 1:
-        extend(displays)
+    if len(argv) == 1 or argv[1] == "--true-size":
+        extend(displays, len(argv) == 2)
     elif argv[1] == "mirror":
         mirror(displays)
     else:
