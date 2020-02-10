@@ -311,7 +311,7 @@
 	:autocmd CursorHold *  :if get(g:, "hltimeout", 1) | set nohlsearch | endif " turn off search highlighting after a few seconds of nonuse
 	:autocmd InsertLeave * :setlocal nopaste            " Turn off paste when leaving insert mode
 	:autocmd BufReadPost * :if line("'\"") > 0 && line ("'\"") <= line("$") | exe "normal! g'\"" | endif " Jump to where you were in a file
-	:autocmd VimEnter *    :let &commentstring = substitute(&commentstring, '\s*%s\s*', ' %s ', '')
+	:autocmd VimEnter *    :let &commentstring = Strip(substitute(&commentstring, '\s*%s\s*', ' %s ', ''))
 	:autocmd SwapExists *  :call SwapExists()
 	:autocmd BufNewFile *  :call NewFile()
 	:augroup END
