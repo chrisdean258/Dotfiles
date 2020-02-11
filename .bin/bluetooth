@@ -4,5 +4,5 @@ if [ $# -gt 0 ]; then
 	mac=$(bt-device -l | grep "$*")
 fi
 
-exec blueman-manager
+blueman-manager >/dev/null 2>&1 &
 

@@ -1,5 +1,0 @@
-#!/bin/sh
-
-: ${1?"usage: nidaViz [option] vnet-file\n       If you are using nidaViz to process events, they go on standard input" }
-
-exec love /home/chris/research/neuro/models/nida/viz/bin/nidaViz.love "$@"

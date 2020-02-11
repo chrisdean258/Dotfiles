@@ -29,4 +29,4 @@ pactl load-module module-loopback sink=audacity_input source=chrome.monitor
 # Play microphone sounds into virutal sink
 pactl load-module module-loopback sink=audacity_input source=$mic
 
-
+/usr/bin/audacity >/dev/null 2>&1 &

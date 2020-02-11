@@ -4,26 +4,28 @@ from sh import arandr, xrandr
 
 
 class Monitor:
-    def __init__(self, name, width, height, offx, offy, primary):
+    def __init__(self, name, width=0, height=0, offx=0, offy=0, primary=False):
         self.__dict__.update(locals())
         self.modes = []
 
-    @staticmethod
-    def getdisplays():
+    @classmethod
+    def getdisplays(cls):
         lines = [line for line in xrandr().split("\n")[1:] if line]
         mon_lines = [a for a in enumerate(lines) if " connected" in a[1]]
-        monitors = []
+        con_mons = []
 
         for i, line in mon_lines[:-1]:
-            monitors.append(Monitor.xrandr_parse_display(line))
+            con_mons.append(cls.xrandr_parse_display(line))
             modelines = lines[i+1:mon_lines[i+1][0]]
-            monitors[-1].modes = Monitor.parse_modes(modelines)
+            con_mons[-1].modes = cls.parse_modes(modelines)
 
-        monitors.append(Monitor.xrandr_parse_display(mon_lines[-1][1]))
+        con_mons.append(cls.xrandr_parse_display(mon_lines[-1][1]))
         modelines = lines[mon_lines[-1][0]+1:]
-        monitors[-1].modes = Monitor.parse_modes(modelines)
+        con_mons[-1].modes = cls.parse_modes(modelines)
 
-        return monitors
+        dmon_lines = [a.split() for a in lines if " disconnected" in a]
+        dcon_mons = [cls(a[0]) for a in dmon_lines if not a[2].startswith("(")]
+        return con_mons, dcon_mons
 
     @staticmethod
     def parse_modes(lines):
@@ -86,11 +88,22 @@ def mirror(displays):
                 f"{second.width}x{second.height}")
 
 
+def remove(displays):
+    for d in displays:
+        _xrandr("--output", d.name, "off")
+
+
 def main(argv):
-    displays = Monitor.getdisplays()
-    if len(argv) == 1 or argv[1] == "--true-size":
-        extend(displays, len(argv) == 2)
-    elif argv[1] == "mirror":
+    displays, disconnected = Monitor.getdisplays()
+
+    args = set(arg for arg in argv[1:] if not arg.startswith("-"))
+    opts = set(arg for arg in argv[1:] if arg.startswith("-"))
+
+    if "--keep-dead" not in opts and "-k" not in opts:
+        remove(disconnected)
+    if len(args) == 0:
+        extend(displays, "--true-size" in opts or "-t" in opts)
+    elif "mirror" == args.pop():
         mirror(displays)
     else:
         arandr()
