@@ -1,7 +1,7 @@
 #!/bin/sh
 
 if [ $# -gt 0 ]; then
-	mac=$(bt-device -l | grep "$*")
+	mac=$(bt-device -l | sed "1d" | dmenu -i | sed "s/.*(\(.*\)).*/\1")
 fi
 
 blueman-manager >/dev/null 2>&1 &
