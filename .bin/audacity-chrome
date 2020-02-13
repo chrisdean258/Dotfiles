@@ -20,7 +20,7 @@ dev4="$(pactl load-module module-loopback sink=audacity_input source=chrome.moni
 # Play microphone sounds into virutal sink
 dev5="$(pactl load-module module-loopback sink=audacity_input source=$mic)"
 
-/usr/bin/audacity >/dev/null 2>&1
+audacity >/dev/null 2>&1
 
 pactl move-sink-input $chrome_output "$headphones"
 

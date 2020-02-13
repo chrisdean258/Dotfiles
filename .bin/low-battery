@@ -1,8 +1,4 @@
 #!/bin/bash
 
-BATTINFO=`acpi -b 2>/dev/null`
-if [[ `echo $BATTINFO | grep Discharging` && `echo $BATTINFO | cut -f 5 -d " "` < 00:30:00 ]] ; then
-	exit 0
-fi
-
-exit 1
+[ "$(acpi 2>/dev/null| sed "s/.* \([0-9][0-9]*\)\%.*/\1/g")" -lt 15 ]
+exit $?

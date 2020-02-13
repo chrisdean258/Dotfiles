@@ -10,7 +10,9 @@ while true; do
 		other=$(echo $battery_num | awk '{ print 10-int(($1+5)/10) }')
 		battery="$(printf "%.*s%*s" $width ░░░░░░░░░░ $other "")"
 		battery_msg="$(acpi | grep -o "[0-9][0-9]:[0-9][0-9]:[0-9][0-9]")"
+		temperature="$(acpi -t | sed "s/.* \([0-9][0-9\.]*\) degrees.*/\1 °C/g")"
 
+		[ $temperature -ge 40 ] && temperature=$(echo -e "\x05$temperature\x01")
 		[ $battery_num -ge 90 ] && battery="$(echo -e "\x06$battery\x01")"
 		[ $battery_num -le 15 ] && battery="$(echo -e "\x05$battery\x01")"
 		if acpi | grep -q "\<[cC]harging\>"; then
@@ -35,7 +37,7 @@ while true; do
 		[ -n "$network" ] && network="$network (${netspeed:-No Access})"
 		time=$(date +"%F %I:%M %p")
 
-		name="$(printf %100s "") [$battery] ${battery_num}% ${battery_msg:+($battery_msg) }| ${network:-No Network} | $time "
+		name="$(printf %100s "") [$battery] ${battery_num}% ${battery_msg:+($battery_msg) }| $temperature | ${network:-No Network} | $time "
 
 		xsetroot -name "$name"
 		[ "$counter" -ne 0 ] && sleep 10
