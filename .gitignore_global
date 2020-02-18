@@ -2,3 +2,4 @@ tags
 .tags
 __pycache__
 *.swp
+.session.vim
