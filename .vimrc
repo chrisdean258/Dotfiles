@@ -990,22 +990,22 @@
 		:  let l:window = winsaveview()
 		:  let l:match0   = SplitIf_Match(0)
 		:  let l:match01  = SplitIf_Match(0, 1)
-		:  let l:matchm10 = SplitIf_Match(-1, 0)
-		:  if l:match0 == 1
+		:  let l:match_10 = SplitIf_Match(-1, 0)
+		:  echom l:match_10 . " " . l:match0 . " " .l:match01
+		:  if l:match0 == 2
 		:    execute "normal! 0f(%l"
-		:  elseif l:match01 == 1
-		:    execute "normal! J"
-		:  elseif l:matchm10 == 1
-		:    execute "normal! kJ"
-		:  elseif l:match0 == 2
-		:    execute "normal! 0feel"
-		:    call SplitIf_Internal()
 		:  elseif l:match01 == 2
+		:    execute "normal! J"
+		:  elseif l:match_10 == 2
+		:    execute "normal! kJ"
+		:  elseif l:match0 == 1
+		:    execute "normal! 0feel"
+		:  elseif l:match01 == 1
 		:    execute "normal! j0feel"
-		:  elseif l:matchm10 == 2
-		:    execute "normal! kj0feel"
+		:  elseif l:match_10 == 1
+		:    execute "normal! kJ0feel"
 		:  endif
-		:  if l:matchm10 || l:match0 || l:match01
+		:  if l:match_10 || l:match0 || l:match01
 		:    call SplitIf_Internal()
 		:  endif
 		:  call winrestview(l:window)
