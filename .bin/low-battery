@@ -1,5 +1,5 @@
 #!/bin/bash
 
-out="$(acpi 2>/dev/null| sed "s/.* \([0-9][0-9]*\)\%.*/\1/g")"
+out="$(acpi 2>/dev/null|  awk '/Discharging/ { print int($4) }')"
 [ "${out:-100}" -lt 15 ]
 exit $?
