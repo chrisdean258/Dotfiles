@@ -946,6 +946,7 @@
 		:  for m in get(b:, "matches", [])
 		:    try
 		:      silent call matchdelete(m)
+		:    catch
 		:    endtry
 		:  endfor
 		:  let b:matches = []
