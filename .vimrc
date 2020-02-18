@@ -77,6 +77,7 @@
 " HIGHLIGHT SETTINGS {{{
 "_______________________________________________________________________________________________________
 
+	:function! HighLightSettings()
 	" Setting for using Highlight after function
 	:highlight LongLine guifg=Red ctermfg=Red
  	:highlight Folded None
@@ -93,6 +94,13 @@
 	:highlight spellrare None
 	:highlight spellcap None
 	:highlight spelllocal None
+	:if get(g:, "light_folds", 1)
+	:  highlight Folded ctermfg=DarkGrey guifg=DarkGrey
+	:  highlight tabline ctermfg=DarkGrey guifg=DarkGrey
+	:  highlight tablinesel ctermfg=Grey guifg=Grey
+	:endif
+	:endfunction
+	:call HighLightSettings()
 
 " }}}
 
@@ -317,6 +325,7 @@
 	:autocmd BufNewFile *  :call NewFile()
 	:autocmd VimLeave *    :call SaveSess()
 	:autocmd VimEnter * nested call RestoreSess()
+	:autocmd VimEnter *    :call HighLightSettings()
 	:augroup END
 	" }}}
 
@@ -1403,12 +1412,15 @@
 		:endfunction
 		" }}}
 
+		let g:restored = 0
 		:function! RestoreSess()
 		"{{{
 		:  if get(g:, "manage_sessions" ) && filereadable(getcwd() . '/.session.vim') && argc() == 0
 		:    execute 'so ' . getcwd() . '/.session.vim'
+		:    let g:restored = 1
 		:  elseif get(g:, "manage_session" ) && filereadable($HOME . '/session/.session.vim') && argc() == 0
 		:    execute 'so ' . $HOME . '/session/.session.vim'
+		:    let g:restored = 1
 		:  endif
 		:endfunction
 		" }}}
@@ -1491,5 +1503,6 @@
 	:  augroup END
 	:  endif
 	:endif
+
 
 " }}}
