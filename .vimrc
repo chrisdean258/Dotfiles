@@ -364,6 +364,7 @@
 	:augroup c_cpp
 	:  autocmd!
 	:  autocmd FileType c,cpp  :setlocal complete+=t
+	:  autocmd FileType c,cpp  :call matchadd("Type", '[_a-zA-Z][_a-zA-Z0-9]*_t')
 	:  autocmd FileType c,cpp  :iabbrev <buffer> #i #include
 	:  autocmd FileType c,cpp  :iabbrev <buffer> #I #include
 	:  autocmd FileType c,cpp  :iabbrev <buffer> #d #define
@@ -942,9 +943,14 @@
 		:function! HighlightAfterColumn(col)
 		" {{{
 		:  let s:exclude_patterns = [ '[^=]*<<[^=]*', '\/\/', '\/\*', '\*\/', '^\s*#', 'print', 'cout', 'cerr' ]
-		:  call clearmatches()
+		:  for m in get(g:, "matches", [])
+		:    try
+		:      silent call matchdelete(m)
+		:    endtry
+		:  endfor
+		:  let g:matches = []
 		:  if get(g:, "hllonglines", 1) && getline('.') !~ join(s:exclude_patterns, '\|')
-		:    call matchadd('LongLine', '\%'.line('.').'l\%>'.(a:col).'v.')
+		:    call add(g:matches, matchadd('LongLine', '\%'.line('.').'l\%>'.(a:col).'v.'))
 		:  endif
 		:endfunction
 		" }}}
