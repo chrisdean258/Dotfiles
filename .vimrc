@@ -308,6 +308,7 @@
 	:autocmd BufNewFile *  :autocmd BufWritePost * :call IfScript() " Mark files with shebang as executable
 	:autocmd BufRead *     :setlocal formatoptions-=cro " turn off autocommenting
 	:autocmd BufNewFile *  :setlocal formatoptions-=cro " turn off autocommenting
+	:autocmd VimEnter *    :setlocal formatoptions-=cro " turn off autocommenting
 	:autocmd CursorHold *  :if get(g:, "hltimeout", 1) | set nohlsearch | endif " turn off search highlighting after a few seconds of nonuse
 	:autocmd InsertLeave * :setlocal nopaste            " Turn off paste when leaving insert mode
 	:autocmd BufReadPost * :if line("'\"") > 0 && line ("'\"") <= line("$") | exe "normal! g'\"" | endif " Jump to where you were in a file
@@ -1388,6 +1389,33 @@
 		:  normal! gf
 		:endfunction
 		" }}}
+
+		:function! SaveSess()
+		"{{{
+		:  if get(g:, "manage_sessions")
+		:    execute 'mksession! ' . getcwd() . '/.session.vim'
+		:  endif
+		:endfunction
+		" }}}
+
+		:function! RestoreSess()
+		"{{{
+		:  if !get(g:, "manage_sessions")
+		:    return
+		:  endif
+		:  if filereadable(getcwd() . '/.session.vim')
+		:    execute 'so ' . getcwd() . '/.session.vim'
+		:    if bufexists(1)
+		:      for l in range(1, bufnr('$'))
+		:        if bufwinnr(l) == -1
+		:          exec 'sbuffer ' . l
+		:        endif
+		:      endfor
+		:    endif
+		:  endif
+		:endfunction
+		" }}}
+
 	" }}}
 
 " }}}
