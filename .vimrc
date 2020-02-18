@@ -943,14 +943,14 @@
 		:function! HighlightAfterColumn(col)
 		" {{{
 		:  let s:exclude_patterns = [ '[^=]*<<[^=]*', '\/\/', '\/\*', '\*\/', '^\s*#', 'print', 'cout', 'cerr' ]
-		:  for m in get(g:, "matches", [])
+		:  for m in get(b:, "matches", [])
 		:    try
 		:      silent call matchdelete(m)
 		:    endtry
 		:  endfor
-		:  let g:matches = []
+		:  let b:matches = []
 		:  if get(g:, "hllonglines", 1) && getline('.') !~ join(s:exclude_patterns, '\|')
-		:    call add(g:matches, matchadd('LongLine', '\%'.line('.').'l\%>'.(a:col).'v.'))
+		:    call add(b:matches, matchadd('LongLine', '\%'.line('.').'l\%>'.(a:col).'v.'))
 		:  endif
 		:endfunction
 		" }}}
