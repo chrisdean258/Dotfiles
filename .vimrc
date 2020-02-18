@@ -315,6 +315,8 @@
 	:autocmd VimEnter *    :let &commentstring = Strip(substitute(&commentstring, '\s*%s\s*', ' %s ', ''))
 	:autocmd SwapExists *  :call SwapExists()
 	:autocmd BufNewFile *  :call NewFile()
+	:autocmd VimLeave *    :call SaveSess()
+	:autocmd VimEnter * nested call RestoreSess()
 	:augroup END
 	" }}}
 
@@ -1062,9 +1064,9 @@
 		:  while getline('$') == ''
 		:    $d
 		:  endwhile
-		:  silent %s/\n\+\(\n\n\ndef\)/\1/e
-		:  silent %s/\([^\n]\)\(\n\ndef\)/\1\r\2/e
-		:  silent %s/\([^\n]\)\(\ndef\)/\1\r\r\2/e
+		":  silent %s/\n\+\(\n\n\ndef\)/\1/e
+		":  silent %s/\([^\n]\)\(\n\ndef\)/\1\r\2/e
+		":  silent %s/\([^\n]\)\(\ndef\)/\1\r\r\2/e
 		:  call winrestview(l:window)
 		:endfunction
 		" }}}
@@ -1394,24 +1396,19 @@
 		"{{{
 		:  if get(g:, "manage_sessions")
 		:    execute 'mksession! ' . getcwd() . '/.session.vim'
+		:  elseif get(g:, "manage_session")
+		:    call mkdir($HOME.'/.vim/session')
+		:    execute 'mksession! ' . $HOME . '/session/.session.vim'
 		:  endif
 		:endfunction
 		" }}}
 
 		:function! RestoreSess()
 		"{{{
-		:  if !get(g:, "manage_sessions")
-		:    return
-		:  endif
-		:  if filereadable(getcwd() . '/.session.vim')
+		:  if get(g:, "manage_sessions" ) && filereadable(getcwd() . '/.session.vim') && argc() == 0
 		:    execute 'so ' . getcwd() . '/.session.vim'
-		:    if bufexists(1)
-		:      for l in range(1, bufnr('$'))
-		:        if bufwinnr(l) == -1
-		:          exec 'sbuffer ' . l
-		:        endif
-		:      endfor
-		:    endif
+		:  elseif get(g:, "manage_session" ) && filereadable($HOME . '/session/.session.vim') && argc() == 0
+		:    execute 'so ' . $HOME . '/session/.session.vim'
 		:  endif
 		:endfunction
 		" }}}
