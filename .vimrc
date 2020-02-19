@@ -48,8 +48,8 @@
 	:set encoding=utf-8                      " use utf-8 everywhere
 	:set fileencoding=utf-8                  " use utf-8 everywhere
 	:set termencoding=utf-8                  " use utf-8 everywhere
-	:set cinoptions=(8,N-s,l1                " indent 8 for every open paren
-	:if getcwd() == expand("~")               " Turn off included file completion for home directory stuff
+	:set cinoptions=(8,N-s,l1,t0             " indent 8 for every open paren
+	:if getcwd() == expand("~")              " Turn off included file completion for home directory stuff
 	:  set complete-=it
 	:endif
 	:set matchpairs+=<:>                     " adding a matched pair for highlighting and wrapping
