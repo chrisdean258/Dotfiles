@@ -316,6 +316,8 @@
 	:autocmd BufNewFile *  :autocmd BufWritePost * :call IfScript() " Mark files with shebang as executable
 	:autocmd BufRead *     :setlocal formatoptions-=cro " turn off autocommenting
 	:autocmd BufNewFile *  :setlocal formatoptions-=cro " turn off autocommenting
+	:autocmd BufRead *     :call CorrectFile()
+	:autocmd BufNewFile *  :call CorrectFile()
 	:autocmd VimEnter *    :setlocal formatoptions-=cro " turn off autocommenting
 	:autocmd CursorHold *  :if get(g:, "hltimeout", 1) | set nohlsearch | endif " turn off search highlighting after a few seconds of nonuse
 	:autocmd InsertLeave * :setlocal nopaste            " Turn off paste when leaving insert mode
@@ -1429,6 +1431,19 @@
 		:  elseif get(g:, "manage_session" ) && filereadable($HOME . '/session/.session.vim') && argc() == 0
 		:    execute 'so ' . $HOME . '/session/.session.vim'
 		:    let g:restored = 1
+		:  endif
+		:endfunction
+		" }}}
+		
+		:function! CorrectFile()
+		"{{{
+		:  let l:file = expand("%")
+		:  if &ft == "" && stridx(l:file, ".") == -1
+		:    let l:glob = glob(l:file . ".*", 0, 1)
+		:    echom len(l:glob)
+		:    if len(l:glob) == 1
+		:     execute "e! ". l:glob[0]
+		:    endif
 		:  endif
 		:endfunction
 		" }}}

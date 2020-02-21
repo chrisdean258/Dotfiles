@@ -1,5 +1,7 @@
 #!/bin/bash
 
+jmp_dir="$HOME/.cache/jmp"
+
 alias cd..="cd .."
 alias ..="cd .."
 
@@ -50,55 +52,34 @@ cdls()
 {
 	if builtin cd "$@"; then
 		[ `ls | wc -l` -lt 100 ] && ls "$([ -z "$MAC" ] && echo "-G")"
-		echo `realpath .` >> ~/.jmp && [ -z "$MAC" ] && sed -i 1d ~/.jmp
+		echo `realpath .` >> ~/.jmp && [ -z "$MAC" ] && sed -i 1d "$jmp"
 		return 0
 	fi
 	return 1
 }
 
-md() { mkdir "$@" && cd "$@"; }
-
-pip3()
-{
-	pip3=`which pip3`
-	[ -z "$pip3" ] && echo "pip3 not installed" && return 1
-	echo "$*" | grep -q -e "[-]-user" && $pip3 "$@" && return $?
-	sudo="$(groups | grep -q "sudo" && echo "sudo")"
-	$sudo -H $pip3 "$@"
-}
-
 j()
 {
 	local new_dir
-	jmps="$HOME/.jmp"
 	[ $# -ne 0 ] && pattern=".*$(echo "$@" | sed "s/\s\+/.*\/.*/g")[^\/]*$"
 
 	if [ "$1" = "--setup" ]; then
 		time=$(date +%D --date="-2 month" 2>/dev/null) || time=$(date -v-2m "+%D")
-		(find "$HOME" -type d -not -path "*/\.*" -newermt "$time" && yes "") | head -n 1000 > "$jmps"
+		(find "$HOME" -type d -not -path "*/\.*" -newermt "$time" && yes "") | head -n 1000 > "$jmp"
 		return 0
 	fi
 
-	new_dir=$(tac "$jmps" | grep -m 1 -i "$pattern")
+	new_dir=$(tac "$jmp" | grep -m 1 -i "$pattern")
 	if echo "$PWD" | grep -qi "$pattern"; then
-		new_dir=$(tac "$jmps" | grep -i "$pattern" | awk '!a[$0]++' | sed -e '1h;$G' | grep -m 1 -A 1 "^$PWD$" | tail -n 1)
+		new_dir=$(tac "$jmp" | grep -i "$pattern" | awk '!a[$0]++' | sed -e '1h;$G' | grep -m 1 -A 1 "^$PWD$" | tail -n 1)
 	fi
 
 	if [ -d "$new_dir" ]; then 
-		builtin cd "$new_dir" && echo "$@" >> ${jmps}_complete
+		builtin cd "$new_dir" && echo "$@" >> ${jmp}_complete
 	else
-		grep -v "^$new_dir$" "$jmps" > "$HOME/tmp" 
-		mv "$HOME/tmp" "$jmps"
+		grep -v "^$new_dir$" "$jmp" > "$jmp_dir/tmp" 
+		mv "$jmp_dir/tmp" "$jmp"
 		return 1
 	fi
 	return $?
-}
-
-retry()
-{
-	if [ $# -eq 0 ]; then
-		while ! "$BASH" -c "$(history -p !!)"; do :; done
-	else
-		while ! "$@"; do :; done
-	fi
 }

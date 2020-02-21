@@ -45,7 +45,7 @@ __complete_j()
 
 	COMPREPLY=()
 	cur=${COMP_WORDS[COMP_CWORD]}	
-	words="$(cat ~/.jmp_complete)" 
+	words="$(cat ~/.cache/jmp/jmp_complete)" 
 
 	COMPREPLY=( $(compgen -W "$(cat ~/.jmp_complete)" -- "$cur") )
 
