@@ -1413,6 +1413,9 @@
 
 		:function! SaveSess()
 		"{{{
+		:  if getcwd() == $HOME
+		:    return
+		:  endif
 		:  if get(g:, "manage_sessions")
 		:    execute 'mksession! ' . getcwd() . '/.session.vim'
 		:  elseif get(g:, "manage_session")
