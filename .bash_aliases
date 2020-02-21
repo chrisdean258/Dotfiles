@@ -53,7 +53,7 @@ cdls()
 {
 	if builtin cd "$@"; then
 		[ `ls | wc -l` -lt 100 ] && ls "$([ -z "$MAC" ] && echo "-G")"
-		echo `realpath .` >> ~/.jmp && [ -z "$MAC" ] && sed -i 1d "$jmp"
+		echo `realpath .` >> "$jmp" && [ -z "$MAC" ] && sed -i 1d "$jmp"
 		return 0
 	fi
 	return 1
