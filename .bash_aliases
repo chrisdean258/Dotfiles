@@ -1,6 +1,7 @@
 #!/bin/bash
 
 jmp_dir="$HOME/.cache/jmp"
+jmp="$jmp_dir/jmp"
 
 alias cd..="cd .."
 alias ..="cd .."
