@@ -1,2 +1,0 @@
-LS_COLORS='';
-export LS_COLORS
