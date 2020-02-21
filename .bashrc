@@ -53,8 +53,6 @@ if ! shopt -oq posix; then
 	elif [ -f /etc/bash_completion ]; then
 		. /etc/bash_completion
 	fi
-elif [ -f $(brew --prefix)/etc/bash_completion ]; then
-	. $(brew --prefix)/etc/bash_completion
 fi
 
 PS1='\u@\h:\w\$ '
@@ -71,11 +69,12 @@ PROMPT_SAVE=`echo $PS1 | sed 's/..$//g'`
 prompt_command()
 {
 	rv_save=$?
-	return_val="$([ $rv_save -ne 0 ] && echo -n "$P_RED[$rv_save]$P_CLEAR ")"
-	battery="$(low-battery 2>/dev/null && echo -en "$P_RED[Low Battery] $P_CLEAR")"
+	rv="$([ $rv_save -ne 0 ] && echo -n "$P_RED[$rv_save]$P_CLEAR ")"
+	bat="$(low-battery 2>/dev/null && echo -en "$P_RED[Low Battery] $P_CLEAR")"
 	gb="$(git rev-parse --abbrev-ref HEAD 2>/dev/null)"
-	gd="$(timeout 0.5s git status 2>/dev/null | grep -q clean || echo "*")"
-	PS1="${return_val}${battery}$PROMPT_SAVE${gb:+$P_GREEN ($gb$gd)$P_CLEAR}$ "
+	gd="$(timeout 0.5s git status 2>/dev/null | grep -q "clean" || echo "*")"
+	git="${gb:+$P_GREEN ($gb$gd)$P_CLEAR}"
+	PS1="${rv}${battery}$PROMPT_SAVE${git}\$ "
 }
 
 jmp_dir="$HOME/.cache/jmp"
@@ -89,14 +88,11 @@ alias la='ls -A'
 alias l='ls -CF'
 alias car="cat"
 alias matlab="matlab -nodesktop -nosplash"
+alias ls='ls --color=auto --group-directories-first'
+alias grep='grep --color=auto'
 
 if exe dircolors; then
 	test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
-	alias ls='ls --color=auto --group-directories-first'
-	alias grep='grep --color=auto'
-elif [ -n "$MAC" ]; then
-	alias ls='ls -G'
-	alias grep='grep --color'
 fi
 
 exe colordiff && alias diff="colordiff"
@@ -110,8 +106,8 @@ alias cd="cdls"
 cdls()
 {
 	if builtin cd "$@"; then
-		[ `ls | wc -l` -lt 100 ] && ls "$([ -z "$MAC" ] && echo "-G")"
-		echo `realpath .` >> "$jmp" && [ -z "$MAC" ] && sed -i 1d "$jmp"
+		[ `ls | wc -l` -lt 100 ] && ls
+		echo `realpath .` >> "$jmp" && sed -i 1d "$jmp"
 		return 0
 	fi
 	return 1
@@ -119,11 +115,10 @@ cdls()
 
 j()
 {
-	local new_dir
 	[ $# -ne 0 ] && pattern=".*$(echo "$@" | sed "s/\s\+/.*\/.*/g")[^\/]*$"
 
 	if [ "$1" = "--setup" ]; then
-		time=$(date +%D --date="-2 month" 2>/dev/null) || time=$(date -v-2m "+%D")
+		time=$(date +%D --date="-2 month" 2>/dev/null)
 		(find "$HOME" -type d -not -path "*/\.*" -newermt "$time" && yes "") | head -n 1000 > "$jmp"
 		return 0
 	fi
@@ -137,7 +132,7 @@ j()
 	if [ -d "$new_dir" ]; then 
 		builtin cd "$new_dir" && echo "$@" >> ${jmp}_complete
 	else
-		grep -v "^$new_dir$" "$jmp" > "$jmp_dir/tmp" 
+		grep -vF "$new_dir" "$jmp" > "$jmp_dir/tmp" 
 		mv "$jmp_dir/tmp" "$jmp"
 		j
 	fi
