@@ -71,23 +71,11 @@ PROMPT_SAVE=`echo $PS1 | sed 's/..$//g'`
 prompt_command()
 {
 	rv_save=$?
-	return_val=$([ $rv_save -ne 0 ] && echo -n "$P_RED[$rv_save]$P_CLEAR ")
-	battery=$(command -v low-battery &> /dev/null && low-battery && echo -en "$P_RED[Low Battery] $P_CLEAR")
-	git_branch=""
-	if git rev-parse --abbrev-ref HEAD >/dev/null 2>&1; then
-		git_branch=$(echo -en " $P_GREEN($(git rev-parse --abbrev-ref HEAD | tr -d "\n\f")$(timeout 0.5s git status 2>/dev/null | grep -q clean || echo "*"))$P_CLEAR")
-	fi  
-	nc=$(awk "BEGIN { print $(whoami | wc -c) \
-		+ $(pwd | sed "s:$HOME:~:" | wc -c) \
-		+ $(echo $battery | wc -c) \
-		+ $(echo $git_branch | wc -c | awk '{print $1 ? int($1 - 20) : 0}')\
-	}")
-	sum=$(awk "BEGIN{print int($nc * 1.5) } ")
-	maybe_newline=""
-	if [ $sum -gt $COLUMNS ] && [ $nc -lt $COLUMNS ]; then
-		maybe_newline=$(echo "\n")
-	fi  
-	PS1="${return_val}${battery}$PROMPT_SAVE${git_branch}${maybe_newline}\$ "
+	return_val="$([ $rv_save -ne 0 ] && echo -n "$P_RED[$rv_save]$P_CLEAR ")"
+	battery="$(low-battery 2>/dev/null && echo -en "$P_RED[Low Battery] $P_CLEAR")"
+	gb="$(git rev-parse --abbrev-ref HEAD 2>/dev/null)"
+	gd="$(timeout 0.5s git status 2>/dev/null | grep -q clean || echo "*")"
+	PS1="${return_val}${battery}$PROMPT_SAVE${gb:+$P_GREEN ($gb$gd)$P_CLEAR}$ "
 }
 
 jmp_dir="$HOME/.cache/jmp"
@@ -106,13 +94,9 @@ if exe dircolors; then
 	test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
 	alias ls='ls --color=auto --group-directories-first'
 	alias grep='grep --color=auto'
-	alias fgrep='fgrep --color=auto'
-	alias egrep='egrep --color=auto'
 elif [ -n "$MAC" ]; then
 	alias ls='ls -G'
 	alias grep='grep --color'
-	alias fgrep='fgrep --color'
-	alias egrep='egrep --color'
 fi
 
 exe colordiff && alias diff="colordiff"
@@ -149,12 +133,13 @@ j()
 		new_dir=$(tac "$jmp" | grep -i "$pattern" | awk '!a[$0]++' | sed -e '1h;$G' | grep -m 1 -A 1 "^$PWD$" | tail -n 1)
 	fi
 
+	[ -z "$new_dir" ] && return 1
 	if [ -d "$new_dir" ]; then 
 		builtin cd "$new_dir" && echo "$@" >> ${jmp}_complete
 	else
 		grep -v "^$new_dir$" "$jmp" > "$jmp_dir/tmp" 
 		mv "$jmp_dir/tmp" "$jmp"
-		return 1
+		j
 	fi
 	return $?
 }
