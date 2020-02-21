@@ -94,9 +94,10 @@ prompt_command()
 	PS1="${return_val}${battery}$PROMPT_SAVE${git_branch}${maybe_newline}\$ "
 }
 
-! [ -f ~/.bash_update ] && touch ~/.bash_update
-if ! diff ~/.bash_update <(date +%j) &>/dev/null; then
+update_file="$HOME/.cache/bash_update"
+! [ -f "$update_file" ] && touch "$update_file"
+if ! diff "$update_file" <(date +%j) &>/dev/null; then
 	[ -z "$NO_UPDATE" ] && dots deploy
-	date +%j > ~/.bash_update
+	date +%j > "$update_file"
 fi
 
