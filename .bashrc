@@ -17,7 +17,6 @@ exe() { [ -x "$(command -v "$1")" ]; }
 [ -r ~/.git-completion.bash ] && source ~/.git-completion.bash
 [ -r ~/.bash-completion.bash ] && source ~/.bash-completion.bash
 exe lesspipe && eval "$(SHELL=/bin/sh lesspipe)"
-exe dircolors && eval "$(dircolors -b ~/.dircolors)" 
 
 HISTCONTROL=ignoreboth
 HISTSIZE=
@@ -31,9 +30,6 @@ P_GREEN="\[`tput setaf 2`\]"
 #P_WHITE="\[`tput setaf 7`\]"
 #P_BLACK="\[`tput setaf 8`\]"
 P_CLEAR="\[`tput sgr0`\]"
-if [ -z "${debian_chroot:-}" ] && [ -r /etc/debian_chroot ]; then
-	debian_chroot=$(cat /etc/debian_chroot)
-fi
 
 export PATH=$HOME/bin:$HOME/.bin:$PATH
 export EDITOR=vim
