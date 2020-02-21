@@ -145,4 +145,3 @@ if ! diff "$update_file" <(date +%j) &>/dev/null; then
 	[ -z "$NO_UPDATE" ] && dots deploy
 	date +%j > "$update_file"
 fi
-
