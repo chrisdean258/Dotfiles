@@ -28,6 +28,10 @@ for f in files:
         os.remove(link)
     except FileNotFoundError:
         pass
-    os.symlink(myfile, link)
+    try:
+        os.symlink(myfile, link)
+    except:
+        os.system(f"rm -r {link}")
+        os.symlink(myfile, link)
     if verbose:
         print(link, "->", myfile)

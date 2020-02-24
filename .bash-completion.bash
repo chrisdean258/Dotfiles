@@ -9,9 +9,10 @@ complete -o bashdefault -f -X "!*.pdf" print-paper
 __complete_vim()
 {
 	local cur
+	local prev
 	local words
 
-	cur=${COMP_WORDS[COMP_CWORD]}	
+	cur=${COMP_WORDS[COMP_CWORD]}
 
 	words="$(file -L * | grep -v -E "\.log$|\.aux$|\.nav$|\.out$|\.snm$|\.toc$|directory" | grep -E "ASCII|text|empty" | cut -d: -f1 | sed "s:^\.\/::g")"
 	COMPREPLY=( $(compgen -W "$words" -- "$cur" ) )
@@ -28,8 +29,11 @@ __complete_open()
 	local words
 
 	cur=${COMP_WORDS[COMP_CWORD]}	
-
-	words="$(file -L *| grep -v -E "ASCII|text|empty|directory|data" | rev | cut -d: -f2-| rev)"
+	if [ ${COMP_WORDS[$COMP_CWORD-1]} = "-t" ]; then
+		words="$(cat tags .tags 2>/dev/null | awk '{print $1}')"
+	else
+		words="$(file -L *| grep -v -E "ASCII|text|empty|directory|data" | rev | cut -d: -f2-| rev)"
+	fi
 	COMPREPLY=( $(compgen -W "$words" -- "$cur" ) )
 
 	return 0
