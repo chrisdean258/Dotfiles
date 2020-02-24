@@ -33,7 +33,7 @@ __complete_open()
 	local words
 
 	cur=${COMP_WORDS[COMP_CWORD]}	
-	words="$(file -L *| grep -v -E "ASCII|text|empty|directory|data" | rev | cut -d: -f2-| rev)"
+	words="$( file -L *| grep -v -E "ASCII|text|empty|directory|data" | grep -o "^[^:]*")"
 	COMPREPLY=( $(compgen -W "$words" -- "$cur" ) )
 
 	return 0
