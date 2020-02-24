@@ -995,7 +995,6 @@
 		:  let l:match0   = SplitIf_Match(0)
 		:  let l:match01  = SplitIf_Match(0, 1)
 		:  let l:match_10 = SplitIf_Match(-1, 0)
-		:  echom l:match_10 . " " . l:match0 . " " .l:match01
 		:  if l:match0 == 2
 		:    execute "normal! 0f(%l"
 		:  elseif l:match01 == 2
@@ -1443,7 +1442,6 @@
 		:  let l:file = expand("%")
 		:  if &ft == "" && stridx(l:file, ".") == -1
 		:    let l:glob = glob(l:file . ".*", 0, 1)
-		:    echom len(l:glob)
 		:    if len(l:glob) == 1
 		:     execute "e! ". l:glob[0]
 		:    endif
