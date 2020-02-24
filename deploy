@@ -31,7 +31,7 @@ for f in files:
     try:
         os.symlink(myfile, link)
     except:
-        os.system(f"rm -r {link}")
+        # os.system(f"rm -r {link}")
         os.symlink(myfile, link)
     if verbose:
         print(link, "->", myfile)

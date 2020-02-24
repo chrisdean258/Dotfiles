@@ -14,7 +14,11 @@ __complete_vim()
 
 	cur=${COMP_WORDS[COMP_CWORD]}
 
-	words="$(file -L * | grep -v -E "\.log$|\.aux$|\.nav$|\.out$|\.snm$|\.toc$|directory" | grep -E "ASCII|text|empty" | cut -d: -f1 | sed "s:^\.\/::g")"
+	if [ ${COMP_WORDS[$COMP_CWORD-1]} = "-t" ]; then
+		words="$(cat tags .tags 2>/dev/null | awk '{print $1}')"
+	else
+		words="$(file -L * | grep -v -E "\.log$|\.aux$|\.nav$|\.out$|\.snm$|\.toc$|directory" | grep -E "ASCII|text|empty" | cut -d: -f1 | sed "s:^\.\/::g")"
+	fi
 	COMPREPLY=( $(compgen -W "$words" -- "$cur" ) )
 
 	return 0
@@ -29,11 +33,7 @@ __complete_open()
 	local words
 
 	cur=${COMP_WORDS[COMP_CWORD]}	
-	if [ ${COMP_WORDS[$COMP_CWORD-1]} = "-t" ]; then
-		words="$(cat tags .tags 2>/dev/null | awk '{print $1}')"
-	else
-		words="$(file -L *| grep -v -E "ASCII|text|empty|directory|data" | rev | cut -d: -f2-| rev)"
-	fi
+	words="$(file -L *| grep -v -E "ASCII|text|empty|directory|data" | rev | cut -d: -f2-| rev)"
 	COMPREPLY=( $(compgen -W "$words" -- "$cur" ) )
 
 	return 0
