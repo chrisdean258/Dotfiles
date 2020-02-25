@@ -1,6 +1,6 @@
 #!/bin/bash
 
-exec git --git-dir=$HOME/git/dotfiles/ --work-tree=$HOME "$@"
+exec git --git-dir=$HOME/git/Dotfiles/ --work-tree=$HOME "$@"
 
 set -e
 

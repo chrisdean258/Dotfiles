@@ -142,6 +142,6 @@ j()
 update_file="$HOME/.cache/bash_update"
 ! [ -f "$update_file" ] && touch "$update_file"
 if ! diff "$update_file" <(date +%j) &>/dev/null; then
-	[ -z "$NO_UPDATE" ] && dots deploy
+	[ -z "$NO_UPDATE" ] && dots pull
 	date +%j > "$update_file"
 fi
