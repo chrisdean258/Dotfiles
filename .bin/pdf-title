@@ -36,7 +36,7 @@ def main(argv):
         if paper_title:
             new_fn = filename(paper_title)
             if fn != new_fn:
-                print(fn, "-->", new_fn)
+                print(fn, "->", new_fn)
                 if move:
                     os.rename(fn, new_fn)
 

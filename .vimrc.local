@@ -1,0 +1,5 @@
+:let g:imawimp = 1
+:let g:hllonglines = 1
+:let g:light_folds = 0
+:let g:python_blank_line_fix = 1
+:let g:manage_sessions = 1
