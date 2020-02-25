@@ -1,0 +1,55 @@
+#!/bin/bash
+
+set -e
+
+if [ $# -lt 1 ]; then
+	echo "Usage: git new-repo repo_name" 1>&2
+	exit 2
+fi
+
+extra=
+while echo "$1" | grep -q "^-"; do
+	case "$1" in
+		--private|-p)
+			extra="$extra,\"private\": true"
+			shift
+			;;
+		-*)
+			echo "$1: command not undestood"
+			exit 1
+			;;
+		*)
+			break
+			;;
+	esac
+done
+
+REPO="$1"
+LOCALNAME=${2:-$REPO}
+USER=$(git config user.username) || true
+if [ -z "$USER" ]; then
+	USER=$(git config user.email | sed "s/@.*//")
+fi
+
+read -s -p "Password: " PASSWORD
+echo
+
+mkdir -p "$LOCALNAME"
+cd "$LOCALNAME"
+
+git init
+
+if [ -x "$(command -v jq)" ]; then
+	curl -u "$USER:$PASSWORD" "https://api.github.com/user/repos" -d "{\"name\":\"$REPO\"$extra}" 2>/dev/null | jq -r 'if .name then "Name: " + .name + "\nFull name: " + .full_name else "\nMessage: " + .message end'
+else
+	curl -u "$USER:$PASSWORD" "https://api.github.com/user/repos" -d "{\"name\":\"$REPO\"$extra}" 2>/dev/null | python3 -m json.tool
+fi
+
+git remote add origin "git@github.com:$USER/$REPO.git"
+
+echo "# $REPO" > README.md
+touch .gitigore
+
+git add -A .
+git commit -m "Initial Commit"
+git push -u origin master

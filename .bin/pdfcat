@@ -1,0 +1,10 @@
+#!/bin/sh
+
+if [ $# -lt 1 ]; then
+	echo "Usage: pdfhead file [options...]"
+	exit 1
+fi
+file="$1"
+shift
+
+pdftotext "$file" - | cat "$@"

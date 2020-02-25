@@ -1,0 +1,14 @@
+#!/bin/bash
+
+
+if [ $# -eq 0 ]
+then
+	git branch
+elif [ $# -eq 1 ] && [ `git branch | grep $1` ]
+then
+	git co "$@"
+else
+	git co -b "$@"
+	git branch --set-upstream-to origin/"$@"
+fi
+

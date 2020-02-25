@@ -1,0 +1,24 @@
+#!/bin/bash
+
+compile()
+{
+
+	case "$1" in
+		*.md) pandoc "$1" -o ${1%.md}.pdf -V geometry:margin=0.5in ;;
+		*.c | *.cpp) make "${1%.*}" ;;
+		*.tex) latex2pdf "$1" ;; 
+	esac
+}
+
+
+if ls | grep -q "[Mm]akefile"; then
+	make
+	exit $?
+fi
+
+files="${@:-$(ls)}"
+for file in $files; do
+	! [ -d "$file" ] && compile "$file"
+done
+
+

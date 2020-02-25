@@ -1,0 +1,19 @@
+#!/bin/bash
+
+: ${1?"Usage: latex2pdf filenames"}
+
+while [ $# -gt 0 ]; do
+	if ! [ -f $1 ]; then
+		shift
+		continue
+	fi
+	filename=${1%.tex}
+	# echo q | pdflatex $1 -interaction errorstopmode #&> /dev/null
+	echo q | timeout 5s lualatex $1 -interaction errorstopmode #&> /dev/null
+	rv=$?
+	if [ $rv -ne 0 ]; then
+		exit $rv
+	fi
+	#rm -f $filename.aux $filename.log
+	shift
+done

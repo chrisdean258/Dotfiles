@@ -1,0 +1,3 @@
+#!/bin/bash
+
+ls --color=auto --group-directories-first -1 "$@"

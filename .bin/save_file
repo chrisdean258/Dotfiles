@@ -1,0 +1,103 @@
+#!/usr/bin/env python3
+
+import smtplib
+from os.path import basename
+from email.mime.application import MIMEApplication
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from email.utils import COMMASPACE, formatdate
+
+def send_email(**kwargs):
+    arguments = {}
+    if "to" in kwargs:
+        arguments["from_"]    = kwargs["from"][0]
+        arguments["user"]     = kwargs["user"]
+        arguments["password"] = kwargs["password"]
+        arguments["to"]       = kwargs["to"]
+        arguments["subject"]  = kwargs["subject"][0]
+        arguments["text"]     = kwargs["message_stream"].read()
+        arguments["quiet"]    = kwargs["quiet"]
+        arguments["attach"]   = kwargs["attach"]
+
+        if "format_dict" in kwargs:
+            arguments["text"] = arguments["text"].format(**kwargs["format_dict"])
+
+        return gmail_send(**arguments)
+    elif "format" in kwargs:
+        return False
+
+
+def gmail_send(user, from_, password, to, subject, text, quiet=1, attach=[]):
+    msg = MIMEMultipart()
+    msg['From'] = from_
+    msg['To'] = COMMASPACE.join(to)
+    msg['Date'] = formatdate(localtime=True)
+    msg['Subject'] = subject
+    msg.attach(MIMEText(text))
+
+    for f in attach or []:
+        with open(f, "rb") as fil:
+            part = MIMEApplication(
+                fil.read(),
+                Name=basename(f)
+            )
+        # After the file is closed
+        part['Content-Disposition'] = 'attachment; filename="%s"' % basename(f)
+        msg.attach(part)
+
+    body = msg.as_string()
+
+    if not quiet: print("Sending Email...", end="", flush=True)
+    try:
+        server = smtplib.SMTP('smtp.gmail.com', 587)
+        server.ehlo()
+        server.starttls()
+        server.login(user, password)
+        server.sendmail(user, to, body)
+        server.quit()
+    except:
+        print("There was an unexpected error")
+        return False
+    if not quiet: print("Done")
+    return True
+
+def main(argv):
+    from getpass import getpass
+    import argparse
+    import os
+
+    parser = argparse.ArgumentParser(description='Sends emails')
+    parser.add_argument('files',                     type=str, nargs='+', help='the email addresses of the recipients')
+    parser.add_argument('-r', '--from',              type=str, nargs=1,   help='change the From address')
+    parser.add_argument('-u', '--user',              type=str, nargs=1,   help='use this user account')
+    parser.add_argument('-s', '--subject',           type=str, nargs=1,   help='specify the subject field')
+    parser.add_argument('-m', '--message',           type=str, nargs=1,   help='file containing the message to be sent. Default=stdin')
+    parser.add_argument('-f', '--format',            type=str, nargs=1,   help='specify a csv file to send automated messages to')
+    parser.add_argument('-a', '--attach',            type=str, nargs='+', help='files to attach')
+    parser.add_argument('-q', '--quiet',             action='store_const', const=True, default=True)
+    args = vars(parser.parse_args())
+
+
+    # I know its terrible but I like the ability to automate
+    if "from" not in args or not args["from"]:
+        args["password"] = os.environ.get("email_") or getpass()
+    else:
+        args["from"] = args["from"][0]
+
+    if not args["user"]: args["user"] = os.environ.get("email")
+    if not args["from"]: args["from"] = os.environ.get("email")
+    args["to"] = [args["from"]]
+    args["message_stream"] = open("/dev/null", "r")
+
+    for f in args["files"]:
+        args["attach"] = [f]
+        args["subject"] = [f]
+        print("Sending", f)
+        send_email(**args)
+
+    args["message_stream"].close()
+
+
+if __name__ == "__main__":
+    import sys
+    main(sys.argv)

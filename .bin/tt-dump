@@ -1,0 +1,159 @@
+#!/usr/bin/env python3
+import csv
+import email
+import imaplib
+import os
+import re
+import sys
+import tempfile
+from datetime import datetime
+from getpass import getpass
+from sh import git
+
+
+class Activity:
+    header = ["start", "end", "location", "category", "activity", "people"]
+    categories = ["Sleep", "Shower", "Travel", "TV", "Research", "Coding",
+                  "Video Games", "Food", "Friends", "Reddit", "Youtube",
+                  "Shopping", "Class", "Podcast", "Wasted", "Bean"]
+
+    def as_list(self):
+        return [self.start, self.end, self.location.strip(), self.category,
+                self.activity.strip(), ",".join(self.people)]
+
+    @classmethod
+    def from_csv_line(cls, line):
+        a = cls()
+        a.start, a.end, a.location, a.category, a.activity, a.people = line
+        a.people = a.people.split(",")
+        return a
+
+    @classmethod
+    def from_csv(cls, filename, delimiter=","):
+        with open(filename, "r") as csvfile:
+            next(csvfile)
+            reader = csv.reader(csvfile, delimiter=delimiter)
+            return [Activity.from_csv_line(a) for a in reader]
+
+    @staticmethod
+    def to_csv(activities, filename, delimiter=","):
+        for a1, a2 in zip(activities, activities[1:]):
+            a2.start = a1.end
+            if a2.location == "":
+                a2.location = a1.location
+
+        with open(filename, 'w', newline='') as csvfile:
+            csvwriter = csv.writer(csvfile, delimiter=delimiter)
+            csvwriter.writerow(Activity.header)
+            for activity in activities:
+                csvwriter.writerow(activity.as_list())
+
+    @classmethod
+    def parse_tasker(cls, line):
+        act = cls()
+        splitters = ("with", "at", "ending")
+        date, _, line = line.partition(" ")
+        time, _, line = line.partition(" ")
+
+        regex = "( " + " | ".join(splitters) + " )"
+        act.activity, *pieces = [s.strip() for s in re.split(regex, line)]
+        pd = dict(zip(pieces[0::2], pieces[1::2]))
+        act.location = pd.get("at", "")
+        act.people = [a.strip().title() for a in pd.get("with", "").split(",")]
+        time = pd.get("ending", time).replace(".", ":")
+
+        mon, day, yr = [int(a) for a in date.split("-")]
+        hr, m = [int(a) for a in time.split(":")]
+        dt = datetime(year=yr + 2000, month=mon, day=day, hour=hr, minute=m)
+        act.end = dt.strftime("%Y-%m-%d %H:%M")
+        act.category = "misc"
+        for category in reversed(Activity.categories):
+            if category.lower() in act.activity.lower():
+                act.category = category
+
+        return act
+
+    @staticmethod
+    def to_columns(activities, filename):
+        def colprint(items, offsets, file):
+            formed = (f"{i:{l}}" for i, l in zip(items, offsets))
+            print(" | ".join(formed), file=file)
+
+        for a1, a2 in zip(activities, activities[1:]):
+            a2.start = a1.end
+            a2.location = a2.location or a1.location
+        offsets = [len(a) for a in Activity.header]
+        for activity in activities:
+            lens = (len(a) for a in activity.as_list())
+            offsets = [max(a, b) for a, b in zip(lens, offsets)]
+        with open(filename, "w") as f:
+            colprint(Activity.header, offsets, f)
+            for activity in activities:
+                colprint(activity.as_list(), offsets, f)
+
+    @staticmethod
+    def from_columns(filename):
+        with open(filename, "r") as f:
+            next(f)
+            items = [[item.strip() for item in l.split(" | ")] for l in f]
+        return [Activity.from_csv_line(item) for item in items]
+
+
+def get_new_activities():
+    # Login
+    if len(sys.argv) == 2 and sys.argv:
+        with open(sys.argv[1], "r") as f:
+            return f.readlines()
+    con = imaplib.IMAP4_SSL("imap.gmail.com", 993)
+    con.login("chrisdean258@gmail.com", os.environ.get("email_") or getpass())
+
+    # Select mailbox and search
+    con.select('"[Gmail]/All Mail"')
+    result, msgs = con.search(None, "Subject", '"TimeTrackerflush"')
+
+    # Get last message Number and query for message
+    mail_num = msgs[0].split()[-1]
+    typ, data = con.fetch(mail_num, '(RFC822)')
+
+    # Read email and return resulting activities
+    mail = email.message_from_bytes(data[0][1])
+    body = mail.get_payload(None, True).decode('utf-8')
+    return body.splitlines()
+
+
+def main():
+    print("Gathering new activities...", end="", flush=True)
+    new_activities = [Activity.parse_tasker(a) for a in get_new_activities()]
+    print("Done\nGathering old activities...", end="", flush=True)
+    old_activities = Activity.from_csv("time-tracking.csv")
+    print("Done")
+
+    if old_activities[-1].end >= new_activities[0].end:
+        if input("Possibly reprocessing activities. Quit[Y/n]? ") != "n":
+            sys.exit(1)
+
+    new_activities[0].start = old_activities[-1].end
+    if not new_activities[0].location:
+        new_activities[0].location = old_activities[-1].location
+
+    temp_file = tempfile.NamedTemporaryFile(mode="r")
+    Activity.to_columns(new_activities, temp_file.name)
+    if os.system(f'vim "{temp_file.name}"') != 0:
+        return
+    new_activities = Activity.from_columns(temp_file.name)
+    activities = old_activities + new_activities
+    Activity.to_csv(activities, "time-tracking.csv")
+
+
+if __name__ == "__main__":
+    HOME = os.environ["HOME"]
+    os.chdir(HOME + "/git/personal_notes")
+    git.pull()
+
+    main()
+
+    print("Committing new activities...", end="", flush=True)
+    git.add("time-tracking.csv")
+    git.commit(m="time tracking update")
+    git.push()
+    print("Done")

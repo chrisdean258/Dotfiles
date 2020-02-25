@@ -1,0 +1,22 @@
+#!/bin/bash
+
+extension="md"
+if [ $# -gt 0 ] && [ $1 = "tex" ]; then
+	extension="tex"
+	shift
+fi
+
+title="$(echo $* | sed 's/[ ]/_/g')"
+date=$(date +%Y-%m-%d)
+
+fn="$date.$extension"
+if [ -n "$title" ]; then
+	fn="$date-$title.$extension"
+elif ls | grep -v "\.pdf$" | grep "$date" -q; then
+	fn=($(ls | grep "$date" | grep -v "\.pdf$"))
+fi
+
+
+echo "$fn"
+vim "$fn"
+

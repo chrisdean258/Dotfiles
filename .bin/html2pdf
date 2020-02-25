@@ -1,0 +1,10 @@
+#!/bin/bash
+
+: ${1?"Usage: pdf filename <args>"}
+
+file=$1
+out=${file%.*}.pdf
+
+shift
+
+wkhtmltopdf "$@" $file $out

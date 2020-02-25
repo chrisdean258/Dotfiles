@@ -1,0 +1,11 @@
+#!/bin/bash
+
+if ! [ -n "$(command -v xdg-open 2>/dev/null)" ]; then
+	/usr/bin/open "$@"
+	exit $?
+fi
+
+while [ $# -gt 0 ]; do
+	xdg-open "$1" >/dev/null 2>/dev/null & 
+	shift
+done

@@ -1,0 +1,10 @@
+#!/bin/bash
+
+current_branch=$(git branch | grep \* | cut -d ' ' -f2)
+
+git stash
+git checkout master
+git save "$@"
+git stash pop
+git checkout "$current_branch"
+

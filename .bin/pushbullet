@@ -1,0 +1,24 @@
+#!/usr/bin/env python3
+
+from pushbullet import Pushbullet
+
+import sys
+import os
+
+
+def usage():
+    print("Usage: .bin/pushbullet title [body]", file=sys.stderr)
+    sys.exit(1)
+
+
+def main():
+    if len(sys.argv) != 2 and len(sys.argv) != 3:
+        usage()
+    sys.argv.append("")
+    api_key = os.environ["PUSHBULLET_API_TOKEN"]
+    pb = Pushbullet(api_key)
+    pb.push_note(sys.argv[1], sys.argv[2])
+
+
+if __name__ == "__main__":
+    main()

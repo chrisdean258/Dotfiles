@@ -1,0 +1,15 @@
+#!/usr/bin/env python3
+
+from gtts import gTTS
+import subprocess
+import os
+import sys
+
+rp, wp = os.pipe()
+r = os.fdopen(rp, "rb")
+w = os.fdopen(wp, "wb")
+
+tts = gTTS(text=sys.stdin.read(), lang='en')
+tts.write_to_fp(w)
+w.close()
+subprocess.run(("ffplay", "-i", "pipe:0", "-autoexit", "-nodisp"), stdin=r)

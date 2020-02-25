@@ -1,0 +1,20 @@
+#!/bin/bash
+
+if svn info >/dev/null 2>&1; then
+	snv commit -m "$*"
+	exit $?
+fi
+
+comment="$*"
+
+if [ "$*" = "..." ]; then
+	comment="$(git log -1 --pretty=%B)"
+	echo -n "\"$comment\"? "
+	read resp
+	[ -n "$resp" ] && comment="$resp"
+fi
+
+git add `git diff --name-only`
+git commit -m "$comment"
+git push
+

@@ -1,0 +1,16 @@
+#!/bin/bash
+
+_run()
+{
+	tput bold
+	echo "$@"
+	tput sgr0
+	"$@"
+}
+
+comment=`echo ${GIT_PREFIX:-./} | sed 's/[\.\/-]/ /g' | sed 's/_/ /g'`
+
+_run git pull
+_run git add -A .
+_run git commit -m "Notes: $comment"
+_run git push

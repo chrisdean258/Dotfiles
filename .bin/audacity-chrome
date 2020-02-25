@@ -1,0 +1,32 @@
+#!/bin/bash
+
+mic="alsa_input.usb-Solid_State_System_Co._Ltd._LCS_USB_Audio_000000000000-00.analog-mono"
+headphones="alsa_output.usb-Generic_Turtle_Beach_P11_Headset_0000000001-00.analog-stereo"
+
+# Figure out which device chrome is playing to
+chrome_output="$(pactl list sink-inputs | sed "/[Cc]hromium|[Ch]rome/q" | grep "^Sink Input #" | head -n 1 | sed "s/^Sink Input #//")"
+
+# Virtual sink for Chrome
+dev1="$(pactl load-module module-null-sink sink_name=chrome sink_properties=device.description=Chrome-ouput)"
+# Play chrome's output to virtual sink
+pactl move-sink-input $chrome_output chrome
+# Play virtual chrome to headphones
+dev2="$(pactl load-module module-loopback sink=$headphones source=chrome.monitor)"
+
+# Virtual sink for audacity
+dev3="$(pactl load-module module-null-sink sink_name=audacity_input sink_properties=device.description=Audacity-input)"
+# Play chrome's sounds into virtual sink
+dev4="$(pactl load-module module-loopback sink=audacity_input source=chrome.monitor)"
+# Play microphone sounds into virutal sink
+dev5="$(pactl load-module module-loopback sink=audacity_input source=$mic)"
+
+audacity >/dev/null 2>&1
+
+pactl move-sink-input $chrome_output "$headphones"
+
+pactl unload-module "$dev1"
+pactl unload-module "$dev2"
+pactl unload-module "$dev3"
+pactl unload-module "$dev4"
+pactl unload-module "$dev5"
+

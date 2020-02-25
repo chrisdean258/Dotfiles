@@ -1,0 +1,14 @@
+#!/bin/sh
+
+set -e
+
+if [ "$1" = "-u" ]; then
+	sudo umount ~/MOUNTDIR
+	rm -rf MOUNTDIR
+	exit
+fi
+
+
+mkdir -p ~/MOUNTDIR
+jmtpfs ~/MOUNTDIR
+

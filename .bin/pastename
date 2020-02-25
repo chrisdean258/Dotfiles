@@ -1,0 +1,4 @@
+#!/bin/sh
+
+mv "$1" "$(xpaste | tr "\n" " ").pdf"
+urename

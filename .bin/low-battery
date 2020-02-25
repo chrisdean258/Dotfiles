@@ -1,0 +1,5 @@
+#!/bin/bash
+
+out="$(acpi 2>/dev/null|  awk '/Discharging/ { print int($4) }')"
+[ "${out:-100}" -lt 15 ]
+exit $?
