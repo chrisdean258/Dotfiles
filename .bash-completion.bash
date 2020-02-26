@@ -1,6 +1,5 @@
 #!/bin/bash
 
-
 complete -d cd
 complete -o bashdefault -f -X "!*.pdf" pdf-title
 complete -o bashdefault -f -X "!*.pdf" pdfhead
@@ -59,15 +58,6 @@ __complete_j()
 }
 
 complete -o bashdefault -o default -o nospace -F __complete_j j
-
-__complete_redo()
-{
-	local words 
-	words="$(fc -l -50 | sed 's/\t//')"
-	COMPREPLY=($(compgen -W "$words" -- "${COMP_WORDS[COMP_CWORD]}"))
-}
-
-complete -o bashdefault -o default -o nospace -F __complete_redo redo
 
 __complete_ssh() 
 {
