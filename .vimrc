@@ -273,6 +273,7 @@
 	" Vertical splitting is better than horizontal splitting
 	:cabbrev help <C-R>=CommandLineStart(":", "vert help", "help")<CR>
 	:cabbrev sp <C-R>=CommandLineStart(":", "vs", "sp")<CR>
+	:cabbrev sf <C-R>=CommandLineStart(":", "vert sf", "sf")<CR>
 
 	" Quitting cause Im bad at typing
 	:cabbrev W <C-R>=CommandLineStart(":", "w", "W")<CR>
