@@ -366,8 +366,6 @@
 	:augroup c_cpp
 	:  autocmd!
 	:  autocmd FileType c,cpp  :setlocal complete+=t
-	:  autocmd FileType c,cpp  :call matchadd("Type", '^\s*\<[_a-zA-Z][_a-zA-Z0-9]*_t\>')
-	:  autocmd FileType c,cpp  :call matchadd("Type", '(\<[_a-zA-Z][_a-zA-Z0-9]*_t\>)')
 	:  autocmd FileType c,cpp  :iabbrev <buffer> #i #include
 	:  autocmd FileType c,cpp  :iabbrev <buffer> #I #include
 	:  autocmd FileType c,cpp  :iabbrev <buffer> #d #define
