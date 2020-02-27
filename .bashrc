@@ -7,8 +7,7 @@ if [ -z "$TMUX" ] && [ -x "$(which tmux 2>/dev/null)" ]; then
 	[ -z "$SSH_TTY" ] && exec tmux $a || export SSH_TTY
 fi
 
-[ -z "$BASH_SOURCED" ] || return
-BASH_SOURCED="yes"
+[ -z "$BASH_SOURCED" ] && BASH_SOURCED="yes" || return
 
 exe() { [ -x "$(command -v "$1")" ]; }
 
@@ -16,19 +15,12 @@ exe() { [ -x "$(command -v "$1")" ]; }
 [ -r ~/.bash_aliases ] && . ~/.bash_aliases
 [ -r ~/.git-completion.bash ] && source ~/.git-completion.bash
 [ -r ~/.bash-completion.bash ] && source ~/.bash-completion.bash
-exe lesspipe && eval "$(SHELL=/bin/sh lesspipe)"
 
 HISTCONTROL=ignoreboth
 HISTSIZE=
 HISTFILESIZE=
 P_RED="\[`tput setaf 1`\]" 
 P_GREEN="\[`tput setaf 2`\]" 
-#P_YELLOW="\[`tput setaf 3`\]" 
-#P_BLUE="\[`tput setaf 4`\]" 
-#P_PURPLE="\[`tput setaf 5`\]"
-#P_AQUA="\[`tput setaf 6`\]"
-#P_WHITE="\[`tput setaf 7`\]"
-#P_BLACK="\[`tput setaf 8`\]"
 P_CLEAR="\[`tput sgr0`\]"
 
 export PATH=$HOME/bin:$HOME/.bin:$PATH
@@ -39,10 +31,6 @@ export HISTIGNORE="ls:cd"
 export TERM=st-256color
 
 shopt -s histappend   2>/dev/null
-shopt -s cdspell      2>/dev/null
-shopt -s autocd       2>/dev/null
-shopt -s checkwinsize 2>/dev/null
-shopt -s globstar     2>/dev/null
 shopt -s checkhash    2>/dev/null
 
 set -o vi
@@ -96,8 +84,8 @@ if exe dircolors; then
 fi
 
 exe colordiff && alias diff="colordiff"
-exe neomutt && alias mutt="neomutt"
-exe vimpager && alias less="vimpager"
+exe neomutt   && alias mutt="neomutt"
+exe vimpager  && alias less="vimpager"
 
 -() { builtin cd -; }
 
@@ -106,7 +94,7 @@ alias cd="cdls"
 cdls()
 {
 	if builtin cd "$@"; then
-		[ `ls | wc -l` -lt 100 ] && ls
+		[ `ls | wc -l` -lt 400 ] && ls
 		echo `realpath .` >> "$jmp" && sed -i 1d "$jmp"
 		return 0
 	fi
