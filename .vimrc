@@ -1426,7 +1426,9 @@
 		let g:restored = 0
 		:function! RestoreSess()
 		"{{{
-		:  if get(g:, "manage_sessions" ) && filereadable(getcwd() . '/.session.vim') && argc() == 0
+		:  if expand("%") != ""
+		:    return
+		:  elseif get(g:, "manage_sessions" ) && filereadable(getcwd() . '/.session.vim') && argc() == 0
 		:    execute 'so ' . getcwd() . '/.session.vim'
 		:    let g:restored = 1
 		:  elseif get(g:, "manage_session" ) && filereadable($HOME . '/session/.session.vim') && argc() == 0
