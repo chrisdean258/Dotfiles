@@ -265,6 +265,8 @@
 	:nnoremap VJ Vj
 	:nnoremap VJJ Vjj
 	:nnoremap VJJJ Vjjj
+
+	:nnoremap <C-[> :vs<CR><C-]>
 " }}}
 
 " UNIVERSAL ABBREVIATIONS AND COMMANDS {{{
