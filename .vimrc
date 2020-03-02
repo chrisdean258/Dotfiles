@@ -13,6 +13,7 @@
 	:set softtabstop=-1                     " Keep defaults to shiftwidth
 	:set shiftwidth=0                       " defaults to tabstop
 
+	:set ttyfast
 	:set nocompatible                       " We're not using vi
 	:set autoindent                         " automatically indent
 	:set smartindent                        " Increase indent in a smart way
@@ -277,6 +278,7 @@
 	:cabbrev sp <C-R>=CommandLineStart(":", "vs", "sp")<CR>
 	:cabbrev sf <C-R>=CommandLineStart(":", "vert sf", "sf")<CR>
 	:cabbrev vf <C-R>=CommandLineStart(":", "vert sf", "vf")<CR>
+	:cabbrev find <C-R>=CommandLineStart(":", "Find", "find")<CR>
 
 	" Quitting cause Im bad at typing
 	:cabbrev W <C-R>=CommandLineStart(":", "w", "W")<CR>
@@ -304,6 +306,7 @@
 
 	:command! Compile :call Compile()
 	:command! Template :call NewFile()
+	:command! -nargs=1 -complete=file_in_path Find :call Find("<args>")
 
 " }}}
 
@@ -1452,6 +1455,16 @@
 		:  endif
 		:endfunction
 		" }}}
+
+		:function! Find(name)
+		"{{{
+		:  let l:fns = split(System("find -type f -name '" . a:name . "'"), "\n")
+		:  if len(l:fns) > 0
+		:    execute ":e " . l:fn[0]
+		:  endif
+		:endfunction
+		" }}}
+
 
 	" }}}
 
