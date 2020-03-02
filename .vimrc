@@ -1460,7 +1460,7 @@
 		"{{{
 		:  let l:fns = split(System("find -type f -name '" . a:name . "'"), "\n")
 		:  if len(l:fns) > 0
-		:    execute ":e " . l:fn[0]
+		:    execute ":e " . l:fns[0]
 		:  endif
 		:endfunction
 		" }}}
