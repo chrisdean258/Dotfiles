@@ -6,7 +6,7 @@ while true; do
 	counter=0
 	while ! [ -f ~/.xresetroot ]; do
 		battery_num="$(acpi | grep -oP "[0-9]*(?=%)")"
-		battery_msg="$(acpi | grep -o "[0-9][0-9]:[0-9][0-9]:[0-9][0-9]")"
+		battery_msg="$(acpi | grep -E -m1 -o "[0-9][0-9]:[0-9][0-9]:[0-9][0-9]|Full")"
 		temperature="$(acpi -t | grep -oP "[0-9][0-9]*(?=\.[0-9])")"
 		nettype=$(nmcli device | awk '/connected/ {print $2}')
 		network=$(nmcli device wifi | awk '/^\*/ {print $2}')
@@ -19,7 +19,7 @@ while true; do
 		battery="$(printf "%.*s%*s" $width ░░░░░░░░░░ $other "")"
 
 		[ $battery_num -le 15 ] && battery="$(echo -e "\x05$battery\x01")"
-		acpi | grep -q "\<[cC]harging\>" && battery_msg="$(echo -e "\x06$battery_msg\x01")"
+		acpi | grep -E -q "\<[cC]harging\>|Full" && battery_msg="$(echo -e "\x06$battery_msg\x01")"
 
 		if [ "$counter" -eq 1 ] && [ "$netspeed" = "Connected" ]; then
 			netspeed="$(speedtest-cli --simple | awk 'BEGIN{RS="~"} {printf("%d/%d/%d", $5, $8, $2) }')"
