@@ -7,7 +7,6 @@ while true; do
 	while ! [ -f ~/.xresetroot ]; do
 		battery_num="$(acpi | grep -oP "[0-9]*(?=%)")"
 		battery_msg="$(acpi | grep -E -m1 -o "[0-9][0-9]:[0-9][0-9]:[0-9][0-9]|Full")"
-		temperature="$(acpi -t | grep -oP "[0-9][0-9]*(?=\.[0-9])")"
 		nettype=$(nmcli device | awk '/connected/ {print $2}')
 		network=$(nmcli device wifi | awk '/^\*/ {print $2}')
 		[ "$nettype" = "ethernet" ] && network="Connected via ethernet"
@@ -26,7 +25,7 @@ while true; do
 		fi
 		[ -n "$network" ] && network="$network (${netspeed})"
 
-		name="$(printf %100s "") [$battery] $battery_num% ($battery_msg) | $temperature °C | $network | $time "
+		name="$(printf %100s "") [$battery] $battery_num% ($battery_msg) | $network | $time "
 
 		xsetroot -name "$name"
 		[ "$counter" -ne 0 ] && sleep 10
