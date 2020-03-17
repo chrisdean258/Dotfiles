@@ -17,6 +17,13 @@ def filename(string):
     return string.strip().replace(" ", "_") + ".pdf"
 
 
+def pdfreader(fn):
+    try:
+        return PdfReader(fn)
+    except Exception:
+        return None
+
+
 def main(argv):
     move = False
     while argv and argv[0] in ("-m", "-i"):
@@ -25,11 +32,11 @@ def main(argv):
         argv = argv[1:]
 
     files = argv or glob("*.pdf")
-    pdfs = {fn: PdfReader(fn) for fn in files}
+    pdfs = {fn: pdfreader(fn) for fn in files}
 
     for fn, pdf in pdfs.items():
         paper_title = None
-        if pdf.Info.Title:
+        if pdf and pdf.Info.Title:
             paper_title = title(pdf.Info.Title)
         if not paper_title:
             paper_title = pdfhead(fn, n=1)

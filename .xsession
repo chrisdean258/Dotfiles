@@ -42,6 +42,6 @@ if [ $# -eq 0 ]; then
 	monitor
 	xset r rate 500 300 #Repeat rate
 	xsetroot -solid black
-	exec dwm &> ~/.xsession-errors
+	exec dwm &>> ~/.xsession-errors
 	echo "DWM failed to start" > ~/dwm.error
 fi

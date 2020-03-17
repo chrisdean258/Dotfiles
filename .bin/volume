@@ -1,0 +1,22 @@
+#!/bin/sh
+
+if pgrep -x pulseaudio >/dev/null ; then
+	toggle() { pulsemixer --toggle-mute ; }
+	mute() { pulsemixer --mute ; }
+	up() { pulsemixer --change-volume +"$1" ; }
+	down() { pulsemixer --change-volume -"$1" ; }
+	print() { pulsemixer --get-volume | grep -o "^[0-9]*" ; }
+else
+	toggle() { amixer sset Master toggle ; }
+	mute() { amixer sset Master mute ; }
+	up() { amixer sset Master "$1"%+ ; }
+	down() { amixer sset Master "$1"%- ; }
+	print() {  amixer sget Master | awk -F"[][]" '/dB/ { print int($2) }' ; } 
+fi
+
+$(match-prefix "$1" print toggle mute up down) ${2:-5}
+
+
+
+
+

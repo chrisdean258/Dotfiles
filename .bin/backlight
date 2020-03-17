@@ -14,9 +14,10 @@ fi
 
 
 new_bright=$(echo "$new_bright" | awk '$1 <= 1.2 && $1 > 0')
+output="$(xrandr | awk '/ connected/ {print $1}' |  head -n 1)"
 
-echo xrandr --output "eDP-1-1" --brightness "${new_bright:-$brightness}"
-xrandr --output "eDP-1-1" --brightness "${new_bright:-$brightness}"
+echo xrandr --output "$output" --brightness "${new_bright:-$brightness}"
+xrandr --output "$output" --brightness "${new_bright:-$brightness}"
 
 
 

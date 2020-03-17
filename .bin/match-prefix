@@ -1,0 +1,11 @@
+#!/bin/sh
+
+prefix=$1
+shift
+
+while [ $# -gt 0 ]; do
+	case "$1" in
+		${prefix}*) echo "$1" && exit 0 ;;
+		*) shift
+	esac
+done
