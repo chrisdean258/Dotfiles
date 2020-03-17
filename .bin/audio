@@ -4,12 +4,6 @@
 
 if [ $# -eq 0 ]; then
 	exec pavucontrol
-elif [ "$1" = "play" ]; then
-	exec killall -q -CONT 'pulseaudio'
-elif [ "$1" = "pause" ]; then
-	exec killall -q -STOP 'pulseaudio'
-elif [ "$1" = "toggle" ]; then
-	ps aux | grep -q "[S]<l.*pulseaudio" && exec audio pause || exec audio play
 fi
 
 sinks="$(pactl list sinks | grep -E "Sink #|device.description = " | sed '$!N;s/\n/ /' | sed "s/Sink #\([0-9]*\).*\"\(.*\)\"/\1 \2/g" | sed "s/Built-in Audio Analog Stereo$/Speakers/g")"
