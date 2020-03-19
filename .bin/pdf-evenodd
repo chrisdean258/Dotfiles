@@ -1,0 +1,3 @@
+#!/bin/sh
+gs -sDEVICE=pdfwrite -sPageList=even -sOutputFile=even.pdf -dBATCH -dNOPAUSE "$1"
+gs -sDEVICE=pdfwrite -sPageList=odd -sOutputFile=odd.pdf -dBATCH -dNOPAUSE "$1"
