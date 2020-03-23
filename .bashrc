@@ -127,9 +127,4 @@ j()
 	return $?
 }
 
-update_file="$HOME/.cache/bash_update"
-! [ -f "$update_file" ] && touch "$update_file"
-if ! diff "$update_file" <(date +%j) &>/dev/null; then
-	[ -z "$NO_UPDATE" ] && dots pull
-	date +%j > "$update_file"
-fi
+[ "$(stat -c %y .bashrc | cut -d " " -f 1)" = "$(date '+%Y-%m-%d')" ] || (dots pull && touch .bashrc)
