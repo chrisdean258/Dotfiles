@@ -32,7 +32,7 @@ __complete_open()
 	local words
 
 	cur=${COMP_WORDS[COMP_CWORD]}	
-	words="$( file -L *| grep -v -E "ASCII|text|empty|directory|data" | grep -o "^[^:]*")"
+	words="$(file -L *| grep -v -E "ASCII|text|empty|directory|data" | grep -o "^[^:]*")"
 	COMPREPLY=( $(compgen -W "$words" -- "$cur" ) )
 
 	return 0
@@ -48,7 +48,7 @@ __complete_j()
 
 	COMPREPLY=()
 	cur=${COMP_WORDS[COMP_CWORD]}	
-	words="$(cat ~/.cache/jmp/jmp_complete)" 
+	words="$(cat ~/.cache/jmp/jmp_complete 2>/dev/null)" 
 
 	COMPREPLY=( $(compgen -W "$(cat ~/.jmp_complete)" -- "$cur") )
 

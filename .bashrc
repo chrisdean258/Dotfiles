@@ -127,4 +127,4 @@ j()
 	return $?
 }
 
-[ "$(stat -c %y .bashrc | cut -d " " -f 1)" = "$(date '+%Y-%m-%d')" ] || (dots pull && touch .bashrc)
+test "$(find ~/.bashrc -mmin +480)" && dots pull && touch ~/.bashrc
