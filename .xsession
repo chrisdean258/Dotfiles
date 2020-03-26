@@ -10,8 +10,8 @@ while true; do
 		nettype=$(nmcli device | awk '/connected/ {print $2}')
 		network=$(nmcli device wifi | awk '/^\*/ {print $2}')
 		[ "$nettype" = "ethernet" ] && network="Connected via ethernet"
-		time=$(date +"%F %I:%M %p")
-		ping -c 1 -w 1 google.com &>/dev/null && netspeed="Connected" || netspeed="No Access"
+		time=$(date +"%F %H:%M")
+		ping -c 1 -w 1 google.com &>/dev/null && netspeed="" || netspeed=" (No Access)"
 
 		width=$(echo $battery_num | awk '{ print 3*int(($1+5)/10) }')
 		other=$(echo $battery_num | awk '{ print 10-int(($1+5)/10) }')
@@ -20,12 +20,9 @@ while true; do
 		[ $battery_num -le 15 ] && battery="$(echo -e "\x05$battery\x01")"
 		acpi | grep -E -q "\<[cC]harging\>|Full" && battery_msg="$(echo -e "\x06$battery_msg\x01")"
 
-		if [ "$counter" -eq 1 ] && [ "$netspeed" = "Connected" ]; then
-			netspeed="$(speedtest-cli --simple | awk 'BEGIN{RS="~"} {printf("%d/%d/%d", $5, $8, $2) }')"
-		fi
-		[ -n "$network" ] && network="$network (${netspeed})"
+		[ -n "$network" ] && network="${network}${netspeed}"
 
-		name="$(printf %100s "") [$battery] $battery_num% ($battery_msg) | $network | $time "
+		name="$(printf %100s "") [$battery] $battery_num% ($battery_msg) | $network | $time"
 
 		xsetroot -name "$name"
 		[ "$counter" -ne 0 ] && sleep 10

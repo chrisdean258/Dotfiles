@@ -127,4 +127,6 @@ j()
 	return $?
 }
 
-test "$(find ~/.bashrc -mmin +480)" && dots pull && touch ~/.bashrc
+[ -f /home/chris/git/linux-sgx/sgxsdk/environment ] && source /home/chris/git/linux-sgx/sgxsdk/environment
+
+test "$(find ~/.bashrc -mmin +480)" && dots pull && touch ~/.bashrc || true
