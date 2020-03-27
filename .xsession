@@ -33,12 +33,12 @@ done &
 
 if [ $# -eq 0 ]; then
 	export PATH=$PATH:$HOME/.bin
-	hostname | grep -q XPS && export GDK_SCALE=2
+	hostname | grep -q XPS && export GDK_SCALE=1
 	[ -x /usr/bin/xfce4-power-manager ] && xfce4-power-manager &
 	/usr/lib/notification-daemon/notification-daemon &
-	monitor
+	monitor --no4k
 	xset r rate 500 300 #Repeat rate
 	xsetroot -solid black
-	exec dwm &>> ~/.xsession-errors
+	exec pywm &>> ~/.xsession-errors
 	echo "DWM failed to start" > ~/dwm.error
 fi

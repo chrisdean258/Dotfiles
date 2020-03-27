@@ -54,6 +54,7 @@
 	:  set complete-=it
 	:endif
 	:set matchpairs+=<:>                     " adding a matched pair for highlighting and wrapping
+	:set ttyfast
 
 	" Create needed folders for backups and undo files
 	:if !isdirectory($HOME . "/.vim/backup")
@@ -541,6 +542,14 @@
 	:  autocmd FileType ld :inoremap <buffer>{} {<CR>}<esc>O
 	:augroup END
 	" }}}
+
+	" Enclave Description Language
+	" {{{
+	:augroup EDL
+	:  autocmd BufRead,BufNewFile *.edl :doautocmd Filetype c
+	:augroup END
+	" }}}
+
 
 " {{{
 :endif

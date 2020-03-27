@@ -59,12 +59,15 @@ def _xrandr(*args, **kwargs):
     call()
 
 
-def extend(displays, true_size=False):
+def extend(displays, true_size=False, no4k=False):
     if len(displays) == 1:
         _xrandr("--output", displays[0].name, "--primary", "--auto")
     if len(displays) == 2:
-        primary = [a for a in displays if a.primary][0]
-        second = [a for a in displays if not a.primary][0]
+        try:
+            primary = [a for a in displays if a.primary][0]
+            second = [a for a in displays if not a.primary][0]
+        except IndexError:
+            primary, second = sorted(displays, key=lambda s: -s.width)
         pw, ph = primary.size()
         sw, sh = second.size()
 
@@ -77,6 +80,13 @@ def extend(displays, true_size=False):
             _xrandr("--output", second.name, "--scale", "1x1",
                     "--panning", "{}x{}+{}+0".format(sw, sh, pw),
                     "--mode", f"{sw}x{sh}")
+        elif no4k:
+            pw, ph = min(pw, 1920), min(ph, 1080)
+            sw, sh = min(sw, 1920), min(sh, 1080)
+            _xrandr("--output", second.name, "--mode", f"{sw}x{sh}",
+                    "--right-of", primary.name, "--output", primary.name,
+                    "--mode", f"{pw}x{ph}")
+
         elif second.width < primary.width:
             _xrandr("--output", second.name, "--scale", "2x2",
                     "--panning", "{}x{}+{}+0".format(pw, ph, pw))
@@ -107,7 +117,7 @@ def main(argv):
     if "--keep-dead" not in opts and "-k" not in opts:
         remove(disconnected)
     if len(args) == 0:
-        extend(displays, "--true-size" in opts or "-t" in opts)
+        extend(displays, "--true-size" in opts, "--no4k" in opts)
     elif "mirror" == args.pop():
         mirror(displays)
     else:
@@ -115,4 +125,7 @@ def main(argv):
 
 
 if __name__ == "__main__":
-    main(sys.argv)
+    try:
+        main(sys.argv)
+    except Exception as e:
+        print(str(e))
