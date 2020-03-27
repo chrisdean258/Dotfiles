@@ -50,7 +50,7 @@ __complete_j()
 	cur=${COMP_WORDS[COMP_CWORD]}	
 	words="$(cat ~/.cache/jmp/jmp_complete 2>/dev/null)" 
 
-	COMPREPLY=( $(compgen -W "$(cat ~/.jmp_complete)" -- "$cur") )
+	COMPREPLY=( $(compgen -W "$words" -- "$cur") )
 
 	[ ${#COMPREPLY[@]} -eq 0 ] && COMPREPLY=( $(cat ~/.jmp_complete | grep "$cur") )
 
