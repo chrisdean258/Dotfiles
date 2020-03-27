@@ -52,7 +52,7 @@ __complete_j()
 
 	COMPREPLY=( $(compgen -W "$words" -- "$cur") )
 
-	[ ${#COMPREPLY[@]} -eq 0 ] && COMPREPLY=( $(cat ~/.jmp_complete | grep "$cur") )
+	[ ${#COMPREPLY[@]} -eq 0 ] && COMPREPLY=( $(cat ~/.jmp_complete 2>/dev/null | grep "$cur") )
 
 	return 0
 }
