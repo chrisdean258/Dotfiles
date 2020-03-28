@@ -300,7 +300,7 @@
 	endif
 
 	" Making a tags file for jumping
-	:command! MakeTags !ctags -Rf .tags
+	:command! MakeTags !ctags -Rf .tags --exclude=.session.vim
 
 	" Turn on folding
 	:command! Fold :setlocal foldenable | setlocal foldmethod=syntax

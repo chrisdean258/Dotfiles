@@ -62,6 +62,7 @@ def _xrandr(*args, **kwargs):
 def extend(displays, true_size=False, no4k=False):
     if len(displays) == 1:
         _xrandr("--output", displays[0].name, "--primary", "--auto")
+
     if len(displays) == 2:
         try:
             primary = [a for a in displays if a.primary][0]
