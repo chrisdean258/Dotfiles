@@ -14,7 +14,7 @@ if [ "$*" = "..." ]; then
 	[ -n "$resp" ] && comment="$resp"
 fi
 
-git add `git diff --name-only`
+test "$(git diff --name-only)" && git add `git diff --name-only`
 git commit -m "$comment"
-git push
+!(test "$(git remote)") || git push
 
