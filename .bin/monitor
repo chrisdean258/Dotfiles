@@ -16,11 +16,11 @@ class Monitor:
 
         for i, line in mon_lines[:-1]:
             con_mons.append(cls.xrandr_parse_display(line))
-            modelines = lines[i+1:mon_lines[i+1][0]]
+            modelines = lines[i + 1:mon_lines[i + 1][0]]
             con_mons[-1].modes = cls.parse_modes(modelines)
 
         con_mons.append(cls.xrandr_parse_display(mon_lines[-1][1]))
-        modelines = lines[mon_lines[-1][0]+1:]
+        modelines = lines[mon_lines[-1][0] + 1:]
         con_mons[-1].modes = cls.parse_modes(modelines)
 
         dmon_lines = [a.split() for a in lines if " disconnected" in a]
@@ -61,7 +61,14 @@ def _xrandr(*args, **kwargs):
 
 def extend(displays, true_size=False, no4k=False):
     if len(displays) == 1:
-        _xrandr("--output", displays[0].name, "--primary", "--auto")
+        if no4k:
+            pw, ph = displays[0].size()
+            pw = max(pw, 1920)
+            ph = max(ph, 1080)
+            _xrandr("--output", displays[0].name, "--primary",
+                    "--mode", f"{pw}x{ph}")
+        else:
+            _xrandr("--output", displays[0].name, "--primary", "--auto")
 
     if len(displays) == 2:
         try:
