@@ -63,8 +63,8 @@ def extend(displays, true_size=False, no4k=False):
     if len(displays) == 1:
         if no4k:
             pw, ph = displays[0].size()
-            pw = max(pw, 1920)
-            ph = max(ph, 1080)
+            pw = min(pw, 1920)
+            ph = min(ph, 1080)
             _xrandr("--output", displays[0].name, "--primary",
                     "--mode", f"{pw}x{ph}")
         else:
