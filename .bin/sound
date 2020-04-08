@@ -1,0 +1,46 @@
+#!/usr/bin/env python3
+
+import pulsectl
+import sys
+
+from subprocess import check_output
+
+minus_one = 4294967295
+
+
+def usage():
+    print("Usage: sound", file=sys.stderr)
+    sys.exit(1)
+
+
+def find(l, query, monitor=False):
+    for item in l:
+        if query in item.name or query in item.description:
+            if not monitor or item.monitor_of_sink != minus_one:
+                return item
+
+
+def main(argv):
+    p = pulsectl.Pulse()
+    sinks = p.sink_list()
+    sources = p.source_list()
+    if "list" in argv:
+        print("Sinks:")
+        print("\n".join(
+            f"{s.index}: {s.description} ({s.name})" for s in sinks))
+        print("\nSources:")
+        print("\n".join(
+            f"{s.index}: {s.description} ({s.name})" for s in sources))
+        argv.remove("list")
+    if "copy" in argv:
+        argv.remove("copy")
+        source = find(sources, argv[0], True)
+        sink = find(sinks, argv[1])
+        check_output(["pactl", "load-module", "module-loopback",
+                     f"source={source.name}", f"sink={sink.name}"])
+    if "play-through" in argv:
+        pass
+
+
+if __name__ == "__main__":
+    main(sys.argv[1:])
