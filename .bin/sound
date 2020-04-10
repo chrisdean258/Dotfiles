@@ -35,9 +35,14 @@ def main(argv):
     if "copy" in argv:
         argv.remove("copy")
         source = find(sources, argv[0], True)
-        sink = find(sinks, argv[1])
-        check_output(["pactl", "load-module", "module-loopback",
-                     f"source={source.name}", f"sink={sink.name}"])
+        if len(argv) > 1:
+            sink = find(sinks, argv[1])
+            check_output(["pactl", "load-module", "module-loopback",
+                         f"source={source.name}", f"sink={sink.name}"])
+        else:
+            check_output(["pactl", "load-module", "module-loopback",
+                         f"source={source.name}"])
+        argv = argv[2:]
     if "play-through" in argv:
         pass
 

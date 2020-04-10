@@ -446,6 +446,7 @@
 	:  autocmd FileType tex :inoremap \sum \sum
 	:  autocmd FileType tex :inoremap \sec \sec
 	:  autocmd FileType tex :inoremap \pau \pau
+	:  autocmd FileType tex :inoremap \pi \pi
 	:augroup END
 	" }}}
 
