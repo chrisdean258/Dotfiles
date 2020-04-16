@@ -87,7 +87,7 @@ __complete_make()
 
 	cur=${COMP_WORDS[COMP_CWORD]}	
 
-	words="$(cat *akefile | grep -o "^[a-zA-Z0-9_\-]*:" | sed "s/:$//g")"
+	words="$(cat *akefile 2>/dev/null | grep -o "^[a-zA-Z0-9_\-]*:" | sed "s/:$//g")"
 	COMPREPLY=( $(compgen -W "$words" -- "$cur" ) )
 
 	return 0
