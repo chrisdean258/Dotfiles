@@ -1,0 +1,2 @@
+#!/bin/sh
+gs -sDEVICE=pdfwrite -sPageList="$1" -sOutputFile="$3" -dBATCH -dNOPAUSE "$2"
