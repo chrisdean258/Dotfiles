@@ -1081,7 +1081,7 @@
 		:  if getline('.') =~ '^$'
 		:      let l:rtn  = "import sys\n\n\ndef usage():\nprint(\"Usage: " . expand("%") . "\", file=sys.stderr)\n"
 		:      let l:rtn .= "sys.exit(1)\n\n\n\b"
-		:      return l:rtn . "def main():\npass\n\n\nif __name__ == \"__main__\":\nmain()"
+		:      return l:rtn . "def main():\npass\n\n\nif __name__ == \"__main__\":\nsys.exit(main())"
 		:  else
 		:    return 'main'
 		:  endif
