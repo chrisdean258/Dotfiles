@@ -1,10 +1,11 @@
 #!/bin/sh
 
+BOLD="$(tput bold)"
+CLEAR="$(tput sgr0)"
+
 spawn()
 {
-	tput bold
-	echo "$@"
-	tput sgr0
+	test -t 1 && echo "${BOLD}$@${CLEAR}"
 	"$@"
 }
 
@@ -12,18 +13,17 @@ spawn()
 if [ $# -eq 2 ]; then
 	spawn nmcli device wifi connect "$1" password "$2"
 elif [ $# -eq 1 ]; then
-	if [ "$1" = "list" ]; then
-		spawn nmcli device wifi
-	elif [ "$1" = "off" ]; then
-		spawn nmcli radio wifi off
-	elif [ "$1" = "on" ]; then
-		spawn nmcli radio wifi on
-	elif [ "$1" = "restart" ]; then
-		spawn nmcli radio wifi off
-		spawn nmcli radio wifi on
-	else
-		spawn nmcli device wifi connect "$1"
-	fi
+	case "$1" in 
+		list) spawn nmcli device wifi ;;
+		off) spawn nmcli radio wifi off ;;
+		on) spawn nmcli radio wifi on ;;
+		restart)
+			spawn nmcli radio wifi off
+			spawn nmcli radio wifi on
+			;;
+		recon*) nmcli --terse con show --active | cut -d: -f 1 | xargs nmcli con up ;;
+		*) spawn nmcli device wifi connect "$1" ;;
+	esac
 else
 	echo "Usage: wifi network_SSID [network_password]"
 	spawn nmcli device wifi
