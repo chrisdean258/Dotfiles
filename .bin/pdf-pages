@@ -1,2 +1,8 @@
 #!/bin/sh
+
+if [ $# -ne 3 ]; then
+	echo "Usage: pdf-pages pages inputfile outputfile" &>2
+	exit 1
+fi
+
 gs -sDEVICE=pdfwrite -sPageList="$1" -sOutputFile="$3" -dBATCH -dNOPAUSE "$2"

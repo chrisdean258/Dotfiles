@@ -1443,7 +1443,9 @@
 		let g:restored = 0
 		:function! RestoreSess()
 		"{{{
-		:  if expand("%") != ""
+		:  if System("stat -c '%U' .") != $USER
+		:    return
+		:  elseif expand("%") != ""
 		:    return
 		:  elseif get(g:, "manage_sessions" ) && filereadable(getcwd() . '/.session.vim') && argc() == 0
 		:    execute 'so ' . getcwd() . '/.session.vim'
