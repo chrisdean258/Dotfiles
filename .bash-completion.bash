@@ -26,7 +26,9 @@ __complete_vim()
 	return 0
 }
 
-complete -o bashdefault -o default -o nospace -F __complete_vim vim
+# complete -o bashdefault -o default -o nospace -F __complete_vim vim
+complete -o bashdefault -f -X "*.pdf|*.log|*.aux|*.nav|*.out|*.snm|*.toc|*.jpg|*.pyc|*.png|*.mp3|*.wav" vim
+complete -o bashdefault -f -X "!*.pdf|*.jpg|*.png|*.mp3|*.wav" open
 
 __complete_open()
 {
@@ -44,26 +46,7 @@ __complete_open()
 	return 0
 }
 
-complete -o bashdefault -o default -o nospace -F __complete_open open
-
-__complete_j()
-{
-	local cur
-	local expanded
-	local files
-
-	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}	
-	words="$(cat ~/.cache/jmp/jmp_complete 2>/dev/null)" 
-
-	COMPREPLY=( $(compgen -W "$words" -- "$cur") )
-
-	[ ${#COMPREPLY[@]} -eq 0 ] && COMPREPLY=( $(cat ~/.jmp_complete 2>/dev/null | grep "$cur") )
-
-	return 0
-}
-
-complete -o bashdefault -o default -o nospace -F __complete_j j
+# complete -o bashdefault -o default -o nospace -F __complete_open open
 
 __complete_ssh() 
 {

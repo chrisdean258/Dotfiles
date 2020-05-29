@@ -129,6 +129,6 @@ j()
 
 [ -f /home/chris/git/linux-sgx/sgxsdk/environment ] && source /home/chris/git/linux-sgx/sgxsdk/environment
 
-if cat < /dev/null > /dev/tcp/8.8.8.8/53 2>/dev/null; then
-	test "$(find ~/.bashrc -mmin +480)" && dots pull && touch ~/.bashrc || true
+if test "$(find ~/.bashrc -mmin +480)"; then
+	(cat < /dev/null > /dev/tcp/8.8.8.8/53) &>/dev/null && dots pull && touch ~/.bashrc || true
 fi
