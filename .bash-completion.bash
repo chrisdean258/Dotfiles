@@ -28,7 +28,7 @@ __complete_vim()
 
 # complete -o bashdefault -o default -o nospace -F __complete_vim vim
 complete -o bashdefault -f -X "*.pdf|*.log|*.aux|*.nav|*.out|*.snm|*.toc|*.jpg|*.pyc|*.png|*.mp3|*.wav" vim
-complete -o bashdefault -f -X "!*.pdf|*.jpg|*.png|*.mp3|*.wav" open
+complete -o bashdefault -f -G "*.pdf|*.jpg|*.png|*.mp3|*.wav" open
 
 __complete_open()
 {
