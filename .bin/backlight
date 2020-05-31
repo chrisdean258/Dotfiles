@@ -25,6 +25,7 @@ xbright()
 
 sbright()
 {
+
 	raw=$(cat /sys/class/backlight/*/brightness)
 	max=$(cat /sys/class/backlight/*/max_brightness)
 	brightness=$(echo $raw $max | awk '{ print 1.0 * $1 / $2 }')
@@ -39,10 +40,12 @@ sbright()
 		new_bright=$(echo "$brightness" "$new_bright" | awk '{ print $1 + $2 }')
 	fi
 
+	echo $new_bright
 
-	new_bright=$(echo "$new_bright" "$max" | awk '{print int($1 * $2)')
-	output="$(echo $new_bright > /sys/class/backlight/*/brightness)"
-
+	new_bright=$(echo "$new_bright" "$max" | awk '{print int($1 * $2)}')
+	if [ $new_bright -le $max ] && [ $new_bright -ge 0 ]; then
+		echo $new_bright | tee /sys/class/backlight/*/brightness
+	fi
 }
 
 sbright "$@" || xbright "$@"
