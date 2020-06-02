@@ -1443,7 +1443,7 @@
 		let g:restored = 0
 		:function! RestoreSess()
 		"{{{
-		:  if System("stat -c '%U' .") != $USER
+		:  if system("stat -c '%U' .") != $USER
 		:    return
 		:  elseif expand("%") != ""
 		:    return
