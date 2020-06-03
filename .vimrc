@@ -147,6 +147,43 @@
 	" Turn off Syntastic Errors
 	:cabbrev jk SyntasticReset
 
+	:function! SyntasticCheckHook(errors)
+	:  if !get(g:, "error_fixup") || len(a:errors) == 0
+	:    return
+	:  endif
+	:  let errs = reverse(deepcopy(a:errors))
+	:  call remove(a:errors, 0, -1)
+	:  for error in errs
+	:    if error.text =~ 'expected 2 blank lines.*found 1'
+	:      call append(error.lnum - 1, "")
+	:    elseif error.text =~ 'expected 2 blank lines.*found 0'
+	:      call append(error.lnum - 1, "")
+	:      call append(error.lnum - 1, "")
+	:    elseif error.text =~ "imported but unused"
+	:      call setline(error.lnum, "# ".getline(error.lnum))
+	:    elseif error.text =~ "missing whitespace after"
+	:      let line = getline(error.lnum)
+	:      let line = line[:error.col-1]." ".line[error.col:]
+	:      call setline(error.lnum, line)
+	:    elseif error.text =~ "missing whitespace around operator"
+	:      let line = getline(error.lnum)
+	:      let line = line[:error.col-2]." ".line[error.col-1:]
+	:      call setline(error.lnum, line)
+	:    elseif error.text == 'unexpected spaces around keyword / parameter equals [E251]'
+	:      let line = getline(error.lnum)
+	:      let line = line[:error.col-2].line[error.col:]
+	:      call setline(error.lnum, line)
+	:    elseif error.text =~ "whitespace after"
+	:      let line = getline(error.lnum)
+	:      let line = line[:error.col-2].line[error.col:]
+	:      call setline(error.lnum, line)
+	:    else
+	:      call add(a:errors, error)
+	:    endif
+	:  endfor
+	:  write!
+	:endfunction
+
 " }}}
 
 " UNIVERSAL MAPPINGS {{{
