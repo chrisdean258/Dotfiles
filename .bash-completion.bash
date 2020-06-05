@@ -1,52 +1,14 @@
 #!/bin/bash
 
 complete -d cd
-complete -o bashdefault -f -X "!*.pdf" pdf-title
-complete -o bashdefault -f -X "!*.pdf" pdfhead
-complete -o bashdefault -f -X "!*.pdf" print-paper
-
-__complete_vim()
-{
-	local cur
-	local prev
-	local words
-
-	cur=${COMP_WORDS[COMP_CWORD]}
-
-	if [ ${COMP_WORDS[$COMP_CWORD-1]} = "-t" ]; then
-		words="$(cat tags .tags 2>/dev/null | awk '{print $1}')"
-	else
-		words="$(file -L * | grep -v -E "\.log$|\.aux$|\.nav$|\.out$|\.snm$|\.toc$" | grep -E "ASCII|text|empty|directory" | awk '{print substr($1, 1, length($1)-1)}' | sed "s:^\.\/::g")"
-	fi
-	old="$IFS"
-	IFS=$'\n'
-	COMPREPLY=( $(compgen -W "$words" -- "$cur" ) )
-	IFS="$old"
-
-	return 0
-}
-
-# complete -o bashdefault -o default -o nospace -F __complete_vim vim
+complete -o bashdefault -G "*.pdf" print-paper
 complete -o bashdefault -f -X "@(*.pdf|*.log|*.aux|*.nav|*.out|*.snm|*.toc|*.jpg|*.pyc|*.png|*.mp3|*.wav)" vim
 complete -o bashdefault -G "@(*.pdf|*.jpg|*.png|*.mp3|*.wav)" open
 
-__complete_open()
-{
-	local cur
-	local old
-	local words
+for exe in ~/.bin/pdf*; do
+	complete -o bashdefault -G "*.pdf" "$(basename $exe)"
+done
 
-	cur=${COMP_WORDS[COMP_CWORD]}	
-	words="$(file -L *| grep -v -E "ASCII|text|empty|directory|data" | awk '{print substr($1, 1, length($1)-1)}' )"
-	old="$IFS"
-	IFS=$'\n'
-	COMPREPLY=( $(compgen -W "$words" -- "$cur" | sed "s/.*/'&'/g") )
-	IFS="$old"
-
-	return 0
-}
-
-# complete -o bashdefault -o default -o nospace -F __complete_open open
 
 __complete_ssh() 
 {
