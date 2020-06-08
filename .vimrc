@@ -137,7 +137,7 @@
 	:endif
 	:let g:syntastic_tex_checkers = []
 	":let g:syntastic_python_flake8_args=['--ignore=F841,F405,F403,F402,F401']
-	:let g:syntastic_python_flake8_args=['--ignore=E741']
+	:let g:syntastic_python_flake8_args=['--ignore=E741,F841']
 	" :let g:syntastic_quiet_messages = { "type": "style" }
 	":let g:syntastic_quiet_messages = { 'regex': "space" }
 	:let g:syntastic_tex_chktex_args = ["--nowarn", "39"]
