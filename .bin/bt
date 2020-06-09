@@ -1,8 +1,14 @@
 #!/bin/sh
 
 if [ $# -gt 0 ]; then
-	mac=$(bt-device -l | sed "1d" | dmenu -i | sed "s/.*(\(.*\)).*/\1")
+	choices=$(bt-device -l | sed "1d" | grep -Ee "$*")
+	[ "$(echo "$choices" | wc -l)" -eq 1 ] && cmd="cat" || cmd="dmenu -i"
+	mac=$(echo "$choices" | $cmd | sed "s/.*(\(.*\)).*/\1/")
+	[ -z "$mac" ] && exit 1
+	bt-device -c "$mac"
+else
+	blueman-manager >/dev/null 2>&1 &
 fi
 
-blueman-manager >/dev/null 2>&1 &
+
 

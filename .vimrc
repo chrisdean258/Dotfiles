@@ -1497,7 +1497,7 @@
 		:function! CorrectFile()
 		"{{{
 		:  let l:file = expand("%")
-		:  if &ft == "" && stridx(l:file, ".") == -1
+		:  if &ft == "" && stridx(l:file, ".") == -1 && executable(l:file)
 		:    let l:glob = glob(l:file . ".*", 0, 1)
 		:    if len(l:glob) == 1
 		:     execute "e! ". l:glob[0]
