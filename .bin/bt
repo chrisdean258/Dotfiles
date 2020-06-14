@@ -5,7 +5,7 @@ if [ $# -gt 0 ]; then
 	[ "$(echo "$choices" | wc -l)" -eq 1 ] && cmd="cat" || cmd="dmenu -i"
 	mac=$(echo "$choices" | $cmd | sed "s/.*(\(.*\)).*/\1/")
 	[ -z "$mac" ] && exit 1
-	bt-device -c "$mac"
+	echo "connect $mac" | bluetoothctl
 else
 	blueman-manager >/dev/null 2>&1 &
 fi

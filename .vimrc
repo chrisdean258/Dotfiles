@@ -537,7 +537,6 @@
 	:if exists("+breakindent")
 	:  autocmd Filetype markdown :setlocal breakindent
 	:endif
-	:autocmd Filetype markdown :cabbrev markdown call NotesMDFormat()
 	:autocmd FileType markdown :command! Preview call MDPreview()
 	:autocmd FileType markdown :call CheckMD()
 	:autocmd FileType markdown :setlocal expandtab
@@ -699,41 +698,7 @@
 		:function! EndTagHTML()
 		" {{{
 		:  if LineAfterCursor() == ""
-		:    let l:window = winsaveview()
-		:    execute "normal! a".GetEndTagHTML()
-		:    call winrestview(l:window)
-		:  endif
-		:endfunction
-		" }}}
-
-		:function! MatchHTMLTagPre()
-		" {{{
-		:  let l:linebefore = TextBeforeCursor()
-		:  let l:lineafter = TextFromCursor()
-		:  if (l:linebefore =~ '</[^>]*$' && l:lineafter =~ '^[^<]*>')
-		   || (l:linebefore =~ '<[^>]*$' && l:lineafter =~ '^/[^<]*>')
-		   || (l:lineafter =~ '^</[^<]*>')
-		:    let l:window = winsaveview()
-		:    normal! vat
-		:    normal! `<
-		:    let s:match_tag = winsaveview()
-		:    call winrestview(l:window)
-		:  elseif (l:linebefore =~ '<[^>]*$' && l:lineafter =~ '^[^<]*>')
-		   || (l:lineafter =~ '^<[^<]*>')
-		:    let l:window = winsaveview()
-		:    normal! vat
-		:    let s:match_tag = winsaveview()
-		:    call winrestview(l:window)
-		:  else
-		:    let s:match = {}
-		:  endif
-		:endfunction
-		" }}}
-
-		:function! MatchHTMLTagPost()
-		" {{{
-		:  let s:match = get(s:, "match", {})
-		:  if len(s:match) > 0
+		:    call setline(".", getline('.') . GetEndTagHTML())
 		:  endif
 		:endfunction
 		" }}}
@@ -827,21 +792,6 @@
 		:endfunction
 		" }}}
 
-		:function! NotesMDFormat()
-		" {{{
-		" The \{-} is the non greedy version of *
-		" Honestly there should be a *? but that who am I to judge
-		:  let l:window = winsaveview()
-		:  %s/__\(.\{-}\)__/<u>\1<\/u>/ge
-		:  %s/_\(.\{-}\)_\^\(.\{-}\)\^/<sup>\2<\/sup><sub style='position: relative; left: -.5em;'>\1<\/sub> /ge
-		:  %s/\^\(.\{-}\)\^_\(.\{-}\)_/<sup>\1<\/sup><sub style='position: relative; left: -.5em;'>\2<\/sub> /ge
-		:  %s/_\(.\{-}\)_/<sub>\1<\/sub>/ge
-		:  %s/\^\(.\{-}\)\^/<sup>\1<\/sup>/ge
-		:  call winrestview(l:window)
-		:  nohlsearch
-		:endfunction
-		" }}}
-
 		:function! MDPreview()
 		" {{{
 		:  autocmd! BufWritePost <buffer> call Compile()
@@ -918,13 +868,9 @@
 		:function! LatexBackslashBeginning()
 		" {{{
 		:  let l:window = winsaveview()
-		:  let l:word = split(LineUntilCursor())[-1]
-		:  if l:word[0] != '\'
-		:    if LineAfterCursor() == ""
-		:      normal! Bi\
-		:    else
-		:      normal! lBi\
-		:    endif
+		:  normal! B
+		:  if getline('.')[col('.')-1] != '\'
+		:    normal! i\
 		:  endif
 		:  call winrestview(l:window)
 		:endfunction
@@ -1014,16 +960,14 @@
 
 		:function! AppendSemicolon()
 		" {{{
-		:  let l:window = winsaveview()
 		:  let l:text = Text('.')
 		:  if l:text =~ ';$'
-		:    if l:text =~ '^if\s*(.*)\s*;$' || l:text =~ '^for\s*(.*)\s*;$' 
-		:      execute "normal! A\b"
+		:    if l:text =~ '^if' || l:text =~ '^for' || l:text =~ '^while'
+    :      call setline('.', getline('.')[:-2])
 		:    endif
 		:  else
-		:    execute "normal! A;"
+    :    call setline('.', getline('.') . ';')
 		:  endif
-		:  call winrestview(l:window)
 		:endfunction
 		" }}}
 
@@ -1135,9 +1079,6 @@
 		:  while getline('$') == ''
 		:    $d
 		:  endwhile
-		":  silent %s/\n\+\(\n\n\ndef\)/\1/e
-		":  silent %s/\([^\n]\)\(\n\ndef\)/\1\r\2/e
-		":  silent %s/\([^\n]\)\(\ndef\)/\1\r\r\2/e
 		:  call winrestview(l:window)
 		:endfunction
 		" }}}
@@ -1447,24 +1388,10 @@
 		:endfunction
 		" }}}
 
-		:function! Open(file)
-		"{{{
-		:  try 
-		:    if executable("open")
-		:      let l:type = System("file $(realpath ".a:file.")")
-		:      if l:type !~ 'text\|empty'
-		:        call System("open ".a:file)
-		:        return
-		:      endif
-		:    endif
-		:  catch
-		:  endtry
-		:  normal! gf
-		:endfunction
-		" }}}
-
 		:function! SaveSess()
 		"{{{
+		:  if system("stat -c '%U' .") != $USER
+		:    return
 		:  if getcwd() == $HOME
 		:    return
 		:  endif
@@ -1514,7 +1441,6 @@
 		:  endif
 		:endfunction
 		" }}}
-
 
 	" }}}
 
