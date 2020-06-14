@@ -1339,23 +1339,13 @@
 
 		:function! MoveLineUp()
 		" {{{
-		:  if line('.') == 1
-		:    return ''
-		:  elseif line('.') == line('$')
-		:    return '"add"aP'
-		:  endif
-		:  return '"addk"aP'
+		:  return line('.') == 1 ? "" : '"add"aP'
 		:endfunction
 		" }}}
 
 		:function! MoveLineDown()
 		" {{{
-		:  if line('.') == 1
-		:    return '"add"ap'
-		:  elseif line('.') == line('$')
-		:    return ''
-		:  endif
-		:  return '"add"ap'
+		:  return line('.') == line('$') ? "" : '"add"ap'
 		:endfunction
 		" }}}
 		
@@ -1380,11 +1370,7 @@
 
 		:function! Compile()
 		" {{{
-		:  try
-		:    call System("compile ".expand("%"))
-		:  catch
-		:    echom v:exception
-		:  endtry
+		:  call system("compile ".expand("%"))
 		:endfunction
 		" }}}
 
@@ -1435,8 +1421,8 @@
 
 		:function! Find(name)
 		"{{{
-		:  let l:fns = split(System("find -type f -name '" . a:name . "'"), "\n")
-		:  if len(l:fns) > 0
+		:  let l:fn = findfile(a:name)
+		:  if l:fn != ""
 		:    execute ":e " . l:fns[0]
 		:  endif
 		:endfunction
