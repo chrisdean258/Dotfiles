@@ -1,7 +1,0 @@
-#!/bin/sh
-
-choice=$(seq 10 10 100 | dmenu -i)
-
-[ -z "$choice" ] && exit
-
-backlight "$choice"

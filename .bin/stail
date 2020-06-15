@@ -1,3 +1,0 @@
-#!/bin/bash
-
-tail -n "$(tput lines | awk '{ print $1 - 2}')" "$@"

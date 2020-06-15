@@ -1,9 +1,0 @@
-#!/bin/sh
-
-mac=$(bt-device -l | sed "1d" | dmenu -i | sed "s/.*(\(.*\)).*/\1/")
-
-[ -z "$mac" ] && exit
-
-if ! bt-device -c "$mac"; then
-	bluetooth
-fi

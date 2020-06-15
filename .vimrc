@@ -217,8 +217,8 @@
 	:nnoremap <silent>. :call RepeatFunc()<CR>.
 
 	" move lines up and down respectively
-	:nnoremap <expr>- MoveLineDown()
-	:nnoremap <expr>_ MoveLineUp()
+	:nnoremap <silent>- :silent! call MoveLineDown()<CR>
+	:nnoremap <silent>_ :silent! call MoveLineUp()<CR>
 
 	" indent entire file
 	:nnoremap <silent><leader>g :call Indent()<CR>
@@ -599,24 +599,6 @@
 
 	" Helpers
 	" {{{
-		:function! Indentation()
-		" {{{
-		:  return &expandtab ? repeat(" ", &tabstop) : "\t"
-		:endfunction
-		" }}}
-
-		:function! LeftStrip(str)
-		" {{{
-		:  return substitute(a:str, '^\s*\(.\{-}\s*\)$', '\1', '')
-		:endfunction
-		" }}}
-
-		:function! RightStrip(str)
-		" {{{
-		:  return substitute(a:str, '^\(\s*.\{-}\)\s*$', '\1', '')
-		:endfunction
-		" }}}
-
 		:function! Strip(str)
 		" {{{
 		:  return substitute(a:str, '^\s*\(.\{-}\)\s*$', '\1', '')
@@ -1339,13 +1321,13 @@
 
 		:function! MoveLineUp()
 		" {{{
-		:  return line('.') == 1 ? "" : '"add"aP'
+		:  silent move .-2
 		:endfunction
 		" }}}
 
 		:function! MoveLineDown()
 		" {{{
-		:  return line('.') == line('$') ? "" : '"add"ap'
+		:  silent move .+1
 		:endfunction
 		" }}}
 		

@@ -1,2 +1,0 @@
-#!/bin/bash 
-dmenu_run --no-complete -b -p : -nb '#000' -nf '#FFF' -sf '#FFF' -sb '#000'

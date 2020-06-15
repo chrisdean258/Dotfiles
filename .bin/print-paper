@@ -1,5 +1,27 @@
 #!/bin/sh
 
+print_bb()
+{
+	server="172.27.144.107"
+
+	while [ $# -gt 0 ]; do
+		cat "$1" | netcat -w 1 "$server" 9100
+		shift
+	done
+}
+
+print_mk()
+{
+	server="$1"
+	shift
+
+
+	while [ $# -gt 0 ]; do
+		cat "$1" | netcat -w 1 "$server.eecs.utk.edu" 9100
+		shift
+	done
+}
+
 if timeout 5 ping -c 1 172.27.144.107 >/dev/null 2>&1; then
 	exec print-bb "$@"
 fi
