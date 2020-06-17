@@ -29,6 +29,7 @@ export VISUAL=vim
 export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
 export HISTIGNORE="ls:cd"
 export TERM=st-256color
+export PYTHONSTARTUP="$HOME/.config/pyrc"
 
 shopt -s histappend   2>/dev/null
 shopt -s checkhash    2>/dev/null
