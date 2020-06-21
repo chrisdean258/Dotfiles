@@ -80,6 +80,7 @@ alias matlab="matlab -nodesktop -nosplash"
 alias ls='ls --color=auto --group-directories-first'
 alias grep='grep --color=auto'
 
+
 if exe dircolors; then
 	test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
 fi
@@ -87,6 +88,9 @@ fi
 exe colordiff && alias diff="colordiff"
 exe neomutt   && alias mutt="neomutt"
 exe vimpager  && alias less="vimpager"
+exe swallow   && alias gimp="swallow gimp"
+exe swallow   && alias audacity="swallow audacity"
+
 
 -() { builtin cd -; }
 

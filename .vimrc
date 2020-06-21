@@ -983,7 +983,7 @@
 		:  elseif l:match0 == 1
 		:    execute "normal! 0feel"
 		:  elseif l:match01 == 1
-		:    execute "normal! j0feel"
+		:    execute "normal! J0feel"
 		:  elseif l:match_10 == 1
 		:    execute "normal! kJ0feel"
 		:  endif

@@ -1,11 +1,16 @@
 #!/bin/bash
 
-if ! [ -n "$(command -v xdg-open 2>/dev/null)" ]; then
-	/usr/bin/open "$@"
-	exit $?
-fi
+exe() { [ -x "$(command -v "$1")" ]; }
 
-while [ $# -gt 0 ]; do
-	xdg-open "$1" >/dev/null 2>/dev/null & 
-	shift
-done
+! exe xdg-open && exec /usr/bin/open "$@"
+
+if exe xdo; then
+	id=$(xdo id)
+	xdo hide "$id"
+	xdo hide "$id"
+	xdg-open "$@"
+	xdo show "$id"
+	xdo show "$id"
+else
+	xdg-open "$@" >/dev/null 2>&1
+fi
