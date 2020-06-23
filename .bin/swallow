@@ -5,6 +5,6 @@ set -e
 id=$(xdo id)
 xdo hide "$id"
 xdo hide "$id"
-xdg-open "$@"
+"$@"
 xdo show "$id"
 xdo show "$id"

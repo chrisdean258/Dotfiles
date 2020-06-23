@@ -244,10 +244,10 @@
 	:nnoremap * :set hlsearch<cr>*zz
 
 	" mapping for jumping to error
-	:nnoremap <silent><A-up>    :lnext<CR>
-	:nnoremap <silent><A-down>  :lprev<CR>
-	:nnoremap <silent><A-left>  :lfirst<CR>
-	:nnoremap <silent><A-right> :llast<CR>
+	:nnoremap <silent><C-up>    :lnext<CR>
+	:nnoremap <silent><C-down>  :lprev<CR>
+	:nnoremap <silent><C-left>  :lfirst<CR>
+	:nnoremap <silent><C-right> :llast<CR>
 
 	" Wrapping magic 
 	" allows you to target text and wrap it in characters repeatably

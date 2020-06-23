@@ -1,9 +1,18 @@
 #!/bin/sh
 
-if [ $# -gt 0 ]; then
-	choices=$(bt-device -l | sed "1d" | grep -Ee "$*")
+MAC_of()
+{
+	choices=$(bt-device -l | sed "1d" | grep -Eie "$*")
 	[ "$(echo "$choices" | wc -l)" -eq 1 ] && cmd="cat" || cmd="dmenu -i"
-	mac=$(echo "$choices" | $cmd | sed "s/.*(\(.*\)).*/\1/")
+	echo "$choices" | $cmd | sed "s/.*(\(.*\)).*/\1/"
+}
+
+if [ "$1" = "-d" ]; then
+	shift
+	mac="$(MAC_of "$*")"
+	echo "disconnect $mac" | bluetoothctl
+elif [ $# -gt 0 ]; then
+	mac="$(MAC_of "$*")"
 	[ -z "$mac" ] && exit 1
 	echo "connect $mac" | bluetoothctl
 else
