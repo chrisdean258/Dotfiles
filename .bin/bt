@@ -7,10 +7,13 @@ MAC_of()
 	echo "$choices" | $cmd | sed "s/.*(\(.*\)).*/\1/"
 }
 
-if [ "$1" = "-d" ]; then
-	shift
-	mac="$(MAC_of "$*")"
-	echo "disconnect $mac" | bluetoothctl
+if [ "$1" = "-d" ] && shift; then
+	if [ "$#" -gt 0 ]; then
+		mac="$(MAC_of "$*")"
+		echo "disconnect $mac" | bluetoothctl
+	else
+		echo "disconnect" | bluetoothctl
+	fi
 elif [ $# -gt 0 ]; then
 	mac="$(MAC_of "$*")"
 	[ -z "$mac" ] && exit 1
