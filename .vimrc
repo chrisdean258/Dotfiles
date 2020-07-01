@@ -160,7 +160,9 @@
 	:      call append(error.lnum - 1, "")
 	:      call append(error.lnum - 1, "")
 	:    elseif error.text =~ "imported but unused"
-	:      call setline(error.lnum, "# ".getline(error.lnum))
+	:      if getline(error.lnum)[0] != "#"
+	:        call setline(error.lnum, "# ".getline(error.lnum))
+	:      endif
 	:    elseif error.text =~ "missing whitespace after"
 	:      let line = getline(error.lnum)
 	:      let line = line[:error.col-1]." ".line[error.col:]
@@ -268,6 +270,7 @@
 	:nnoremap <leader>j <c-w>j
 	:nnoremap <leader>k <c-w>k
 	:nnoremap <leader>l <c-w>l
+	:nnoremap <expr>+ (len(tabpagebuflist()) > 1 ? "\<C-w>=" : "+")
 
 	" creating and navigating tabs
 	:nnoremap <silent><S-tab>       :tabnext<CR>
@@ -284,7 +287,7 @@
 	" Use control j and k to navigate pop up menu
 	:inoremap <expr> <tab>   (pumvisible()?"\<C-p>":CleverTab())
 	:inoremap <expr> <S-tab> (pumvisible()?"\<C-n>":"\<c-x>\<c-f>")
-			
+
 	" Commenting out lines
 	:nnoremap <silent><localleader>\ :call Comment()<CR>
 	:vnoremap <silent><localleader>\ :call Comment("visual")<CR>

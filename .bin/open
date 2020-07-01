@@ -11,6 +11,8 @@ if exe xdo; then
 	xdg-open "$@"
 	xdo show "$id"
 	xdo show "$id"
+	xdo show "$id"
+	xdo show "$id"
 else
 	xdg-open "$@" >/dev/null 2>&1
 fi
