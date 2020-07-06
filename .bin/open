@@ -4,15 +4,27 @@ exe() { [ -x "$(command -v "$1")" ]; }
 
 ! exe xdg-open && exec /usr/bin/open "$@"
 
-if exe xdo; then
+
+if exe xdo; then 
 	id=$(xdo id)
 	xdo hide "$id"
 	xdo hide "$id"
-	xdg-open "$@"
+	xdo hide "$id"
+	xdo hide "$id"
+fi
+
+while [ $# -gt 0 ]; do
+	if exe xdo; then
+		xdg-open "$1"
+	else
+		xdg-open "$1" >/dev/null 2>&1
+	fi
+	shift
+done 
+
+if exe xdo; then 
 	xdo show "$id"
 	xdo show "$id"
 	xdo show "$id"
 	xdo show "$id"
-else
-	xdg-open "$@" >/dev/null 2>&1
 fi
