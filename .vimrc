@@ -1411,7 +1411,7 @@
 		
 		:function! MathEval(type) range
 		"{{{
-		:  call MotionHelp(a:type, {a, b, c -> a . eval(b) . c})
+		:  call MotionHelp(a:type, {a, b, c -> a . string(eval(b)) . c})
 		:endfunction
 		" }}}
 	" }}}
