@@ -407,7 +407,7 @@
 	:  autocmd FileType c,cpp,javascript,java,perl,cs :inoremap <buffer>{} {<CR>}<esc>O
 	:  autocmd FileType c,cpp,javascript,java,perl,cs :setlocal cindent
 	:  autocmd FileType c,cpp,javascript,java,perl,cs :iabbrev <buffer>csign <c-r>=Csign()<CR>
-	:  autocmd FileType c,cpp,javascript,java,perl,cs :call RemoveTrailingWhitespace_AU()
+	:  autocmd FileType c,cpp,javascript,java,perl,cs :autocmd BufRead,BufWrite <buffer> :silent call RemoveTrailingWhitespace()
 	:  autocmd FileType c,cpp,javascript,java,perl,cs :command! Format :call CFormat()
 	:  autocmd FileType c,cpp,javascript,java,perl,cs :call CFold()
 	:augroup END
@@ -502,7 +502,7 @@
 	:autocmd FileType python  :setlocal nosmartindent
 	:autocmd FileType python  :setlocal complete-=i
 	:autocmd FileType python  :iabbrev inport import
-	:autocmd FileType python  :call RemoveTrailingWhitespace_AU()
+	:autocmd FileType python  :autocmd BufRead,BufWrite <buffer> :silent call RemoveTrailingWhitespace()
 	:autocmd FileType python  :iabbrev <buffer> main <C-R>=PythonMainAbbrev()<CR>
 	:autocmd FileType python  :let g:pyindent_open_paren = '&sw'
 	:autocmd FileType python  :let g:pyindent_nested_paren = '&sw'
@@ -676,13 +676,32 @@
 		:    let [l:endl, l:endc] = getpos("']")[1:2]
 		:  endif
 		:  if a:type == "line"
-		:    call map(range(l:startl, l:endl), { i, l -> a:func(l, 1, 0) })
+		:    call map(range(l:startl, l:endl), { i, l -> MotionHelpInt(l, 1, 0, a:func) })
 		:  elseif a:type == "char" 
-		:    call a:func(l:startl, l:startc, l:endc)
+		:    call MotionHelpInt(l:startl, l:startc, l:endc, a:func)
 		:  elseif a:type == "block" || a:type == "visual"
-		:    call map(range(l:startl, l:endl), { i, l -> a:func(l, l:startc, l:endc) })
+		:    call map(range(l:startl, l:endl), { i, l -> MotionHelpInt(l, l:startc, l:endc, a:func) })
 		:  endif
 		:  call winrestview(l:window)
+		:endfunction
+		" }}}
+
+		:function! MotionHelpInt(line, startcol, endcol, func)
+		" {{{
+		:  let l:line = getline(a:line)
+		:  let l:start = a:startcol <= 1 ? "" : (l:line[:(a:startcol-2)])
+		:  let l:end = a:endcol == 0 ? "" : (l:line[(a:endcol):])
+		:  let l:value = l:line[(a:startcol-1):(a:endcol-1)]
+		:  call setline(a:line, a:func(l:start, l:value, l:end))
+		:endfunction
+		" }}}
+
+		:function! Input(arg)
+		" {{{
+		:  call inputsave()
+		:  let l:input = input(a:arg)
+		:  call inputrestore()
+		:  return l:input
 		:endfunction
 		" }}}
 	" }}}
@@ -1156,19 +1175,8 @@
 		:  let s:wrapinput = get(s:, 'repeat', "") != "wrap" ? nr2char(getchar()) : get(s:, 'wrapinput', "")
 		:  let s:repeatstack = "wrap"
 		:  let s:repeat = ""
-		:  let l:firstlast = WrapHelp(s:wrapinput)
-		:  let l:begin  = l:firstlast[0]
-		:  let l:ending = l:firstlast[1]
-		:  if a:type ==# "line"
-		:    silent execute "normal! `[V`]$V"
-		:  elseif a:type ==# "char"
-		:    silent execute "normal! `[v`]v"
-		:  elseif a:type ==# "block"
-		:    silent execute "normal! `[\<C-V>`]\<C-V>"
-		:  endif
-		:  silent execute "normal! `>a".l:ending."\<esc>`<i".l:begin
-		:  let &selection = l:sel_save
-		:  call winrestview(l:window)
+		:  let [l:begin, l:ending] = WrapHelp(s:wrapinput)
+		:  call MotionHelp(a:type, { a, b, c -> a . l:begin . b . l:ending . c })
 		:endfunction
 		" }}}
 
@@ -1177,41 +1185,18 @@
 		:  execute "let l:last  = {".substitute(&matchpairs, '\(.\):\(.\)', '"\1":"\2"', "g")."}"
 		:  execute "let l:first = {".substitute(&matchpairs, '\(.\):\(.\)', '"\2":"\1"', "g")."}"
 		:  let l:begin = get(l:first, a:arg, a:arg)
-		:  let l:end = get(l:last,  a:arg, a:arg)
+		:  let l:end = get(l:last, a:arg, a:arg)
 		:  if l:begin ==? "t"
-		:    call inputsave()
-		:    let l:input = input("tag: ")
-		;    call inputrestore()
-		:    if l:input != ""
-		:      let l:begin = '<' . l:input . '>'
-		:      let l:end = '</' . split(l:input)[0] . '>'
-		:    endif
-		:  endif
-		:  if l:begin ==? "s"
-		:    call inputsave()
-		:    let l:input = input("string: ")
-		;    call inputrestore()
-		:    if l:input != ""
-		:      let l:begin = l:input
-		:      let l:end = l:input
-		:    endif
-		:  endif
-		:  if l:begin ==? "r"
-		:    call inputsave()
-		:    let l:input = input("string: ")
-		;    call inputrestore()
-		:    if l:input != ""
-		:      let l:begin = l:input
-		:      let l:end = join(reverse(split(l:input, '.\zs')), '')
-		:    endif
+		:    let l:input = Input("tag: ")
+		:    let l:begin = '<' . l:input . '>'
+		:    let l:end = '</' . split(l:input)[0] . '>'
+		:  elseif l:begin ==? "s"
+		:    let [l:begin, l:end] = repeat([Input("string: ")], 2)
+		:  elseif l:begin ==? "r"
+		:    let l:begin = Input("string: ")
+		:    let l:end = join(reverse(split(l:input, '.\zs')), '')
 		:  endif
 		:  return [l:begin, l:end]
-		:endfunction
-		" }}}
-
-		:function! RemoveTrailingWhitespace_AU()
-		" {{{
-		:  autocmd BufRead,BufWrite <buffer> :silent call RemoveTrailingWhitespace()
 		:endfunction
 		" }}}
 
@@ -1325,18 +1310,14 @@
 		:endfunction
 		" }}}
 
-		:function! SwapArgsInt(line, startcol, endcol)
+		:function! SwapArgsInt(start, value, end)
 		"{{{
-		:  let l:line = getline(a:line)
-		:  let l:start = a:startcol <= 1 ? "" : l:line[:(a:startcol-2)]
-		:  let l:end = a:endcol == 0 ? "" : l:line[(a:endcol):]
-		:  let l:value = l:line[(a:startcol-1):(a:endcol-1)]
-		:  if l:value =~ ","
-		:    let l:value = join(reverse(map(split(l:value, ","), {i, v -> Strip(v)})), ", ")
+		:  if a:value =~ ","
+		:    let l:v = join(reverse(map(split(a:value, ","), {i, v -> Strip(v)})), ", ")
 		:  else
-		:    let l:value = join(reverse(map(split(l:value), {i, v -> Strip(v)})))
+		:    let l:v = join(reverse(map(split(a:value), {i, v -> Strip(v)})))
 		:  endif
-		:  call setline(a:line, l:start . l:value . l:end)
+		:  return a:start . l:v . a:end
 		:endfunction
 		" }}}
 
@@ -1393,7 +1374,6 @@
 		:endfunction
 		" }}}
 
-		let g:restored = 0
 		:function! RestoreSess()
 		"{{{
 		:  if system("stat -c '%U' .") != $USER
@@ -1402,10 +1382,8 @@
 		:    return
 		:  elseif get(g:, "manage_sessions" ) && filereadable(getcwd() . '/.session.vim') && argc() == 0
 		:    execute 'so ' . getcwd() . '/.session.vim'
-		:    let g:restored = 1
 		:  elseif get(g:, "manage_session" ) && filereadable($HOME . '/session/.session.vim') && argc() == 0
 		:    execute 'so ' . $HOME . '/session/.session.vim'
-		:    let g:restored = 1
 		:  endif
 		:endfunction
 		" }}}
@@ -1433,17 +1411,7 @@
 		
 		:function! MathEval(type) range
 		"{{{
-		:  call MotionHelp(a:type, function("MathEvalInt"))
-		:endfunction
-		" }}}
-
-		:function! MathEvalInt(line, startcol, endcol)
-		"{{{
-		:  let l:line = getline(a:line)
-		:  let l:start = a:startcol <= 1 ? "" : l:line[:(a:startcol-2)]
-		:  let l:end = a:endcol == 0 ? "" : l:line[(a:endcol):]
-		:  let l:value = eval(l:line[(a:startcol-1):(a:endcol-1)])
-		:  call setline(a:line, l:start . l:value . l:end)
+		:  call MotionHelp(a:type, {a, b, c -> a . eval(b) . c})
 		:endfunction
 		" }}}
 	" }}}
@@ -1524,6 +1492,4 @@
 	:  augroup END
 	:  endif
 	:endif
-
-
 " }}}
