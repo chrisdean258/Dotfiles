@@ -664,6 +664,27 @@
 		:  return Strip(LineBeforeCursor())
 		:endfunction
 		" }}}
+
+		:function! MotionHelp(type, func)
+		" {{{
+		:  let l:window = winsaveview()
+		:  if a:type == "visual"
+		:    let [l:startl, l:startc] = getpos("'<")[1:2]
+		:    let [l:endl, l:endc] = getpos("'>")[1:2]
+		:  else
+		:    let [l:startl, l:startc] = getpos("'[")[1:2]
+		:    let [l:endl, l:endc] = getpos("']")[1:2]
+		:  endif
+		:  if a:type == "line"
+		:    call map(range(l:startl, l:endl), { i, l -> a:func(l, 1, 0) })
+		:  elseif a:type == "char" 
+		:    call a:func(l:startl, l:startc, l:endc)
+		:  elseif a:type == "block" || a:type == "visual"
+		:    call map(range(l:startl, l:endl), { i, l -> a:func(l, l:startc, l:endc) })
+		:  endif
+		:  call winrestview(l:window)
+		:endfunction
+		" }}}
 	" }}}
 	
 	" HTML
@@ -1300,28 +1321,22 @@
 
 		:function! SwapArgs(type) range
 		" {{{
-		:  let l:window = winsaveview()
-		:  let l:sel_save = &selection
-		:  let &selection = "inclusive"
-		:  if a:type ==# "line"
-		:    silent execute "normal! `[V`]$V"
-		:  elseif a:type ==# "char"
-		:    silent execute "normal! `[v`]v"
-		:  elseif a:type ==# "block"
-		:    silent execute "normal! `[\<C-V>`]\<C-V>"
-		:  endif
-		:  exec 'normal! gv"ay'
-		:  let l:args = reverse(split(@a, ","))
-		:  if len(l:args) > 1
-		:    call map(l:args, 'Strip(v:val)')
-		:    let @a = join(l:args, ", ")
-		:    exec 'normal! gv"ap'
+		:  call MotionHelp(a:type, function("SwapArgsInt"))
+		:endfunction
+		" }}}
+
+		:function! SwapArgsInt(line, startcol, endcol)
+		"{{{
+		:  let l:line = getline(a:line)
+		:  let l:start = a:startcol <= 1 ? "" : l:line[:(a:startcol-2)]
+		:  let l:end = a:endcol == 0 ? "" : l:line[(a:endcol):]
+		:  let l:value = l:line[(a:startcol-1):(a:endcol-1)]
+		:  if l:value =~ ","
+		:    let l:value = join(reverse(map(split(l:value, ","), {i, v -> Strip(v)})), ", ")
 		:  else
-		:    let @a = join(reverse(split(@a)), " ")
-		:    exec 'normal! gv"ap'
+		:    let l:value = join(reverse(map(split(l:value), {i, v -> Strip(v)})))
 		:  endif
-		:  let &selection = l:sel_save
-		:  call winrestview(l:window)
+		:  call setline(a:line, l:start . l:value . l:end)
 		:endfunction
 		" }}}
 
@@ -1418,22 +1433,7 @@
 		
 		:function! MathEval(type) range
 		"{{{
-		:  let l:window = winsaveview()
-		:  if a:type == "visual"
-		:    let [l:startl, l:startc] = getpos("'<")[1:2]
-		:    let [l:endl, l:endc] = getpos("'>")[1:2]
-		:  else
-		:    let [l:startl, l:startc] = getpos("'[")[1:2]
-		:    let [l:endl, l:endc] = getpos("']")[1:2]
-		:  endif
-		:  if a:type == "line"
-		:    call map(range(l:startl, l:endl), { i, l -> MathEvalInt(l, 1, 0) })
-		:  elseif a:type == "char" 
-		:    call MathEvalInt(l:startl, l:startc, l:endc)
-		:  elseif a:type == "block" || a:type == "visual"
-		:    call map(range(l:startl, l:endl), { i, l -> MathEvalInt(l, l:startc, l:endc) })
-		:  endif
-		:  call winrestview(l:window)
+		:  call MotionHelp(a:type, function("MathEvalInt"))
 		:endfunction
 		" }}}
 
