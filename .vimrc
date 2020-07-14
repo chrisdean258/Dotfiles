@@ -161,7 +161,7 @@
 	:      call append(error.lnum - 1, "")
 	:    elseif error.text =~ "imported but unused"
 	:      if getline(error.lnum)[0] != "#"
-	:        call setline(error.lnum, "# ".getline(error.lnum))
+	" :        call setline(error.lnum, "# ".getline(error.lnum))
 	:      endif
 	:    elseif error.text =~ "missing whitespace after"
 	:      let line = getline(error.lnum)
@@ -258,6 +258,9 @@
 
 	:nnoremap <silent><leader>sw :set opfunc=SwapArgs<CR>g@
 	:vnoremap <silent><leader>sw :call SwapArgs("visual")<CR>
+
+	:nnoremap <silent><leader>= :set opfunc=MathEval<CR>g@
+	:vnoremap <silent><leader>= :call MathEval("visual")<CR>
 
 	" Resizing split
 	:nnoremap <silent><S-right> :vertical resize +5 <CR>
@@ -1412,7 +1415,37 @@
 		:  endif
 		:endfunction
 		" }}}
+		
+		:function! MathEval(type) range
+		"{{{
+		:  let l:window = winsaveview()
+		:  if a:type == "visual"
+		:    let [l:startl, l:startc] = getpos("'<")[1:2]
+		:    let [l:endl, l:endc] = getpos("'>")[1:2]
+		:  else
+		:    let [l:startl, l:startc] = getpos("'[")[1:2]
+		:    let [l:endl, l:endc] = getpos("']")[1:2]
+		:  endif
+		:  if a:type == "line"
+		:    call map(range(l:startl, l:endl), { i, l -> MathEvalInt(l, 1, 0) })
+		:  elseif a:type == "char" 
+		:    call MathEvalInt(l:startl, l:startc, l:endc)
+		:  elseif a:type == "block" || a:type == "visual"
+		:    call map(range(l:startl, l:endl), { i, l -> MathEvalInt(l, l:startc, l:endc) })
+		:  endif
+		:  call winrestview(l:window)
+		:endfunction
+		" }}}
 
+		:function! MathEvalInt(line, startcol, endcol)
+		"{{{
+		:  let l:line = getline(a:line)
+		:  let l:start = a:startcol <= 1 ? "" : l:line[:(a:startcol-2)]
+		:  let l:end = a:endcol == 0 ? "" : l:line[(a:endcol):]
+		:  let l:value = eval(l:line[(a:startcol-1):(a:endcol-1)])
+		:  call setline(a:line, l:start . l:value . l:end)
+		:endfunction
+		" }}}
 	" }}}
 
 " }}}
