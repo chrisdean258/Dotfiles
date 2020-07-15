@@ -201,7 +201,7 @@
 	:nnoremap gI g^i
 
 	" Use jk instead of escape
-	:inoremap <expr> jk CleverEsc()
+	:inoremap jk <esc>`^
 	:imap Jk jk
 	:imap JK jk
 	:noremap <space> <nop>
@@ -256,9 +256,11 @@
 	:nnoremap <silent><leader>w :set opfunc=Wrap<CR>g@
 	:vnoremap <silent><leader>w :call Wrap("visual")<CR>
 
+	:nnoremap <silent><leader>sww VV:call SwapArgs("visual")<CR>
 	:nnoremap <silent><leader>sw :set opfunc=SwapArgs<CR>g@
 	:vnoremap <silent><leader>sw :call SwapArgs("visual")<CR>
 
+	:nnoremap <silent><leader>== VV:call MathEval("visual")<CR>
 	:nnoremap <silent><leader>= :set opfunc=MathEval<CR>g@
 	:vnoremap <silent><leader>= :call MathEval("visual")<CR>
 
@@ -974,10 +976,7 @@
 		" {{{
 		:  let s:exclude_patterns = [ '[^=]*<<[^=]*', '\/\/', '\/\*', '\*\/', '^\s*#', 'print', 'cout', 'cerr' ]
 		:  for m in get(b:, "matches", [])
-		:    try
-		:      silent call matchdelete(m)
-		:    catch
-		:    endtry
+		:    silent! call matchdelete(m)
 		:  endfor
 		:  let b:matches = []
 		:  if get(g:, "hllonglines", 1) && getline('.') !~ join(s:exclude_patterns, '\|')
@@ -991,10 +990,10 @@
 		:  let l:text = Text('.')
 		:  if l:text =~ ';$'
 		:    if l:text =~ '^if' || l:text =~ '^for' || l:text =~ '^while'
-    :      call setline('.', getline('.')[:-2])
+		:      call setline('.', getline('.')[:-2])
 		:    endif
 		:  else
-    :    call setline('.', getline('.') . ';')
+		:    call setline('.', getline('.') . ';')
 		:  endif
 		:endfunction
 		" }}}
@@ -1161,20 +1160,13 @@
 		:endfunction
 		" }}}
 
-		:function! CleverEsc()
-		" {{{
-		:  return "\<esc>`^"
-		:endfunction
-		" }}}
-
 		:function! Wrap(type) range
 		" {{{
 		:  let l:window = winsaveview()
 		:  let l:sel_save = &selection
 		:  let &selection = "inclusive"
 		:  let s:wrapinput = get(s:, 'repeat', "") != "wrap" ? nr2char(getchar()) : get(s:, 'wrapinput', "")
-		:  let s:repeatstack = "wrap"
-		:  let s:repeat = ""
+		:  let [s:repeatstack, s:repeat] = ["wrap", ""]
 		:  let [l:begin, l:ending] = WrapHelp(s:wrapinput)
 		:  call MotionHelp(a:type, { a, b, c -> a . l:begin . b . l:ending . c })
 		:endfunction
@@ -1242,7 +1234,7 @@
 
 		:function! SingleInsert(how)
 		" {{{
-		:  return a:how . GetChar() . CleverEsc()
+		:  return a:how . GetChar() . "\<esc>`^"
 		:endfunction
 		" }}}
 		
@@ -1360,9 +1352,7 @@
 
 		:function! SaveSess()
 		"{{{
-		:  if system("stat -c '%U' .") != $USER
-		:    return
-		:  if getcwd() == $HOME
+		:  if system("stat -c '%U' .") != $USER || getcwd() == $HOME
 		:    return
 		:  endif
 		:  if get(g:, "manage_sessions")
