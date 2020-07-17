@@ -431,7 +431,6 @@
 	:  autocmd FileType cpp    :autocmd CursorMoved,CursorMovedI <buffer> call HighlightAfterColumn(100)
 	:  autocmd FileType cpp    :setlocal syntax=cpp
 	:  autocmd FileType c      :autocmd CursorMoved,CursorMovedI <buffer> call HighlightAfterColumn(80)
-	:  autocmd FileType c      :setlocal commentstring=/*\ %s\ */
 	:augroup END
 	" }}}
 
@@ -1481,5 +1480,9 @@
 	:    autocmd VimEnter * :call Update_Vimrc()
 	:  augroup END
 	:  endif
+	:endif
+
+	:if get(g:, "old_c_comments")
+	:  autocmd FileType c      :setlocal commentstring=/*\ %s\ */
 	:endif
 " }}}

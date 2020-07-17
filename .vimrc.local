@@ -5,3 +5,4 @@
 :let g:error_fixup = 1
 :let g:manage_sessions = 1
 :let g:auto_update = 0
+:let g:old_c_comments = 1
