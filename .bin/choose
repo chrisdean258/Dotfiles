@@ -1,0 +1,3 @@
+#!/bin/sh 
+
+test -t 1  && test -x "$(which fzy)" && exec fzy || exec dmenu "$@"

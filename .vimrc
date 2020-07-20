@@ -1138,6 +1138,33 @@
 		:  nohlsearch
 		:endfunction
 		" }}}
+		
+		:function! NewComment(...) range
+		" {{{
+		:  let l:window = winsaveview()
+		:  if get(a:, 1, "") ==# 'visual'
+		:    '<,'>call Comment()
+		:    return
+		:  endif
+		:  let l:line = getline('.')
+		:  let l:temp = split(&commentstring, "%s")
+		:  let l:start = escape(get(l:temp, 0, ""), '\*/!"')
+		:  let l:end = escape(get(l:temp, 1, ""), '\*/!"')
+		:  let l:startshort = substitute(l:start, ' $', '', '')
+		:  let l:endshort = substitute(l:end, '^ ', '', '')
+		:  if l:end ==# ""
+		:    execute "silent ".a:firstline.",".a:lastline.'s:^\(\s*\)\(.\):\1'.l:start.'\2:e'
+		:    execute "silent ".a:firstline.",".a:lastline.'s:^\(\s*\)'.l:start.l:startshort.' \{,1}:\1:e'
+		:  else
+		:    execute "silent ".a:firstline.'s:^\(\s*\)\(.\):\1'.l:start.'\2:e'
+		:    execute "silent ".a:firstline.'s:^\(\s*\)'.l:start.l:startshort.' \{,1}:\1:e'
+		:    execute "silent ".a:lastline.'s:$:'.l:end
+		:    execute "silent ".a:lastline.'s: \{,1}'. l:endshort . l:end . '$::e'
+		:  endif
+		:  call winrestview(l:window)
+		:  nohlsearch
+		:endfunction
+		" }}}
 
 		:function! CleverTab()
 		" {{{

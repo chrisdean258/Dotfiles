@@ -1,0 +1,13 @@
+#!/bin/sh
+
+cachedir="${XDG_CACHE_HOME:-"$HOME/.cache"}"
+cache="$cachedir/dmenu_run"
+
+selection=$(dmenu_path | uniq | dmenu "$@" -b -p : -nb '#000' -nf '#FFF' -sf '#FFF' -sb '#222')
+
+if [ -n "$selection" ]; then
+	tmp=$(mktemp)
+	{ echo "$selection"; cat "$cache"; } > $tmp
+	mv "$tmp" "$cache"
+	echo "$selection" | ${SHELL:-"/bin/sh"} &
+fi
