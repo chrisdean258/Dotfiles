@@ -2,9 +2,11 @@
 
 set -e
 
-id=$(xdo id)
-xdo hide "$id"
-xdo hide "$id"
+id=$(xdotool getactivewindow)
+xdotool windowunmap "$id"
+xdotool windowunmap "$id"
+xdotool windowunmap "$id"
 "$@"
-xdo show "$id"
-xdo show "$id"
+xdotool windowmap "$id"
+xdotool windowmap "$id"
+xdotool windowmap "$id"

@@ -5,12 +5,11 @@ exe() { [ -x "$(command -v "$1")" ]; }
 ! exe xdg-open && exec /usr/bin/open "$@"
 
 
-if exe xdo; then 
-	id=$(xdo id)
-	xdo hide "$id"
-	xdo hide "$id"
-	xdo hide "$id"
-	xdo hide "$id"
+if exe xdotool; then 
+	id=$(xdotool getactivewindow)
+	xdotool windowunmap "$id"
+	xdotool windowunmap "$id"
+	xdotool windowunmap "$id"
 fi
 
 while [ $# -gt 0 ]; do
@@ -22,9 +21,8 @@ while [ $# -gt 0 ]; do
 	shift
 done 
 
-if exe xdo; then 
-	xdo show "$id"
-	xdo show "$id"
-	xdo show "$id"
-	xdo show "$id"
+if exe xdotool; then 
+	xdotool windowmap "$id"
+	xdotool windowmap "$id"
+	xdotool windowmap "$id"
 fi
