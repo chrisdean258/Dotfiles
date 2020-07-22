@@ -1112,6 +1112,32 @@
 
 	" Universally used function
 	" {{{
+		:function! CleverTab()
+		" {{{
+		:  if pumvisible()
+		:    return "\<C-P>"
+		:  endif
+		:  let l:str =  strpart( getline('.'), 0, col('.')-1 )
+		:  let l:words = split(l:str, " ")
+		:  let l:last_word = len(l:words) > 0 ? l:words[-1] : ""
+		:  if l:str =~ '^\s*$' || l:str =~ '\s$'
+		:    return "\<Tab>"
+		:  elseif l:last_word =~ "\/" && len(glob(l:last_word . "*")) > 0 
+		:    return "\<C-X>\<C-F>"
+		:  elseif l:last_word =~ "^\/" && len(glob(l:last_word[1:] . "*")) > 0 
+		:    " TODO flesh this out
+		:    return "\<C-P>"
+		:  endif
+		:  return "\<C-P>"
+		:endfunction
+		" }}}
+
+		:function! CommandLineStart(type, arg, default)
+		" {{{
+		:  return (getcmdtype() == a:type && getcmdline() == "") ? a:arg : a:default
+		:endfunction
+		" }}}
+
 		:function! Comment(...) range
 		" {{{
 		:  let l:window = winsaveview()
@@ -1138,8 +1164,8 @@
 		:  nohlsearch
 		:endfunction
 		" }}}
-		
-		:function! NewComment(...) range
+
+		:function! Comment_New(...) range
 		" {{{
 		:  let l:window = winsaveview()
 		:  if get(a:, 1, "") ==# 'visual'
@@ -1166,23 +1192,210 @@
 		:endfunction
 		" }}}
 
-		:function! CleverTab()
+		:function! Compile()
 		" {{{
-		:  if pumvisible()
-		:    return "\<C-P>"
+		:  call system("compile ".expand("%"))
+		:endfunction
+		" }}}
+
+		:function! CorrectFile()
+		"{{{
+		:  let l:file = expand("%")
+		:  if &ft == "" && stridx(l:file, ".") == -1 && executable(l:file)
+		:    let l:glob = glob(l:file . ".*", 0, 1)
+		:    if len(l:glob) == 1
+		:     execute "e! ". l:glob[0]
+		:    endif
 		:  endif
-		:  let l:str =  strpart( getline('.'), 0, col('.')-1 )
-		:  let l:words = split(l:str, " ")
-		:  let l:last_word = len(l:words) > 0 ? l:words[-1] : ""
-		:  if l:str =~ '^\s*$' || l:str =~ '\s$'
-		:    return "\<Tab>"
-		:  elseif l:last_word =~ "\/" && len(glob(l:last_word . "*")) > 0 
-		:    return "\<C-X>\<C-F>"
-		:  elseif l:last_word =~ "^\/" && len(glob(l:last_word[1:] . "*")) > 0 
-		:    " TODO flesh this out
-		:    return "\<C-P>"
+		:endfunction
+		" }}}
+		
+		:function! Find(name)
+		"{{{
+		:  let l:fn = findfile(a:name)
+		:  if l:fn != ""
+		:    execute ":e " . l:fns[0]
 		:  endif
-		:  return "\<C-P>"
+		:endfunction
+		" }}}
+		
+		:function! GetChar()
+		" {{{
+		:  while getchar(1) == 0
+		:  endwhile
+		:  return nr2char(getchar())
+		:endfunction
+		" }}}
+
+		:function! HJKL()
+		" {{{
+		:  noremap <Up> <NOP>
+		:  noremap <Down> <NOP>
+		:  noremap <Left> <NOP>
+		:  noremap <Right> <NOP>
+		:  inoremap <ESC> <NOP>
+		:endfunction
+		" }}}
+
+		:function! IfScript()
+		" {{{
+		:  if getline(1) =~ '^#!/' && exists("*setfperm")
+		:    let perm = getfperm(expand("%"))
+		:    let perm = perm[:1] . "x" . perm[3:]
+		:    call setfperm(expand("%"), perm)
+		:  endif
+		:endfunction
+		" }}}
+
+		:function! Indent()
+		" {{{
+		:  let l:window = winsaveview()
+		:  normal! gg=G
+		:  call winrestview(l:window)
+		:endfunction
+		" }}}
+
+		:function! MathEval(type) range
+		"{{{
+		:  call MotionHelp(a:type, {a, b, c -> a . string(eval(b)) . c})
+		:endfunction
+		" }}}
+
+		:function! MoveLineUp()
+		" {{{
+		:  silent move .-2
+		:endfunction
+		" }}}
+
+		:function! MoveLineDown()
+		" {{{
+		:  silent move .+1
+		:endfunction
+		" }}}
+		
+		:function! MyFold()
+		" {{{
+		:  let l:tablen = &tabstop
+		:  let line = getline(v:foldstart)
+		:  let lines_count = v:foldend - v:foldstart + 1
+		:  setlocal fillchars=fold:\ "
+		:  let foldline = substitute(getline(v:foldstart), '^\s*"\?\s*\|\s*"\?\s*{{' . '{\d*\s*', '', 'g')
+		:  let foldline = (strlen(foldline) > 0 ? ': ' : "") . foldline 
+		:  return (repeat(" ", indent(v:foldstart)). '+--- ' . lines_count . ' lines' . foldline . ' ---+')[winsaveview()["leftcol"]:]
+		:endfunction
+		" }}}
+
+		:function! NewFile()
+		" {{{
+		:  let l:fn = &filetype
+		:  if filereadable($HOME . "/.vim/templates/" . l:fn)
+		:    execute "%!cat " . $HOME . "/.vim/templates/" . l:fn
+		:  endif
+		:endfunction
+		" }}}
+
+		:function! RemoveTrailingWhitespace()
+		" {{{
+		:  let l:window = winsaveview()
+		:  let l:line = getline('.')
+		:  %s/\s\+$//ge
+		:  call winrestview(l:window)
+		:  call setline('.', l:line)
+		:  call winrestview(l:window)
+		:  nohlsearch
+		:endfunction
+		" }}}
+
+		:function! RepeatFunc()
+		" {{{
+		:  let s:repeat = get(s:, 'repeatstack', "")
+		:  let s:repeatstack = ""
+		:endfunction
+		" }}}
+
+		:function! RestoreSess()
+		"{{{
+		:  if system("stat -c '%U' .") != $USER
+		:    return
+		:  elseif expand("%") != ""
+		:    return
+		:  elseif get(g:, "manage_sessions" ) && filereadable(getcwd() . '/.session.vim') && argc() == 0
+		:    execute 'so ' . getcwd() . '/.session.vim'
+		:  elseif get(g:, "manage_session" ) && filereadable($HOME . '/session/.session.vim') && argc() == 0
+		:    execute 'so ' . $HOME . '/session/.session.vim'
+		:  endif
+		:endfunction
+		" }}}
+		
+		:function! SaveSess()
+		"{{{
+		:  if system("stat -c '%U' .") != $USER || getcwd() == $HOME
+		:    return
+		:  endif
+		:  if get(g:, "manage_sessions")
+		:    execute 'mksession! ' . getcwd() . '/.session.vim'
+		:  elseif get(g:, "manage_session")
+		:    call mkdir($HOME.'/.vim/session')
+		:    execute 'mksession! ' . $HOME . '/session/.session.vim'
+		:  endif
+		:endfunction
+		" }}}
+
+		:function! SingleInsert(how)
+		" {{{
+		:  return a:how . GetChar() . "\<esc>`^"
+		:endfunction
+		" }}}
+		
+		:function! SpellReplace()
+		" {{{
+		:  let l:window = winsaveview()
+		:  normal! [s1z=
+		:  call winrestview(l:window)
+		:endfunction
+		" }}}
+
+		:function! SwapArgs(type) range
+		" {{{
+		:  call MotionHelp(a:type, function("SwapArgsInt"))
+		:endfunction
+		" }}}
+
+		:function! SwapArgsInt(start, value, end)
+		"{{{
+		:  if a:value =~ ","
+		:    let l:v = join(reverse(map(split(a:value, ","), {i, v -> Strip(v)})), ", ")
+		:  else
+		:    let l:v = join(reverse(map(split(a:value), {i, v -> Strip(v)})))
+		:  endif
+		:  return a:start . l:v . a:end
+		:endfunction
+		" }}}
+
+		:function! SwapExists()
+		" {{{
+		"  open swapfiles readonly by default
+		:  if getftime(expand("%")) > getftime(v:swapname)
+		"    delete swap file if it is older than our file
+		:    let v:swapchoice = "d"
+		:    echohl WarningMsg | echom "Deleting Swapfile" | echohl None
+		:  else
+		" :    let v:swapchoice = "o"
+		" :    echohl WarningMsg | echom "Detected Swapfile. Opening Read only" | echohl None
+		:  endif
+		:endfunction
+		" }}}
+
+		:function! System(arg)
+		" {{{
+		:  if has('win32')
+		:    throw "Calls to system() not supported on windows"
+		:  endif
+		:  let l:return = system(a:arg)
+		:  if v:shell_error != 0
+		:    throw "Error: system(". a:arg . ") returned ".v:shell_error
+		:  endif
+		:  return l:return
 		:endfunction
 		" }}}
 
@@ -1215,219 +1428,6 @@
 		:    let l:end = join(reverse(split(l:input, '.\zs')), '')
 		:  endif
 		:  return [l:begin, l:end]
-		:endfunction
-		" }}}
-
-		:function! RemoveTrailingWhitespace()
-		" {{{
-		:  let l:window = winsaveview()
-		:  let l:line = getline('.')
-		:  %s/\s\+$//ge
-		:  call winrestview(l:window)
-		:  call setline('.', l:line)
-		:  call winrestview(l:window)
-		:  nohlsearch
-		:endfunction
-		" }}}
-
-		:function! MyFold()
-		" {{{
-		:  let l:tablen = &tabstop
-		:  let line = getline(v:foldstart)
-		:  let lines_count = v:foldend - v:foldstart + 1
-		:  setlocal fillchars=fold:\ "
-		:  let foldline = substitute(getline(v:foldstart), '^\s*"\?\s*\|\s*"\?\s*{{' . '{\d*\s*', '', 'g')
-		:  let foldline = (strlen(foldline) > 0 ? ': ' : "") . foldline 
-		:  return (repeat(" ", indent(v:foldstart)). '+--- ' . lines_count . ' lines' . foldline . ' ---+')[winsaveview()["leftcol"]:]
-		:endfunction
-		" }}}
-
-		:function! Indent()
-		" {{{
-		:  let l:window = winsaveview()
-		:  normal! gg=G
-		:  call winrestview(l:window)
-		:endfunction
-		" }}}
-
-		:function! SpellReplace()
-		" {{{
-		:  let l:window = winsaveview()
-		:  normal! [s1z=
-		:  call winrestview(l:window)
-		:endfunction
-		" }}}
-
-		:function! SingleInsert(how)
-		" {{{
-		:  return a:how . GetChar() . "\<esc>`^"
-		:endfunction
-		" }}}
-		
-		:function! GetChar()
-		" {{{
-		:  while getchar(1) == 0
-		:  endwhile
-		:  return nr2char(getchar())
-		:endfunction
-		" }}}
-
-		:function! IfScript()
-		" {{{
-		:  if getline(1) =~ '^#!/' && exists("*setfperm")
-		:    let perm = getfperm(expand("%"))
-		:    let perm = perm[:1] . "x" . perm[3:]
-		:    call setfperm(expand("%"), perm)
-		:  endif
-		:endfunction
-		" }}}
-
-		:function! RepeatFunc()
-		" {{{
-		:  let s:repeat = get(s:, 'repeatstack', "")
-		:  let s:repeatstack = ""
-		:endfunction
-		" }}}
-
-		:function! HJKL()
-		" {{{
-		:  noremap <Up> <NOP>
-		:  noremap <Down> <NOP>
-		:  noremap <Left> <NOP>
-		:  noremap <Right> <NOP>
-		:  inoremap <ESC> <NOP>
-		:endfunction
-		" }}}
-
-		:function! SwapExists()
-		" {{{
-		"  open swapfiles readonly by default
-		:  if getftime(expand("%")) > getftime(v:swapname)
-		"    delete swap file if it is older than our file
-		:    let v:swapchoice = "d"
-		:    echohl WarningMsg | echom "Deleting Swapfile" | echohl None
-		:  else
-		" :    let v:swapchoice = "o"
-		" :    echohl WarningMsg | echom "Detected Swapfile. Opening Read only" | echohl None
-		:  endif
-		:endfunction
-		" }}}
-
-		:function! NewFile()
-		" {{{
-		:  let l:fn = &filetype
-		:  if filereadable($HOME . "/.vim/templates/" . l:fn)
-		:    execute "%!cat " . $HOME . "/.vim/templates/" . l:fn
-		:  endif
-		:endfunction
-		" }}}
-
-		:function! SwapArgs(type) range
-		" {{{
-		:  call MotionHelp(a:type, function("SwapArgsInt"))
-		:endfunction
-		" }}}
-
-		:function! SwapArgsInt(start, value, end)
-		"{{{
-		:  if a:value =~ ","
-		:    let l:v = join(reverse(map(split(a:value, ","), {i, v -> Strip(v)})), ", ")
-		:  else
-		:    let l:v = join(reverse(map(split(a:value), {i, v -> Strip(v)})))
-		:  endif
-		:  return a:start . l:v . a:end
-		:endfunction
-		" }}}
-
-		:function! MoveLineUp()
-		" {{{
-		:  silent move .-2
-		:endfunction
-		" }}}
-
-		:function! MoveLineDown()
-		" {{{
-		:  silent move .+1
-		:endfunction
-		" }}}
-		
-		:function! System(arg)
-		" {{{
-		:  if has('win32')
-		:    throw "Calls to system() not supported on windows"
-		:  endif
-		:  let l:return = system(a:arg)
-		:  if v:shell_error != 0
-		:    throw "Error: system(". a:arg . ") returned ".v:shell_error
-		:  endif
-		:  return l:return
-		:endfunction
-		" }}}
-
-		:function! CommandLineStart(type, arg, default)
-		" {{{
-		:  return (getcmdtype() == a:type && getcmdline() == "") ? a:arg : a:default
-		:endfunction
-		" }}}
-
-		:function! Compile()
-		" {{{
-		:  call system("compile ".expand("%"))
-		:endfunction
-		" }}}
-
-		:function! SaveSess()
-		"{{{
-		:  if system("stat -c '%U' .") != $USER || getcwd() == $HOME
-		:    return
-		:  endif
-		:  if get(g:, "manage_sessions")
-		:    execute 'mksession! ' . getcwd() . '/.session.vim'
-		:  elseif get(g:, "manage_session")
-		:    call mkdir($HOME.'/.vim/session')
-		:    execute 'mksession! ' . $HOME . '/session/.session.vim'
-		:  endif
-		:endfunction
-		" }}}
-
-		:function! RestoreSess()
-		"{{{
-		:  if system("stat -c '%U' .") != $USER
-		:    return
-		:  elseif expand("%") != ""
-		:    return
-		:  elseif get(g:, "manage_sessions" ) && filereadable(getcwd() . '/.session.vim') && argc() == 0
-		:    execute 'so ' . getcwd() . '/.session.vim'
-		:  elseif get(g:, "manage_session" ) && filereadable($HOME . '/session/.session.vim') && argc() == 0
-		:    execute 'so ' . $HOME . '/session/.session.vim'
-		:  endif
-		:endfunction
-		" }}}
-		
-		:function! CorrectFile()
-		"{{{
-		:  let l:file = expand("%")
-		:  if &ft == "" && stridx(l:file, ".") == -1 && executable(l:file)
-		:    let l:glob = glob(l:file . ".*", 0, 1)
-		:    if len(l:glob) == 1
-		:     execute "e! ". l:glob[0]
-		:    endif
-		:  endif
-		:endfunction
-		" }}}
-
-		:function! Find(name)
-		"{{{
-		:  let l:fn = findfile(a:name)
-		:  if l:fn != ""
-		:    execute ":e " . l:fns[0]
-		:  endif
-		:endfunction
-		" }}}
-		
-		:function! MathEval(type) range
-		"{{{
-		:  call MotionHelp(a:type, {a, b, c -> a . string(eval(b)) . c})
 		:endfunction
 		" }}}
 	" }}}

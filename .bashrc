@@ -90,6 +90,7 @@ exe neomutt   && alias mutt="neomutt"
 exe vimpager  && alias less="vimpager"
 exe swallow   && alias gimp="swallow gimp"
 exe swallow   && alias audacity="swallow audacity"
+exe swallow   && alias sxiv="swallow sxiv"
 
 
 -() { builtin cd -; }
