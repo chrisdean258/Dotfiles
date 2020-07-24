@@ -155,7 +155,9 @@
 	:  call remove(a:errors, 0, -1)
 	:  for error in errs
 	:    let line = getline(error.lnum)
-	:    if error.text =~ 'expected 2 blank lines.*found 1'
+	:    if error.text =~ 'too many blank lines'
+	:      execute (error.lnum - 1) . "d"
+	:    elseif error.text =~ 'expected 2 blank lines.*found 1'
 	:      call append(error.lnum - 1, "")
 	:    elseif error.text =~ 'expected 2 blank lines.*found 0'
 	:      call append(error.lnum - 1, "")
@@ -165,6 +167,9 @@
 	:      call setline(error.lnum, line)
 	:    elseif error.text =~ "missing whitespace around operator"
 	:      let line = line[:error.col-2]." ".line[error.col-1:]
+	:      call setline(error.lnum, line)
+	:    elseif error.text =~ 'missing whitespace around arithmetic operator'
+	:      let line = line[:error.col-2]." ".line[error.col-1]. " " . line[error.col:]
 	:      call setline(error.lnum, line)
 	:    elseif error.text =~ 'multiple spaces before keyword'
 	:      let line = line[:error.col-2].line[error.col:]
