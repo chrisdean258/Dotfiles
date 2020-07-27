@@ -5,23 +5,24 @@
 	default = simple
 
 [alias]
+	b = !~/.git_scripts/branch
 	changed = diff --name-only
-	stat = status
 	ci = commit
 	co = checkout
-	rh = reset --hard
-	ignore = update-index --skip-worktree
-	unignore = update-index --no-skip-worktree
-	ignored = !git ls-files -v | grep \"^S\"
-	b = !~/.git_scripts/branch
-	save = !~/.git_scripts/save
-	note = !~/.git_scripts/notes
-	reload-hooks = !~/.git_scripts/reload-hooks
-	keep = !~/.git_scripts/keep
-	rebase-all = !~/.git_scripts/rebase_all
-	merge-all = !~/.git_scripts/merge_all
-	p = !~/.git_scripts/stash_pull_pop
 	commits = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
+	ignore = update-index --skip-worktree
+	ignored = !git ls-files -v | grep \"^S\"
+	keep = !~/.git_scripts/keep
+	merge-all = !~/.git_scripts/merge_all
+	note = !~/.git_scripts/notes
+	p = !~/.git_scripts/stash_pull_pop
+	rebase-all = !~/.git_scripts/rebase_all
+	reload-hooks = !~/.git_scripts/reload-hooks
+	rh = reset --hard
+	save = !~/.git_scripts/save
+	stat = status
+	unignore = update-index --no-skip-worktree
+	web = !~/.git_scripts/website
 [merge]
 	tool = vimdiff
 [diff]
