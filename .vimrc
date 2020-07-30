@@ -74,6 +74,7 @@
 	:set undoreload=10000
 	:set backup
 	:set wildmode=longest,list,full
+	:set smartcase
 " }}}
 
 " HIGHLIGHT SETTINGS {{{
@@ -159,9 +160,10 @@
 	:      execute (error.lnum - 1) . "d"
 	:    elseif error.text =~ 'expected 2 blank lines.*found 1'
 	:      call append(error.lnum - 1, "")
+	:    elseif error.text =~ 'expected 1 blank line.*found 0'
+	:      call append(error.lnum - 1, "")
 	:    elseif error.text =~ 'expected 2 blank lines.*found 0'
-	:      call append(error.lnum - 1, "")
-	:      call append(error.lnum - 1, "")
+	:      call append(error.lnum - 1, ["", ""])
 	:    elseif error.text =~ "missing whitespace after"
 	:      let line = line[:error.col-1]." ".line[error.col:]
 	:      call setline(error.lnum, line)
