@@ -54,7 +54,7 @@ if exe tput && tput setaf 1 >&/dev/null; then
 fi
 
 PROMPT_COMMAND=prompt_command
-PROMPT_SAVE=`echo $PS1 | sed 's/..$//g'`
+PROMPT_SAVE=`echo "$PS1" | sed 's/..$//g'`
 prompt_command()
 {
 	rv_save=$?
