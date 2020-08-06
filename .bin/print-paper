@@ -22,9 +22,17 @@ print_mk()
 	done
 }
 
+print_home()
+{
+	echo Run: email onn5826urn47@hpeprint.com -a "$@" -s "Paper" -m ""
+}
+
 if timeout 5 ping -c 1 172.27.144.107 >/dev/null 2>&1; then
 	exec print-bb "$@"
 fi
+
+print_home "$@"
+exit $?
 
 if [ "$1" = "-2" ]; then
 	lp -o number-up=2 -o sides=two-sided-short-edge "$@"
