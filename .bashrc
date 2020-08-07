@@ -64,6 +64,8 @@ prompt_command()
 	gd="$(timeout 0.5s git status 2>/dev/null | grep -q "clean" || echo "*")"
 	git="${gb:+$P_GREEN ($gb$gd)$P_CLEAR}"
 	PS1="${rv}${battery}$PROMPT_SAVE${git}\$ "
+	stty -echo; echo -n $'\e[6n'; read -d R x; stty echo
+	[ "${x#*;}" -eq 1 ] || echo -en "\n"
 }
 
 jmp_dir="$HOME/.cache/jmp"
