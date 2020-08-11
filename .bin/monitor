@@ -63,8 +63,7 @@ def extend(displays, true_size=False, no4k=False):
     if len(displays) == 1:
         if no4k:
             pw, ph = displays[0].size()
-            pw = min(pw, 1920)
-            ph = min(ph, 1080)
+            pw, ph = min(pw, 1920), min(ph, 1080)
             _xrandr("--output", displays[0].name, "--primary",
                     "--mode", f"{pw}x{ph}")
         else:
@@ -89,8 +88,8 @@ def extend(displays, true_size=False, no4k=False):
                     "--panning", "{}x{}+{}+0".format(sw, sh, pw),
                     "--mode", f"{sw}x{sh}")
         elif no4k:
-            pw, ph = min(pw, 1920), min(ph, 1080)
-            sw, sh = min(sw, 1920), min(sh, 1080)
+            pw, ph = min(int(pw), 1920), min(int(ph), 1080)
+            sw, sh = min(int(sw), 1920), min(int(sh), 1080)
             _xrandr("--output", second.name, "--mode", f"{sw}x{sh}",
                     "--right-of", primary.name, "--output", primary.name,
                     "--mode", f"{pw}x{ph}")
@@ -133,7 +132,8 @@ def main(argv):
 
 
 if __name__ == "__main__":
+    main(sys.argv)
     try:
-        main(sys.argv)
+        pass
     except Exception as e:
         print(str(e))
