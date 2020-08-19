@@ -81,6 +81,7 @@ alias car="cat"
 alias matlab="matlab -nodesktop -nosplash"
 alias ls='ls --color=auto --group-directories-first'
 alias grep='grep --color=auto'
+alias hgrep='history | grep --color=auto'
 
 exe colordiff && alias diff="colordiff"
 exe neomutt   && alias mutt="neomutt"
