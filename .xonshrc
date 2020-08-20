@@ -1,0 +1,48 @@
+#!/usr/bin/env python3
+$XONSH_SHOW_TRACEBACK = False
+if 'SSH_TTY' in ${...}:
+    $PROMPT = '{env_name}{BOLD_GREEN}{user}@{hostname}{NO_COLOR}:{BOLD_BLUE}{cwd}{branch_color}{curr_branch: {}}{NO_COLOR}{prompt_end} '
+else:
+    $PROMPT = '{env_name}{BOLD_GREEN}{user}{NO_COLOR}:{BOLD_BLUE}{cwd}{branch_color}{curr_branch: {}}{NO_COLOR}{prompt_end} '
+
+prompt_save = $PROMPT
+
+
+@events.on_postcommand
+def post_command(cmd, rtn, out, ts):
+    global prompt_save
+    if rtn != 0:
+        $PROMPT = '{RED}[' + str(rtn) + ']{NO_COLOR} ' + prompt_save
+    else:
+        $PROMPT = prompt_save
+
+def search_history(prefix):
+    for item in reversed(__xonsh__.history):
+        if item.cmd.startswith(prefix):
+            return item.cmd
+    return prefix
+
+
+@events.on_transform_command
+def handlebang(cmd):
+    if len(__xonsh__.history) > 0:
+        cmd = cmd.replace("!!", __xonsh__.history[-1].cmd)
+        if cmd.startswith("!"):
+            prefix, *rest = cmd.split(maxsplit=1)
+            prefix = search_history(prefix[1:])
+            cmd = prefix + " " + " ".join(rest)
+    return cmd
+
+
+def alias(arg):
+    for a in arg:
+        name, _, alias = a.partition("=")
+        aliases[name] = eval(alias)
+
+
+aliases["alias"] = alias
+aliases[".."] = ["cd", ".."]
+aliases["-"] = ["cd", "-"]
+aliases["ee"] = ["exec", "xonsh"]
+
+alias la="ls -la"

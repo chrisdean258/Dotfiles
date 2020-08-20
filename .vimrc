@@ -514,6 +514,8 @@
 	:autocmd FileType python  :autocmd BufEnter <buffer> :if getline(1) !~ '^#' | call append(0, "#!/usr/bin/env python3") | endif
 	:autocmd FileType python  :autocmd CursorMoved,CursorMovedI <buffer> call HighlightAfterColumn(79)
 	:autocmd FileType python  :autocmd BufWrite <buffer> :call PythonBlankLineFix()
+	:autocmd BufRead .xonshrc,*.xsh :set ft=python
+	:autocmd BufRead .xonshrc,*.xsh :silent! SyntasticToggleMode
 	:augroup END
 	" }}}
 

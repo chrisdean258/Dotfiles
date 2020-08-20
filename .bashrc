@@ -11,6 +11,8 @@ fi
 
 exe() { [ -x "$(command -v "$1")" ]; }
 
+exe xonsh && [ -f ~/.xonshrc ] && exec xonsh
+
 [ -r ~/.bash_profile ] && . ~/.bash_profile
 [ -r ~/.bash_aliases ] && . ~/.bash_aliases
 [ -r ~/.git-completion.bash ] && source ~/.git-completion.bash
