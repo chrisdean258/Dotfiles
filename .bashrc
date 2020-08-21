@@ -11,7 +11,6 @@ fi
 
 exe() { [ -x "$(command -v "$1")" ]; }
 
-exe xonsh && [ -f ~/.xonshrc ] && exec xonsh
 
 [ -r ~/.bash_profile ] && . ~/.bash_profile
 [ -r ~/.bash_aliases ] && . ~/.bash_aliases
@@ -127,9 +126,12 @@ j()
 	fi
 	return $?
 }
+export -f j
 
 [ -f /home/chris/git/linux-sgx/sgxsdk/environment ] && source /home/chris/git/linux-sgx/sgxsdk/environment
 
 if test "$(find ~/.bashrc -mmin +480)"; then
 	(cat < /dev/null > /dev/tcp/8.8.8.8/53) &>/dev/null && dots pull && touch ~/.bashrc || true
 fi
+
+exe xonsh && [ -f ~/.xonshrc ] && exec xonsh

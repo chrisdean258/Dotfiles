@@ -1,36 +1,49 @@
 #!/usr/bin/env python3
+from xonsh.prompt.__amalgam__ import git_dirty_working_directory as gdwd
+from xonsh.prompt.__amalgam__ import current_branch as gcb
+from shlex import split
+import os
+import sys
+
+xontrib load apt_tabcomplete autojump
+
 $XONSH_SHOW_TRACEBACK = False
+RV = 0
+
 if 'SSH_TTY' in ${...}:
-    $PROMPT = '{env_name}{BOLD_GREEN}{user}@{hostname}{NO_COLOR}:{BOLD_BLUE}{cwd}{branch_color}{curr_branch: {}}{NO_COLOR}{prompt_end} '
+    $PROMPT = '{RED}{rv:[{}] }{NO_COLOR}{env_name}{BOLD_GREEN}{user}@{hostname}{NO_COLOR}:{BOLD_BLUE}{cwd}{GREEN}{curr_branch: ({})}{NO_COLOR}{prompt_end} '
 else:
-    $PROMPT = '{env_name}{BOLD_GREEN}{user}{NO_COLOR}:{BOLD_BLUE}{cwd}{branch_color}{curr_branch: {}}{NO_COLOR}{prompt_end} '
+    $PROMPT = '{RED}{rv:[{}] }{NO_COLOR}{env_name}{BOLD_GREEN}{user}{NO_COLOR}:{BOLD_BLUE}{cwd}{GREEN}{curr_branch: ({})}{NO_COLOR}{prompt_end} '
 
 prompt_save = $PROMPT
-
+$PROMPT_FIELDS["rv"] = lambda: RV or None
+$PROMPT_FIELDS['curr_branch'] = lambda: gcb() and (gcb() + ("*" if gdwd() else ""))
 
 @events.on_postcommand
-def post_command(cmd, rtn, out, ts):
-    global prompt_save
-    if rtn != 0:
-        $PROMPT = '{RED}[' + str(rtn) + ']{NO_COLOR} ' + prompt_save
-    else:
-        $PROMPT = prompt_save
+def post_command(cmd, rtn, out, ts, **kwargs):
+    global RV
+    RV = rtn
+
 
 def search_history(prefix):
-    for item in reversed(__xonsh__.history):
-        if item.cmd.startswith(prefix):
-            return item.cmd
+    for item in reversed(list(__xonsh__.history.all_items())):
+        if item["inp"].startswith(prefix):
+            return item["inp"]
     return prefix
 
 
 @events.on_transform_command
-def handlebang(cmd):
+def bashify(cmd, **kwargs):
+    orig = cmd
     if len(__xonsh__.history) > 0:
         cmd = cmd.replace("!!", __xonsh__.history[-1].cmd)
-        if cmd.startswith("!"):
-            prefix, *rest = cmd.split(maxsplit=1)
-            prefix = search_history(prefix[1:])
-            cmd = prefix + " " + " ".join(rest)
+        cmd = cmd.replace("!$", split(__xonsh__.history[-1].cmd)[-1])
+    if cmd.startswith("!"):
+        prefix, *rest = cmd.split(maxsplit=1)
+        prefix = search_history(prefix[1:])
+        cmd = prefix + " " + " ".join(rest)
+    cmd = cmd.replace("$$", str(os.getpid()))
+    cmd = cmd.replace("$?", str(RV))
     return cmd
 
 
