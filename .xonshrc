@@ -4,6 +4,7 @@ from xonsh.prompt.__amalgam__ import current_branch as gcb
 from shlex import split
 import os
 import sys
+import re
 
 xontrib load apt_tabcomplete autojump
 
@@ -34,18 +35,26 @@ def search_history(prefix):
 
 
 @events.on_transform_command
-def bashify(cmd, **kwargs):
-    orig = cmd
-    if len(__xonsh__.history) > 0:
-        cmd = cmd.replace("!!", __xonsh__.history[-1].cmd)
-        cmd = cmd.replace("!$", split(__xonsh__.history[-1].cmd)[-1])
-    if cmd.startswith("!"):
-        prefix, *rest = cmd.split(maxsplit=1)
-        prefix = search_history(prefix[1:])
-        cmd = prefix + " " + " ".join(rest)
-    cmd = cmd.replace("$$", str(os.getpid()))
-    cmd = cmd.replace("$?", str(RV))
-    return cmd
+def bash_preproc(cmd, **kw):
+    bang_previous = {
+        "!": lambda x: x,
+        "$": lambda x: shlex.split(x)[-1],
+        "^": lambda x: shlex.split(x)[0],
+        "*": lambda x: " ".join(shlex.split(x)[1:]),
+    }
+    inputs = [a["inp"] for a in __xonsh__.history.all_items()]
+
+    def replace_bang(m):
+        arg = m.group(1)
+
+        # Dissect the previous command.
+        if arg in bang_previous:
+            return bang_previous[arg](next((x for x in reversed(inputs)), ""))
+        # Look back in history for a matching command.
+        else:
+            return next((x for x in reversed(inputs) if x.startswith(arg)), "")
+
+    return re.sub(r"!([!$^*]|[\w]+)", replace_bang, cmd)
 
 
 def alias(arg):
