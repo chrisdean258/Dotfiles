@@ -24,7 +24,7 @@ P_RED="\[`tput setaf 1`\]"
 P_GREEN="\[`tput setaf 2`\]" 
 P_CLEAR="\[`tput sgr0`\]"
 
-export PATH=$HOME/bin:$HOME/.bin:$PATH
+export PATH=$HOME/bin:$HOME/.bin:$PATH:$HOME/.local/bin/:
 export EDITOR=vim
 export VISUAL=vim
 export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'

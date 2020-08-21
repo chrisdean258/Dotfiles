@@ -8,6 +8,7 @@ import sys
 xontrib load apt_tabcomplete autojump
 
 $XONSH_SHOW_TRACEBACK = False
+$HOME = $PWD
 RV = 0
 
 if 'SSH_TTY' in ${...}:
