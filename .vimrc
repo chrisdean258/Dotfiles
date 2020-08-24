@@ -357,6 +357,7 @@
 	:command! Compile :call Compile()
 	:command! Template :call NewFile()
 	:command! -nargs=1 -complete=file_in_path Find :call Find("<args>")
+	:command! DndFixup :g/^\s*[-+]/normal! kJ | %s/\([+-]\)\s*/\1/ge
 
 " }}}
 
