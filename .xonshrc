@@ -2,12 +2,9 @@
 from xonsh.prompt.__amalgam__ import git_dirty_working_directory as gdwd
 from xonsh.prompt.__amalgam__ import current_branch as gcb
 from shlex import split
-from types import SimpleNamespace
 import os
 import sys
 import re
-
-xontrib load apt_tabcomplete autojump
 
 $XONSH_SHOW_TRACEBACK = False
 $HOME = $PWD
@@ -17,34 +14,48 @@ if 'SSH_TTY' in ${...}:
 else:
     $PROMPT = '{RED}{rv:[{}] }{NO_COLOR}{env_name}{BOLD_GREEN}{user}{NO_COLOR}:{BOLD_BLUE}{cwd}{GREEN}{curr_branch: ({})}{NO_COLOR}{prompt_end} '
 
-prompt_save = $PROMPT
 $PROMPT_FIELDS["rv"] = lambda: __xonsh__.history and __xonsh__.history.rtns[-1] or None
 $PROMPT_FIELDS['curr_branch'] = lambda: gcb() and (gcb() + "*" * (gdwd() or 0))
 
 @events.on_transform_command
 def bash_preproc(cmd, **kw):
-    bang_previous = {
-        "!": lambda x: x,
-        "$": lambda x: split(x)[-1],
-        "^": lambda x: split(x)[0],
-        "*": lambda x: " ".join(split(x)[1:]),
-    }
     inputs = [a["inp"] for a in __xonsh__.history.all_items()][::-1]
-    special = lambda m: bang_previous[m.group(1)](next((x for x in inputs), ""))
-    word = lambda m: next((x for x in inputs if x.startswith(m.group(1))), "")
-    cmd = re.sub(r"!([!$^*])", special, cmd)
-    return re.sub(r"!([\w]+)", word, cmd)
+    prev = lambda pre: next((i for i in inputs if i.startswith(pre)), "")
+    transformations = {
+        r"!!": lambda m: prev(""),
+        r"!\$": lambda m: split(prev(""))[-1],
+        r"!\^": lambda m: split(prev(""))[0],
+        r"!\*": lambda m: " ".join(prev("")[1:]),
+        r"!([\w]+)": lambda m: prev(m.group(1)),
+        r"\$\?": lambda m: str(_.rtn)
+    }
+    for expr, action in transformations.items():
+        cmd = re.sub(expr, action, cmd)
+    return cmd
+
+@events.on_chdir
+def record(olddir, newdir, **kw):
+    with open(g`~/.cache/jmp/jmp`[0], "a") as f:
+        print(newdir, file=f)
+
+def j(args):
+    expr = r".*\/.*".join(args) + r"[^/]*$"
+    with open(g`~/.cache/jmp/jmp`[0], "r") as f:
+        for line in (l.strip() for l in f if re.search(expr, l)):
+            print(line)
 
 
 def alias(arg):
     for a in arg:
-        name, _, alias = a.partition("=")
-        aliases[name] = eval(alias)
+        name, _, alias = split(a)[0].partition("=")
+        aliases[name] = alias
 
 
 aliases["alias"] = alias
 aliases[".."] = ["cd", ".."]
 aliases["-"] = ["cd", "-"]
 aliases["ee"] = ["exec", "xonsh"]
+aliases["j"] = j
 
 alias la="ls -la"
+alias c="clear"
