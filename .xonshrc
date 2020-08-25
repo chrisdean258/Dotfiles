@@ -2,14 +2,16 @@
 from xonsh.prompt.__amalgam__ import git_dirty_working_directory as gdwd
 from xonsh.prompt.__amalgam__ import current_branch as gcb
 from shlex import split
+from itertools import *
 import os
 import sys
 import re
 
-$XONSH_SHOW_TRACEBACK = False
-$HOME = $PWD
+$XONSH_SHOW_TRACEBACK = True
+$ENABLE_VI_MODE = True
 
 if 'SSH_TTY' in ${...}:
+    $HOME = $PWD
     $PROMPT = '{RED}{rv:[{}] }{NO_COLOR}{env_name}{BOLD_GREEN}{user}@{hostname}{NO_COLOR}:{BOLD_BLUE}{cwd}{GREEN}{curr_branch: ({})}{NO_COLOR}{prompt_end} '
 else:
     $PROMPT = '{RED}{rv:[{}] }{NO_COLOR}{env_name}{BOLD_GREEN}{user}{NO_COLOR}:{BOLD_BLUE}{cwd}{GREEN}{curr_branch: ({})}{NO_COLOR}{prompt_end} '
@@ -27,35 +29,71 @@ def bash_preproc(cmd, **kw):
         r"!\^": lambda m: split(prev(""))[0],
         r"!\*": lambda m: " ".join(prev("")[1:]),
         r"!([\w]+)": lambda m: prev(m.group(1)),
-        r"\$\?": lambda m: str(_.rtn)
+        r"\$\?": lambda m: str(_.rtn),
+        r"\$\$": lambda m: str(os.getpid()),
     }
     for expr, action in transformations.items():
         cmd = re.sub(expr, action, cmd)
     return cmd
 
+jmp_cache = g`~/.cache/jmp/jmp`[0]
+jump = False
+expr = r".*"
 @events.on_chdir
 def record(olddir, newdir, **kw):
-    with open(g`~/.cache/jmp/jmp`[0], "a") as f:
+    global jump
+    if olddir == newdir or jump:
+        jump = False
+        return
+    ls
+    with open(jmp_cache, "a") as f:
         print(newdir, file=f)
 
-def j(args):
-    expr = r".*\/.*".join(args) + r"[^/]*$"
-    with open(g`~/.cache/jmp/jmp`[0], "r") as f:
-        for line in (l.strip() for l in f if re.search(expr, l)):
-            print(line)
+def _j(args):
+    global jump
+    global expr
+    def cleanup():
+        with open(jmp_cache, "r") as f:
+            dirs = [l for l in f.readlines() if os.path.isdir(l.strip())]
+        dirs = reversed(list(set(reversed(dirs))))
+        with open(jmp_cache, "w") as f:
+            print("".join(dirs), file=f)
+    if args:
+        expr = re.compile(r".*\/.*".join(args) + r"[^/]*$", flags=re.IGNORECASE)
+    dirs = {l.strip() for l in !(tac @(jmp_cache)) if re.search(expr, l)}
+    if $PWD in dirs and re.search(expr, $PWD):
+        dirs = dropwhile(lambda a: a != $PWD, cycle(dirs))
+        next(dirs, None)
+    newdir = next(iter(dirs), None)
+    if newdir and os.path.isdir(newdir):
+        jump = True
+        cd @(newdir)
+    else:
+        cleanup()
 
 
-def alias(arg):
+def _alias(arg):
+    ret = 0
+    if not arg:
+        for alias, cmd in aliases.items():
+            print("{}={}".format(alias, cmd))
     for a in arg:
-        name, _, alias = split(a)[0].partition("=")
-        aliases[name] = alias
+        name, eq, alias = split(a)[0].partition("=")
+        if eq == "=":
+            aliases[name] = alias
+        elif arg in aliases:
+            print("{}={}".format(arg, aliases[arg]))
+        else:
+             print("alias: {}: not found".format(arg), file=sys.stderr)
+             ret = 1
+    return ret
 
 
-aliases["alias"] = alias
+aliases["alias"] = _alias
 aliases[".."] = ["cd", ".."]
 aliases["-"] = ["cd", "-"]
 aliases["ee"] = ["exec", "xonsh"]
-aliases["j"] = j
+aliases["j"] = _j
 
 alias la="ls -la"
 alias c="clear"
