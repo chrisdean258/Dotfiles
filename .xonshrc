@@ -3,11 +3,13 @@ from xonsh.prompt.__amalgam__ import git_dirty_working_directory as gdwd
 from xonsh.prompt.__amalgam__ import current_branch as gcb
 from shlex import split
 from itertools import *
+import random
 import os
 import sys
 import re
 
-$XONSH_SHOW_TRACEBACK = True
+$XONSH_SHOW_TRACEBACK = False
+$CASE_SENSITIVE_COMPLETIONS = False
 $ENABLE_VI_MODE = True
 
 if 'SSH_TTY' in ${...}:
@@ -30,7 +32,10 @@ def bash_preproc(cmd, **kw):
         r"!\*": lambda m: " ".join(prev("")[1:]),
         r"!([\w]+)": lambda m: prev(m.group(1)),
         r"\$\?": lambda m: str(_.rtn),
-        r"\$\$": lambda m: str(os.getpid()),
+        r"\$(\d)": lambda m: "$ARG" + m.group(1),
+        r"\$\$": str(os.getpid()),
+        r"\$\@": "$ARGS",
+        r"(\d+)d(\d+)": lambda m: str(sum(random.choices(range(1, int(m.group(2)) + 1), k=int(m.group(2))))),
     }
     for expr, action in transformations.items():
         cmd = re.sub(expr, action, cmd)
@@ -84,16 +89,16 @@ def _alias(arg):
         elif arg in aliases:
             print("{}={}".format(arg, aliases[arg]))
         else:
-             print("alias: {}: not found".format(arg), file=sys.stderr)
+             print("alias: {}: not found".format(a))
              ret = 1
     return ret
 
 
 aliases["alias"] = _alias
-aliases[".."] = ["cd", ".."]
-aliases["-"] = ["cd", "-"]
-aliases["ee"] = ["exec", "xonsh"]
 aliases["j"] = _j
 
 alias la="ls -la"
 alias c="clear"
+alias es="exec xonsh"
+alias ..="cd .."
+alias "-=cd -"
