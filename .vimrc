@@ -1454,9 +1454,33 @@
 	:    echom "Updating"
 	:    call System("date +%j > ~/.vim/update")
 	:    call System("wget -O ~/.vimrc.temp " . l:url)
-	:    if System("cat  ~/.vimrc.temp") =~ '\S'
-	:      call System("cat ~/.vimrc.temp > ~/.vimrc")
-	:      call System("rm ~/.vimrc.temp")
+	:    if System("cat ~/.vimrc.temp") =~ '\S'
+	:      call System("mv ~/.vimrc.temp ~/.vimrc")
+	:    endif
+	:    redraw!
+	:  catch
+	:    echom v:exception. ". Contact Chris if you think this was not caused by lack of internet"
+	:  endtry
+	:endfunction
+	" }}}
+
+	:function! FileAge(filename)
+	" {{{
+	:  return system("date +%s") - system("date +%s -r '".a:filename."'")
+	:endfunction
+	" }}}
+
+	:function! Update_Vimrc2(...)
+	" {{{
+	:  let l:url = 'https://raw.githubusercontent.com/chrisdean258/Dotfiles/master/.vimrc'
+	:  try
+	:    let l:age = FileAge("~/.vimrc")
+	:    if l:age > (24 * 60 * 60) || get(a:, 1)
+	:      echom "Updating"
+	:      call System("wget -O ~/.vimrc.temp " . l:url)
+	:      if System("cat ~/.vimrc.temp") =~ '\S'
+	:        call System("mv ~/.vimrc.temp ~/.vimrc")
+	:      endif
 	:    endif
 	:    redraw!
 	:  catch
