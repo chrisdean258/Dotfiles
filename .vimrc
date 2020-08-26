@@ -257,15 +257,15 @@
 	" Wrapping magic 
 	" allows you to target text and wrap it in characters repeatably
 	:nnoremap <silent><leader>w :set opfunc=Wrap<CR>g@
-	:vnoremap <silent><leader>w :call Wrap("visual")<CR>
+	:vnoremap <silent><leader>w :call Wrap(visualmode())<CR>
 
-	:nnoremap <silent><leader>sww VV:call SwapArgs("visual")<CR>
+	:nnoremap <silent><leader>sww VV:call SwapArgs(visualmode())<CR>
 	:nnoremap <silent><leader>sw :set opfunc=SwapArgs<CR>g@
-	:vnoremap <silent><leader>sw :call SwapArgs("visual")<CR>
+	:vnoremap <silent><leader>sw :call SwapArgs(visualmode())<CR>
 
-	:nnoremap <silent><leader>== VV:call MathEval("visual")<CR>
+	:nnoremap <silent><leader>== VV:call MathEval(visualmode())<CR>
 	:nnoremap <silent><leader>= :set opfunc=MathEval<CR>g@
-	:vnoremap <silent><leader>= :call MathEval("visual")<CR>
+	:vnoremap <silent><leader>= :call MathEval(visualmode())<CR>
 
 	" Resizing split
 	:nnoremap <silent><S-right> :vertical resize +5 <CR>
@@ -673,18 +673,18 @@
 		:function! MotionHelp(type, func)
 		" {{{
 		:  let l:window = winsaveview()
-		:  if a:type == "visual"
+		:  if a:type == "v" || a:type == "V" || a:type == "\<C-V>"
 		:    let [l:startl, l:startc] = getpos("'<")[1:2]
 		:    let [l:endl, l:endc] = getpos("'>")[1:2]
 		:  else
 		:    let [l:startl, l:startc] = getpos("'[")[1:2]
 		:    let [l:endl, l:endc] = getpos("']")[1:2]
 		:  endif
-		:  if a:type == "line"
+		:  if a:type == "line" || a:type == "V"
 		:    call map(range(l:startl, l:endl), { i, l -> MotionHelpInt(l, 1, 0, a:func) })
-		:  elseif a:type == "char" 
+		:  elseif a:type == "char" || a:type == "v"
 		:    call MotionHelpInt(l:startl, l:startc, l:endc, a:func)
-		:  elseif a:type == "block" || a:type == "visual"
+		:  elseif a:type == "block" || a:type == "\<C-V>"
 		:    call map(range(l:startl, l:endl), { i, l -> MotionHelpInt(l, l:startc, l:endc, a:func) })
 		:  endif
 		:  call winrestview(l:window)
