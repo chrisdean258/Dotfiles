@@ -93,9 +93,16 @@ def _alias(arg):
              ret = 1
     return ret
 
+def _ff(args):
+    if args:
+        file @(" ".join(args))
+    else:
+        file *
+
 
 aliases["alias"] = _alias
 aliases["j"] = _j
+aliases["ff"] = _ff
 
 alias la="ls -la"
 alias c="clear"

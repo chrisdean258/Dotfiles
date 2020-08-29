@@ -7,20 +7,19 @@ MAC_of()
 	echo "$choices" | $cmd | sed "s/.*(\(.*\)).*/\1/"
 }
 
-if ([ "$1" = "-d" ] || [ "$1" = "--d" ])&& shift; then
-	if [ "$#" -gt 0 ]; then
-		mac="$(MAC_of "$*")"
-		echo "disconnect $mac" | bluetoothctl
-	else
-		echo "disconnect" | bluetoothctl
-	fi
-elif [ $# -gt 0 ]; then
-	mac="$(MAC_of "$*")"
-	[ -z "$mac" ] && exit 1
-	echo "connect $mac" | bluetoothctl
-else
-	blueman-manager >/dev/null 2>&1 &
+if [ $# -eq 0 ]; then
+	exec blueman-manager 2>&1 >/dev/null &
 fi
-
-
-
+while [ $# -gt 0 ]; do
+	case $1 in
+		-d) echo "disconnect" | bluetoothctl ;;
+		--d) echo "disconnect" | bluetoothctl ;;
+		-p) pushbullet "BTDC" "BTDC";;
+		*)
+			mac="$(MAC_of "$*")"
+			[ -z "$mac" ] && exit 1
+			echo "connect $mac" | bluetoothctl
+			;;
+	esac
+	shift
+done

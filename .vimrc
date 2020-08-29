@@ -131,6 +131,7 @@
 	:let g:syntastic_cpp_compiler = "g++"
 	" :let g:syntastic_cpp_compiler_options = "-std=c++98 -Wall"
 	:let g:syntastic_cpp_include_dirs = [ "../../include",  "../include", "include", ".", $HOME."/include"]
+	:let g:syntastic_rust_checkers = ["rustc", 'cargo']
 
 	" Linting python
 	:if executable("flake8")
