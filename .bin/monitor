@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 import sys
-from sh import arandr, xrandr
+from subprocess import check_output as run
+
+
+def xrandr(*args):
+    return run(["xrandr"] + list(args)).decode("utf-8").splitlines()
 
 
 class Monitor:
@@ -8,111 +12,77 @@ class Monitor:
         self.__dict__.update(locals())
         self.modes = []
 
-    @classmethod
-    def getdisplays(cls):
-        lines = [line for line in xrandr().split("\n")[1:] if line]
-        mon_lines = [a for a in enumerate(lines) if " connected" in a[1]]
-        con_mons = []
-
-        for i, line in mon_lines[:-1]:
-            con_mons.append(cls.xrandr_parse_display(line))
-            modelines = lines[i + 1:mon_lines[i + 1][0]]
-            con_mons[-1].modes = cls.parse_modes(modelines)
-
-        con_mons.append(cls.xrandr_parse_display(mon_lines[-1][1]))
-        modelines = lines[mon_lines[-1][0] + 1:]
-        con_mons[-1].modes = cls.parse_modes(modelines)
-
-        dmon_lines = [a.split() for a in lines if " disconnected" in a]
-        dcon_mons = [cls(a[0]) for a in dmon_lines if not a[2].startswith("(")]
-        return con_mons, dcon_mons
-
-    @staticmethod
-    def parse_modes(lines):
-        return [tuple(line.split()[0].split("x")) for line in lines]
-
-    @classmethod
-    def xrandr_parse_display(cls, line):
-        fields = line.split()
-        name = fields[0]
-        primary = False
-        loc = fields[2]
-        if fields[2] == "primary":
-            primary = True
-            loc = fields[3]
-
-        if loc.startswith("("):
-            return cls(name)
-        loc = loc.replace("x", "+")
-        w, h, offx, offy, *rest = loc.split("+") + [0, 0]
-        return cls(name, int(w), int(h), int(offx), int(offy), primary)
-
     def size(self):
-        if self.width and self.height:
+        if (self.width and self.height) or len(self.modes) == 0:
             return self.width, self.height
         return self.modes[0]
 
+    @classmethod
+    def getdisplays(cls):
+        lines = [line for line in xrandr()[1:] if line]
+        con, dcon, cur_mon = [], [], None
+        for l in lines:
+            if not l[0].isspace():
+                cur_mon = cls.xrandr_parse_display(l)
+                (con if " connected" in l else dcon).append(cur_mon)
+            elif cur_mon is not None:
+                cur_mon.modes.append([int(a) for a in l.split()[0].split("x")])
+        return sorted(con_mons, key=lambda m: not m.primary), dcon_mons
 
-def _xrandr(*args, **kwargs):
-    call = xrandr.bake(*args, **kwargs)
-    print(call)
-    call()
+    @classmethod
+    def xrandr_parse_display(cls, line):
+        name, _, *fields = line.split()
+        primary = fields[0] == "primary"
+        loc = fields[1] if primary else fields[0]
+
+        if loc.startswith("("):
+            return cls(name)
+        w, h, offx, offy, *_ = loc.replace("x", "+").split("+") + [0, 0]
+        return cls(name, int(w), int(h), int(offx), int(offy), primary)
 
 
 def extend(displays, true_size=False, no4k=False):
     if len(displays) == 1:
+        w, h = displays[0].size()
         if no4k:
-            pw, ph = displays[0].size()
-            pw, ph = min(pw, 1920), min(ph, 1080)
-            _xrandr("--output", displays[0].name, "--primary",
-                    "--mode", f"{pw}x{ph}")
-        else:
-            _xrandr("--output", displays[0].name, "--primary", "--auto")
+            w, h = min(w, 1920), min(h, 1080)
+        if true_size:
+            w, h = displays[0].modes[0]
+        xrandr("--output", displays[0].name, "--primary", "--mode", f"{w}x{h}")
 
     if len(displays) == 2:
-        try:
-            primary = [a for a in displays if a.primary][0]
-            second = [a for a in displays if not a.primary][0]
-        except IndexError:
-            primary, second = sorted(displays, key=lambda s: -s.width)
-        pw, ph = primary.size()
-        sw, sh = second.size()
-
-        _xrandr("--output", second.name, "--auto", "--right-of",
-                primary.name, "--output", primary.name,
-                "--primary", "--auto")
+        primary, second = displays
+        (pw, ph), (sw, sh) = primary.size(), second.size()
+        xrandr("--output", second.name, "--auto", "--right-of", primary.name,
+               "--output", primary.name, "--primary", "--auto")
 
         if true_size:
             sw, sh = second.modes[0]
-            _xrandr("--output", second.name, "--scale", "1x1",
-                    "--panning", "{}x{}+{}+0".format(sw, sh, pw),
-                    "--mode", f"{sw}x{sh}")
+            xrandr("--output", second.name, "--scale", "1x1", "--panning",
+                   f"{sw}x{sh}+{pw}+0", "--mode", f"{sw}x{sh}")
         elif no4k:
-            pw, ph = min(int(pw), 1920), min(int(ph), 1080)
-            sw, sh = min(int(sw), 1920), min(int(sh), 1080)
-            _xrandr("--output", second.name, "--mode", f"{sw}x{sh}",
-                    "--right-of", primary.name, "--output", primary.name,
-                    "--mode", f"{pw}x{ph}")
-
+            pw, ph = min(pw, 1920), min(ph, 1080)
+            sw, sh = min(sw, 1920), min(sh, 1080)
+            xrandr("--output", second.name, "--mode", f"{sw}x{sh}",
+                   "--right-of", primary.name, "--output", primary.name,
+                   "--mode", f"{pw}x{ph}")
         elif second.width < primary.width:
-            _xrandr("--output", second.name, "--scale", "2x2",
-                    "--panning", "{}x{}+{}+0".format(pw, ph, pw))
+            xrandr("--output", second.name, "--scale", "2x2", "--panning",
+                   "{}x{}+{}+0".format(pw, ph, pw))
 
 
 def mirror(displays):
     if len(displays) == 2:
-        primary = [a for a in displays if a.primary][0]
-        second = [a for a in displays if not a.primary][0]
-        _xrandr("--output", second.name, "--auto", "--same-as",
-                primary.name, "--output", primary.name,
-                "--primary", "--auto")
-        _xrandr("--output", primary.name, "--mode",
-                f"{second.width}x{second.height}")
+        primary, second = displays
+        xrandr("--output", second.name, "--auto", "--same-as", primary.name,
+               "--output", primary.name, "--primary", "--auto")
+        xrandr("--output", primary.name, "--mode",
+               f"{second.width}x{second.height}")
 
 
 def remove(displays):
     for d in displays:
-        _xrandr("--output", d.name, "--off")
+        xrandr("--output", d.name, "--off")
 
 
 def main(argv):
@@ -128,12 +98,11 @@ def main(argv):
     elif "mirror" == args.pop():
         mirror(displays)
     else:
-        arandr()
+        run("arandr")
 
 
 if __name__ == "__main__":
-    main(sys.argv)
     try:
-        pass
+        main(sys.argv)
     except Exception as e:
         print(str(e))
