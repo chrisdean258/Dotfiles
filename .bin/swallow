@@ -1,12 +1,8 @@
 #!/bin/bash
 
-set -e
-
 id=$(xdotool getactivewindow)
-xdotool windowunmap "$id"
-xdotool windowunmap "$id"
-xdotool windowunmap "$id"
+xdotool windowunmap --sync "$id"
 "$@"
-xdotool windowmap "$id"
-xdotool windowmap "$id"
-xdotool windowmap "$id"
+rv=$?
+xdotool windowmap --sync "$id"
+exit "$rv"
