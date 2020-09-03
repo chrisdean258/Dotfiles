@@ -1,4 +1,0 @@
-#!/bin/sh
-
-while discord 2>&1 | grep "[Ff]ault"; do :; done
-
