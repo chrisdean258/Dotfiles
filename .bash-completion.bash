@@ -24,3 +24,14 @@ __complete_make()
 }
 
 complete -o bashdefault -o default -o nospace -F __complete_make make
+
+__complete_xdotool()
+{
+	cur=${COMP_WORDS[COMP_CWORD]}	
+	words="$(xdotool --help | awk '/^ / {print $1}')"
+	COMPREPLY=( $(compgen -W "$words" -- "$cur" ) )
+
+	return 0
+}
+
+complete -o bashdefault -o default -o nospace -F __complete_xdotool xdotool

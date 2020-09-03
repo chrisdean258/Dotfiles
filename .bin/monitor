@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import sys
+import re
 from subprocess import check_output as run
 
 
@@ -22,12 +23,12 @@ class Monitor:
         lines = [line for line in xrandr()[1:] if line]
         con, dcon, cur_mon = [], [], None
         for l in lines:
-            if not l[0].isspace():
-                cur_mon = cls.xrandr_parse_display(l)
-                (con if " connected" in l else dcon).append(cur_mon)
-            elif cur_mon is not None:
+            if cur_mon is not None and re.match(r"^\s*\d+x\d+", l):
                 l = l.split()[0].rstrip("i").split("x")
                 cur_mon.modes.append([int(a) for a in l])
+            elif not l[0].isspace():
+                cur_mon = cls.xrandr_parse_display(l)
+                (con if " connected" in l else dcon).append(cur_mon)
         return sorted(con, key=lambda m: not m.primary), dcon
 
     @classmethod
