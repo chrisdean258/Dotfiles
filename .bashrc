@@ -134,5 +134,4 @@ export -f j
 if test "$(find ~/.bashrc -mmin +480)"; then
 	(cat < /dev/null > /dev/tcp/8.8.8.8/53) &>/dev/null && dots pull && touch ~/.bashrc || true
 fi
-exe xonsh && [ -f ~/.xonshrc ] && exec xonsh
 
