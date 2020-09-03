@@ -26,8 +26,9 @@ class Monitor:
                 cur_mon = cls.xrandr_parse_display(l)
                 (con if " connected" in l else dcon).append(cur_mon)
             elif cur_mon is not None:
-                cur_mon.modes.append([int(a) for a in l.split()[0].split("x")])
-        return sorted(con_mons, key=lambda m: not m.primary), dcon_mons
+                l = l.split()[0].rstrip("i").split("x")
+                cur_mon.modes.append([int(a) for a in l])
+        return sorted(con, key=lambda m: not m.primary), dcon
 
     @classmethod
     def xrandr_parse_display(cls, line):
@@ -102,7 +103,8 @@ def main(argv):
 
 
 if __name__ == "__main__":
+    main(sys.argv)
     try:
-        main(sys.argv)
+        pass
     except Exception as e:
         print(str(e))
