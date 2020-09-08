@@ -10,12 +10,15 @@ fi
 [ -z "$BASH_SOURCED" ] && BASH_SOURCED="yes" || return
 
 exe() { [ -x "$(command -v "$1")" ]; }
+ssource() { [ -r "$1" ] && source "$1"; }
 
 
-[ -r ~/.bash_profile ] && . ~/.bash_profile
-[ -r ~/.bash_aliases ] && . ~/.bash_aliases
-[ -r ~/.git-completion.bash ] && source ~/.git-completion.bash
-[ -r ~/.bash-completion.bash ] && source ~/.bash-completion.bash
+ssource "$HOME/.bash_profile"
+ssource "$HOME/.bash_aliases"
+ssource "$HOME/.git-completion.bash"
+ssource "$HOME/.bash-completion.bash"
+ssource "$HOME/.cargo/env"
+ssource "$HOME/git/linux-sgx/sgxsdk/environment"
 
 HISTCONTROL=ignoreboth
 HISTSIZE=
@@ -128,8 +131,6 @@ j()
 }
 export -f j
 
-[ -f "$HOME/git/linux-sgx/sgxsdk/environment" ] && source "$HOME/git/linux-sgx/sgxsdk/environment"
-[ -f "$HOME/.cargo/env" ] && source "$HOME/.cargo/env"
 
 if test "$(find ~/.bashrc -mmin +480)"; then
 	(timeout 1 cat < /dev/null > /dev/tcp/8.8.8.8/53) &>/dev/null && dots pull && touch ~/.bashrc || true
