@@ -132,6 +132,6 @@ export -f j
 [ -f "$HOME/.cargo/env" ] && source "$HOME/.cargo/env"
 
 if test "$(find ~/.bashrc -mmin +480)"; then
-	(cat < /dev/null > /dev/tcp/8.8.8.8/53) &>/dev/null && dots pull && touch ~/.bashrc || true
+	(timeout 1 cat < /dev/null > /dev/tcp/8.8.8.8/53) &>/dev/null && dots pull && touch ~/.bashrc || true
 fi
 
