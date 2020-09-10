@@ -183,6 +183,12 @@
 	:    elseif error.text =~ "whitespace after" || error.text =~ "whitespace before"
 	:      let line = line[:error.col-2].line[error.col:]
 	:      call setline(error.lnum, line)
+	:    elseif error.text =~ "multiple spaces after operator"
+	:      let line = line[:error.col-1].line[error.col+1:]
+	:      call setline(error.lnum, line)
+	:    elseif error.text =~ 'block comment should start with'
+	:      let line = line[:error.col-1]. " " . line[error.col:]
+	:      call setline(error.lnum, line)
 	:    else
 	:      call add(a:errors, error)
 	:    endif

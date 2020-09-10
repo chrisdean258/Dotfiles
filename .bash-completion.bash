@@ -3,7 +3,7 @@
 complete -d cd
 complete -o bashdefault -f -X "!*.pdf" print-paper
 complete -o bashdefault -f -X "@(*.pdf|*.log|*.aux|*.nav|*.out|*.snm|*.toc|*.jpg|*.pyc|*.png|*.mp3|*.wav|*.o|*.bin)" vim
-complete -o bashdefault -f -X "!@(*.pdf|*.jpg|*.png|*.mp3|*.wav|*.ppm|*.pgm|*.html|*.webm|*.mp4|*.mkv|*.flv)" open
+complete -o bashdefault -f -X "!@(*.pdf|*.jpg|*.png|*.mp3|*.wav|*.ppm|*.pgm|*.html|*.webm|*.mp4|*.mkv|*.flv|*.gif)" open
 
 for exe in ~/.bin/pdf*; do
 	complete -o bashdefault -f -X "!*.pdf" "$(basename $exe)"

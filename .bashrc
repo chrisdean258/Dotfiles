@@ -84,6 +84,7 @@ alias la='ls -A'
 alias l='ls -CF'
 alias car="cat"
 alias matlab="matlab -nodesktop -nosplash"
+alias jn="swallow jupyter notebook"
 alias ls='ls --color=auto --group-directories-first'
 alias grep='grep --color=auto'
 alias hgrep='history | grep --color=auto'
