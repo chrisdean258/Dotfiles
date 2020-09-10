@@ -18,7 +18,8 @@ ssource "$HOME/.bash_aliases"
 ssource "$HOME/.git-completion.bash"
 ssource "$HOME/.bash-completion.bash"
 ssource "$HOME/.cargo/env"
-ssource "$HOME/git/linux-sgx/sgxsdk/environment"
+ssource "$HOME/git/linux-sgx/linux/installer/bin/sgxsdk/environment"
+# ssource "$HOME/git/linux-sgx/sgxsdk/environment"
 
 HISTCONTROL=ignoreboth
 HISTSIZE=
@@ -132,7 +133,7 @@ j()
 export -f j
 
 
-if test "$(find ~/.bashrc -mmin +480)"; then
+if test "$(find ~/.bashrc -mmin +1440)"; then
 	(timeout 1 cat < /dev/null > /dev/tcp/8.8.8.8/53) &>/dev/null && dots pull && touch ~/.bashrc || true
 fi
 
