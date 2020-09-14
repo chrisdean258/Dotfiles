@@ -183,8 +183,8 @@
 	:    elseif error.text =~ "whitespace after" || error.text =~ "whitespace before"
 	:      let line = line[:error.col-2].line[error.col:]
 	:      call setline(error.lnum, line)
-	:    elseif error.text =~ "multiple spaces after operator"
-	:      let line = line[:error.col-1].line[error.col+1:]
+	:    elseif error.text =~ "multiple spaces"
+	:      let line = RStrip(line[:error.col-1])." ".LStrip(line[error.col+1:])
 	:      call setline(error.lnum, line)
 	:    elseif error.text =~ 'block comment should start with'
 	:      let line = line[:error.col-1]. " " . line[error.col:]
@@ -620,6 +620,18 @@
 		:function! Strip(str)
 		" {{{
 		:  return substitute(a:str, '^\s*\(.\{-}\)\s*$', '\1', '')
+		:endfunction
+		" }}}
+
+		:function! LStrip(str)
+		" {{{
+		:  return substitute(a:str, '^\s*', '', '')
+		:endfunction
+		" }}}
+
+		:function! RStrip(str)
+		" {{{
+		:  return substitute(a:str, '\s*$', '', '')
 		:endfunction
 		" }}}
 

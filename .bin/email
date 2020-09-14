@@ -7,20 +7,18 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.utils import COMMASPACE, formatdate
 
+
 def send_email(**kwargs):
     arguments = {}
     if "to" in kwargs:
-        arguments["from_"]    = kwargs["from"][0]
-        arguments["user"]     = kwargs["user"]
+        arguments["from_"] = kwargs["from"][0]
+        arguments["user"] = kwargs["user"]
         arguments["password"] = kwargs["password"]
-        arguments["to"]       = kwargs["to"]
-        arguments["subject"]  = kwargs["subject"][0]
-        arguments["text"]     = kwargs["message_stream"].read()
-        arguments["quiet"]    = kwargs["quiet"]
-        arguments["attach"]   = kwargs["attach"]
-
-        if "format_dict" in kwargs:
-            arguments["text"] = arguments["text"].format(**kwargs["format_dict"])
+        arguments["to"] = kwargs["to"]
+        arguments["subject"] = kwargs["subject"][0]
+        arguments["text"] = kwargs["message_stream"].read()
+        arguments["quiet"] = kwargs["quiet"]
+        arguments["attach"] = kwargs["attach"]
 
         return gmail_send(**arguments)
     elif "format" in kwargs:
@@ -47,7 +45,8 @@ def gmail_send(user, from_, password, to, subject, text, quiet=1, attach=[]):
 
     body = msg.as_string()
 
-    if not quiet: print("Sending Email...", end="", flush=True)
+    if not quiet:
+        print("Sending Email...", end="", flush=True)
     try:
         server = smtplib.SMTP('smtp.gmail.com', 587)
         server.ehlo()
@@ -55,11 +54,13 @@ def gmail_send(user, from_, password, to, subject, text, quiet=1, attach=[]):
         server.login(user, password)
         server.sendmail(user, to, body)
         server.quit()
-    except:
-        print("There was an unexpected error")
+    except Exception as e:
+        print("There was an unexpected error", str(e))
         return False
-    if not quiet: print("Done")
+    if not quiet:
+        print("Done")
     return True
+
 
 def main(argv):
     from getpass import getpass
@@ -67,14 +68,14 @@ def main(argv):
     import os
 
     parser = argparse.ArgumentParser(description='Sends emails')
-    parser.add_argument('to',                        type=str, nargs='+', help='the email addresses of the recipients')
-    parser.add_argument('-r', '--from',              type=str, nargs=1,   help='change the From address')
-    parser.add_argument('-u', '--user',              type=str, nargs=1,   help='use this user account')
-    parser.add_argument('-s', '--subject',           type=str, nargs=1,   help='specify the subject field')
-    parser.add_argument('-m', '--message',           type=str, nargs=1,   help='file containing the message to be sent. Default=stdin')
-    parser.add_argument('-f', '--format',            type=str, nargs=1,   help='specify a csv file to send automated messages to')
-    parser.add_argument('-a', '--attach',            type=str, nargs='+', help='files to attach')
-    parser.add_argument('-q', '--quiet',             action='store_const', const=True, default=False)
+    parser.add_argument('to', type=str, nargs='+', help='the email addresses of the recipients')  # noqa: E501
+    parser.add_argument('-r', '--from', type=str, nargs=1, help='change the From address')  # noqa: E501
+    parser.add_argument('-u', '--user', type=str, nargs=1, help='use this user account')  # noqa: E501
+    parser.add_argument('-s', '--subject', type=str, nargs=1, help='specify the subject field')  # noqa: E501
+    parser.add_argument('-m', '--message', type=str, nargs=1, help='file containing the message to be sent. Default=stdin')  # noqa: E501
+    parser.add_argument('-f', '--format', type=str, nargs=1, help='specify a csv file to send automated messages to')  # noqa: E501
+    parser.add_argument('-a', '--attach', type=str, nargs='+', help='files to attach')  # noqa: E501
+    parser.add_argument('-q', '--quiet', action='store_const', const=True, default=False)  # noqa: E501
     args = vars(parser.parse_args())
 
     # I know its terrible but I like the ability to automate
@@ -83,11 +84,13 @@ def main(argv):
     else:
         args["from"] = args["from"][0]
 
-    if not args.get("password"): args["password"] = getpass("Password for %s: " % args["from"])
+    if not args.get("password"):
+        args["password"] = getpass("Password for %s: " % args["from"])
 
-    if not args["user"]: args["user"] = os.environ.get("email")
-    if not args["from"]: args["from"] = os.environ.get("email")
-    if not args["subject"]: args["subject"] = (input("Subject: "),)
+    args.setdefault("user", os.environ.get("email"))
+    args.setdefault("from", os.environ.get("email"))
+    if not args["subject"]:
+        args["subject"] = (input("Subject: "),)
 
     if not args["message"]:
         args["message_stream"] = sys.stdin
