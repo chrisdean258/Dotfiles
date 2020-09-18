@@ -134,7 +134,8 @@ j()
 export -f j
 
 
-if test "$(find ~/.bashrc -mmin +1440)"; then
+if test "$(find ~/.bashrc -mmin +480)"; then
 	(timeout 1 cat < /dev/null > /dev/tcp/8.8.8.8/53) &>/dev/null && dots pull && touch ~/.bashrc || true
+	exe mbsync && mbsync -a
 fi
 

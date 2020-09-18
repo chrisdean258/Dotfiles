@@ -342,6 +342,7 @@
 	:cabbrev Q <C-R>=CommandLineStart(":", "q", "Q")<CR>
 	:cabbrev Wq <C-R>=CommandLineStart(":", "wq", "Wq")<CR>
 	:cabbrev WQ <C-R>=CommandLineStart(":", "wq", "WQ")<CR>
+	:cabbrev Set <C-R>=CommandLineStart(":", "set", "Set")<CR>
 
 	" Expanding for substitutions
 	:cabbrev S <C-R>=CommandLineStart(":", "%s", "S")<CR>
