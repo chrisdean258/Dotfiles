@@ -480,6 +480,7 @@
 	" Tex
 	" {{{
 	:augroup web
+	:  autocmd BufNewFile *.tex  :setlocal filetype=tex
 	:  autocmd BufNew *.tex  :setlocal filetype=tex
 	:  autocmd BufRead *.tex :setlocal filetype=tex
 	:  autocmd FileType tex :setlocal tabstop=2
@@ -606,7 +607,6 @@
 	:  autocmd BufRead,BufNewFile *.edl :doautocmd Filetype c
 	:augroup END
 	" }}}
-
 
 " {{{
 :endif

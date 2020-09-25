@@ -139,3 +139,4 @@ if test "$(find ~/.bashrc -mmin +480)"; then
 	exe mbsync && mbsync -a
 fi
 
+[ -r "$HOME/projects.md" ] && pygmentize -g  "$HOME/projects.md" 
