@@ -504,6 +504,8 @@
 	:  autocmd FileType tex :inoremap \sec \sec
 	:  autocmd FileType tex :inoremap \pau \pau
 	:  autocmd FileType tex :inoremap \pi \pi
+	:  autocmd Filetype tex :nnoremap <silent><buffer><localleader>rm :set opfunc=LatexTextrm<CR>g@
+	:  autocmd Filetype tex :vnoremap <silent><buffer><localleader>rm :call LatexTextrm(visualmode())<CR>
 	:augroup END
 	" }}}
 
@@ -718,6 +720,12 @@
 		:  let l:end = a:endcol == 0 ? "" : (l:line[(a:endcol):])
 		:  let l:value = l:line[(a:startcol-1):(a:endcol-1)]
 		:  call setline(a:line, a:func(l:start, l:value, l:end))
+		:endfunction
+		" }}}
+
+		:function! MotionWrap(type, begin, ending)
+		" {{{
+		:  call MotionHelp(a:type, { a, b, c -> a . a:begin . b . a:ending . c })
 		:endfunction
 		" }}}
 
@@ -960,6 +968,13 @@
 		:  return indent(l:otherno) + l:offset * shiftwidth()
 		:endfunction
 		" }}}
+		
+		:function! LatexTextrm(type) range
+		"{{{
+		:  call MotionWrap(a:type, '\textrm{', '}')
+		:endfunction
+		" }}}
+
 	" }}}
 
 	" C Style Function
@@ -1431,7 +1446,7 @@
 		:  let s:wrapinput = get(s:, 'repeat', "") != "wrap" ? nr2char(getchar()) : get(s:, 'wrapinput', "")
 		:  let [s:repeatstack, s:repeat] = ["wrap", ""]
 		:  let [l:begin, l:ending] = WrapHelp(s:wrapinput)
-		:  call MotionHelp(a:type, { a, b, c -> a . l:begin . b . l:ending . c })
+		:  call MotionWrap(a:type, l:begin, l:ending)
 		:endfunction
 		" }}}
 
