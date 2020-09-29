@@ -4,7 +4,7 @@ import os
 import re
 import requests
 import json
-from sh import git
+import subprocess
 from functools import wraps
 import sys
 
@@ -12,11 +12,12 @@ import sys
 def json_resp(f):
     @wraps(f)
     def inner(*args, **kwargs):
-        resp = f(*args, **kwargs)
-        if resp.text:
-            return json.loads(resp.text)
-        return None
+        return json.loads(f(*args, **kwargs).text or "null")
     return inner
+
+
+def git(*cmd):
+    return subprocess.check_output(["git"] + cmd).decode("utf-8")
 
 
 class Github:
@@ -58,25 +59,18 @@ class Github:
         with open("README.md", "w") as readme:
             readme.write("# " + title)
 
-        git.init()
-        git.remote.add.origin(resp["ssh_url"])
-        git.add("-A", ".")
-        git.commit("-m", "Initial commit")
-        git.push("-u", "origin", "master")
+        git("init")
+        git("remote", "add", "origin", resp["ssh_url"])
+        git("add", "-A", ".")
+        git("commit", "-m", "Initial commit")
+        git("push", "-u", "origin", "master")
 
         return resp
-
-        # print("Name:", resp['name'])
-        # print("Full Name:", resp['full_name'])
-        # print("SSH URL:", resp['ssh_url'])
-        # print("Clone URL:", resp['clone_url'])
-        # for repo in resp:
-        # print(repo["full_name"])
 
     def clone_repo(self, name, directory):
         for repo in self.list_repos():
             if name.lower() in repo["name"].lower():
-                git.clone(repo["ssh_url"], directory)
+                git("clone", repo["ssh_url"], directory)
                 return repo
 
 
@@ -94,8 +88,9 @@ def main(args):
         connection.clone_repo(args[2], args[2] if len(args) <= 3 else args[3])
     if args[1] == "delete":
         connection.delete_repo(args[2])
-    if args[1] == "new":
-        connection.setup_repo(args[2], )
+    if args[1] in ("new", "new-repo"):
+        resp = connection.setup_repo(args[2], args[2], "-p" in args)
+        print("SSH URL:", resp['ssh_url'])
 
 
 if __name__ == "__main__":

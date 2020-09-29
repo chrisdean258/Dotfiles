@@ -189,6 +189,11 @@
 	:    elseif error.text =~ 'block comment should start with'
 	:      let line = line[:error.col-1]. " " . line[error.col:]
 	:      call setline(error.lnum, line)
+	:    elseif error.text =~ 'unexpected indentation (comment)'
+	:      let nidt = indent(error.lnum - 1)
+	:      let cidt = indent(error.lnum)
+	:      let line = repeat(" ", nidt) . "#" . repeat(" ", cidt - nidt) . line[cidt+1:]
+	:      call setline(error.lnum, line)
 	:    else
 	:      call add(a:errors, error)
 	:    endif
@@ -506,6 +511,10 @@
 	:  autocmd FileType tex :inoremap \pi \pi
 	:  autocmd Filetype tex :nnoremap <silent><buffer><localleader>rm :set opfunc=LatexTextrm<CR>g@
 	:  autocmd Filetype tex :vnoremap <silent><buffer><localleader>rm :call LatexTextrm(visualmode())<CR>
+	:  autocmd Filetype tex :nnoremap <silent><buffer><localleader>i :set opfunc=LatexTextit<CR>g@
+	:  autocmd Filetype tex :vnoremap <silent><buffer><localleader>i :call LatexTextit(visualmode())<CR>
+	:  autocmd Filetype tex :nnoremap <silent><buffer><localleader>b :set opfunc=LatexTextbf<CR>g@
+	:  autocmd Filetype tex :vnoremap <silent><buffer><localleader>b :call LatexTextbf(visualmode())<CR>
 	:augroup END
 	" }}}
 
@@ -972,6 +981,18 @@
 		:function! LatexTextrm(type) range
 		"{{{
 		:  call MotionWrap(a:type, '\textrm{', '}')
+		:endfunction
+		" }}}
+
+		:function! LatexTextit(type) range
+		"{{{
+		:  call MotionWrap(a:type, '\textit{', '}')
+		:endfunction
+		" }}}
+
+		:function! LatexTextbf(type) range
+		"{{{
+		:  call MotionWrap(a:type, '\textbf{', '}')
 		:endfunction
 		" }}}
 
