@@ -87,8 +87,8 @@ def main(argv):
     if not args.get("password"):
         args["password"] = getpass("Password for %s: " % args["from"])
 
-    args.setdefault("user", os.environ.get("email"))
-    args.setdefault("from", os.environ.get("email"))
+    args["user"] = args.get("user") or os.environ.get("email")
+    args["from"] = args.get("from") or os.environ.get("email")
     if not args["subject"]:
         args["subject"] = (input("Subject: "),)
 
