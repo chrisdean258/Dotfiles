@@ -10,13 +10,24 @@ def colorcat(f):
         "pink": u"\u001b[38;5;7m",
         "yellow": u"\u001b[38;5;11m",
         "purple": u"\u001b[38;5;13m",
-        "blue": u"\u001b[4m\u001b[38;5;14m",
+        "blue": u"\u001b[38;5;14m",
+        "underline": u"\u001b[4m",
+        "italics": u"\u001b[3m",
+        "no_italics": u"\u001b[23m",
+        "bold": u"\u001b[1m",
+        "no_bold": u"\u001b[22m",
     }
 
     subs = {
-        r"\[([^\[]*?)\]\((.*)\)": "[{blue}\\1{clear}]({purple}\\2{clear})",
+        r"\[([^\[]*?)\]\((.*)\)": "[{underline}{blue}\\1{clear}]({purple}\\2{clear})",  # noqa: E501
         r"^#(.*)": "{purple}#{pink}\\1",
         r"^(\s*[-+*>])": "{yellow}\\1{clear}",
+        r"(^_.*?_)": "{italics}\\1{no_italics}",
+        r"([^_])(_.*?_)": "\\1{italics}\\2{no_italics}",
+        r"(__.*?__)": "{bold}\\1{no_bold}",
+        r"(^\*.*?\*)": "{italics}\\1{no_italics}",
+        r"([^\*])(\*.*?\*)": "\\1{italics}\\2{no_italics}",
+        r"(\*\*.*?\*\*)": "{bold}\\1{no_bold}",
     }
     for line in f:
         for expr, sub in subs.items():
@@ -29,9 +40,12 @@ def main():
         for filename in sys.argv[1:]:
             if filename == "-":
                 colorcat(sys.stdin)
-            else:
+                continue
+            try:
                 with open(filename, "r") as f:
                     colorcat(f)
+            except FileNotFoundError:
+                print(f"md-cat: {filename}: file not found", file=sys.stderr)
     else:
         colorcat(sys.stdin)
 
