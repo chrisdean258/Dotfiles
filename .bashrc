@@ -17,9 +17,6 @@ ssource "$HOME/.bash_profile"
 ssource "$HOME/.bash_aliases"
 ssource "$HOME/.git-completion.bash"
 ssource "$HOME/.bash-completion.bash"
-ssource "$HOME/.cargo/env"
-ssource "$HOME/git/linux-sgx/linux/installer/bin/sgxsdk/environment"
-# ssource "$HOME/git/linux-sgx/sgxsdk/environment"
 
 HISTCONTROL=ignoreboth
 HISTSIZE=
