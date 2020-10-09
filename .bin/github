@@ -17,7 +17,7 @@ def json_resp(f):
 
 
 def git(*cmd):
-    return subprocess.check_output(["git"] + cmd).decode("utf-8")
+    return subprocess.check_output(["git", *cmd]).decode("utf-8")
 
 
 class Github:
@@ -75,7 +75,7 @@ class Github:
 
 
 def main(args):
-    email = git.config("user.email").strip()
+    email = git("config", "user.email").strip()
     username = email[:email.index("@")]
     token = os.environ.get("GITHUB_ACCESS_TOKEN")
     url = "https://api.github.com/"
@@ -94,8 +94,10 @@ def main(args):
 
 
 if __name__ == "__main__":
+    main(sys.argv)
     try:
-        main(sys.argv)
+        pass
     except Exception as e:
         print(str(e))
         exit(1)
+        raise e
