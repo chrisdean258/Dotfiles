@@ -142,4 +142,4 @@ if test "$(find ~/.bashrc -mmin +480)"; then
 	exe mbsync && mbsync -a
 fi
 
-md-cat "$HOME/projects.md" 
+[ -r "$HOME/projects.md" ] && md-cat "$HOME/projects.md" 
