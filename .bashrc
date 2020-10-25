@@ -12,13 +12,10 @@ fi
 exe() { [ -x "$(command -v "$1")" ]; }
 ssource() { [ -r "$1" ] && source "$1"; }
 
-for file in "$HOME"/.bash*; do 
-	source "$file"
-done
-# ssource "$HOME/.bash_profile"
-# ssource "$HOME/.bash_aliases"
+ssource "$HOME/.bash_profile"
+ssource "$HOME/.bash_aliases"
 ssource "$HOME/.git-completion.bash"
-# ssource "$HOME/.bash-completion.bash"
+ssource "$HOME/.bash-completion.bash"
 
 HISTCONTROL=ignoreboth
 HISTSIZE=
