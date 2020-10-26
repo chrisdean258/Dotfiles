@@ -31,11 +31,11 @@ export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quo
 export HISTIGNORE="ls:cd"
 export TERM=st-256color
 [ -f "$HOME/.config/pyrc" ] && export PYTHONSTARTUP="$HOME/.config/pyrc"
-export CARGO_HOME="$XDG_DATA_HOME/cargo"
+
+export XDG_CONFIG_HOME="$HOME/.config"
 export IPYTHONDIR="$XDG_CONFIG_HOME/ipython"
 export JUPYTER_CONFIG_DIR="$XDG_CONFIG_HOME/jupyter"
 export GRIPHOME="$XDG_CONFIG_HOME/grip"
-export RUSTUP_HOME="$XDG_DATA_HOME/rustup"
 export MPLAYER_HOME="$XDG_CONFIG_HOME/mplayer"
 
 shopt -s histappend   2>/dev/null
@@ -142,3 +142,4 @@ if test "$(find ~/.bashrc -mmin +480)"; then
 fi
 
 [ -r "$HOME/projects.md" ] && md-cat "$HOME/projects.md" 
+
