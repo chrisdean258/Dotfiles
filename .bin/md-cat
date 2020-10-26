@@ -20,7 +20,7 @@ def colorcat(f):
 
     subs = {
         r"\[([^\[]*?)\]\((.*)\)": "[{underline}{blue}\\1{clear}]({purple}\\2{clear})",  # noqa: E501
-        r"^#(.*)": "{purple}#{pink}\\1",
+        r"^(#+)(.*)": "{purple}\\1{pink}\\2",
         r"^(\s*[-+*>])": "{yellow}\\1{clear}",
         r"(^_.*?_)": "{italics}\\1{no_italics}",
         r"([^_])(_.*?_)": "\\1{italics}\\2{no_italics}",
