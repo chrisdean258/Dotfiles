@@ -135,10 +135,16 @@ j()
 }
 export -f j
 
+update_dots()
+{
+	dots stash
+	dots pull
+	dots stash pop
+}
+
 
 if test "$(find ~/.bashrc -mmin +480)"; then
-	(timeout 1 cat < /dev/null > /dev/tcp/8.8.8.8/53) &>/dev/null && dots pull && touch ~/.bashrc || true
-	exe mbsync && mbsync -a
+	(ping -c 1 -w 1 8.8.8.8) &>/dev/null && update_dots && touch ~/.bashrc || true
 fi
 
 [ -r "$HOME/projects.md" ] && md-cat "$HOME/projects.md" 
