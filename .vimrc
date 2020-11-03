@@ -619,6 +619,12 @@
 	:augroup END
 	" }}}
 
+	" Rust
+	:augroup rust
+	:  autocmd FileType rust :nnoremap <silent><buffer>; :call AppendSemicolon()<CR>
+	:  autocmd FileType rust :inoremap <buffer>{} {<CR>}<esc>O
+	:augroup END
+
 " {{{
 :endif
 " }}}
