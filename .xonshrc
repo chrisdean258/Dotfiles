@@ -21,6 +21,7 @@ else:
 $PROMPT_FIELDS["rv"] = lambda: __xonsh__.history and __xonsh__.history.rtns[-1] or None
 $PROMPT_FIELDS['curr_branch'] = lambda: gcb() and (gcb() + "*" * (gdwd() or 0))
 
+
 @events.on_transform_command
 def bash_preproc(cmd, **kw):
     inputs = [a["inp"] for a in __xonsh__.history.all_items()][::-1]
