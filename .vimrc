@@ -914,7 +914,10 @@
 		:function! LatexCarriageReturn()
 		" {{{
 		:  let l:line = getline('.')
-		:  if l:line =~ '^\s*\\begin{.*}$'
+		:  if l:line =~ '^\s*\\begin{enumerate}$' || l:line =~ '^\s*\\begin{itemize}$'
+		:    let l:line = substitute(getline('.'), "begin", "end", "")
+		:    return "\<esc>A\<CR>\\item\<CR>" . l:line . "\<esc>==O"
+		:  elseif l:line =~ '^\s*\\begin{.*}$'
 		:    let l:line = substitute(getline('.'), "begin", "end", "")
 		:    return "\<esc>A\<CR>" . l:line . "\<esc>==O"
 		:  elseif l:line =~ '^\s*\\FOR'
@@ -1358,6 +1361,13 @@
 		:  if filereadable($HOME . "/.vim/templates/" . l:fn)
 		:    execute "%!cat " . $HOME . "/.vim/templates/" . l:fn
 		:  endif
+		:endfunction
+		" }}}
+
+		:function! Random(min, max)
+		" {{{
+		:  let l:rand = system("echo $RANDOM")
+		:  return a:min + l:rand % (a:max - a:min)
 		:endfunction
 		" }}}
 
