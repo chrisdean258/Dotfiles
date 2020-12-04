@@ -6,3 +6,11 @@
 :let g:manage_sessions = 1
 :let g:auto_update = 0
 :let g:old_c_comments = 1
+
+:command! DndFixup :call DndFixup()
+:function! DndFixup()
+" {{{
+:  g/^\s*[-+]/normal! kJ
+:  %s/\([+-]\)\s*/\1/ge
+" }}}
+:endfunction

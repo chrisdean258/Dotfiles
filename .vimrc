@@ -367,11 +367,9 @@
 
 	" Turn on folding
 	:command! Fold :setlocal foldenable | setlocal foldmethod=syntax
-
 	:command! Compile :call Compile()
 	:command! Template :call NewFile()
 	:command! -nargs=1 -complete=file_in_path Find :call Find("<args>")
-	:command! DndFixup :g/^\s*[-+]/normal! kJ | %s/\([+-]\)\s*/\1/ge
 
 " }}}
 
@@ -1270,7 +1268,7 @@
 		" }}}
 
 		:function! CorrectFile()
-		"{{{
+		" {{{
 		:  let l:file = expand("%")
 		:  if &ft == "" && stridx(l:file, ".") == -1 && executable(l:file)
 		:    let l:glob = glob(l:file . ".*", 0, 1)
