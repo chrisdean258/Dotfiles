@@ -2,12 +2,11 @@
 
 cachedir="${XDG_CACHE_HOME:-"$HOME/.cache"}"
 cache="$cachedir/dmenu_run"
+history="$cachedir/dmenu_history"
 
-selection=$(dmenu_path | uniq | dmenu "$@")
+selection=$( (tac "$history" | awk '!a[$0]++'; dmenu_path) | dmenu "$@")
 
 if [ -n "$selection" ]; then
-	tmp=$(mktemp)
-	{ echo "$selection"; cat "$cache"; } > $tmp
-	mv "$tmp" "$cache"
+	echo "$selection" >> "$history"
 	echo "$selection" | ${SHELL:-"/bin/sh"} &
 fi
