@@ -1,6 +1,6 @@
 #!/bin/sh
 
-temp=$(mktemp)
-cat > "$temp"
-xclip -selection clipboard < "$temp"
-rm "$temp"
+cachedir="${XDG_CACHE_HOME:-"$HOME/.cache"}"
+clipboard="$cachedir/clipboard"
+cat > "$clipboard"
+xclip -selection clipboard < "$clipboard"
