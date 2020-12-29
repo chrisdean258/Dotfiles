@@ -4,7 +4,7 @@ cachedir="${XDG_CACHE_HOME:-"$HOME/.cache"}"
 cache="$cachedir/dmenu_run"
 history="$cachedir/dmenu_history"
 
-selection=$( (tac "$history" | awk '!a[$0]++'; dmenu_path) | dmenu "$@")
+selection=$( (tac "$history"; dmenu_path) | awk '!a[$0]++' | dmenu "$@")
 
 if [ -n "$selection" ]; then
 	echo "$selection" >> "$history"
