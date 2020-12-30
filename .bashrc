@@ -38,8 +38,9 @@ export JUPYTER_CONFIG_DIR="$XDG_CONFIG_HOME/jupyter"
 export GRIPHOME="$XDG_CONFIG_HOME/grip"
 export MPLAYER_HOME="$XDG_CONFIG_HOME/mplayer"
 
-shopt -s histappend   2>/dev/null
-shopt -s checkhash    2>/dev/null
+shopt -s histappend 2>/dev/null
+shopt -s checkhash  2>/dev/null
+shopt -s nullglob   2>/dev/null
 
 set -o vi
 
@@ -133,11 +134,10 @@ j()
 	fi
 	return $?
 }
-export -f j
 
 if test "$(find ~/.bashrc -mmin +480)"; then
 	touch ~/.bashrc && (ping -c 1 -w 1 8.8.8.8) &>/dev/null && dots stash-pull
 fi
 
-[ -r "$HOME/projects.md" ] && md-cat "$HOME/projects.md" || true
+md-cat ~/*.md /dev/null
 
