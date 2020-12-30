@@ -20,6 +20,7 @@
 	reload-hooks = !~/.git_scripts/reload-hooks
 	rh = reset --hard
 	save = !~/.git_scripts/save
+	stash-pull = !~/.git_scripts/stash_pull_pop
 	stat = status
 	unignore = update-index --no-skip-worktree
 	web = !~/.git_scripts/website
