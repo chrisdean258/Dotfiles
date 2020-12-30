@@ -34,6 +34,8 @@ root()
 	done
 }
 
+root
+
 if [ $# -eq 0 ]; then
 	export PATH=$PATH:$HOME/.bin
 	hostname | grep -q XPS && export GDK_SCALE=1
