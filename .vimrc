@@ -36,7 +36,7 @@
 	:set tags+=./.tags;$HOME
 
 	" Just ignoring a lot of files you normally dont want to open in vim
-	:set wildignore=*.o,*~,*.pyc
+	:set wildignore=*.o,*~,*.pyc,*.png,*.pdf,*.log,*.aux,*.nav,*.out,*.snm,*.toc,*.jpg,*.pyc,*.mp3,*.wav,*.bin
 	:set wildignore+=*/.git/*,*/.hg/*,*/.svn/*,*/.DS_Store
 
 	:set infercase                           " for insert completion
@@ -54,7 +54,6 @@
 	:  set complete-=it
 	:endif
 	:set matchpairs+=<:>                     " adding a matched pair for highlighting and wrapping
-	:set ttyfast
 
 	" Create needed folders for backups and undo files
 	:if !isdirectory($HOME . "/.vim/backup")
