@@ -27,7 +27,7 @@ root()
 	exec bash ~/.xsession --
 }
 
-root
+root &
 
 if [ $# -eq 0 ]; then
 	export PATH=$PATH:$HOME/.bin
@@ -36,6 +36,7 @@ if [ $# -eq 0 ]; then
 	monitor --no4k
 	xset r rate 500 300 # Repeat rate
 	xsetroot -solid black
+	xclock -digital -brief -bg black -fg white -update 1 &
 	exec dwm &>> ~/.xsession-errors
 	echo "DWM failed to start" > ~/dwm.error
 fi
