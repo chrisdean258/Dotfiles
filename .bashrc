@@ -2,7 +2,7 @@
 echo $- | grep -q "i" || return
 
 if [ -z "$TMUX" ] && [ -x "$(which tmux 2>/dev/null)" ]; then
-	ID="$( tmux ls 2>/dev/null | grep -vm1 attached | cut -d: -f1 )"
+	ID="$( tmux ls 2>/dev/null | grep -Evm1 'attached|^[A-Z_]*:' | cut -d: -f1 )"
 	[ -n "$ID" ] && a="attach"
 	[ -z "$SSH_TTY" ] && exec tmux $a || export SSH_TTY
 fi
