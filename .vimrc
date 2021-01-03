@@ -137,10 +137,6 @@
 	:  let g:syntastic_python_checkers = [ "flake8" ]
 	:endif
 	:let g:syntastic_tex_checkers = []
-	":let g:syntastic_python_flake8_args=['--ignore=F841,F405,F403,F402,F401']
-	:let g:syntastic_python_flake8_args=['--ignore=E741,F841']
-	" :let g:syntastic_quiet_messages = { "type": "style" }
-	":let g:syntastic_quiet_messages = { 'regex': "space" }
 	:let g:syntastic_tex_chktex_args = ["--nowarn", "39"]
 	:let g:syntastic_always_populate_loc_list = 1
 	:let g:syntastic_loc_list_height= 3
@@ -532,7 +528,7 @@
 	:autocmd FileType python  :let g:pyindent_nested_paren = '&sw'
 	:autocmd FileType python  :let g:pyindent_continue = '0'
 	:autocmd FileType python  :autocmd BufEnter <buffer> :if getline(1) !~ '^#' | call append(0, "#!/usr/bin/env python3") | endif
-	:autocmd FileType python  :autocmd CursorMoved,CursorMovedI <buffer> call HighlightAfterColumn(79)
+	:autocmd FileType python  :autocmd CursorMoved,CursorMovedI <buffer> call HighlightAfterColumn(99)
 	:autocmd FileType python  :autocmd BufWrite <buffer> :call PythonBlankLineFix()
 	:autocmd BufRead .xonshrc,*.xsh :set ft=python
 	:autocmd BufRead .xonshrc,*.xsh :silent! SyntasticToggleMode
