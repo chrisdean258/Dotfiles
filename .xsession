@@ -22,7 +22,7 @@ root()
 		name="$(printf %100s "") [$battery] $battery_num% ${battery_msg:+($battery_msg) }| $network | $time"
 
 		xsetroot -name "$name"
-		sleep 10
+		sleep 60
 	done
 	exec bash ~/.xsession --
 }
@@ -36,7 +36,6 @@ if [ $# -eq 0 ]; then
 	monitor --no4k
 	xset r rate 500 300 # Repeat rate
 	xsetroot -solid black
-	xclock -digital -brief -bg black -fg white -update 1 &
 	exec dwm &>> ~/.xsession-errors
 	echo "DWM failed to start" > ~/dwm.error
 fi
