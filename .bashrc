@@ -135,7 +135,7 @@ j()
 	return $?
 }
 
-if test "$(find ~/.bashrc -mmin +480)"; then
+if test "$(find ~/.bashrc -mmin +1000)"; then
 	touch ~/.bashrc && (ping -c 1 -w 1 8.8.8.8) &>/dev/null && dots stash-pull
 fi
 
