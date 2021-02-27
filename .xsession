@@ -30,7 +30,7 @@ root()
 root &
 
 if [ $# -eq 0 ]; then
-	export PATH=$PATH:$HOME/.bin
+	export PATH=$PATH:$HOME/.bin:$home/bin
 	[ -x "$(which xfce4-power-manager)" ] && xfce4-power-manager &
 	/usr/lib/notification-daemon/notification-daemon &
 	monitor --no4k

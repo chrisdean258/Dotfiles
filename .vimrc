@@ -85,6 +85,12 @@
  	:highlight Folded None
 	:highlight Folded ctermfg=Black guifg=Black
 
+
+	" Settings for Todo
+	:highlight Todo None
+	:highlight Todo ctermfg=Yellow
+
+
 	" Settings for tabline
 	:highlight tablinefill None
 	:highlight tablinesel None
@@ -300,7 +306,7 @@
 	:nnoremap Y y$
 
 	" Use control j and k to navigate pop up menu
-	:inoremap <expr> <tab>   (pumvisible()?"\<C-p>":CleverTab())
+	:inoremap <expr> <tab>   CleverTab()
 	:inoremap <expr> <S-tab> (pumvisible()?"\<C-n>":"\<c-x>\<c-f>")
 
 	" Commenting out lines
@@ -351,6 +357,8 @@
 	:cabbrev $$ <C-R>=CommandLineStart(":", ".,$s", "$$")<CR>
 	:cabbrev Q! <C-R>=CommandLineStart(":", "q!", "Q!")<CR>
 	" :cabbrev term term ++close ++rows=15
+	:abbrev Vecotr Vector
+	:abbrev Vecotr Vector
 
 	" Force writing
 	if !has('win32')
@@ -528,7 +536,7 @@
 	:autocmd FileType python  :let g:pyindent_nested_paren = '&sw'
 	:autocmd FileType python  :let g:pyindent_continue = '0'
 	:autocmd FileType python  :autocmd BufEnter <buffer> :if getline(1) !~ '^#' | call append(0, "#!/usr/bin/env python3") | endif
-	:autocmd FileType python  :autocmd CursorMoved,CursorMovedI <buffer> call HighlightAfterColumn(99)
+	:autocmd FileType python  :autocmd CursorMoved,CursorMovedI <buffer> call HighlightAfterColumn(79)
 	:autocmd FileType python  :autocmd BufWrite <buffer> :call PythonBlankLineFix()
 	:autocmd BufRead .xonshrc,*.xsh :set ft=python
 	:autocmd BufRead .xonshrc,*.xsh :silent! SyntasticToggleMode
