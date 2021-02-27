@@ -6,6 +6,7 @@ get_completions(){
     # load bash-completion if necessary
     declare -F _completion_loader &>/dev/null || {
         source /usr/share/bash-completion/bash_completion
+	source $HOME/.bash-completion.bash
     }
 
     COMP_LINE=$*
@@ -42,7 +43,7 @@ get_completions(){
     "$completion"
 
     # print completions to stdout
-    printf '%s\n' "${COMPREPLY[@]}" | LC_ALL=C sort
+    printf '%s\n' "${COMPREPLY[@]}" | grep . | LC_ALL=C sort
 }
 
 get_completions "$@"

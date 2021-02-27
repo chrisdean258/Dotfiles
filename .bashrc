@@ -1,5 +1,6 @@
 # If not running interactively, don't do anything
 echo $- | grep -q "i" || return
+set +e
 
 if [ -z "$TMUX" ] && [ -x "$(which tmux 2>/dev/null)" ]; then
 	ID="$( tmux ls 2>/dev/null | grep -Evm1 'attached|^[A-Z_]*:' | cut -d: -f1 )"
@@ -7,7 +8,7 @@ if [ -z "$TMUX" ] && [ -x "$(which tmux 2>/dev/null)" ]; then
 	[ -z "$SSH_TTY" ] && exec tmux $a || export SSH_TTY
 fi
 
-[ -z "$BASH_SOURCED" ] && BASH_SOURCED="yes" || return
+[ -z "$BASH_SOURCED" ] && export BASH_SOURCED="yes" || return
 
 exe() { [ -x "$(command -v "$1")" ]; }
 ssource() { [ -r "$1" ] && source "$1"; }
@@ -139,5 +140,6 @@ if test "$(find ~/.bashrc -mmin +1000)"; then
 	touch ~/.bashrc && (ping -c 1 -w 1 8.8.8.8) &>/dev/null && dots stash-pull
 fi
 
-md-cat ~/*.md /dev/null
+exe xonsh && exec xonsh
 
+md-cat ~/*.md /dev/null
