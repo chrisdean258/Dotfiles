@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 from xonsh.prompt.vc import dirty_working_directory as gdwd
 from xonsh.prompt.vc import get_git_branch as gcb
+from xonsh.tools import register_custom_style
+from xonsh.pyghooks import color_by_name
 from shlex import split, quote
 from itertools import *
 import subprocess
@@ -12,6 +14,19 @@ import re
 $XONSH_SHOW_TRACEBACK = False
 $CASE_SENSITIVE_COMPLETIONS = False
 $ENABLE_VI_MODE = True
+$COMPLETION_MODE = "menu-complete"
+$AUTO_SUGGEST_IN_COMPLETIONS = True
+$COMPLETIONS_CONFIRM = False
+
+mystyle = {
+    "Token.PTK.CompletionMenu.Completion": "ansigreen bg:",
+    "Token.PTK.CompletionMenu.Completion.Current": "ansigreen bg:",
+    "Token.PTK.CompletionMenu": "bg:"
+}
+
+register_custom_style("mystyle", mystyle)
+$XONSH_COLOR_STYLE="mystyle"
+
 
 if 'SSH_TTY' in ${...}:
     $HOME = $PWD
