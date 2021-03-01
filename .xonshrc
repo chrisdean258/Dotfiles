@@ -21,7 +21,16 @@ $COMPLETIONS_CONFIRM = False
 mystyle = {
     "Token.PTK.CompletionMenu.Completion": "ansigreen bg:",
     "Token.PTK.CompletionMenu.Completion.Current": "ansigreen bg:",
-    "Token.PTK.CompletionMenu": "bg:"
+    "Token.PTK.CompletionMenu": "bg:",
+    "Token.Keyword.Reserved": "nobold ansiyellow",
+    "Token.Comment": "ansicyan",
+    "Token.Keyword.Declaration": "nobold ansiyellow",
+    "Token.Keyword": "ansibrightyellow",
+    "Token.Name.Function": "ansiwhite",
+    "Token.Name.Class": "ansiwhite",
+    "Token.Literal.String": "ansibrightmagenta",
+    "Token.Literal.Number": "ansibrightmagenta",
+    "Token.Operator": "",
 }
 
 register_custom_style("mystyle", mystyle)
@@ -64,6 +73,7 @@ def bash_preproc(cmd, **kw):
         r"\$\$": str(os.getpid()),
         r"\$\@": "$ARGS",
         r"\b(\d+)d(\d+)\b": lambda m: _d_(int(m.group(1)), int(m.group(2))),
+        r"\bd(\d+)\b": lambda m: _d_(1, int(m.group(1))),
     }
     for expr, action in transformations.items():
         cmd = re.sub(expr, action, cmd)
