@@ -19,18 +19,27 @@ $AUTO_SUGGEST_IN_COMPLETIONS = True
 $COMPLETIONS_CONFIRM = False
 
 mystyle = {
+    "Token.Comment": "ansicyan",
+    "Token.Keyword": "ansibrightyellow",
+    "Token.Keyword.Declaration": "nobold ansiyellow",
+    "Token.Keyword.Namespace": "ansibrightblue",
+    "Token.Keyword.Reserved": "ansiwhite",
+    "Token.Keyword.Constant": "ansiwhite",
+    "Token.Keyword": "ansiwhite",
+    "Token.Literal.Number": "ansibrightmagenta",
+    "Token.Literal.String": "ansibrightmagenta",
+    "Token.Name.Class": "ansiwhite",
+    "Token.Name.Function": "ansiwhite",
+    "Token.Name.Namespace": "",
+    "Token.Name.Builtin.Psuedo": "",
+    "Token.Operator": "",
+    "Token.Literal.String.Escape": "ansimagenta",
+    "Token.Operator.Word": "ansired",
+    "Token.PTK.CompletionMenu": "bg:",
     "Token.PTK.CompletionMenu.Completion": "ansigreen bg:",
     "Token.PTK.CompletionMenu.Completion.Current": "ansigreen bg:",
-    "Token.PTK.CompletionMenu": "bg:",
-    "Token.Keyword.Reserved": "nobold ansiyellow",
-    "Token.Comment": "ansicyan",
-    "Token.Keyword.Declaration": "nobold ansiyellow",
-    "Token.Keyword": "ansibrightyellow",
-    "Token.Name.Function": "ansiwhite",
-    "Token.Name.Class": "ansiwhite",
-    "Token.Literal.String": "ansibrightmagenta",
-    "Token.Literal.Number": "ansibrightmagenta",
-    "Token.Operator": "",
+    "Token.Name.Builtin.Pseudo": "",
+    "Token.Literal.String.Other": "",
 }
 
 register_custom_style("mystyle", mystyle)
@@ -50,10 +59,18 @@ def readfile(fn, mode="r"):
     with open(fn, mode) as f:
         return f.read()
 
+_d_nums = []
+def _savesum(vals):
+    global _d_nums
+    _d_nums = list(vals)
+    return sum(_d_nums)
+
+def _what():
+    global _d_nums
+    return _d_nums
 
 def _d_(num, die):
-    nums = random.choices(range(1, die + 1), k=num)
-    return "(" + " + ".join(str(n) for n in nums) + ")"
+    return f"_savesum(random.choices(range(1, {die} + 1), k={num}))"
 
 source-bash -s False --suppress-skip-message ~/.bash-completion.bash
 $BASH_SOURCED = "yes"
@@ -141,7 +158,9 @@ def _ff(args):
 aliases["alias"] = _alias
 aliases["j"] = _j
 aliases["ff"] = _ff
+aliases["what"] = lambda: print(_d_nums)
 
+alias ls="ls --group-directories-first --color"
 alias la="ls -la"
 alias c="clear"
 alias es="history flush; exec xonsh"
