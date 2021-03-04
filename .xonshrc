@@ -10,6 +10,7 @@ import random
 import os
 import sys
 import re
+import math
 
 $XONSH_SHOW_TRACEBACK = False
 $CASE_SENSITIVE_COMPLETIONS = False
@@ -39,6 +40,7 @@ mystyle = {
     "Token.PTK.CompletionMenu.Completion": "ansigreen bg:",
     "Token.PTK.CompletionMenu.Completion.Current": "ansigreen bg:",
     "Token.Name.Builtin.Pseudo": "",
+    "Token.Name.Variable": "ansibrightcyan",
     "Token.Literal.String.Other": "",
 }
 
@@ -75,10 +77,7 @@ def _d_(num, die):
 source-bash -s False --suppress-skip-message ~/.bash-completion.bash
 $BASH_SOURCED = "yes"
 
-@events.on_transform_command
-def bash_preproc(cmd, **kw):
-    inputs = lambda: [a["inp"] for a in __xonsh__.history.all_items()][::-1]
-    prev = lambda pre: next((i for i in inputs() if i.startswith(pre)), "")
+def apply_transformations(string, prev):
     transformations = {
         r"!!": lambda m: prev(""),
         r"!\$": lambda m: quote(split(prev(""))[-1]),
@@ -93,7 +92,15 @@ def bash_preproc(cmd, **kw):
         r"\bd(\d+)\b": lambda m: _d_(1, int(m.group(1))),
     }
     for expr, action in transformations.items():
-        cmd = re.sub(expr, action, cmd)
+        string = re.sub(expr, action, string)
+    return string
+
+
+@events.on_transform_command
+def bash_preproc(cmd, **kw):
+    inputs = [a["inp"] for a in __xonsh__.history.all_items()][::-1]
+    prev = lambda pre: next((i for i in inputs if i.startswith(pre)), "")
+    cmd = "'".join(apply_transformations(a, prev) if i % 2 == 0 else a for i,a in enumerate(cmd.split("'")))
     return cmd
 
 jmp_cache = g`~/.cache/jmp/jmp`[0]

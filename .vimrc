@@ -36,7 +36,7 @@
 	:set tags+=./.tags;$HOME
 
 	" Just ignoring a lot of files you normally dont want to open in vim
-	:set wildignore=*.o,*~,*.pyc,*.png,*.pdf,*.log,*.aux,*.nav,*.out,*.snm,*.toc,*.jpg,*.pyc,*.mp3,*.wav,*.bin
+	:set wildignore=*.o,*~,*.pyc,*.log,*.aux,*.nav,*.out,*.snm,*.toc,*.pyc,*.mp3,*.wav,*.bin
 	:set wildignore+=*/.git/*,*/.hg/*,*/.svn/*,*/.DS_Store
 
 	:set infercase                           " for insert completion
@@ -457,7 +457,7 @@
 	" {{{
 	:augroup java
 	:  autocmd!
-	:  autocmd FileType java  :SyntasticToggle
+	:  autocmd FileType java  :silent SyntasticToggle
 	:  autocmd FileType java  :nnoremap <localleader>c :SyntasticCheck<CR>
 	:augroup END
 	" }}}

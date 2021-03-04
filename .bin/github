@@ -50,14 +50,20 @@ class Github:
 
     def setup_repo(self, name, dirname, private):
         resp = self.new_repo(name, private)
+        print(resp)
 
-        os.mkdir(dirname)
+        try:
+            os.mkdir(dirname)
+        except FileExistsError:
+            pass
+
         os.chdir(dirname)
 
-        title = name.replace("-", " ").replace("_", " ")
-        title = re.sub(r"(?<=\w)([A-Z])", r" \1", title).title()
-        with open("README.md", "w") as readme:
-            readme.write("# " + title)
+        if not os.path.isfile("README.md"):
+            title = name.replace("-", " ").replace("_", " ")
+            title = re.sub(r"(?<=\w)([A-Z])", r" \1", title).title()
+            with open("README.md", "w") as f:
+                print("# " + title, file=f)
 
         git("init")
         git("remote", "add", "origin", resp["ssh_url"])
