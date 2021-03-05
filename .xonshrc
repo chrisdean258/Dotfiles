@@ -16,7 +16,7 @@ $XONSH_SHOW_TRACEBACK = False
 $CASE_SENSITIVE_COMPLETIONS = False
 $ENABLE_VI_MODE = True
 $COMPLETION_MODE = "menu-complete"
-$AUTO_SUGGEST_IN_COMPLETIONS = True
+# $AUTO_SUGGEST_IN_COMPLETIONS = True
 $COMPLETIONS_CONFIRM = False
 
 mystyle = {
@@ -145,9 +145,9 @@ def _alias(arg):
         for alias, cmd in aliases.items():
             print("{}={}".format(alias, cmd))
     for a in arg:
-        name, eq, alias = split(a)[0].partition("=")
+        name, eq, alias = a.partition("=")
         if eq == "=":
-            aliases[name] = alias
+            aliases[name] = split(alias.strip('\'"'))
         elif arg in aliases:
             print("{}={}".format(arg, aliases[arg]))
         else:
@@ -167,9 +167,9 @@ aliases["j"] = _j
 aliases["ff"] = _ff
 aliases["what"] = lambda: print(_d_nums)
 
-alias ls="ls --group-directories-first --color"
-alias la="ls -la"
-alias c="clear"
-alias es="history flush; exec xonsh"
-alias ..="cd .."
-alias "-=cd -"
+aliases["ls"] = "ls --group-directories-first --color"
+aliases["la"] = "ls -la"
+aliases["c"] = "clear"
+aliases["es"] = "history flush && exec xonsh"
+aliases[".."] = "cd .."
+aliases["-"] = "cd -"

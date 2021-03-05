@@ -6,6 +6,7 @@
 :let g:manage_sessions = 1
 :let g:auto_update = 0
 :let g:old_c_comments = 1
+:let g:md_format_para = 1
 
 :command! DndFixup :call DndFixup()
 :function! DndFixup()

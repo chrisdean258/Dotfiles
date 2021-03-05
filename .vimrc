@@ -558,6 +558,7 @@
 	" {{{
 	:augroup Markdown
 	:autocmd!
+	:autocmd Filetype markdown :autocmd InsertLeave <buffer> :call MDParagraph()
 	:autocmd Filetype markdown :autocmd InsertLeave <buffer> :call MDCapitals()
 	:autocmd FileType markdown :autocmd InsertLeave <buffer> :call CheckMD()
 	:autocmd Filetype markdown :inoremap <buffer><tab> <c-r>=MDTab(CleverTab())<CR>
@@ -898,6 +899,15 @@
 		:  if l:text =~ '\$'
 		:    set ft=rmd
 		:  endif
+		:endfunction
+		" }}}
+
+		:function! MDParagraph()
+		" {{{
+		:  if !get(g:, "md_format_para") || getline('.') == ""
+		:    return
+		:  endif
+		:  normal! vipJgqq`^
 		:endfunction
 		" }}}
 	" }}}
