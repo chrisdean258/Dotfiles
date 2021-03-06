@@ -907,6 +907,11 @@
 		:  if !get(g:, "md_format_para") || getline('.') == ""
 		:    return
 		:  endif
+		:  let l:line = getline('.')
+		:  let l:res = [ '^$', '^\s*[+\*\-#`]' ]
+		:  if len(filter(l:res, {i, v -> l:line =~ v })) > 0
+		:    return
+		:  endif
 		:  normal! vipJgqq`^
 		:endfunction
 		" }}}
