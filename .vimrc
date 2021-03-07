@@ -102,6 +102,7 @@
 	:highlight spellrare None
 	:highlight spellcap None
 	:highlight spelllocal None
+	:highlight! link texOnlyMath texMathOper
 	:if get(g:, "light_folds", 1)
 	:  highlight Folded ctermfg=DarkGrey guifg=DarkGrey
 	:  highlight tabline ctermfg=DarkGrey guifg=DarkGrey
@@ -912,7 +913,7 @@
 		:  if len(filter(l:res, {i, v -> l:line =~ v })) > 0
 		:    return
 		:  endif
-		:  normal! vipJgqq`^
+		:  normal! gqqvipJgqq`^
 		:endfunction
 		" }}}
 	" }}}
