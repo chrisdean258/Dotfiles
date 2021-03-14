@@ -308,7 +308,7 @@
 
 	" Use control j and k to navigate pop up menu
 	:inoremap <expr> <tab>   CleverTab()
-	:inoremap <expr> <S-tab> (pumvisible()?"\<C-n>":"\<c-x>\<c-f>")
+	:inoremap <S-tab> <c-x><c-f>
 
 	" Commenting out lines
 	:nnoremap <silent><localleader>\ :call Comment()<CR>
@@ -357,6 +357,7 @@
 	:cabbrev a <C-R>=CommandLineStart(":", "'a,.s", "a")<CR>
 	:cabbrev $$ <C-R>=CommandLineStart(":", ".,$s", "$$")<CR>
 	:cabbrev Q! <C-R>=CommandLineStart(":", "q!", "Q!")<CR>
+	:cabbrev make <C-R>=CommandLineStart(":", "Make", "make")<CR>
 	" :cabbrev term term ++close ++rows=15
 	:abbrev Vecotr Vector
 	:abbrev Vecotr Vector
@@ -374,12 +375,13 @@
 	:command! Compile :call Compile()
 	:command! Template :call NewFile()
 	:command! -nargs=1 -complete=file_in_path Find :call Find("<args>")
+	:command! Make :call Compile()
 
 " }}}
 
 " AUTOCMD GROUPS  {{{
 "_______________________________________________________________________________________________________
- " {{{
+" {{{
 :if has("autocmd")
 " }}}
 
@@ -518,7 +520,6 @@
 	:  autocmd Filetype tex :vnoremap <silent><buffer><localleader>i :call LatexTextit(visualmode())<CR>
 	:  autocmd Filetype tex :nnoremap <silent><buffer><localleader>b :set opfunc=LatexTextbf<CR>g@
 	:  autocmd Filetype tex :vnoremap <silent><buffer><localleader>b :call LatexTextbf(visualmode())<CR>
-	:  autocmd Filetype tex :autocmd InsertLeave <buffer> :normal! gqq
 	:augroup END
 	" }}}
 
@@ -913,7 +914,7 @@
 		:  if len(filter(l:res, {i, v -> l:line =~ v })) > 0
 		:    return
 		:  endif
-		:  normal! gqqvipJgqq`^
+		:  normal! gqip`^
 		:endfunction
 		" }}}
 	" }}}
@@ -925,7 +926,9 @@
 		:  autocmd! BufWritePost <buffer> call Compile()
 		:  write
 		:  let l:filename = substitute(expand("%"), "\.tex$", ".pdf", "")
-		:  call System('xdg-open '. l:filename. ' >/dev/null 2>/dev/null &')
+		:  if filereadable(l:filename)
+		:    call System('xdg-open '. l:filename. ' >/dev/null 2>/dev/null &')
+		:  endif
 		:endfunction
 		" }}}
 
@@ -935,8 +938,9 @@
 		:  if l:line =~ '^\s*\\begin{enumerate}$' || l:line =~ '^\s*\\begin{itemize}$'
 		:    let l:line = substitute(getline('.'), "begin", "end", "")
 		:    return "\<esc>A\<CR>\\item\<CR>" . l:line . "\<esc>==O"
-		:  elseif l:line =~ '^\s*\\begin{.*}$'
+		:  elseif l:line =~ '^\s*\\begin{.*}\[.*\]$'
 		:    let l:line = substitute(getline('.'), "begin", "end", "")
+		:    let l:line = substitute(l:line, '\[.*\]', "", "")
 		:    return "\<esc>A\<CR>" . l:line . "\<esc>==O"
 		:  elseif l:line =~ '^\s*\\FOR'
 		:    return "\<esc>A\<CR>" . '\ENDFOR ' . "\<esc>==O\\STATE "

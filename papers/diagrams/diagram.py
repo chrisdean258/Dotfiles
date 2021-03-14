@@ -51,7 +51,7 @@ def main():
     out = open(sys.argv[2], "w") if sys.argv[2] != "-" else sys.stdout
     with f:
         title = f.readline().strip()
-        left, _, right = [a.strip for a in f.readline().strip().partition("<->")]
+        left, _, right = [a.strip() for a in f.readline().strip().partition("<->")]
         print("\\begin{figure}\n\\centering\n\\fbox{\n \\procedure{}{", file=out)
         print(r"  \textbf{" + left + r"}  \<\< \textbf{" + right + r"} \\", file=out)
         print(r"  [0.1\baselineskip][\hline] \\", file=out)
