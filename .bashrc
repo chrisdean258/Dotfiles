@@ -41,7 +41,7 @@ export MPLAYER_HOME="$XDG_CONFIG_HOME/mplayer"
 
 shopt -s histappend 2>/dev/null
 shopt -s checkhash  2>/dev/null
-shopt -s nullglob   2>/dev/null
+# shopt -s nullglob   2>/dev/null
 
 set -o vi
 
@@ -142,4 +142,4 @@ fi
 
 # exe xonsh && exec xonsh
 
-md-cat ~/*.md /dev/null
+md-cat ~/*.md /dev/null 2>/dev/null

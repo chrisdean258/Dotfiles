@@ -984,7 +984,7 @@
 		:  if l:lineno == 1
 		:    return 0
 		:  endif
-		:  let l:unindented = [ '\\section', '\\subsection', '\\Title', '\\Subtitle', '\\Subsubtitle' ]
+		:  let l:unindented = [ '\\section', '\\subsection', '\\Title', '\\Subtitle', '\\Subsubtitle' , '\\bibliography']
 		:  let l:inc_off = ['\\begin', '{', '[', '\\FOR', '\\IF', '\\WHILE', '\\If', '\\For', '\\While', '\\Procedure', '\\Else', '\\minipage']
 		:  let l:dec_off = ['\\end', '}', '\\\=]', '\\END', '\\End', '\\Else']
 		:  let l:otherno = l:lineno - 1
