@@ -36,8 +36,7 @@ terminal = "st"
 
 def matching_group(qtile, group=None):
     group = group or qtile.current_group
-    idx = qtile.groups.index(group)
-    idx = (idx + len(qtile.groups) // 2) % len(qtile.groups)
+    idx = qtile.groups.index(group) ^ 1
     return qtile.groups[idx]
 
 
@@ -74,6 +73,12 @@ keys = [
     Key([mod, "shift"], "space", lazy.layout.rotate(),
         desc="Swap panes of split stack"),
 
+    Key([mod], "l", lazy.layout.increase_ratio(),
+        desc="Increase ratio of tile"),
+
+    Key([mod], "h", lazy.layout.decrease_ratio(),
+        desc="Decrease ratio of tile"),
+
     # Toggle between split and unsplit sides of stack.
     # Split = all windows displayed
     # Unsplit = 1 window displayed, like Max layout, but still with
@@ -94,14 +99,12 @@ keys = [
     Key([mod], "f", lazy.window.toggle_floating(), desc="Toggels whether a window is floating"),
     Key([mod], "v", lazy.spawn("vol -5%"), desc="Lower the volume"),
     Key([mod, "shift"], "v", lazy.spawn("vol +5%"), desc="Raise the volume"),
-
+    Key([mod], "b", lazy.spawn("bt"), desc="Launch bluetooth gui"),
 ]
 
 
-g1 = [Group(i) for i in "12"]
-g2 = [Group(chr(ord(i.name) + len(g1))) for i in g1]
+groups = [Group(i) for i in "1234"]
 
-groups = g1 + g2
 for i in groups:
     keys.extend([
         # mod1 + letter of group = switch to group
@@ -163,6 +166,11 @@ def edit_config(qtile):
     qtile.cmd_spawn(cmd, shell=True)
 
 
+def xsession_errors(qtile):
+    cmd = "st -e tail -c+1 -f ~/.xsession-errors"
+    qtile.cmd_spawn(cmd, shell=True)
+
+
 def build_string(self, status):
     hours = status.time // 3600
     minutes = (status.time // 60) % 60
@@ -187,8 +195,11 @@ screens = [
                 widget.GroupBox(**widget_defaults),
                 widget.Prompt(**widget_defaults),
                 widget.WindowName(foreground="#000000"),
-                widget.TextBox("Configure", name="default",
+                widget.TextBox("Configure  | ", name="default",
                                mouse_callbacks={"Button1": edit_config},
+                               **widget_defaults),
+                widget.TextBox("Errors  | ", name="default",
+                               mouse_callbacks={"Button1": xsession_errors},
                                **widget_defaults),
                 widget.Backlight(backlight_name="intel_backlight", **widget_defaults),
                 b,
