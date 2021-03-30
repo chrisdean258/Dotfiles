@@ -48,4 +48,6 @@ sbright()
 	fi
 }
 
+exec bash
+
 sbright "$@" || xbright "$@"

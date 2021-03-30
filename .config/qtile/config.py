@@ -27,8 +27,9 @@
 from typing import List  # noqa: F401
 
 from libqtile import bar, hook, layout, widget
-from libqtile.config import Click, Drag, Group, Key, Screen
+from libqtile.config import Click, Drag, Group, Key, Screen, ScratchPad, DropDown
 from libqtile.lazy import lazy
+import os
 
 mod = "mod4"
 terminal = "st"
@@ -50,78 +51,64 @@ def sendit(qtile):
     qtile.current_window.togroup(other.name)
 
 
-keys = [
-    # Switch between windows in current stack pane
-    Key([mod], "k", lazy.layout.down(),
-        desc="Move focus down in stack pane"),
-    Key([mod], "j", lazy.layout.up(),
-        desc="Move focus up in stack pane"),
+m_ = [mod]
+ms = [mod, "shift"]
+mc = [mod, "control"]
+mcs = [mod, "control", "shift"]
+mods = [m_, ms, mc, mcs]
 
-    # Move windows up or down in current stack
-    Key([mod, "control"], "k", lazy.layout.shuffle_down(),
-        desc="Move window down in current stack "),
-    Key([mod, "control"], "j", lazy.layout.shuffle_up(),
-        desc="Move window up in current stack "),
-
-    # Switch window focus to other pane(s) of stack
-    Key([mod], "Tab", lazy.function(toggle_groups),
-        desc="Switch focus to matching group for screen"),
-    Key([mod, "shift"], "Tab", lazy.function(sendit),
-        desc="Send window to matching group in screen"),
-
-    # Swap panes of split stack
-    Key([mod, "shift"], "space", lazy.layout.rotate(),
-        desc="Swap panes of split stack"),
-
-    Key([mod], "l", lazy.layout.increase_ratio(),
-        desc="Increase ratio of tile"),
-
-    Key([mod], "h", lazy.layout.decrease_ratio(),
-        desc="Decrease ratio of tile"),
-
-    # Toggle between split and unsplit sides of stack.
-    # Split = all windows displayed
-    # Unsplit = 1 window displayed, like Max layout, but still with
-    # multiple stack panes
-    Key([mod, "shift"], "Return", lazy.layout.toggle_split(),
-        desc="Toggle between split and unsplit sides of stack"),
-    Key([mod], "Return", lazy.spawn(terminal), desc="Launch terminal"),
-    Key([mod], "p", lazy.spawn("dmenu_run"), desc="Run launcher"),
-
-    # Toggle between different layouts as defined below
-    Key([mod], "space", lazy.next_layout(), desc="Toggle between layouts"),
-    Key([mod], "Escape", lazy.window.kill(), desc="Kill focused window"),
-
-    Key([mod, "control"], "r", lazy.restart(), desc="Restart qtile"),
-    Key([mod, "control"], "q", lazy.shutdown(), desc="Shutdown qtile"),
-
-    Key([mod], "g", lazy.spawn("chrome"), desc="Opens Chrome"),
-    Key([mod], "f", lazy.window.toggle_floating(), desc="Toggels whether a window is floating"),
-    Key([mod], "v", lazy.spawn("vol -5%"), desc="Lower the volume"),
-    Key([mod, "shift"], "v", lazy.spawn("vol +5%"), desc="Raise the volume"),
-    Key([mod], "b", lazy.spawn("bt"), desc="Launch bluetooth gui"),
-]
-
+applications = {
+    "Return": "st",
+    "p": ("dmenu_run", "dmenu_pass"),
+    "g": ("browser", "browser --incognito"),
+    "v": ("vol -5%", "vol +5%"),
+    "b": "bt",
+    "d": "discord",
+}
 
 groups = [Group(i) for i in "1234"]
+
+keys = [
+    Key(["mod4"], "k", lazy.layout.down()),
+    Key(m_, "j", lazy.layout.up()),
+    Key(mc, "k", lazy.layout.shuffle_down()),
+    Key(mc, "j", lazy.layout.shuffle_up()),
+    Key(m_, "Tab", lazy.function(toggle_groups)),
+    Key(ms, "Tab", lazy.function(sendit)),
+    Key(m_, "l", lazy.layout.increase_ratio()),
+    Key(m_, "h", lazy.layout.decrease_ratio()),
+    Key(ms, "Return", lazy.layout.toggle_split()),
+    Key(m_, "space", lazy.next_layout()),
+    Key(m_, "Escape", lazy.window.kill()),
+    Key(mc, "r", lazy.restart()),
+    Key(mc, "q", lazy.shutdown()),
+    Key(m_, "f", lazy.window.toggle_floating()),
+    Key([], "F11", lazy.group["scratchpad"].dropdown_toggle("calculator")),
+    Key([], "F12", lazy.group["scratchpad"].dropdown_toggle("st")),
+]
+for k, cmds in applications.items():
+    if isinstance(cmds, str):
+        cmds = (cmds,)
+    for m, cmd in zip(mods, cmds):
+        keys.append(Key(m, k, lazy.spawn(cmd)))
+
 
 for i in groups:
     keys.extend([
         # mod1 + letter of group = switch to group
         Key([mod], i.name, lazy.group[i.name].toscreen(),
             desc="Switch to group {}".format(i.name)),
-
-        # mod1 + shift + letter of group = switch to & move focused window to group
         Key([mod, "shift"], i.name, lazy.window.togroup(i.name, switch_group=True),
             desc="Switch to & move focused window to group {}".format(i.name)),
-
         Key([mod, "control"], i.name, lazy.window.togroup(i.name),
             desc="Move focused window to group {}".format(i.name)),
-        # Or, use below if you prefer not to switch to that group.
-        # # mod1 + shift + letter of group = move focused window to group
-        # Key([mod, "shift"], i.name, lazy.window.togroup(i.name),
-        #     desc="move focused window to group {}".format(i.name)),
     ])
+
+groups.append(ScratchPad("scratchpad", [
+    DropDown("calculator", "gnome-calculator -m advanced",
+             width=0.304167, height=0.5, x=(1 - 0.304167) / 2,),
+    DropDown("st", "st"),
+]))
 
 layout_theme = {
     "border_width": 1,
@@ -188,8 +175,21 @@ b = widget.Battery(**widget_defaults)
 b.build_string = build_string.__get__(b)
 
 
+class CScreen(Screen):
+    def __init__(self, *args, default_group=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.default_group = default_group
+
+    def _configure(self, *args, **kwargs):
+        super()._configure(*args, **kwargs)
+        if self.default_group is not None and self.group.name != self.default_group:
+            group = self.qtile.groups_map.get(self.default_group)
+            self.set_group(group)
+
+
 screens = [
-    Screen(
+    CScreen(
+        default_group='1',
         bottom=bar.Bar(
             widgets=[
                 widget.GroupBox(**widget_defaults),
@@ -208,7 +208,8 @@ screens = [
             size=24,
         ),
     ),
-    Screen(
+    CScreen(
+        default_group='3',
         bottom=bar.Bar(
             widgets=[
                 widget.GroupBox(**widget_defaults),
@@ -231,9 +232,17 @@ mouse = [
 ]
 
 
+handled = False
+
+
 @hook.subscribe.screen_change
 def restart_on_randr(qtile, ev):
-    qtile.cmd_restart()
+    global handled
+    if handled:
+        return
+    handled = True
+    os.system("monitor --no4k")
+    qtile.call_soon(qtile.cmd_restart)
 
 
 dgroups_key_binder = None
@@ -261,7 +270,7 @@ floating_layout = layout.Floating(float_rules=[
     {'wname': 'pinentry'},  # GPG key password entry
     {'wmclass': 'ssh-askpass'},  # ssh-askpass
     {'wname': 'Discord Updater'},  # Discord
-    {'match': lambda name, cls, r: "zoom" in cls and not name.startswith("Zoom")},
+    {'match': lambda name, cls, r: "zoom" in cls and not name.startswith(("Zoom", "Settings"))},
 ])
 auto_fullscreen = True
 focus_on_window_activation = "smart"
