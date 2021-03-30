@@ -10,3 +10,5 @@ if [ -n "$selection" ]; then
 	echo "$selection" >> "$history"
 	echo "$selection" | ${SHELL:-"/bin/sh"} &
 fi
+
+tac "$history" | awk '!a[$0]++' | tac | sponge "$history"
