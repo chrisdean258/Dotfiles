@@ -1,5 +1,17 @@
 #!/bin/bash
 
+_run()
+{
+	export PATH=$PATH:$HOME/.bin:$home/bin
+	export BROWSER=chrome
+	[ -x "$(which xfce4-power-manager)" ] && xfce4-power-manager &
+	/usr/lib/notification-daemon/notification-daemon &
+	monitor --no4k
+	xset r rate 200 75 # Repeat rate
+	xsetroot -solid black
+	exec "$1" &>> ~/.xsession-errors
+}
+
 root()
 {
 	rm -f ~/.xresetroot
@@ -27,17 +39,10 @@ root()
 	exec bash ~/.xsession --
 }
 
-root &
-
-if [ $# -eq 0 ]; then
-	export PATH=$PATH:$HOME/.bin:$home/bin
-	export BROWSER=chrome
-	[ -x "$(which xfce4-power-manager)" ] && xfce4-power-manager &
-	/usr/lib/notification-daemon/notification-daemon &
-	monitor --no4k
-	xset r rate 500 300 # Repeat rate
-	xsetroot -solid black
-	qtile &>> ~/.xsession-errors
-	exec dwm &>> ~/.xsession-errors
-	echo "DWM failed to start" > ~/dwm.error
+if [ "$1" = "dwm" ]; then
+	root &
+	_run dwm
+elif [ "$1" = "qtile" ]; then
+	_run qtile
 fi
+

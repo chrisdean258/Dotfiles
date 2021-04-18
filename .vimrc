@@ -136,6 +136,7 @@
 	:let g:syntastic_check_on_wq = 0
 	:let g:syntastic_cpp_compiler = "g++"
 	" :let g:syntastic_cpp_compiler_options = "-std=c++98 -Wall"
+	:let g:syntastic_c_compiler_options = "-Wall -Wextra -Wno-unused-variable -Wno-unused-but-set-variable" 
 	:let g:syntastic_cpp_include_dirs = [ "../../include",  "../include", "include", ".", $HOME."/include"]
 	:let g:syntastic_rust_checkers = ["rustc", 'cargo']
 
@@ -262,11 +263,12 @@
 	:nnoremap # :set hlsearch<cr>#zz
 	:nnoremap * :set hlsearch<cr>*zz
 
+
 	" mapping for jumping to error
-	:nnoremap <silent><C-up>    :lnext<CR>
-	:nnoremap <silent><C-down>  :lprev<CR>
-	:nnoremap <silent><C-left>  :lfirst<CR>
-	:nnoremap <silent><C-right> :llast<CR>
+	:nnoremap <silent><A-l>    :lnext<CR>
+	:nnoremap <silent><A-down>  :lprev<CR>
+	:nnoremap <silent><A-left>  :lfirst<CR>
+	:nnoremap <silent><A-right> :llast<CR>
 
 	" Wrapping magic 
 	" allows you to target text and wrap it in characters repeatably
@@ -520,6 +522,8 @@
 	:  autocmd Filetype tex :vnoremap <silent><buffer><localleader>i :call LatexTextit(visualmode())<CR>
 	:  autocmd Filetype tex :nnoremap <silent><buffer><localleader>b :set opfunc=LatexTextbf<CR>g@
 	:  autocmd Filetype tex :vnoremap <silent><buffer><localleader>b :call LatexTextbf(visualmode())<CR>
+	:  autocmd Filetype tex :nnoremap <silent><buffer><localleader>c :set opfunc=LatexTextCorrection<CR>g@
+	:  autocmd Filetype tex :vnoremap <silent><buffer><localleader>c :call LatexTextCorrection(visualmode())<CR>
 	:augroup END
 	" }}}
 
@@ -1028,6 +1032,12 @@
 		:endfunction
 		" }}}
 
+		:function! LatexTextCorrection(type) range
+		"{{{
+		:  call MotionWrap(a:type, '\Correction{', '}')
+		:endfunction
+		" }}}
+
 	" }}}
 
 	" C Style Function
@@ -1209,7 +1219,7 @@
 		:  if pumvisible()
 		:    return "\<C-P>"
 		:  endif
-		:  let l:str =  strpart( getline('.'), 0, col('.')-1 )
+		:  let l:str = LineBeforeCursor()
 		:  let l:words = split(l:str, " ")
 		:  let l:last_word = len(l:words) > 0 ? l:words[-1] : ""
 		:  if l:str =~ '^\s*$' || l:str =~ '\s$'
@@ -1223,7 +1233,7 @@
 		:  return "\<C-P>"
 		:endfunction
 		" }}}
-
+j
 		:function! CommandLineStart(type, arg, default)
 		" {{{
 		:  return (getcmdtype() == a:type && getcmdline() == "") ? a:arg : a:default

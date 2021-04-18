@@ -50,7 +50,6 @@ class Github:
 
     def setup_repo(self, name, dirname, private):
         resp = self.new_repo(name, private)
-        print(resp)
 
         try:
             os.mkdir(dirname)

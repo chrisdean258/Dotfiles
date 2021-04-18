@@ -24,6 +24,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from functools import wraps
 from typing import List  # noqa: F401
 
 from libqtile import bar, hook, layout, widget
@@ -62,8 +63,9 @@ applications = {
     "p": ("dmenu_run", "dmenu_pass"),
     "g": ("browser", "browser --incognito"),
     "v": ("vol -5%", "vol +5%"),
-    "b": "bt",
-    "d": "discord",
+    "b": ("bt", "bt -d"),
+    "d": ("discord", "d"),
+    "a": "audio",
 }
 
 groups = [Group(i) for i in "1234"]
@@ -90,7 +92,8 @@ for k, cmds in applications.items():
     if isinstance(cmds, str):
         cmds = (cmds,)
     for m, cmd in zip(mods, cmds):
-        keys.append(Key(m, k, lazy.spawn(cmd)))
+        if cmd is not None:
+            keys.append(Key(m, k, lazy.spawn(cmd)))
 
 
 for i in groups:
@@ -105,14 +108,13 @@ for i in groups:
     ])
 
 groups.append(ScratchPad("scratchpad", [
-    DropDown("calculator", "gnome-calculator -m advanced",
-             width=0.304167, height=0.5, x=(1 - 0.304167) / 2,),
+    DropDown("calculator", "st -e ipython3"),
     DropDown("st", "st"),
 ]))
 
 layout_theme = {
     "border_width": 1,
-    "margin": 2,
+    "margin": 0,
     "border_focus": "121212",
     "border_normal": "000000"
 }
@@ -198,7 +200,7 @@ screens = [
                 widget.TextBox("Configure  | ", name="default",
                                mouse_callbacks={"Button1": edit_config},
                                **widget_defaults),
-                widget.TextBox("Errors  | ", name="default",
+                widget.TextBox("Errors  |", name="default",
                                mouse_callbacks={"Button1": xsession_errors},
                                **widget_defaults),
                 widget.Backlight(backlight_name="intel_backlight", **widget_defaults),
@@ -253,6 +255,23 @@ bring_front_click = False
 cursor_warp = False
 
 
+def log(f):
+    @wraps(f)
+    def _(*a, **kw):
+
+        print(f"{f.__name__}(*{repr(a)}, **{repr(kw)})", end=" ")
+        rtn = f(*a, **kw)
+        print("=", rtn, flush=True)
+        return rtn
+    return _
+
+
+def zoom(name, cls, role):
+    if name == "zoom" and cls == ("zoom", "zoom"):
+        return False
+    return "zoom" in cls and not name.startswith(("Zoom", "Settings"))
+
+
 floating_layout = layout.Floating(float_rules=[
     # Run the utility of `xprop` to see the wm class and name of an X client.
     {'wmclass': 'confirm'},
@@ -263,6 +282,7 @@ floating_layout = layout.Floating(float_rules=[
     {'wmclass': 'notification'},
     {'wmclass': 'splash'},
     {'wmclass': 'toolbar'},
+    {'wmclass': 'gcr-prompter'},
     {'wmclass': 'confirmreset'},  # gitk
     {'wmclass': 'makebranch'},  # gitk
     {'wmclass': 'maketag'},  # gitk
@@ -270,7 +290,7 @@ floating_layout = layout.Floating(float_rules=[
     {'wname': 'pinentry'},  # GPG key password entry
     {'wmclass': 'ssh-askpass'},  # ssh-askpass
     {'wname': 'Discord Updater'},  # Discord
-    {'match': lambda name, cls, r: "zoom" in cls and not name.startswith(("Zoom", "Settings"))},
+    {'match': zoom},
 ])
 auto_fullscreen = True
 focus_on_window_activation = "smart"
