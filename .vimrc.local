@@ -20,3 +20,5 @@ nnoremap <F10> :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> 
 			\ . synIDattr(synID(line("."),col("."),0),"name") . "> lo<"
 			\ . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"<CR>
 au BufNewFile,BufRead *.diag :setlocal ft=tex
+
+:cabbrev sp <C-R>=CommandLineStart(":", "vert sf", "sp")<CR>

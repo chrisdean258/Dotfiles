@@ -1219,7 +1219,8 @@
 		:  if pumvisible()
 		:    return "\<C-P>"
 		:  endif
-		:  let l:str = LineBeforeCursor()
+		:  let l:str = LineUntilCursor()
+		:  echom l:str
 		:  let l:words = split(l:str, " ")
 		:  let l:last_word = len(l:words) > 0 ? l:words[-1] : ""
 		:  if l:str =~ '^\s*$' || l:str =~ '\s$'
@@ -1233,7 +1234,7 @@
 		:  return "\<C-P>"
 		:endfunction
 		" }}}
-j
+
 		:function! CommandLineStart(type, arg, default)
 		" {{{
 		:  return (getcmdtype() == a:type && getcmdline() == "") ? a:arg : a:default
@@ -1316,7 +1317,7 @@ j
 		"{{{
 		:  let l:fn = findfile(a:name)
 		:  if l:fn != ""
-		:    execute ":e " . l:fns[0]
+		:    execute ":e " . l:fn
 		:  endif
 		:endfunction
 		" }}}
