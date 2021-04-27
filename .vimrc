@@ -136,7 +136,7 @@
 	:let g:syntastic_check_on_wq = 0
 	:let g:syntastic_cpp_compiler = "g++"
 	" :let g:syntastic_cpp_compiler_options = "-std=c++98 -Wall"
-	:let g:syntastic_c_compiler_options = "-Wall -Wextra -Wno-unused-variable -Wno-unused-but-set-variable" 
+	:let g:syntastic_c_compiler_options = "-Wall -Wextra -Wno-unused-variable -Wno-unused-but-set-variable -Wno-unused-parameter" 
 	:let g:syntastic_cpp_include_dirs = [ "../../include",  "../include", "include", ".", $HOME."/include"]
 	:let g:syntastic_rust_checkers = ["rustc", 'cargo']
 
@@ -359,7 +359,7 @@
 	:cabbrev a <C-R>=CommandLineStart(":", "'a,.s", "a")<CR>
 	:cabbrev $$ <C-R>=CommandLineStart(":", ".,$s", "$$")<CR>
 	:cabbrev Q! <C-R>=CommandLineStart(":", "q!", "Q!")<CR>
-	:cabbrev make <C-R>=CommandLineStart(":", "Make", "make")<CR>
+	:cabbrev make <C-R>=CommandLineStart(":", "Compile", "make")<CR>
 	" :cabbrev term term ++close ++rows=15
 	:abbrev Vecotr Vector
 	:abbrev Vecotr Vector
@@ -377,7 +377,7 @@
 	:command! Compile :call Compile()
 	:command! Template :call NewFile()
 	:command! -nargs=1 -complete=file_in_path Find :call Find("<args>")
-	:command! Make :call Compile()
+	:command! Compile :call Compile()
 
 " }}}
 
@@ -689,6 +689,9 @@
 
 		:function! LineBeforeCursor()
 		" {{{
+		:  if strlen(getline('.')) == col('.') - 1
+		:    return LineUntilCursor()
+		:  endif
 		:  return LineUntilCursor()[:-2]
 		:endfunction
 		" }}}
@@ -1122,12 +1125,12 @@
 		:  let l:match_10 = SplitIf_Match(-1, 0)
 		:  if l:match0 == 2
 		:    execute "normal! 0f(%l"
+		:  elseif l:match0 == 1
+		:    execute "normal! 0feel"
 		:  elseif l:match01 == 2
 		:    execute "normal! J"
 		:  elseif l:match_10 == 2
 		:    execute "normal! kJ"
-		:  elseif l:match0 == 1
-		:    execute "normal! 0feel"
 		:  elseif l:match01 == 1
 		:    execute "normal! J0feel"
 		:  elseif l:match_10 == 1
@@ -1219,11 +1222,14 @@
 		:  if pumvisible()
 		:    return "\<C-P>"
 		:  endif
-		:  let l:str = LineUntilCursor()
+		:  let l:str = LineBeforeCursor()
 		:  echom l:str
 		:  let l:words = split(l:str, " ")
 		:  let l:last_word = len(l:words) > 0 ? l:words[-1] : ""
-		:  if l:str =~ '^\s*$' || l:str =~ '\s$'
+		:  if l:str =~ '^\s*$'
+		:    return "\<Tab>"
+		:  elseif l:str =~ '\s$'
+		:    echom "returning tab '" . l:str . "'"
 		:    return "\<Tab>"
 		:  elseif l:last_word =~ "\/" && len(glob(l:last_word . "*")) > 0 
 		:    return "\<C-X>\<C-F>"
