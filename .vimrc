@@ -1332,7 +1332,7 @@
 		
 		:function! Find(name)
 		"{{{
-		:  let l:fn = globpath(".", a:name."*", 1, 1)
+		:  let l:fn = split(System('find . -name "' . a:name . '*"'))
 		:  for f in l:fn
 		:    if !isdirectory(f)
 		:      execute ":e " . f
