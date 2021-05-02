@@ -144,6 +144,7 @@
 	:if executable("flake8")
 	:  let g:syntastic_python_checkers = [ "flake8" ]
 	:endif
+	:let g:syntastic_rust_checkers = ["cargo"]
 	:let g:syntastic_tex_checkers = []
 	:let g:syntastic_tex_chktex_args = ["--nowarn", "39"]
 	:let g:syntastic_always_populate_loc_list = 1
@@ -363,6 +364,7 @@
 	" :cabbrev term term ++close ++rows=15
 	:abbrev Vecotr Vector
 	:abbrev Vecotr Vector
+	:abbrev retunr return
 
 	" Force writing
 	if !has('win32')
@@ -430,7 +432,7 @@
 	:  autocmd!
 	:  autocmd FileType c,cpp,javascript,java,perl,cs :nnoremap <silent><buffer><localleader>s :call SplitIf()<CR>
 	:  autocmd FileType c,cpp,javascript,java,perl,cs :nnoremap <silent><buffer>; :call AppendSemicolon()<CR>
-	:  autocmd FileType c,cpp,javascript,java,perl,cs :inoremap <buffer>{} {<CR>}<esc>O
+	:  autocmd FileType c,cpp,javascript,java,perl,cs :inoremap <buffer><expr>{} Cbraces()
 	:  autocmd FileType c,cpp,javascript,java,perl,cs :setlocal cindent
 	:  autocmd FileType c,cpp,javascript,java,perl,cs :iabbrev <buffer>csign <c-r>=Csign()<CR>
 	:  autocmd FileType c,cpp,javascript,java,perl,cs :autocmd BufRead,BufWrite <buffer> :silent call RemoveTrailingWhitespace()
@@ -632,7 +634,7 @@
 	" Rust
 	:augroup rust
 	:  autocmd FileType rust :nnoremap <silent><buffer>; :call AppendSemicolon()<CR>
-	:  autocmd FileType rust :inoremap <buffer>{} {<CR>}<esc>O
+	:  autocmd FileType rust :inoremap <buffer><expr>{} Cbraces()
 	:augroup END
 
 " {{{
@@ -1065,6 +1067,15 @@
 		:endfunction
 		" }}}
 
+		:function! Cbraces()
+		" {{{
+		:  if len(split(LineUntilCursor(), '"')) % 2 == 0
+		:    return "{}"
+		:  endif
+		:  return "{\<CR>}\<esc>O"
+		:endfunction
+		" }}}
+
 		:function! CFoldText()
 		" {{{
 		:  let l:tablen = &l:shiftwidth
@@ -1321,10 +1332,13 @@
 		
 		:function! Find(name)
 		"{{{
-		:  let l:fn = findfile(a:name)
-		:  if l:fn != ""
-		:    execute ":e " . l:fn
-		:  endif
+		:  let l:fn = globpath(".", a:name."*", 1, 1)
+		:  for f in l:fn
+		:    if !isdirectory(f)
+		:      execute ":e " . f
+		:      return
+		:    endif
+		:  endfor
 		:endfunction
 		" }}}
 		
