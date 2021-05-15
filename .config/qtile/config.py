@@ -1,29 +1,4 @@
-# Copyright (c) 2010 Aldo Cortesi
-# Copyright (c) 2010, 2014 dequis
-# Copyright (c) 2012 Randall Ma
-# Copyright (c) 2012-2014 Tycho Andersen
-# Copyright (c) 2012 Craig Barnes
-# Copyright (c) 2013 horsik
-# Copyright (c) 2013 Tao Sauvage
-#
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in
-# all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
-
+#!/usr/bin/env python3
 from functools import wraps
 from typing import List  # noqa: F401
 
@@ -31,6 +6,7 @@ from libqtile import bar, hook, layout, widget
 from libqtile.config import Click, Drag, Group, Key, Screen, ScratchPad, DropDown
 from libqtile.lazy import lazy
 import os
+import subprocess
 
 mod = "mod4"
 terminal = "st"
@@ -63,12 +39,22 @@ applications = {
     "p": ("dmenu_run", "dmenu_pass"),
     "g": ("browser", "browser --incognito"),
     "v": ("vol -5%", "vol +5%"),
-    "b": ("bt", "bt -d"),
+    "b": ("bt", "bt -d", "bt h21", "bt wh"),
     "d": ("discord", "d"),
     "a": "audio",
 }
 
-groups = [Group(i) for i in "1234"]
+try:
+    num_screens = int(
+        subprocess.check_output(
+            "xrandr | grep ' connected' | wc -l", shell=True, timeout=1
+        )
+    )
+except Exception:
+    num_screens = 2
+
+
+groups = [Group(str(i + 1)) for i in range(num_screens * 2)]
 
 keys = [
     Key(["mod4"], "k", lazy.layout.down()),
@@ -87,6 +73,7 @@ keys = [
     Key(m_, "f", lazy.window.toggle_floating()),
     Key([], "F11", lazy.group["scratchpad"].dropdown_toggle("calculator")),
     Key([], "F12", lazy.group["scratchpad"].dropdown_toggle("st")),
+    Key(m_, "s", lazy.group["scratchpad"].dropdown_toggle("spotify")),
 ]
 for k, cmds in applications.items():
     if isinstance(cmds, str):
@@ -97,27 +84,55 @@ for k, cmds in applications.items():
 
 
 for i in groups:
-    keys.extend([
-        # mod1 + letter of group = switch to group
-        Key([mod], i.name, lazy.group[i.name].toscreen(),
-            desc="Switch to group {}".format(i.name)),
-        Key([mod, "shift"], i.name, lazy.window.togroup(i.name, switch_group=True),
-            desc="Switch to & move focused window to group {}".format(i.name)),
-        Key([mod, "control"], i.name, lazy.window.togroup(i.name),
-            desc="Move focused window to group {}".format(i.name)),
-    ])
-
-groups.append(ScratchPad("scratchpad", [
-    DropDown("calculator", "st -e ipython3"),
-    DropDown("st", "st"),
-]))
+    keys.extend(
+        [
+            # mod1 + letter of group = switch to group
+            Key(
+                [mod],
+                i.name,
+                lazy.group[i.name].toscreen(),
+                desc="Switch to group {}".format(i.name),
+            ),
+            Key(
+                [mod, "shift"],
+                i.name,
+                lazy.window.togroup(i.name, switch_group=True),
+                desc="Switch to & move focused window to group {}".format(
+                    i.name),
+            ),
+            Key(
+                [mod, "control"],
+                i.name,
+                lazy.window.togroup(i.name),
+                desc="Move focused window to group {}".format(i.name),
+            ),
+        ]
+    )
 
 layout_theme = {
     "border_width": 1,
     "margin": 0,
     "border_focus": "121212",
-    "border_normal": "000000"
+    "border_normal": "000000",
 }
+
+groups.append(
+    ScratchPad(
+        "scratchpad",
+        [
+            DropDown("calculator", "st -e ipython3"),
+            DropDown("st", "st"),
+            DropDown(
+                "spotify",
+                "spotify",
+                x=0.05,
+                y=0,
+                width=0.9,
+                height=0.9,
+            ),
+        ],
+    )
+)
 
 
 class DWM(layout.Tile):
@@ -142,10 +157,10 @@ layouts = [
 ]
 
 widget_defaults = {
-    'font': 'monospace',
-    'fontsize': 12,
-    'padding': 3,
-    'foreground': '#5d5d5d'
+    "font": "monospace",
+    "fontsize": 12,
+    "padding": 3,
+    "foreground": "#5d5d5d",
 }
 extension_defaults = widget_defaults.copy()
 
@@ -167,7 +182,7 @@ def build_string(self, status):
     blocks = int(percent * 10)
 
     time = "" if status.time <= 0 else f" ({hours}:{minutes:02})"
-    icon = "[" + ('░' * blocks).ljust(10) + "]"
+    icon = "[" + ("░" * blocks).ljust(10) + "]"
     percent = f"{int(percent * 100)}%"
 
     return f" |  {icon} {percent}{time}  | "
@@ -191,46 +206,60 @@ class CScreen(Screen):
 
 screens = [
     CScreen(
-        default_group='1',
+        default_group="1",
         bottom=bar.Bar(
             widgets=[
                 widget.GroupBox(**widget_defaults),
                 widget.Prompt(**widget_defaults),
                 widget.WindowName(foreground="#000000"),
-                widget.TextBox("Configure  | ", name="default",
-                               mouse_callbacks={"Button1": edit_config},
-                               **widget_defaults),
-                widget.TextBox("Errors  |", name="default",
-                               mouse_callbacks={"Button1": xsession_errors},
-                               **widget_defaults),
-                widget.Backlight(backlight_name="intel_backlight", **widget_defaults),
+                widget.TextBox(
+                    "Configure  | ",
+                    name="default",
+                    mouse_callbacks={"Button1": edit_config},
+                    **widget_defaults,
+                ),
+                widget.TextBox(
+                    "Errors  |",
+                    name="default",
+                    mouse_callbacks={"Button1": xsession_errors},
+                    **widget_defaults,
+                ),
+                widget.Backlight(
+                    backlight_name="intel_backlight", **widget_defaults),
                 b,
-                widget.Clock(format='%Y-%m-%d %a %I:%M %p', **widget_defaults),
+                widget.Clock(format="%Y-%m-%d %a %I:%M %p", **widget_defaults),
             ],
             size=24,
         ),
     ),
+] + [
     CScreen(
-        default_group='3',
+        default_group=str(2 * i + 3),
         bottom=bar.Bar(
             widgets=[
                 widget.GroupBox(**widget_defaults),
                 widget.Prompt(**widget_defaults),
                 widget.WindowName(foreground="#000000"),
-                widget.Clock(format='%Y-%m-%d %a %I:%M %p', **widget_defaults),
+                widget.Clock(format="%Y-%m-%d %a %I:%M %p", **widget_defaults),
             ],
             size=24,
         ),
-    ),
+    )
+    for i in range(num_screens - 1)
 ]
 
 # Drag floating layouts.
 mouse = [
-    Drag([mod], "Button1", lazy.window.set_position_floating(),
-         start=lazy.window.get_position()),
-    Drag([mod], "Button3", lazy.window.set_size_floating(),
-         start=lazy.window.get_size()),
-    Click([mod], "Button2", lazy.window.bring_to_front())
+    Drag(
+        [mod],
+        "Button1",
+        lazy.window.set_position_floating(),
+        start=lazy.window.get_position(),
+    ),
+    Drag(
+        [mod], "Button3", lazy.window.set_size_floating(), start=lazy.window.get_size()
+    ),
+    Click([mod], "Button2", lazy.window.bring_to_front()),
 ]
 
 
@@ -263,6 +292,7 @@ def log(f):
         rtn = f(*a, **kw)
         print("=", rtn, flush=True)
         return rtn
+
     return _
 
 
@@ -272,26 +302,30 @@ def zoom(name, cls, role):
     return "zoom" in cls and not name.startswith(("Zoom", "Settings"))
 
 
-floating_layout = layout.Floating(float_rules=[
-    # Run the utility of `xprop` to see the wm class and name of an X client.
-    {'wmclass': 'confirm'},
-    {'wmclass': 'dialog'},
-    {'wmclass': 'download'},
-    {'wmclass': 'error'},
-    {'wmclass': 'file_progress'},
-    {'wmclass': 'notification'},
-    {'wmclass': 'splash'},
-    {'wmclass': 'toolbar'},
-    {'wmclass': 'gcr-prompter'},
-    {'wmclass': 'confirmreset'},  # gitk
-    {'wmclass': 'makebranch'},  # gitk
-    {'wmclass': 'maketag'},  # gitk
-    {'wname': 'branchdialog'},  # gitk
-    {'wname': 'pinentry'},  # GPG key password entry
-    {'wmclass': 'ssh-askpass'},  # ssh-askpass
-    {'wname': 'Discord Updater'},  # Discord
-    {'match': zoom},
-])
+floating_layout = layout.Floating(
+    float_rules=[
+        # Run the utility of `xprop` to see the wm class and name of an X client.
+        {"wmclass": "confirm"},
+        {"wmclass": "dialog"},
+        {"wmclass": "download"},
+        {"wmclass": "error"},
+        {"wmclass": "file_progress"},
+        {"wmclass": "notification"},
+        {"wmclass": "splash"},
+        {"wmclass": "toolbar"},
+        {"wmclass": "gcr-prompter"},
+        {"wmclass": "confirmreset"},  # gitk
+        {"wmclass": "makebranch"},  # gitk
+        {"wmclass": "maketag"},  # gitk
+        {"wname": "branchdialog"},  # gitk
+        {"wname": "pinentry"},  # GPG key password entry
+        {"wmclass": "ssh-askpass"},  # ssh-askpass
+        {"wname": "Discord Updater"},  # Discord
+        {"wname": "zoom"},  # Zoom
+        {"wmclass": "Zoom"},  # Zoom
+        {"match": zoom},
+    ]
+)
 auto_fullscreen = True
 focus_on_window_activation = "smart"
 wmname = "LG3D"

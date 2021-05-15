@@ -1,24 +1,36 @@
-:let g:imawimp = 1
-:let g:hllonglines = 1
-:let g:light_folds = 0
-:let g:python_blank_line_fix = 1
-:let g:error_fixup = 1
-:let g:manage_sessions = 1
-:let g:auto_update = 0
-:let g:old_c_comments = 1
-:let g:md_format_para = 1
+let g:imawimp = 1
+let g:hllonglines = 1
+let g:manage_sessions = 1
+let g:auto_update = 0
+let g:old_c_comments = 1
+let g:md_format_para = 1
+let g:use_syntastic = 0
+let g:ale_fix_on_save = 1
+let g:ale_fixers = {"rust": "rustfmt", "python": ["autopep8"]}
+let g:ale_linters = {"python": ["flake8", "autoimport", "isort", "black"]}
+nmap <silent> <C-k> <Plug>(ale_previous_wrap)
+nmap <silent> <C-j> <Plug>(ale_next_wrap)
 
-:command! DndFixup :call DndFixup()
-:function! DndFixup()
-" {{{
-:  g/^\s*[-+]/normal! kJ
-:  %s/\([+-]\)\s*/\1/ge
-" }}}
-:endfunction
 
-nnoremap <F10> :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> trans<'
-			\ . synIDattr(synID(line("."),col("."),0),"name") . "> lo<"
-			\ . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"<CR>
-au BufNewFile,BufRead *.diag :setlocal ft=tex
+command! DndFixup :call DndFixup()
+function! DndFixup()
+	g/^\s*[-+]/normal! kJ
+	%s/\([+-]\)\s*/\1/ge
+endfunction
 
-:cabbrev sp <C-R>=CommandLineStart(":", "vert sf", "sp")<CR>
+nnoremap <F10> :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> trans<' . synIDattr(synID(line("."),col("."),0),"name") . "> lo<" . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"<CR>
+hi! link ALEError Error
+
+cabbrev sp <C-R>=CommandLineStart("sp", "vs \| Find ")<CR>
+autocmd FileType c :setlocal commentstring=/*\ %s\ */
+
+au ColorScheme elflord highlight Folded ctermfg=Black guifg=Black
+au ColorScheme elflord highlight Folded ctermfg=Black guifg=Black
+au ColorScheme elflord highlight Folded ctermfg=Black guifg=Black
+au ColorScheme elflord highlight Folded ctermfg=Black guifg=Black
+au ColorScheme elflord highlight tablinesel ctermfg=DarkGrey guifg=DarkGrey
+au ColorScheme elflord highlight tabline ctermfg=black guifg=black
+call HighLightSettings()
+
+map H ^
+map L $

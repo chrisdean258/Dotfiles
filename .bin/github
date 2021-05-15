@@ -68,7 +68,7 @@ class Github:
         git("remote", "add", "origin", resp["ssh_url"])
         git("add", "-A", ".")
         git("commit", "-m", "Initial commit")
-        git("push", "-u", "origin", "master")
+        git("push", "-u", "origin", "main")
 
         return resp
 

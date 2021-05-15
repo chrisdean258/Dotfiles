@@ -5,7 +5,6 @@
 	:set nowrap                             " Dont wrap text to newlines
 	:set number                             " Show line numbers
 	:set relativenumber                     " show line numbers relative to your current line
-	:colorscheme elflord                    " Hells yeah elflord
 
 	:set scrolloff=5                        " Keep cursor 5 lines in
 	:set sidescroll=1                       " Move one character at a time off the screen rather than jumping
@@ -81,35 +80,26 @@
 
 	:function! HighLightSettings()
 	" Setting for using Highlight after function
-	:highlight LongLine guifg=Red ctermfg=Red
- 	:highlight Folded None
-	:highlight Folded ctermfg=Black guifg=Black
-
-
+	:  colorscheme elflord
+	:  highlight LongLine guifg=Red ctermfg=Red
+ 	:  highlight Folded None
 	" Settings for Todo
-	:highlight Todo None
-	:highlight Todo ctermfg=Yellow
-
-
+	:  highlight Todo None
+	:  highlight Todo ctermfg=Yellow guifg=Yellow
 	" Settings for tabline
-	:highlight tablinefill None
-	:highlight tablinesel None
-	:highlight tabline None
-	:highlight tablinesel ctermfg=DarkGrey guifg=DarkGrey
-	:highlight tabline ctermfg=black guifg=black
-
-	" Settings for spell
-	:highlight spellrare None
-	:highlight spellcap None
-	:highlight spelllocal None
-	:highlight! link texOnlyMath texMathOper
-	:if get(g:, "light_folds", 1)
-	:  highlight Folded ctermfg=DarkGrey guifg=DarkGrey
+	:  highlight tablinefill None
+	:  highlight tablinesel None
+	:  highlight tabline None
 	:  highlight tabline ctermfg=DarkGrey guifg=DarkGrey
 	:  highlight tablinesel ctermfg=Grey guifg=Grey
-	:endif
+	" Settings for spell
+	:  highlight spellrare None
+	:  highlight spellcap None
+	:  highlight spelllocal None
+	:  highlight! link texOnlyMath texMathOper
+	:  highlight Folded ctermfg=DarkGrey guifg=DarkGrey
+	:  do ColorScheme elflord
 	:endfunction
-	:call HighLightSettings()
 
 " }}}
 
@@ -152,58 +142,6 @@
 
 	" Turn off Syntastic Errors
 	:cabbrev jk SyntasticReset
-
-	:function! SyntasticCheckHook(errors)
-	:  if !get(g:, "error_fixup") || len(a:errors) == 0
-	:    return
-	:  endif
-	:  let errs = reverse(deepcopy(a:errors))
-	:  call remove(a:errors, 0, -1)
-	:  for error in errs
-	:    let line = getline(error.lnum)
-	:    if error.text =~ 'too many blank lines'
-	:      execute (error.lnum - 1) . "d"
-	:    elseif error.text =~ 'expected 2 blank lines.*found 1'
-	:      call append(error.lnum - 1, "")
-	:    elseif error.text =~ 'expected 1 blank line.*found 0'
-	:      call append(error.lnum - 1, "")
-	:    elseif error.text =~ 'expected 2 blank lines.*found 0'
-	:      call append(error.lnum - 1, ["", ""])
-	:    elseif error.text =~ "missing whitespace after"
-	:      let line = line[:error.col-1]." ".line[error.col:]
-	:      call setline(error.lnum, line)
-	:    elseif error.text =~ "missing whitespace around operator"
-	:      let line = line[:error.col-2]." ".line[error.col-1:]
-	:      call setline(error.lnum, line)
-	:    elseif error.text =~ 'missing whitespace around arithmetic operator'
-	:      let line = line[:error.col-2]." ".line[error.col-1]. " " . line[error.col:]
-	:      call setline(error.lnum, line)
-	:    elseif error.text =~ 'multiple spaces before keyword'
-	:      let line = line[:error.col-2].line[error.col:]
-	:      call setline(error.lnum, line)
-	:    elseif error.text == 'unexpected spaces around keyword / parameter equals [E251]'
-	:      let line = line[:error.col-2].line[error.col:]
-	:      call setline(error.lnum, line)
-	:    elseif error.text =~ "whitespace after" || error.text =~ "whitespace before"
-	:      let line = line[:error.col-2].line[error.col:]
-	:      call setline(error.lnum, line)
-	:    elseif error.text =~ "multiple spaces"
-	:      let line = RStrip(line[:error.col-1])." ".LStrip(line[error.col+1:])
-	:      call setline(error.lnum, line)
-	:    elseif error.text =~ 'block comment should start with'
-	:      let line = line[:error.col-1]. " " . line[error.col:]
-	:      call setline(error.lnum, line)
-	:    elseif error.text =~ 'unexpected indentation (comment)'
-	:      let nidt = indent(error.lnum - 1)
-	:      let cidt = indent(error.lnum)
-	:      let line = repeat(" ", nidt) . "#" . repeat(" ", cidt - nidt) . line[cidt+1:]
-	:      call setline(error.lnum, line)
-	:    else
-	:      call add(a:errors, error)
-	:    endif
-	:  endfor
-	:  write!
-	:endfunction
 
 " }}}
 
@@ -341,26 +279,26 @@
 "_______________________________________________________________________________________________________
 
 	" Vertical splitting is better than horizontal splitting
-	:cabbrev help <C-R>=CommandLineStart(":", "vert help", "help")<CR>
-	:cabbrev sp <C-R>=CommandLineStart(":", "vs", "sp")<CR>
-	:cabbrev sf <C-R>=CommandLineStart(":", "vert sf", "sf")<CR>
-	:cabbrev vf <C-R>=CommandLineStart(":", "vert sf", "vf")<CR>
-	:cabbrev find <C-R>=CommandLineStart(":", "Find", "find")<CR>
+	:cabbrev help <C-R>=CommandLineStart("help", "vert help")<CR>
+	:cabbrev sp <C-R>=CommandLineStart("sp", "vs")<CR>
+	:cabbrev sf <C-R>=CommandLineStart("sf", "vert sf")<CR>
+	:cabbrev vf <C-R>=CommandLineStart("vf", "vert sf")<CR>
+	:cabbrev find <C-R>=CommandLineStart("find", "Find")<CR>
 
 	" Quitting cause Im bad at typing
-	:cabbrev W <C-R>=CommandLineStart(":", "w", "W")<CR>
-	:cabbrev Q <C-R>=CommandLineStart(":", "q", "Q")<CR>
-	:cabbrev Wq <C-R>=CommandLineStart(":", "wq", "Wq")<CR>
-	:cabbrev WQ <C-R>=CommandLineStart(":", "wq", "WQ")<CR>
-	:cabbrev Set <C-R>=CommandLineStart(":", "set", "Set")<CR>
-	:cabbrev we <C-R>=CommandLineStart(":", "w\|e", "we")<CR>
+	:cabbrev W <C-R>=CommandLineStart("W", "w")<CR>
+	:cabbrev Q <C-R>=CommandLineStart("Q", "q")<CR>
+	:cabbrev Wq <C-R>=CommandLineStart("Wq", "wq")<CR>
+	:cabbrev WQ <C-R>=CommandLineStart("WQ", "wq")<CR>
+	:cabbrev Set <C-R>=CommandLineStart("Set", "set")<CR>
+	:cabbrev we <C-R>=CommandLineStart("we", "w\|e")<CR>
 
 	" Expanding for substitutions
-	:cabbrev S <C-R>=CommandLineStart(":", "%s", "S")<CR>
-	:cabbrev a <C-R>=CommandLineStart(":", "'a,.s", "a")<CR>
-	:cabbrev $$ <C-R>=CommandLineStart(":", ".,$s", "$$")<CR>
-	:cabbrev Q! <C-R>=CommandLineStart(":", "q!", "Q!")<CR>
-	:cabbrev make <C-R>=CommandLineStart(":", "Compile", "make")<CR>
+	:cabbrev S <C-R>=CommandLineStart("S", "%s")<CR>
+	:cabbrev a <C-R>=CommandLineStart("a", "'a,.s")<CR>
+	:cabbrev $$ <C-R>=CommandLineStart("$$", ".,$s")<CR>
+	:cabbrev Q! <C-R>=CommandLineStart("Q!", "q!")<CR>
+	:cabbrev make <C-R>=CommandLineStart("make", "Compile")<CR>
 	" :cabbrev term term ++close ++rows=15
 	:abbrev Vecotr Vector
 	:abbrev Vecotr Vector
@@ -378,19 +316,15 @@
 	:command! Fold :setlocal foldenable | setlocal foldmethod=syntax
 	:command! Compile :call Compile()
 	:command! Template :call NewFile()
-	:command! -nargs=1 -complete=file_in_path Find :call Find("<args>")
+	:command! -nargs=+ -complete=file_in_path Find :call Find(<f-args>)
 	:command! Compile :call Compile()
 
 " }}}
 
 " AUTOCMD GROUPS  {{{
 "_______________________________________________________________________________________________________
-" {{{
-:if has("autocmd")
-" }}}
 
-	" Universal
-	" {{{
+	" Universal {{{
 	:augroup Universal
 	:autocmd!
 	:autocmd BufNewFile *  :autocmd BufWritePost * :call IfScript() " Mark files with shebang as executable
@@ -406,13 +340,12 @@
 	:autocmd SwapExists *  :call SwapExists()
 	:autocmd BufNewFile *  :call NewFile()
 	:autocmd VimLeave *    :call SaveSess()
-	:autocmd VimEnter * nested call RestoreSess()
 	:autocmd VimEnter *    :call HighLightSettings()
+	:autocmd VimEnter * nested call RestoreSess()
 	:augroup END
 	" }}}
 
-	" Option Autocmds
-	" {{{
+	" Option Autocmds {{{
 	:if exists("##OptionSet")
 	:augroup Options
 	:autocmd!
@@ -426,25 +359,15 @@
 	:endif
 	" }}}
 
-	" C style formatting
-	" {{{ 
+	" C style formatting {{{ 
 	:augroup c_style
 	:  autocmd!
 	:  autocmd FileType c,cpp,javascript,java,perl,cs :nnoremap <silent><buffer><localleader>s :call SplitIf()<CR>
 	:  autocmd FileType c,cpp,javascript,java,perl,cs :nnoremap <silent><buffer>; :call AppendSemicolon()<CR>
 	:  autocmd FileType c,cpp,javascript,java,perl,cs :inoremap <buffer><expr>{} Cbraces()
 	:  autocmd FileType c,cpp,javascript,java,perl,cs :setlocal cindent
-	:  autocmd FileType c,cpp,javascript,java,perl,cs :iabbrev <buffer>csign <c-r>=Csign()<CR>
 	:  autocmd FileType c,cpp,javascript,java,perl,cs :autocmd BufRead,BufWrite <buffer> :silent call RemoveTrailingWhitespace()
 	:  autocmd FileType c,cpp,javascript,java,perl,cs :command! Format :call CFormat()
-	:  autocmd FileType c,cpp,javascript,java,perl,cs :call CFold()
-	:augroup END
-	" }}}
-
-	" C/cpp specific
-	" {{{
-	:augroup c_cpp
-	:  autocmd!
 	:  autocmd FileType c,cpp  :setlocal complete+=t
 	:  autocmd FileType c,cpp  :iabbrev <buffer> #i #include
 	:  autocmd FileType c,cpp  :iabbrev <buffer> #I #include
@@ -460,8 +383,7 @@
 	:augroup END
 	" }}}
 
-	" Java
-	" {{{
+	" Java {{{
 	:augroup java
 	:  autocmd!
 	:  autocmd FileType java  :silent SyntasticToggle
@@ -469,8 +391,7 @@
 	:augroup END
 	" }}}
 
-	" Web
-	" {{{
+	" Web {{{
 	:augroup web
 	:  autocmd!
 	:  autocmd FileType html,php,htmldjango :setlocal tabstop=2
@@ -491,8 +412,7 @@
 	:augroup END
 	" }}}
 
-	" Tex
-	" {{{
+	" Tex {{{
 	:augroup web
 	:  autocmd BufNewFile *.tex  :setlocal filetype=tex
 	:  autocmd BufNew *.tex  :setlocal filetype=tex
@@ -529,8 +449,7 @@
 	:augroup END
 	" }}}
 
-	" Python formatting
-	" {{{
+	" Python formatting {{{
 	:augroup python_
 	:autocmd!
 	:autocmd FileType python  :setlocal tabstop=4
@@ -545,14 +464,12 @@
 	:autocmd FileType python  :let g:pyindent_continue = '0'
 	:autocmd FileType python  :autocmd BufEnter <buffer> :if getline(1) !~ '^#' | call append(0, "#!/usr/bin/env python3") | endif
 	:autocmd FileType python  :autocmd CursorMoved,CursorMovedI <buffer> call HighlightAfterColumn(79)
-	:autocmd FileType python  :autocmd BufWrite <buffer> :call PythonBlankLineFix()
 	:autocmd BufRead .xonshrc,*.xsh :set ft=python
 	:autocmd BufRead .xonshrc,*.xsh :silent! SyntasticToggleMode
 	:augroup END
 	" }}}
 
-	" Vim file
-	" {{{
+	" Vim file {{{
 	:augroup vim_
 	:autocmd!
 	:autocmd FileType vim :setlocal foldmethod=marker
@@ -562,8 +479,7 @@
 	:augroup END
 	" }}}
 
-	" Markdown
-	" {{{
+	" Markdown {{{
 	:augroup Markdown
 	:autocmd!
 	:autocmd Filetype markdown :autocmd InsertLeave <buffer> :call MDParagraph()
@@ -588,8 +504,7 @@
 	:augroup END
 	" }}}
 
-	" txt files
-	" {{{
+	" txt files {{{
 	:augroup Text
 	:autocmd!
 	:autocmd FileType text :setlocal wrap
@@ -601,8 +516,7 @@
 	:augroup END
 	" }}}
 
-	" Assembly
-	" {{{
+	" Assembly {{{
 	:augroup Assembly
 	:autocmd!
 	:  autocmd FileType assembly,asm :setlocal commentstring=//\ %s
@@ -610,120 +524,59 @@
 	:augroup END
 	" }}}
 
-	" Yacc
-	" {{{
-	:augroup yacc
-	:  autocmd VimEnter *.y :doautocmd Filetype c | doautocmd Filetype yacc
-	:augroup END
-	" }}}
-
-	" LD
-	" {{{
-	:augroup ld
-	:  autocmd FileType ld :inoremap <buffer>{} {<CR>}<esc>O
-	:augroup END
-	" }}}
-
-	" Enclave Description Language
-	" {{{
-	:augroup EDL
-	:  autocmd BufRead,BufNewFile *.edl :doautocmd Filetype c
-	:augroup END
-	" }}}
-
-	" Rust
+	" Rust {{{
 	:augroup rust
 	:  autocmd FileType rust :nnoremap <silent><buffer>; :call AppendSemicolon()<CR>
 	:  autocmd FileType rust :inoremap <buffer><expr>{} Cbraces()
 	:augroup END
+	" }}}
 
-" {{{
-:endif
-" }}}
 " }}}
 
 " FUNCTIONS {{{
 "_______________________________________________________________________________________________________
 
-	" Helpers
-	" {{{
-		:function! Strip(str)
-		" {{{
+	" Helpers {{{
+		:function! Strip(str) " {{{
 		:  return substitute(a:str, '^\s*\(.\{-}\)\s*$', '\1', '')
-		:endfunction
-		" }}}
+		:endfunction " }}}
 
-		:function! LStrip(str)
-		" {{{
-		:  return substitute(a:str, '^\s*', '', '')
-		:endfunction
-		" }}}
-
-		:function! RStrip(str)
-		" {{{
-		:  return substitute(a:str, '\s*$', '', '')
-		:endfunction
-		" }}}
-
-		:function! Text(line)
-		" {{{
-		:  return Strip(getline(a:line))
-		:endfunction
-		" }}}
-
-		:function! LineFromCursor()
-		" {{{
+		:function! LineFromCursor() " {{{
 		:  return getline('.')[col('.')-1:]
-		:endfunction
-		" }}}
+		:endfunction " }}}
 
-		:function! LineUntilCursor()
-		" {{{
+		:function! LineUntilCursor() " {{{
 		:  return getline('.')[:col('.')-1]
-		:endfunction
-		" }}}
+		:endfunction " }}}
 
-		:function! LineAfterCursor()
-		" {{{
+		:function! LineAfterCursor() " {{{
 		:  return LineFromCursor()[1:]
-		:endfunction
-		" }}}
+		:endfunction " }}}
 
-		:function! LineBeforeCursor()
-		" {{{
+		:function! LineBeforeCursor() " {{{
 		:  if strlen(getline('.')) == col('.') - 1
 		:    return LineUntilCursor()
 		:  endif
 		:  return LineUntilCursor()[:-2]
-		:endfunction
-		" }}}
+		:endfunction " }}}
 
-		:function! TextFromCursor()
-		" {{{
+		:function! TextFromCursor() " {{{
 		:  return Strip(LineFromCursor())
-		:endfunction
-		" }}}
+		:endfunction " }}}
 
-		:function! TextAfterCursor()
-		" {{{
+		:function! TextAfterCursor() " {{{
 		:  return Strip(LineAfterCursor())
-		:endfunction
-		" }}}
+		:endfunction " }}}
 
-		:function! TextUntilCursor()
-		" {{{
+		:function! TextUntilCursor() " {{{
 		:  return Strip(LineUntilCursor())
-		:endfunction
-		" }}}
+		:endfunction " }}}
 
-		:function! TextBeforeCursor()
-		" {{{
+		:function! TextBeforeCursor() " {{{
 		:  return Strip(LineBeforeCursor())
-		:endfunction
-		" }}}
+		:endfunction " }}}
 
-		:function! MotionHelp(type, func)
-		" {{{
+		:function! MotionHelp(type, func) " {{{
 		:  let l:window = winsaveview()
 		:  if a:type == "v" || a:type == "V" || a:type == "\<C-V>"
 		:    let [l:startl, l:startc] = getpos("'<")[1:2]
@@ -740,40 +593,31 @@
 		:    call map(range(l:startl, l:endl), { i, l -> MotionHelpInt(l, l:startc, l:endc, a:func) })
 		:  endif
 		:  call winrestview(l:window)
-		:endfunction
-		" }}}
+		:endfunction " }}}
 
-		:function! MotionHelpInt(line, startcol, endcol, func)
-		" {{{
+		:function! MotionHelpInt(line, startcol, endcol, func) " {{{
 		:  let l:line = getline(a:line)
 		:  let l:start = a:startcol <= 1 ? "" : (l:line[:(a:startcol-2)])
 		:  let l:end = a:endcol == 0 ? "" : (l:line[(a:endcol):])
 		:  let l:value = l:line[(a:startcol-1):(a:endcol-1)]
 		:  call setline(a:line, a:func(l:start, l:value, l:end))
-		:endfunction
-		" }}}
+		:endfunction " }}}
 
-		:function! MotionWrap(type, begin, ending)
-		" {{{
+		:function! MotionWrap(type, begin, ending) " {{{
 		:  call MotionHelp(a:type, { a, b, c -> a . a:begin . b . a:ending . c })
-		:endfunction
-		" }}}
+		:endfunction " }}}
 
-		:function! Input(arg)
-		" {{{
+		:function! Input(arg) " {{{
 		:  call inputsave()
 		:  let l:input = input(a:arg)
 		:  call inputrestore()
 		:  return l:input
-		:endfunction
-		" }}}
+		:endfunction " }}}
 	" }}}
 	
-	" HTML
-	" {{{
+	" HTML {{{
 		:let s:unclosed = [ "area", "base", "br", "col", "command", "embed", "hr", "img", "input", "keygen", "link", "meta", "param", "source", "track", "wbr", "canvas" ]
-		:function! GetEndTagHTML()
-		" {{{
+		:function! GetEndTagHTML() " {{{
 		:  let l:line = TextUntilCursor()
 		:  if l:line !~ '<\w\+[^>]*>$'
 		:    return ""
@@ -783,43 +627,27 @@
 		:    return ""
 		:  endif
 		:  return "</".l:tag.">"
-		:endfunction
-		" }}}
+		:endfunction " }}}
 
-		:function! EndTagHTML()
-		" {{{
+		:function! EndTagHTML() " {{{
 		:  if LineAfterCursor() == ""
 		:    call setline(".", getline('.') . GetEndTagHTML())
 		:  endif
-		:endfunction
-		" }}}
+		:endfunction " }}}
 
-		:function! HTMLCarriageReturn()
-		" {{{
+		:function! HTMLCarriageReturn() " {{{
 		:  let l:leftside = TextBeforeCursor()
 		:  let l:rightside = TextFromCursor()
 		:  if l:leftside =~ '<.*>\s*$' && l:rightside =~ '^\s*</.*>'
 		:    return "\<CR>\<esc>O"
 		:  endif
 		:  return "\<CR>"
-		:endfunction
-		" }}}
+		:endfunction " }}}
 
-		:function! HTMLPreview()
-		" {{{
-		:  let l:refresh = '<meta http-equiv="refresh" content="1">'
-		:  execute ':g/'.l:refresh.'/d'
-		:  execute ':g/<head>/normal! o'.l:refresh
-		:  write
-		:  silent !xdg-open % >/dev/null 2>/dev/null &
-		:endfunction
-		" }}}
 	" }}}
 
-	" Markdown
-	" {{{
-		:function! MDNewline(in)
-		"  {{{
+	" Markdown {{{
+		:function! MDNewline(in) "  {{{
 		:  let l:allowable_starts = [ '>', '\*', '-', '+', ]
 		:  let l:line = getline('.')
 		:  let l:left = LineBeforeCursor()
@@ -843,11 +671,9 @@
 		:    return "\<down>\<right>"
 		:  endif
 		:  return a:in
-		:endfunction
-		" }}}
+		:endfunction " }}}
 
-		:function! MDUnindent()
-		"  {{{
+		:function! MDUnindent() "  {{{
 		:  let l:indent = indent('.')
 		:  let l:other = line('.') - 1
 		:  while indent(l:other) >= l:indent && l:other > 1
@@ -857,17 +683,15 @@
 		:  call cursor('.', col('.')-l:diff)
 		:  call setline('.', getline('.')[l:diff:])
 		:  return ""
-		:endfunction
-		" }}}
+		:endfunction " }}}
 
-		:function! MDTab(default)
-		"  {{{
+		:function! MDTab(default) "  {{{
 		:  let l:allowable_starts = [ '>', '\*', '-', '+', '|' , '\d\+.', '\d\+)' ]
 		:  let l:linenum = line('.') - 1
 		:  if l:linenum == 1
 		:    return a:default
 		:  endif
-		:  let lineabove = Text(l:linenum)
+		:  let lineabove = Strip(getline(l:linenum))
 		:  let line = TextBeforeCursor()
 		:  for starting in allowable_starts
 		:    if line =~ '^\s*' . starting .'\s*$'
@@ -880,29 +704,23 @@
 		:    endif
 		:  endfor
 		:  return a:default
-		:endfunction
-		" }}}
+		:endfunction " }}}
 
-		:function! MDPreview()
-		" {{{
+		:function! MDPreview() " {{{
 		:  autocmd! BufWritePost <buffer> call Compile()
 		:  write
 		:  let l:filename = substitute(expand("%"), "\.md$", ".pdf", "")
 		:  call System('xdg-open '. l:filename. ' >/dev/null 2>/dev/null &')
-		:endfunction
-		" }}}
+		:endfunction " }}}
 
-		:function! MDCapitals()
-		" {{{
+		:function! MDCapitals() " {{{
 		:  let l:window = winsaveview()
 		:  silent %s/^\(\s*- \)\(.\)/\1\U\2/e
 		:  call winrestview(l:window)
 		:  nohlsearch
-		:endfunction
-		" }}}
+		:endfunction " }}}
 
-		:function! CheckMD()
-		" {{{
+		:function! CheckMD() " {{{
 		:  if toupper(expand("%")) =~ "README"
 		:    return
 		:  endif
@@ -910,11 +728,9 @@
 		:  if l:text =~ '\$'
 		:    set ft=rmd
 		:  endif
-		:endfunction
-		" }}}
+		:endfunction " }}}
 
-		:function! MDParagraph()
-		" {{{
+		:function! MDParagraph() " {{{
 		:  if !get(g:, "md_format_para") || getline('.') == ""
 		:    return
 		:  endif
@@ -924,25 +740,20 @@
 		:    return
 		:  endif
 		:  normal! gqip`^
-		:endfunction
-		" }}}
+		:endfunction " }}}
 	" }}}
 
-	" Latex
-	" {{{
-		:function! LatexPreview()
-		" {{{
+	" Latex {{{
+		:function! LatexPreview() " {{{
 		:  autocmd! BufWritePost <buffer> call Compile()
 		:  write
 		:  let l:filename = substitute(expand("%"), "\.tex$", ".pdf", "")
 		:  if filereadable(l:filename)
 		:    call System('xdg-open '. l:filename. ' >/dev/null 2>/dev/null &')
 		:  endif
-		:endfunction
-		" }}}
+		:endfunction " }}}
 
-		:function! LatexCarriageReturn()
-		" {{{
+		:function! LatexCarriageReturn() " {{{
 		:  let l:line = getline('.')
 		:  if l:line =~ '^\s*\\begin{enumerate}$' || l:line =~ '^\s*\\begin{itemize}$'
 		:    let l:line = substitute(getline('.'), "begin", "end", "")
@@ -973,22 +784,18 @@
 		:    return "\<esc>A\<CR>" . '\Note ' . "\<esc>==A"
 		:  endif
 		:  return "\<CR>"
-		:endfunction
-		" }}}
+		:endfunction " }}}
 
-		:function! LatexBackslashBeginning()
-		" {{{
+		:function! LatexBackslashBeginning() " {{{
 		:  let l:window = winsaveview()
 		:  normal! B
 		:  if getline('.')[col('.')-1] != '\'
 		:    normal! i\
 		:  endif
 		:  call winrestview(l:window)
-		:endfunction
-		" }}}
+		:endfunction " }}}
 		
-		:function! LatexIndent()
-		" {{{
+		:function! LatexIndent() " {{{
 		:  let l:lineno = line('.')
 		:  if l:lineno == 1
 		:    return 0
@@ -1016,79 +823,34 @@
 		:  let l:offset += len(split(l:other, join(l:inc_off, '\|'), 1)) - 1
 		:  let l:offset -= len(split(l:other, join(l:dec_off, '\|'), 1)) - 1
 		:  return indent(l:otherno) + l:offset * shiftwidth()
-		:endfunction
-		" }}}
+		:endfunction " }}}
 
-		:function! LatexTextrm(type) range
-		"{{{
+		:function! LatexTextrm(type) range " {{{
 		:  call MotionWrap(a:type, '\textrm{', '}')
-		:endfunction
-		" }}}
+		:endfunction " }}}
 
-		:function! LatexTextit(type) range
-		"{{{
+		:function! LatexTextit(type) range " {{{
 		:  call MotionWrap(a:type, '\textit{', '}')
-		:endfunction
-		" }}}
+		:endfunction " }}}
 
-		:function! LatexTextbf(type) range
-		"{{{
+		:function! LatexTextbf(type) range " {{{
 		:  call MotionWrap(a:type, '\textbf{', '}')
-		:endfunction
-		" }}}
+		:endfunction " }}}
 
-		:function! LatexTextCorrection(type) range
-		"{{{
+		:function! LatexTextCorrection(type) range " {{{
 		:  call MotionWrap(a:type, '\Correction{', '}')
-		:endfunction
-		" }}}
-
+		:endfunction " }}}
 	" }}}
 
-	" C Style Function
-	" {{{
-		:function! Csign()
-		" {{{
-		:  if &l:formatoptions =~ "cro"
-		:    let rtn = "/**\rChris Dean\r".strftime("%m/%d/%y")."\r".split(expand('%:p'), '/')[-2]."\r".@%." \r\r\<bs>*/"
-		:  else
-		:    let rtn = "/**\r\<bs>* Chris Dean\r* ".strftime("%m/%d/%y")."\r* ".split(expand('%:p'), '/')[-2]."\r* ".@%." \r* \r*/"
-		:  endif
-		:  return rtn
-		:endfunction
-		" }}}
-
-		:function! CFold()
-		" {{{
-		:  ownsyntax c
-		:  setlocal foldtext=CFoldText()
-		:  setlocal fillchars=fold:\ "
-		:  highlight Folded guifg=DarkGreen ctermfg=DarkGreen
-		:endfunction
-		" }}}
-
-		:function! Cbraces()
-		" {{{
-		:  if len(split(LineUntilCursor(), '"')) % 2 == 0
+	" C Style Function {{{
+		:function! Cbraces() " {{{
+		:  if len(split(LineUntilCursor(), '"', 1)) % 2 == 0
 		:    return "{}"
 		:  endif
 		:  return "{\<CR>}\<esc>O"
-		:endfunction
-		" }}}
+		:endfunction " }}}
 
-		:function! CFoldText()
-		" {{{
-		:  let l:tablen = &l:shiftwidth
-		:  let l:lines = v:foldend - v:foldstart - 1
-		:  let l:line = getline(v:foldstart)
-		:  let l:endline = getline(v:foldend)
-		:  let l:line = substitute(getline(v:foldstart), '^\s*\(.\{-}\){\s*$', '\1', '')
-		:  return (repeat(" ", indent(v:foldstart)).l:line.'{ '.l:lines. ' line'.(l:lines!=1?"s":"").' }')[winsaveview()['leftcol']:]
-		:endfunction
-		" }}}
-
-		:function! HighlightAfterColumn(col)
-		" {{{
+		:function! HighlightAfterColumn(col) " {{{
 		:  let s:exclude_patterns = [ '[^=]*<<[^=]*', '\/\/', '\/\*', '\*\/', '^\s*#', 'print', 'cout', 'cerr' ]
 		:  for m in get(b:, "matches", [])
 		:    silent! call matchdelete(m)
@@ -1097,12 +859,10 @@
 		:  if get(g:, "hllonglines", 1) && getline('.') !~ join(s:exclude_patterns, '\|')
 		:    call add(b:matches, matchadd('LongLine', '\%'.line('.').'l\%>'.(a:col).'v.'))
 		:  endif
-		:endfunction
-		" }}}
+		:endfunction " }}}
 
-		:function! AppendSemicolon()
-		" {{{
-		:  let l:text = Text('.')
+		:function! AppendSemicolon() " {{{
+		:  let l:text = Strip(getline('.'))
 		:  if l:text =~ ';$'
 		:    if l:text =~ '^if' || l:text =~ '^for' || l:text =~ '^while'
 		:      call setline('.', getline('.')[:-2])
@@ -1110,11 +870,9 @@
 		:  else
 		:    call setline('.', getline('.') . ';')
 		:  endif
-		:endfunction
-		" }}}
+		:endfunction " }}}
 
-		:function! CMainAbbrev()
-		" {{{
+		:function! CMainAbbrev() " {{{
 		:  if getline('.') =~ '^$'
 		:    call getchar()
 		:    if get(g:, 'inline_braces')
@@ -1125,11 +883,9 @@
 		:  else
 		:    return 'main'
 		:  endif
-		:endfunction
-		" }}}
+		:endfunction " }}}
 
-		:function! SplitIf()
-		" {{{
+		:function! SplitIf() " {{{
 		:  let l:window = winsaveview()
 		:  let l:match0   = SplitIf_Match(0)
 		:  let l:match01  = SplitIf_Match(0, 1)
@@ -1151,11 +907,9 @@
 		:    call SplitIf_Internal()
 		:  endif
 		:  call winrestview(l:window)
-		:endfunction
-		" }}}
+		:endfunction " }}}
 
-		:function! SplitIf_Internal()
-		" {{{
+		:function! SplitIf_Internal() " {{{
 		:  if get(g:, "inline_braces")
 		:    execute "normal! i{\<CR>\<esc>o}"
 		:    call winrestview(l:window)
@@ -1164,11 +918,9 @@
 		:    execute "normal! i\<CR>{\<CR>\<esc>o}"
 		:    normal! 2j^
 		:  endif
-		:endfunction
-		" }}}
+		:endfunction " }}}
 
-		:function! SplitIf_Match(...)
-		" {{{
+		:function! SplitIf_Match(...) " {{{
 		:  let l:regex = '^\s*\(if\|for\|while\)\s*(.*)\+[^)].*;\s*$'
 		:  let l:elseregex = '^\s*else\s.\+;'
 		:  let l:line = ""
@@ -1184,23 +936,19 @@
 		:    return 2
 		:  endif
 		:  return l:line =~ l:elseregex
-		:endfunction
-		" }}}
+		:endfunction " }}}
 
-		:function! CFormat()
-		" {{{
+		:function! CFormat() " {{{
 		:  let l:window = winsaveview()
 		:  %s/\s*,\s*/, /g
 		:  call Indent()
 		:  call winrestview(l:window)
-		:endfunction
-		" }}}
+		:endfunction " }}}
 	" }}}
 
-	" Python
-	" {{{
-		:function! PythonMainAbbrev()
-		" {{{
+	" Python {{{
+
+		:function! PythonMainAbbrev() " {{{
 		:  if getline('.') =~ '^$'
 		:      let l:rtn  = "import sys\n\n\ndef usage():\nprint(\"Usage: " . expand("%") . "\", file=sys.stderr)\n"
 		:      let l:rtn .= "sys.exit(1)\n\n\n\b"
@@ -1208,28 +956,12 @@
 		:  else
 		:    return 'main'
 		:  endif
-		:endfunction
-		" }}}
-
-		:function! PythonBlankLineFix()
-		" {{{
-		:  let l:window = winsaveview()
-		:  if !get(g:, "python_blank_line_fix")
-		:    return
-		:  endif
-		:  %s/\(\n\n\n\)\n\+/\1/e
-		:  while getline('$') == ''
-		:    $d
-		:  endwhile
-		:  call winrestview(l:window)
-		:endfunction
-		" }}}
+		:endfunction " }}}
 	" }}}
 
-	" Universally used function
-	" {{{
-		:function! CleverTab()
-		" {{{
+	" Universally used function {{{
+
+		:function! CleverTab() " {{{
 		:  if pumvisible()
 		:    return "\<C-P>"
 		:  endif
@@ -1249,17 +981,13 @@
 		:    return "\<C-P>"
 		:  endif
 		:  return "\<C-P>"
-		:endfunction
-		" }}}
+		:endfunction " }}}
 
-		:function! CommandLineStart(type, arg, default)
-		" {{{
-		:  return (getcmdtype() == a:type && getcmdline() == "") ? a:arg : a:default
-		:endfunction
-		" }}}
+		:function! CommandLineStart(default, arg) " {{{
+		:  return (getcmdtype() == ":" && getcmdline() == "") ? a:arg : a:default
+		:endfunction " }}}
 
-		:function! Comment(...) range
-		" {{{
+		:function! Comment(...) range " {{{
 		:  let l:window = winsaveview()
 		:  if get(a:, 1, "") ==# 'visual'
 		:    '<,'>call Comment()
@@ -1282,11 +1010,9 @@
 		:  endif
 		:  call winrestview(l:window)
 		:  nohlsearch
-		:endfunction
-		" }}}
+		:endfunction " }}}
 
-		:function! Comment_New(...) range
-		" {{{
+		:function! Comment_New(...) range " {{{
 		:  let l:window = winsaveview()
 		:  if get(a:, 1, "") ==# 'visual'
 		:    '<,'>call Comment()
@@ -1309,17 +1035,13 @@
 		:  endif
 		:  call winrestview(l:window)
 		:  nohlsearch
-		:endfunction
-		" }}}
+		:endfunction " }}}
 
-		:function! Compile()
-		" {{{
+		:function! Compile() " {{{
 		:  call system("compile ".expand("%"))
-		:endfunction
-		" }}}
+		:endfunction " }}}
 
-		:function! CorrectFile()
-		" {{{
+		:function! CorrectFile() " {{{
 		:  let l:file = expand("%")
 		:  if &ft == "" && stridx(l:file, ".") == -1 && executable(l:file)
 		:    let l:glob = glob(l:file . ".*", 0, 1)
@@ -1327,77 +1049,62 @@
 		:     execute "e! ". l:glob[0]
 		:    endif
 		:  endif
-		:endfunction
-		" }}}
-		
-		:function! Find(name)
-		"{{{
-		:  let l:fn = split(System('find . -name "' . a:name . '*"'))
-		:  for f in l:fn
-		:    if !isdirectory(f)
-		:      execute ":e " . f
-		:      return
-		:    endif
-		:  endfor
-		:endfunction
-		" }}}
-		
-		:function! GetChar()
-		" {{{
-		:  while getchar(1) == 0
-		:  endwhile
-		:  return nr2char(getchar())
-		:endfunction
-		" }}}
+		:endfunction " }}}
 
-		:function! HJKL()
-		" {{{
+		:function! FileAge(filename) " {{{
+		:  return system("date +%s") - system("date +%s -r '".a:filename."'")
+		:endfunction " }}}
+		
+		:function! Find(name, ...) " {{{
+		:  if get(a:, 1)
+		:    let l:path = a:name
+		:    let l:name = a:1
+		:  else
+		:    let l:name = a:name
+		:    let l:path = "."
+		:  endif
+		:  let l:fn = split(System('find '.l:path.' -type f -name "'.l:name.'*"'))
+		:  if len(l:fn) == 0
+		:    return
+		:  endif
+		:  execute ":e " . l:fn[0]
+		:endfunction " }}}
+		
+		:function! HJKL() " {{{
 		:  noremap <Up> <NOP>
 		:  noremap <Down> <NOP>
 		:  noremap <Left> <NOP>
 		:  noremap <Right> <NOP>
 		:  inoremap <ESC> <NOP>
-		:endfunction
-		" }}}
+		:endfunction " }}}
 
-		:function! IfScript()
-		" {{{
+		:function! IfScript() " {{{
 		:  if getline(1) =~ '^#!/' && exists("*setfperm")
 		:    let perm = getfperm(expand("%"))
 		:    let perm = perm[:1] . "x" . perm[3:]
 		:    call setfperm(expand("%"), perm)
 		:  endif
-		:endfunction
-		" }}}
+		:endfunction " }}}
 
-		:function! Indent()
-		" {{{
+		:function! Indent() " {{{
 		:  let l:window = winsaveview()
 		:  normal! gg=G
 		:  call winrestview(l:window)
-		:endfunction
-		" }}}
+		:endfunction " }}}
 
-		:function! MathEval(type) range
-		"{{{
+		:function! MathEval(type) range "{{{
 		:  call MotionHelp(a:type, {a, b, c -> a . string(eval(b)) . c})
-		:endfunction
-		" }}}
+		:endfunction " }}}
 
-		:function! MoveLineUp()
-		" {{{
+		:function! MoveLineUp() " {{{
 		:  silent move .-2
-		:endfunction
-		" }}}
+		:endfunction " }}}
 
-		:function! MoveLineDown()
-		" {{{
+		:function! MoveLineDown() " {{{
 		:  silent move .+1
-		:endfunction
-		" }}}
+		:endfunction " }}}
 		
-		:function! MyFold()
-		" {{{
+		:function! MyFold() " {{{
 		:  let l:tablen = &tabstop
 		:  let line = getline(v:foldstart)
 		:  let lines_count = v:foldend - v:foldstart + 1
@@ -1405,27 +1112,16 @@
 		:  let foldline = substitute(getline(v:foldstart), '^\s*"\?\s*\|\s*"\?\s*{{' . '{\d*\s*', '', 'g')
 		:  let foldline = (strlen(foldline) > 0 ? ': ' : "") . foldline 
 		:  return (repeat(" ", indent(v:foldstart)). '+--- ' . lines_count . ' lines' . foldline . ' ---+')[winsaveview()["leftcol"]:]
-		:endfunction
-		" }}}
+		:endfunction " }}}
 
-		:function! NewFile()
-		" {{{
+		:function! NewFile() " {{{
 		:  let l:fn = &filetype
 		:  if filereadable($HOME . "/.vim/templates/" . l:fn)
 		:    execute "%!cat " . $HOME . "/.vim/templates/" . l:fn
 		:  endif
-		:endfunction
-		" }}}
+		:endfunction " }}}
 
-		:function! Random(min, max)
-		" {{{
-		:  let l:rand = system("echo $RANDOM")
-		:  return a:min + l:rand % (a:max - a:min)
-		:endfunction
-		" }}}
-
-		:function! RemoveTrailingWhitespace()
-		" {{{
+		:function! RemoveTrailingWhitespace() " {{{
 		:  let l:window = winsaveview()
 		:  let l:line = getline('.')
 		:  %s/\s\+$//ge
@@ -1433,18 +1129,14 @@
 		:  call setline('.', l:line)
 		:  call winrestview(l:window)
 		:  nohlsearch
-		:endfunction
-		" }}}
+		:endfunction " }}}
 
-		:function! RepeatFunc()
-		" {{{
+		:function! RepeatFunc() " {{{
 		:  let s:repeat = get(s:, 'repeatstack', "")
 		:  let s:repeatstack = ""
-		:endfunction
-		" }}}
+		:endfunction " }}}
 
-		:function! RestoreSess()
-		"{{{
+		:function! RestoreSess() "{{{
 		:  if system("stat -c '%U' .") != $USER
 		:    return
 		:  elseif expand("%") != ""
@@ -1454,11 +1146,9 @@
 		:  elseif get(g:, "manage_session" ) && filereadable($HOME . '/session/.session.vim') && argc() == 0
 		:    execute 'so ' . $HOME . '/session/.session.vim'
 		:  endif
-		:endfunction
-		" }}}
+		:endfunction " }}}
 		
-		:function! SaveSess()
-		"{{{
+		:function! SaveSess() "{{{
 		:  if system("stat -c '%U' .") != $USER || getcwd() == $HOME
 		:    return
 		:  endif
@@ -1468,56 +1158,41 @@
 		:    call mkdir($HOME.'/.vim/session')
 		:    execute 'mksession! ' . $HOME . '/session/.session.vim'
 		:  endif
-		:endfunction
-		" }}}
+		:endfunction " }}}
 
-		:function! SingleInsert(how)
-		" {{{
-		:  return a:how . GetChar() . "\<esc>`^"
-		:endfunction
-		" }}}
+		:function! SingleInsert(how) " {{{
+		:  return a:how . nr2char(getchar()) . "\<esc>`^"
+		:endfunction " }}}
 		
-		:function! SpellReplace()
-		" {{{
+		:function! SpellReplace() " {{{
 		:  let l:window = winsaveview()
 		:  normal! [s1z=
 		:  call winrestview(l:window)
-		:endfunction
-		" }}}
+		:endfunction " }}}
 
-		:function! SwapArgs(type) range
-		" {{{
+		:function! SwapArgs(type) range " {{{
 		:  call MotionHelp(a:type, function("SwapArgsInt"))
-		:endfunction
-		" }}}
+		:endfunction " }}}
 
-		:function! SwapArgsInt(start, value, end)
-		"{{{
+		:function! SwapArgsInt(start, value, end) "{{{
 		:  if a:value =~ ","
 		:    let l:v = join(reverse(map(split(a:value, ","), {i, v -> Strip(v)})), ", ")
 		:  else
 		:    let l:v = join(reverse(map(split(a:value), {i, v -> Strip(v)})))
 		:  endif
 		:  return a:start . l:v . a:end
-		:endfunction
-		" }}}
+		:endfunction " }}}
 
-		:function! SwapExists()
-		" {{{
+		:function! SwapExists() " {{{
 		"  open swapfiles readonly by default
 		:  if getftime(expand("%")) > getftime(v:swapname)
 		"    delete swap file if it is older than our file
 		:    let v:swapchoice = "d"
 		:    echohl WarningMsg | echom "Deleting Swapfile" | echohl None
-		:  else
-		" :    let v:swapchoice = "o"
-		" :    echohl WarningMsg | echom "Detected Swapfile. Opening Read only" | echohl None
 		:  endif
-		:endfunction
-		" }}}
+		:endfunction " }}}
 
-		:function! System(arg)
-		" {{{
+		:function! System(arg) " {{{
 		:  if has('win32')
 		:    throw "Calls to system() not supported on windows"
 		:  endif
@@ -1526,11 +1201,9 @@
 		:    throw "Error: system(". a:arg . ") returned ".v:shell_error
 		:  endif
 		:  return l:return
-		:endfunction
-		" }}}
+		:endfunction " }}}
 
-		:function! Wrap(type) range
-		" {{{
+		:function! Wrap(type) range " {{{
 		:  let l:window = winsaveview()
 		:  let l:sel_save = &selection
 		:  let &selection = "inclusive"
@@ -1538,11 +1211,9 @@
 		:  let [s:repeatstack, s:repeat] = ["wrap", ""]
 		:  let [l:begin, l:ending] = WrapHelp(s:wrapinput)
 		:  call MotionWrap(a:type, l:begin, l:ending)
-		:endfunction
-		" }}}
+		:endfunction " }}}
 
-		:function! WrapHelp(arg)
-		" {{{
+		:function! WrapHelp(arg) " {{{
 		:  execute "let l:last  = {".substitute(&matchpairs, '\(.\):\(.\)', '"\1":"\2"', "g")."}"
 		:  execute "let l:first = {".substitute(&matchpairs, '\(.\):\(.\)', '"\2":"\1"', "g")."}"
 		:  let l:begin = get(l:first, a:arg, a:arg)
@@ -1558,16 +1229,14 @@
 		:    let l:end = join(reverse(split(l:input, '.\zs')), '')
 		:  endif
 		:  return [l:begin, l:end]
-		:endfunction
-		" }}}
+		:endfunction " }}}
 	" }}}
 
 " }}}
 
 " AUTO UPDATE SCRIPT {{{
 "_______________________________________________________________________________________________________
-	:function! Update_Vimrc(...)
-	" {{{
+	:function! Update_Vimrc(...) " {{{
 	:  let l:url = 'https://raw.githubusercontent.com/chrisdean258/Dotfiles/master/.vimrc'
 	:  try
 	:    let l:output = system("diff <(date +%j) ~/.vim/update")
@@ -1587,17 +1256,9 @@
 	:  catch
 	:    echom v:exception. ". Contact Chris if you think this was not caused by lack of internet"
 	:  endtry
-	:endfunction
-	" }}}
+	:endfunction " }}}
 
-	:function! FileAge(filename)
-	" {{{
-	:  return system("date +%s") - system("date +%s -r '".a:filename."'")
-	:endfunction
-	" }}}
-
-	:function! Update_Vimrc2(...)
-	" {{{
+	:function! Update_Vimrc2(...) " {{{
 	:  let l:url = 'https://raw.githubusercontent.com/chrisdean258/Dotfiles/master/.vimrc'
 	:  try
 	:    let l:age = FileAge("~/.vimrc")
@@ -1612,16 +1273,15 @@
 	:  catch
 	:    echom v:exception. ". Contact Chris if you think this was not caused by lack of internet"
 	:  endtry
-	:endfunction
-	" }}}
+	:endfunction " }}}
 
-	:command! Update call Update_Vimrc(1)
+	:command! Update call Update_Vimrc2(1)
 " }}}
 
 " FEATURE ADDITION {{{
 "_______________________________________________________________________________________________________
 
-	:if filereadable(expand("~") . "/.vimrc.local")
+	:if filereadable($HOME . "/.vimrc.local")
 	:  source ~/.vimrc.local
 	:endif
 
@@ -1641,16 +1301,6 @@
 	:  endif
 	:endif
 	
-	:if get(g:, "format_text", 0)
-	:  autocmd FileType text :setlocal textwidth=80
-	:endif
-
-	:if get(g:, "light_folds", 1)
-	:  highlight Folded ctermfg=DarkGrey guifg=DarkGrey
-	:  highlight tabline ctermfg=DarkGrey guifg=DarkGrey
-	:  highlight tablinesel ctermfg=Grey guifg=Grey
-	:endif
-	
 	:if get(g:, "use_syntastic", 1) && !has('win32')
 	:  call SourceOrInstallSyntastic()
 	:endif
@@ -1661,9 +1311,5 @@
 	:    autocmd VimEnter * :call Update_Vimrc()
 	:  augroup END
 	:  endif
-	:endif
-
-	:if get(g:, "old_c_comments")
-	:  autocmd FileType c      :setlocal commentstring=/*\ %s\ */
 	:endif
 " }}}
