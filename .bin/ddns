@@ -1,0 +1,24 @@
+#!/usr/bin/env python3
+
+import subprocess
+import requests
+
+URL = "https://domains.google.com"
+HOSTNAME = "home.christopherdean.org"
+USERNAME = "NXp1UC1RFZbA6jWW"
+PASSWORD = "670sIJwRShIB8Ys7"
+
+
+def get_ip():
+    cmd = "dig +short myip.opendns.com @resolver1.opendns.com"
+    return subprocess.check_output(cmd, shell=True).decode("utf-8").strip()
+
+
+def update_record(ip, url, hostname, username, password):
+    url = f"{url}/nic/update?system=dyndns&hostname={hostname}&myip={ip}"
+    return requests.get(url, auth=(username, password))
+
+
+ip = get_ip()
+r = update_record(ip, URL, HOSTNAME, USERNAME, PASSWORD)
+print(r.text)

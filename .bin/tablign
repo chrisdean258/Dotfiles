@@ -1,0 +1,44 @@
+#!/usr/bin/env python3
+import sys
+
+
+def common_indent(lines):
+    if len(lines) == 0:
+        return ""
+    common_indent = lines[0]
+
+    for line in lines[1:]:
+        while not line.startswith(common_indent):
+            common_indent = common_indent[:-1]
+
+    return common_indent
+
+
+def tablign(string):
+    lines = string.splitlines()
+    indent = common_indent(lines)
+    lines = [line[len(indent):].split() for line in lines]
+    sizes = [0] * max(len(line) for line in lines)
+
+    for line in lines:
+        for i, field in enumerate(line):
+            sizes[i] = max(sizes[i], len(field))
+
+    lines = [indent + " ".join(s.ljust(l) for s, l in zip(line, sizes)) for line in lines]
+
+    return "\n".join(lines)
+
+
+def usage():
+    print("Usage: tablign", file=sys.stderr)
+    sys.exit(1)
+
+
+def main():
+    s = sys.stdin.read()
+    print(tablign(s))
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
