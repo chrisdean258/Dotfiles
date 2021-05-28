@@ -83,28 +83,28 @@ for k, cmds in applications.items():
             keys.append(Key(m, k, lazy.spawn(cmd)))
 
 
-for i in groups:
+for group in groups:
     keys.extend(
         [
             # mod1 + letter of group = switch to group
             Key(
                 [mod],
-                i.name,
-                lazy.group[i.name].toscreen(),
-                desc="Switch to group {}".format(i.name),
+                group.name,
+                lazy.group[group.name].toscreen(),
+                desc="Switch to group {}".format(group.name),
             ),
             Key(
                 [mod, "shift"],
-                i.name,
-                lazy.window.togroup(i.name, switch_group=True),
+                group.name,
+                lazy.window.togroup(group.name, switch_group=True),
                 desc="Switch to & move focused window to group {}".format(
-                    i.name),
+                    group.name),
             ),
             Key(
                 [mod, "control"],
-                i.name,
-                lazy.window.togroup(i.name),
-                desc="Move focused window to group {}".format(i.name),
+                group.name,
+                lazy.window.togroup(group.name),
+                desc="Move focused window to group {}".format(group.name),
             ),
         ]
     )
