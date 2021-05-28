@@ -1,24 +1,43 @@
 #!/usr/bin/env python3
 
-import subprocess
+from subprocess import check_output as run
 import requests
+import sys
+import time
 
 URL = "https://domains.google.com"
 HOSTNAME = "home.christopherdean.org"
 USERNAME = "NXp1UC1RFZbA6jWW"
 PASSWORD = "670sIJwRShIB8Ys7"
 
+def check_instances():
+    return bool(run(r'ps aux | grep "python3.*\<[d]dns\>"', shell=True))
+
 
 def get_ip():
     cmd = "dig +short myip.opendns.com @resolver1.opendns.com"
-    return subprocess.check_output(cmd, shell=True).decode("utf-8").strip()
+    ip = run(cmd, shell=True).decode("utf-8").strip()
+    if not ip:
+        raise Exception("could not determine external ip")
+    return ip
 
 
 def update_record(ip, url, hostname, username, password):
     url = f"{url}/nic/update?system=dyndns&hostname={hostname}&myip={ip}"
     return requests.get(url, auth=(username, password))
 
+if "-c" in sys.argv and check_instances():
+    exit(1)
 
 ip = get_ip()
 r = update_record(ip, URL, HOSTNAME, USERNAME, PASSWORD)
-print(r.text)
+if "-q" not in sys.argv:
+    print(r.text)
+
+if "-d" in sys.argv:
+    while 1:
+        time.sleep(5 * 60)
+        new_ip = get_ip()
+        if new_ip and new_ip != ip:
+            ip = new_ip
+            update_record(ip, URL, HOSTNAME, USERNAME, PASSWORD)
