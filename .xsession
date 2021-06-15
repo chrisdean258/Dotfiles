@@ -39,10 +39,10 @@ root()
 	exec bash ~/.xsession --
 }
 
-if [ "$1" = "dwm" ]; then
+if [ "$1" = "qtile" ]; then
+	_run qtile
+else
 	root &
 	_run dwm
-elif [ "$1" = "qtile" ]; then
-	_run qtile
 fi
 

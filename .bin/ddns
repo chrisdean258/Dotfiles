@@ -27,7 +27,7 @@ def update_record(ip, url, hostname, username, password):
     return requests.get(url, auth=(username, password))
 
 if "-c" in sys.argv and check_instances():
-    exit(1)
+    exit(0)
 
 ip = get_ip()
 r = update_record(ip, URL, HOSTNAME, USERNAME, PASSWORD)
