@@ -30,7 +30,8 @@ export EDITOR=vim
 export VISUAL=vim
 export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
 export HISTIGNORE="ls:cd"
-export TERM=st-256color
+
+export TERM=xterm-256color
 [ -f "$HOME/.config/pyrc" ] && export PYTHONSTARTUP="$HOME/.config/pyrc"
 
 export XDG_CONFIG_HOME="$HOME/.config"
@@ -67,7 +68,7 @@ PROMPT_SAVE=`echo "$PS1" | sed 's/..$//g'`
 prompt_command()
 {
 	rv_save=$?
-	rv="$(([ $rv_save -ne 0 ] || history -p !! | head -n 1 | grep -qE "^\[|^test") && echo -n "$P_RED[$rv_save]$P_CLEAR ")"
+	rv="$( ([ $rv_save -ne 0 ] || history -p !! | head -n 1 | grep -qE "^\[|^test") && echo -n "$P_RED[$rv_save]$P_CLEAR ")"
 	bat="$(low-battery 2>/dev/null && echo -en "$P_RED[Low Battery] $P_CLEAR")"
 	gb="$(git rev-parse --abbrev-ref HEAD 2>/dev/null)"
 	gd="$(timeout 0.5s git status 2>/dev/null | grep -q "clean" || echo "*")"
