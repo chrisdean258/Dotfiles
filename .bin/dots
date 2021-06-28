@@ -1,44 +1,6 @@
 #!/bin/bash
 
-exec git --git-dir=$HOME/git/Dotfiles/ --work-tree=$HOME "$@"
-
-set -e
-
-spawn()
-{
-	tput bold
-	echo "$@"
-	tput sgr0
-	"$@"
-}
-
-base=$(find -L ~ -name Dotfiles -type d 2>/dev/null | head -n 1)
-if [ -z "$base" ]; then
-	echo "please clone the dotfiles repo into a directory called Dotfiles" >&2
-	exit 1
-fi
-
-: ${1?"Usage: dots save|deploy (--force)"}
-
-cd "$base"
-if [ "$1" = "save" ]; then
-	shift
-	comment="${*:+$* -- }$(git diff --name-only | tr '\n' ' ')"
-	git fetch | grep "^" && spawn git stash && spawn git pull && spawn git stash pop
-	spawn git add .
-	spawn git commit -m "$comment"
-	spawn git push
-elif [ "$1" = "deploy" ]; then
-	if git status 2>/dev/null | grep -q clean; then
-		git pull >/dev/null
-	elif [ "$2" = "--force" ]; then
-		git reset --hard >/dev/null
-		git pull >/dev/null
-	else
-		echo "You have unsaved changes in your dotfiles"
-	fi
-	./deploy
-else
-	git "$@"
-fi
-
+[ -d "$HOME/git/Dotfiles/" ] && exec git --git-dir="$HOME/git/Dotfiles/" --work-tree="$HOME" "$@"
+[ -d "$HOME/git/dotfiles/" ] && exec git --git-dir="$HOME/git/dotfiles/" --work-tree="$HOME" "$@"
+[ -d "$HOME/git/Dotfiles.git/" ] && exec git --git-dir="$HOME/git/Dotfiles.git/" --work-tree="$HOME" "$@"
+[ -d "$HOME/git/dotfiles.git/" ] && exec git --git-dir="$HOME/git/dotfiles.git/" --work-tree="$HOME" "$@"
