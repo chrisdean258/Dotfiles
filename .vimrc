@@ -655,6 +655,8 @@
 		:  if l:line =~ '^'.join(l:allowable_starts, '\s*$\|^').'\s*$'
 		:    call setline('.', '')
 		:    return ""
+		:  elseif l:left =~ '^'.join(l:allowable_starts, '\s*$\|^').'\s*$'
+		:    return a:in
 		:  elseif l:left =~ '^\s*'.join(l:allowable_starts, '\s*$\|^\s*').'\s*$'
 		:    return MDUnindent()
 		:  elseif l:line =~ '^\s*'.join(l:allowable_starts, '\s\|^\s*').'\s'
