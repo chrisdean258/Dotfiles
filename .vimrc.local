@@ -25,13 +25,14 @@ endfunction
 nnoremap <F10> :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> trans<' . synIDattr(synID(line("."),col("."),0),"name") . "> lo<" . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"<CR>
 hi! link ALEError Error
 
-cabbrev sp <C-R>=CommandLineStart("sp", "vs \| Find ")<CR>
 autocmd FileType c :setlocal commentstring=/*\ %s\ */
 
-au ColorScheme elflord highlight Folded ctermfg=Black guifg=Black
-au ColorScheme elflord highlight Folded ctermfg=Black guifg=Black
-au ColorScheme elflord highlight Folded ctermfg=Black guifg=Black
-au ColorScheme elflord highlight Folded ctermfg=Black guifg=Black
+if $TERM =~ "^st"
+  au ColorScheme elflord highlight Folded ctermfg=Black guifg=Black
+  au ColorScheme elflord highlight Folded ctermfg=Black guifg=Black
+  au ColorScheme elflord highlight Folded ctermfg=Black guifg=Black
+  au ColorScheme elflord highlight Folded ctermfg=Black guifg=Black
+endif
 au ColorScheme elflord highlight tablinesel ctermfg=DarkGrey guifg=DarkGrey
 au ColorScheme elflord highlight tabline ctermfg=black guifg=black
 call HighLightSettings()
