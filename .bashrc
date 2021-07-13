@@ -114,6 +114,7 @@ j()
 	[ $# -ne 0 ] && pattern=".*$(echo "$@" | sed "s/\s\+/.*\/.*/g")[^\/]*$"
 
 	if [ "$1" = "--setup" ]; then
+		mkdir -p "$jmp_dir"
 		time=$(date +%D --date="-2 month" 2>/dev/null)
 		(find "$HOME" -type d -not -path "*/\.*" -newermt "$time" && yes "") | head -n 1000 > "$jmp"
 		return 0
