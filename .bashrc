@@ -106,7 +106,7 @@ alias cd="cdls"
 
 cdls()
 {
-	builtin cd "$@" && ls && echo `realpath .` >> "$jmp" && sed -i 1d "$jmp" 
+	builtin cd "$@" && ls && realpath . >> "$jmp" && sed -i 1d "$jmp" 
 }
 
 j()
