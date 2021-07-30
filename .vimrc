@@ -660,6 +660,10 @@
 		:  elseif l:left =~ '^\s*'.join(l:allowable_starts, '\s*$\|^\s*').'\s*$'
 		:    return MDUnindent()
 		:  elseif l:line =~ '^\s*'.join(l:allowable_starts, '\s\|^\s*').'\s'
+		:    let l:nextline = getline(line('.')+1)
+		:    if indent(line('.') + 1) > indent('.') && l:nextline =~ '^\s*'.join(l:allowable_starts, '\s\|^\s*').'\s'
+		:      let l:start = substitute(l:nextline, '^\(\s*.\{-}\)\s.*', '\1', '')
+		:    endif
 		:    call append('.', l:start . ' ')
 		:    return "\<down>\<right>"
 		:  elseif l:line =~ '^\d\+[\.)]\s*$'
