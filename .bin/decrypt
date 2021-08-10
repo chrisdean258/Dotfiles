@@ -1,0 +1,8 @@
+#!/bin/sh
+
+while [ $# -gt 0 ]; do
+	file="$1"
+	out="`echo "$file" | sed "s/\.gpg$//"`"
+	gpg --decrypt "$file" > "$out"
+	shift
+done
