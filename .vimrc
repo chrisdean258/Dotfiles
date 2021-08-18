@@ -14,6 +14,7 @@
 
 	:set ttyfast
 	:set nocompatible                       " We're not using vi
+	:set fo=njq
 	:set autoindent                         " automatically indent
 	:set smartindent                        " Increase indent in a smart way
 	:set showcmd                            " show partial command before you finish typing it
@@ -316,7 +317,7 @@
 	:augroup Universal
 	:autocmd!
 	:autocmd BufNewFile *  :autocmd BufWritePost * :call IfScript() " Mark files with shebang as executable
-	:autocmd Filetype *    :set fo=njq
+	:autocmd BufEnter *    :set fo=njq
 	:autocmd CursorHold *  :if get(g:, "hltimeout", 1) | set nohlsearch | endif " turn off search highlighting after a few seconds of nonuse
 	:autocmd InsertLeave * :setlocal nopaste            " Turn off paste when leaving insert mode
 	:autocmd BufReadPost * :if line("'\"") > 0 && line ("'\"") <= line("$") | exe "normal! g'\"" | endif " Jump to where you were in a file
@@ -352,7 +353,6 @@
 	:  autocmd FileType c,cpp,javascript,java,perl,cs :inoremap <buffer><expr>{} Cbraces()
 	:  autocmd FileType c,cpp,javascript,java,perl,cs :setlocal cindent
 	:  autocmd FileType c,cpp,javascript,java,perl,cs :autocmd BufRead,BufWrite <buffer> :silent call RemoveTrailingWhitespace()
-	:  autocmd FileType c,cpp,javascript,java,perl,cs :command! Format :call CFormat()
 	:  autocmd FileType c,cpp  :setlocal complete+=t
 	:  autocmd FileType c,cpp  :iabbrev <buffer> #i #include
 	:  autocmd FileType c,cpp  :iabbrev <buffer> #I #include
@@ -469,7 +469,7 @@
 	:autocmd!
 	:autocmd Filetype markdown :autocmd InsertLeave <buffer> :call MDCapitals()
 	:autocmd Filetype markdown :inoremap <buffer><tab> <c-r>=MDTab(CleverTab())<CR>
-	:autocmd Filetype markdown :inoremap <silent><buffer><CR> <c-r>=MDNewline("\r")<CR>
+	:autocmd Filetype markdown :inoremap <silent><buffer><CR> <c-r>=MDNewline()<CR>
 	:autocmd Filetype markdown :nmap <silent><buffer>o A<CR>
 	:autocmd Filetype markdown :inoremap <silent><buffer><localleader>s <esc>:call SpellReplace()<CR>a
 	:autocmd Filetype markdown :nnoremap <silent><buffer><localleader>s :call SpellReplace()<CR>
@@ -631,36 +631,36 @@
 	" }}}
 
 	" Markdown {{{
-		:function! MDNewline(in) "  {{{
+		:function! MDNewline() "  {{{
 		:  let l:allowable_starts = [ '>', '\*', '-', '+', ]
 		:  let l:line = getline('.')
 		:  let l:left = LineBeforeCursor()
-		:  let l:start = substitute(l:line, '^\(\s*.\{-}\)\s.*', '\1', '')
-		:  if l:line =~ '^'.join(l:allowable_starts, '\s*$\|^').'\s*$'
+		" If line has no content remove the starter
+		:  if l:line =~ '^\('.join(l:allowable_starts, '\|').'\)\s*$' || l:line =~ '^\d\+[\.)]\s*$'
 		:    call setline('.', '')
 		:    return ""
-		:  elseif l:left =~ '^'.join(l:allowable_starts, '\s*$\|^').'\s*$'
-		:    return a:in
-		:  elseif l:left =~ '^\s*'.join(l:allowable_starts, '\s*$\|^\s*').'\s*$'
+		" If between the starter and line and cannot unindent insert default
+		:  elseif l:left =~ '^\('.join(l:allowable_starts, '\|').'\)\s*$'
+		:    return "\r"
+		" If between the starter and line and can unindent then unindent
+		:  elseif l:left =~ '^\s*\('.join(l:allowable_starts, '\|').'\)\s*$' || l:left =~ '^\s*\d\+[\.)]\s*$'
 		:    return MDUnindent()
-		:  elseif l:line =~ '^\s*'.join(l:allowable_starts, '\s\|^\s*').'\s'
+		" If line starts with starter then insert starter on next line
+		:  elseif l:line =~ '^\s*\('.join(l:allowable_starts, '\|').'\)\s'
 		:    let l:nextline = getline(line('.')+1)
-		:    if indent(line('.') + 1) > indent('.') && l:nextline =~ '^\s*'.join(l:allowable_starts, '\s\|^\s*').'\s'
-		:      let l:start = substitute(l:nextline, '^\(\s*.\{-}\)\s.*', '\1', '')
+		"    If nextline already has a starter and is more indented use its indentation and starter
+		:    if indent(line('.') + 1) > indent('.') && l:nextline =~ '^\s*\('.join(l:allowable_starts, '\|').'\)\s'
+		:      let l:line = l:nextline
 		:    endif
-		:    call append('.', l:start . ' ')
+		:    call append('.', substitute(l:line, '^\(\s*.\{-}\)\s.*', '\1', '') . ' ')
 		:    return "\<down>\<right>"
-		:  elseif l:line =~ '^\d\+[\.)]\s*$'
-		:    call setline('.', '')
-		:    return ""
-		:  elseif l:left =~ '^\s*\d\+[\.)]\s*$'
-		:    return MDUnindent()
+		"  Increment the number if its a number
 		:  elseif l:line =~ '^\d\+[\.)]'
 		:    let l:char = substitute(l:line, '^\d\+\([\.)] \).*', '\1', '')
 		:    call append('.', l:line + 1 . l:char)
 		:    return "\<down>\<right>"
 		:  endif
-		:  return a:in
+		:  return "\r"
 		:endfunction " }}}
 
 		:function! MDUnindent() "  {{{
@@ -675,11 +675,9 @@
 		:    return a:default
 		:  endif
 		:  let l:allowable_starts = [ '>', '\*', '-', '+', '|' , '\d\+\.', '\d\+)' ]
-		:  let l:linenum = line('.') - 1
-		:  let lineabove = Strip(getline(l:linenum))
-		:  let line = TextBeforeCursor()
-		:  if line =~ '^\s*\(' . join(l:allowable_starts, '\|') . '\)\s*$'
-		:    let l:repeat =  stridx(l:lineabove, " ") + 1
+		:  let l:repeat = stridx(Strip(getline(line('.') - 1)), " ") + 1
+		:  let l:line = TextBeforeCursor()
+		:  if l:line =~ '^\s*\(' . join(l:allowable_starts, '\|') . '\)\s*$'
 		:    call setline('.', repeat(" ", l:repeat) . getline('.'))
 		:    return repeat("\<right>", l:repeat)
 		:  endif
@@ -721,26 +719,6 @@
 		:    let l:line = substitute(getline('.'), "begin", "end", "")
 		:    let l:line = substitute(l:line, '\[.*\]', "", "")
 		:    return "\<esc>A\<CR>" . l:line . "\<esc>==O"
-		:  elseif l:line =~ '^\s*\\FOR'
-		:    return "\<esc>A\<CR>" . '\ENDFOR ' . "\<esc>==O\\STATE "
-		:  elseif l:line =~ '^\s*\\IF'
-		:    return "\<esc>A\<CR>" . '\ENDIF ' . "\<esc>==O\\STATE "
-		:  elseif l:line =~ '^\s*\\STATE'
-		:    return "\<esc>A\<CR>" . '\STATE ' . "\<esc>==A"
-		:  elseif l:line =~ '^\s*\\WHILE'
-		:    return "\<esc>A\<CR>" . '\ENDWHILE ' . "\<esc>==O\\State "
-		:  elseif l:line =~ '^\s*\\While'
-		:    return "\<esc>A\<CR>" . '\EndWhile ' . "\<esc>==O\\State "
-		:  elseif l:line =~ '^\s*\\For'
-		:    return "\<esc>A\<CR>" . '\EndFor ' . "\<esc>==O\\State "
-		:  elseif l:line =~ '^\s*\\Procedure'
-		:    return "\<esc>A\<CR>" . '\EndProcedure ' . "\<esc>==O\\State "
-		:  elseif l:line =~ '^\s*\\If'
-		:    return "\<esc>A\<CR>" . '\EndIf ' . "\<esc>==O\\State "
-		:  elseif l:line =~ '^\s*\\State'
-		:    return "\<esc>A\<CR>" . '\State ' . "\<esc>==A"
-		:  elseif l:line =~ '^\s*\\Note'
-		:    return "\<esc>A\<CR>" . '\Note ' . "\<esc>==A"
 		:  endif
 		:  return "\<CR>"
 		:endfunction " }}}
@@ -796,9 +774,6 @@
 		:  call MotionWrap(a:type, '\textbf{', '}')
 		:endfunction " }}}
 
-		:function! LatexTextCorrection(type) range " {{{
-		:  call MotionWrap(a:type, '\Correction{', '}')
-		:endfunction " }}}
 	" }}}
 
 	" C Style Function {{{
@@ -895,13 +870,6 @@
 		:    return 2
 		:  endif
 		:  return l:line =~ l:elseregex
-		:endfunction " }}}
-
-		:function! CFormat() " {{{
-		:  let l:window = winsaveview()
-		:  %s/\s*,\s*/, /g
-		:  call Indent()
-		:  call winrestview(l:window)
 		:endfunction " }}}
 	" }}}
 
@@ -1153,14 +1121,14 @@
 "_______________________________________________________________________________________________________
 	:function! Update_Vimrc(...) " {{{
 	:  let l:url = 'https://raw.githubusercontent.com/chrisdean258/Dotfiles/master/.vimrc'
+	:  if FileAge("~/.vimrc") < (24 * 60 * 60) && !get(a:, 1)
+	:    return
+	:  endif
+	:  echom "Updating"
 	:  try
-	:    let l:age = FileAge("~/.vimrc")
-	:    if l:age > (24 * 60 * 60) || get(a:, 1)
-	:      echom "Updating"
-	:      call System("wget -O ~/.vimrc.temp " . l:url)
-	:      if System("cat ~/.vimrc.temp") =~ '\S'
-	:        call System("mv ~/.vimrc.temp ~/.vimrc")
-	:      endif
+	:    call System("wget -O ~/.vimrc.temp " . l:url)
+	:    if System("cat ~/.vimrc.temp") =~ '\S'
+	:      call System("mv ~/.vimrc.temp ~/.vimrc")
 	:    endif
 	:    redraw!
 	:  catch
