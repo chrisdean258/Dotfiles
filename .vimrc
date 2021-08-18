@@ -328,11 +328,7 @@
 	:augroup Universal
 	:autocmd!
 	:autocmd BufNewFile *  :autocmd BufWritePost * :call IfScript() " Mark files with shebang as executable
-	:autocmd BufRead *     :setlocal formatoptions-=cro " turn off autocommenting
-	:autocmd BufNewFile *  :setlocal formatoptions-=cro " turn off autocommenting
-	:autocmd BufRead *     :call CorrectFile()
-	:autocmd BufNewFile *  :call CorrectFile()
-	:autocmd VimEnter *    :setlocal formatoptions-=cro " turn off autocommenting
+	:autocmd Filetype *    :set fo=njq
 	:autocmd CursorHold *  :if get(g:, "hltimeout", 1) | set nohlsearch | endif " turn off search highlighting after a few seconds of nonuse
 	:autocmd InsertLeave * :setlocal nopaste            " Turn off paste when leaving insert mode
 	:autocmd BufReadPost * :if line("'\"") > 0 && line ("'\"") <= line("$") | exe "normal! g'\"" | endif " Jump to where you were in a file
@@ -958,7 +954,7 @@
 		:  if getline('.') =~ '^$'
 		:      let l:rtn  = "import sys\n\n\ndef usage():\nprint(\"Usage: " . expand("%") . "\", file=sys.stderr)\n"
 		:      let l:rtn .= "sys.exit(1)\n\n\n\b"
-		:      return l:rtn . "def main():\npass\n\n\nif __name__ == \"__main__\":\nsys.exit(main())"
+		:      return l:rtn . "def main(argv):\npass\n\n\nif __name__ == \"__main__\":\nsys.exit(main(sys.argv))"
 		:  else
 		:    return 'main'
 		:  endif
@@ -1045,16 +1041,6 @@
 
 		:function! Compile() " {{{
 		:  call system("compile ".expand("%"))
-		:endfunction " }}}
-
-		:function! CorrectFile() " {{{
-		:  let l:file = expand("%")
-		:  if &ft == "" && stridx(l:file, ".") == -1 && executable(l:file)
-		:    let l:glob = glob(l:file . ".*", 0, 1)
-		:    if len(l:glob) == 1
-		:     execute "e! ". l:glob[0]
-		:    endif
-		:  endif
 		:endfunction " }}}
 
 		:function! FileAge(filename) " {{{
@@ -1245,28 +1231,6 @@
 	:function! Update_Vimrc(...) " {{{
 	:  let l:url = 'https://raw.githubusercontent.com/chrisdean258/Dotfiles/master/.vimrc'
 	:  try
-	:    let l:output = system("diff <(date +%j) ~/.vim/update")
-	:    if !get(a:, 1)
-	:      if l:output == "" || system("date +%H") < "04"
-	:        redraw!
-	:        return
-	:      endif
-	:    endif
-	:    echom "Updating"
-	:    call System("date +%j > ~/.vim/update")
-	:    call System("wget -O ~/.vimrc.temp " . l:url)
-	:    if System("cat ~/.vimrc.temp") =~ '\S'
-	:      call System("mv ~/.vimrc.temp ~/.vimrc")
-	:    endif
-	:    redraw!
-	:  catch
-	:    echom v:exception. ". Contact Chris if you think this was not caused by lack of internet"
-	:  endtry
-	:endfunction " }}}
-
-	:function! Update_Vimrc2(...) " {{{
-	:  let l:url = 'https://raw.githubusercontent.com/chrisdean258/Dotfiles/master/.vimrc'
-	:  try
 	:    let l:age = FileAge("~/.vimrc")
 	:    if l:age > (24 * 60 * 60) || get(a:, 1)
 	:      echom "Updating"
@@ -1281,7 +1245,7 @@
 	:  endtry
 	:endfunction " }}}
 
-	:command! Update call Update_Vimrc2(1)
+	:command! Update call Update_Vimrc(1)
 " }}}
 
 " FEATURE ADDITION {{{
