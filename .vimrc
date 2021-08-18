@@ -202,13 +202,6 @@
 	:nnoremap # :set hlsearch<cr>#zz
 	:nnoremap * :set hlsearch<cr>*zz
 
-
-	" mapping for jumping to error
-	:nnoremap <silent><A-l>    :lnext<CR>
-	:nnoremap <silent><A-down>  :lprev<CR>
-	:nnoremap <silent><A-left>  :lfirst<CR>
-	:nnoremap <silent><A-right> :llast<CR>
-
 	" Wrapping magic 
 	" allows you to target text and wrap it in characters repeatably
 	:nnoremap <silent><leader>w :set opfunc=Wrap<CR>g@
@@ -233,7 +226,6 @@
 	:nnoremap <leader>j <c-w>j
 	:nnoremap <leader>k <c-w>k
 	:nnoremap <leader>l <c-w>l
-	:nnoremap <expr>+ (len(tabpagebuflist()) > 1 ? "\<C-w>=" : "+")
 
 	" creating and navigating tabs
 	:nnoremap <silent><S-tab>       :tabnext<CR>
@@ -299,15 +291,11 @@
 	:cabbrev $$ <C-R>=CommandLineStart("$$", ".,$s")<CR>
 	:cabbrev Q! <C-R>=CommandLineStart("Q!", "q!")<CR>
 	:cabbrev make <C-R>=CommandLineStart("make", "Compile")<CR>
-	" :cabbrev term term ++close ++rows=15
-	:abbrev Vecotr Vector
 	:abbrev Vecotr Vector
 	:abbrev retunr return
 
 	" Force writing
-	if !has('win32')
-		:cabbrev w!! %!sudo tee > /dev/null %
-	endif
+	:cabbrev w!! %!sudo tee > /dev/null %
 
 	" Making a tags file for jumping
 	:command! MakeTags !ctags -Rf .tags --exclude=.session.vim
@@ -383,7 +371,7 @@
 	" Java {{{
 	:augroup java
 	:  autocmd!
-	:  autocmd FileType java  :silent SyntasticToggle
+	:  autocmd FileType java  :silent! SyntasticToggle
 	:  autocmd FileType java  :nnoremap <localleader>c :SyntasticCheck<CR>
 	:augroup END
 	" }}}
@@ -572,13 +560,9 @@
 
 		:function! MotionHelp(type, func) " {{{
 		:  let l:window = winsaveview()
-		:  if a:type == "v" || a:type == "V" || a:type == "\<C-V>"
-		:    let [l:startl, l:startc] = getpos("'<")[1:2]
-		:    let [l:endl, l:endc] = getpos("'>")[1:2]
-		:  else
-		:    let [l:startl, l:startc] = getpos("'[")[1:2]
-		:    let [l:endl, l:endc] = getpos("']")[1:2]
-		:  endif
+		:  let [ l:start_marker, l:end_marker ] = (a:type == "v" || a:type == "V" || a:type == "\<C-V>") ? ["'<", "'>"] : ["'[", "']"]
+		:  let [l:startl, l:startc] = getpos(l:start_marker)[1:2]
+		:  let [l:endl, l:endc] = getpos(l:end_marker)[1:2]
 		:  if a:type == "line" || a:type == "V"
 		:    call map(range(l:startl, l:endl), { i, l -> MotionHelpInt(l, 1, 0, a:func) })
 		:  elseif a:type == "char" || a:type == "v"
