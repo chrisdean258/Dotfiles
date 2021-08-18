@@ -351,6 +351,7 @@
 	:autocmd OptionSet spell          :syntax spell toplevel
 	:autocmd OptionSet spell          :nnoremap <silent><buffer><localleader>s :call SpellReplace()<CR>
 	:autocmd OptionSet spell          :inoremap <silent><buffer><localleader>s <esc>:call SpellReplace()<CR>a
+	:autocmd OptionSet fo             :set fo=njq
 	:augroup END
 	:endif
 	" }}}
@@ -478,9 +479,7 @@
 	" Markdown {{{
 	:augroup Markdown
 	:autocmd!
-	:autocmd Filetype markdown :autocmd InsertLeave <buffer> :call MDParagraph()
 	:autocmd Filetype markdown :autocmd InsertLeave <buffer> :call MDCapitals()
-	:autocmd FileType markdown :autocmd InsertLeave <buffer> :call CheckMD()
 	:autocmd Filetype markdown :inoremap <buffer><tab> <c-r>=MDTab(CleverTab())<CR>
 	:autocmd Filetype markdown :inoremap <silent><buffer><CR> <c-r>=MDNewline("\r")<CR>
 	:autocmd Filetype markdown :nmap <silent><buffer>o A<CR>
@@ -494,7 +493,6 @@
 	:  autocmd Filetype markdown :setlocal breakindent
 	:endif
 	:autocmd FileType markdown :command! Preview call MDPreview()
-	:autocmd FileType markdown :call CheckMD()
 	:autocmd FileType markdown :setlocal expandtab
 	:autocmd FileType markdown :setlocal tabstop=4
 	:augroup END
@@ -609,6 +607,12 @@
 		:  call inputrestore()
 		:  return l:input
 		:endfunction " }}}
+
+		:function! PrevIndent() " {{{
+		:  let l:indent = indent('.')
+		:  let prev = filter(map(range(line('.') - 1, 1, -1), {_, v -> indent(v)}), { v -> v < l:indent })
+		:  return len(prev) == 0 ? 0 : prev[0]
+		:endfunction " }}}
 	" }}}
 	
 	" HTML {{{
@@ -676,35 +680,25 @@
 		:endfunction " }}}
 
 		:function! MDUnindent() "  {{{
-		:  let l:indent = indent('.')
-		:  let l:other = line('.') - 1
-		:  while indent(l:other) >= l:indent && l:other > 1
-		:    let l:other -= 1
-		:  endwhile
-		:  let l:diff = l:indent - indent(l:other)
+		:  let l:diff = indent('.') - PrevIndent()
 		:  call cursor('.', col('.')-l:diff)
 		:  call setline('.', getline('.')[l:diff:])
 		:  return ""
 		:endfunction " }}}
 
 		:function! MDTab(default) "  {{{
-		:  let l:allowable_starts = [ '>', '\*', '-', '+', '|' , '\d\+.', '\d\+)' ]
-		:  let l:linenum = line('.') - 1
-		:  if l:linenum == 1
+		:  if &filetype == "rmd" || line('.') == 1
 		:    return a:default
 		:  endif
+		:  let l:allowable_starts = [ '>', '\*', '-', '+', '|' , '\d\+\.', '\d\+)' ]
+		:  let l:linenum = line('.') - 1
 		:  let lineabove = Strip(getline(l:linenum))
 		:  let line = TextBeforeCursor()
-		:  for starting in allowable_starts
-		:    if line =~ '^\s*' . starting .'\s*$'
-		:      let l:repeat = &tabstop
-		:      if &filetype != "rmd"
-		:        let l:repeat =  stridx(l:lineabove, " ") + 1
-		:      endif
-		:      call setline('.', repeat(" ", l:repeat) . getline('.'))
-		:      return repeat("\<right>", l:repeat)
-		:    endif
-		:  endfor
+		:  if line =~ '^\s*\(' . join(l:allowable_starts, '\|') . '\)\s*$'
+		:    let l:repeat =  stridx(l:lineabove, " ") + 1
+		:    call setline('.', repeat(" ", l:repeat) . getline('.'))
+		:    return repeat("\<right>", l:repeat)
+		:  endif
 		:  return a:default
 		:endfunction " }}}
 
@@ -722,27 +716,6 @@
 		:  nohlsearch
 		:endfunction " }}}
 
-		:function! CheckMD() " {{{
-		:  if toupper(expand("%")) =~ "README"
-		:    return
-		:  endif
-		:  let l:text = join(getline('.', '$'))
-		:  if l:text =~ '\$'
-		:    set ft=rmd
-		:  endif
-		:endfunction " }}}
-
-		:function! MDParagraph() " {{{
-		:  if !get(g:, "md_format_para") || getline('.') == ""
-		:    return
-		:  endif
-		:  let l:line = getline('.')
-		:  let l:res = [ '^$', '^\s*[+\*\-#`]' ]
-		:  if len(filter(l:res, {i, v -> l:line =~ v })) > 0
-		:    return
-		:  endif
-		:  normal! gqip`^
-		:endfunction " }}}
 	" }}}
 
 	" Latex {{{
@@ -949,15 +922,13 @@
 	" }}}
 
 	" Python {{{
-
 		:function! PythonMainAbbrev() " {{{
 		:  if getline('.') =~ '^$'
 		:      let l:rtn  = "import sys\n\n\ndef usage():\nprint(\"Usage: " . expand("%") . "\", file=sys.stderr)\n"
 		:      let l:rtn .= "sys.exit(1)\n\n\n\b"
 		:      return l:rtn . "def main(argv):\npass\n\n\nif __name__ == \"__main__\":\nsys.exit(main(sys.argv))"
-		:  else
-		:    return 'main'
 		:  endif
+		:  return 'main'
 		:endfunction " }}}
 	" }}}
 
@@ -1014,31 +985,6 @@
 		:  nohlsearch
 		:endfunction " }}}
 
-		:function! Comment_New(...) range " {{{
-		:  let l:window = winsaveview()
-		:  if get(a:, 1, "") ==# 'visual'
-		:    '<,'>call Comment()
-		:    return
-		:  endif
-		:  let l:line = getline('.')
-		:  let l:temp = split(&commentstring, "%s")
-		:  let l:start = escape(get(l:temp, 0, ""), '\*/!"')
-		:  let l:end = escape(get(l:temp, 1, ""), '\*/!"')
-		:  let l:startshort = substitute(l:start, ' $', '', '')
-		:  let l:endshort = substitute(l:end, '^ ', '', '')
-		:  if l:end ==# ""
-		:    execute "silent ".a:firstline.",".a:lastline.'s:^\(\s*\)\(.\):\1'.l:start.'\2:e'
-		:    execute "silent ".a:firstline.",".a:lastline.'s:^\(\s*\)'.l:start.l:startshort.' \{,1}:\1:e'
-		:  else
-		:    execute "silent ".a:firstline.'s:^\(\s*\)\(.\):\1'.l:start.'\2:e'
-		:    execute "silent ".a:firstline.'s:^\(\s*\)'.l:start.l:startshort.' \{,1}:\1:e'
-		:    execute "silent ".a:lastline.'s:$:'.l:end
-		:    execute "silent ".a:lastline.'s: \{,1}'. l:endshort . l:end . '$::e'
-		:  endif
-		:  call winrestview(l:window)
-		:  nohlsearch
-		:endfunction " }}}
-
 		:function! Compile() " {{{
 		:  call system("compile ".expand("%"))
 		:endfunction " }}}
@@ -1048,18 +994,11 @@
 		:endfunction " }}}
 		
 		:function! Find(name, ...) " {{{
-		:  if get(a:, 1)
-		:    let l:path = a:name
-		:    let l:name = a:1
-		:  else
-		:    let l:name = a:name
-		:    let l:path = "."
+		:  let [l:path, l:name] = get(a:, 1) ? [a:name, a:1] : ['.', a:name]
+		:  let l:fn = systemlist('find '.l:path.' -type f -name "'.l:name.'*"')
+		:  if len(l:fn) != 0
+		:    execute ":e '".l:fn[0]."'"
 		:  endif
-		:  let l:fn = split(System('find '.l:path.' -type f -name "'.l:name.'*"'))
-		:  if len(l:fn) == 0
-		:    return
-		:  endif
-		:  execute ":e " . l:fn[0]
 		:endfunction " }}}
 		
 		:function! HJKL() " {{{
