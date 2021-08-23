@@ -313,8 +313,7 @@
 " AUTOCMD GROUPS  {{{
 "_______________________________________________________________________________________________________
 
-	" Universal {{{
-	:augroup Universal
+	:augroup Universal " {{{
 	:autocmd!
 	:autocmd BufNewFile *  :autocmd BufWritePost * :call IfScript() " Mark files with shebang as executable
 	:autocmd BufEnter *    :set fo=njq
@@ -327,11 +326,9 @@
 	:autocmd VimLeave *    :call SaveSess()
 	:autocmd VimEnter *    :call HighLightSettings()
 	:autocmd VimEnter * nested call RestoreSess()
-	:augroup END
-	" }}}
+	:augroup END " }}}
 
-	" Option Autocmds {{{
-	:if exists("##OptionSet")
+	:if exists("##OptionSet") " {{{
 	:augroup Options
 	:autocmd!
 	:autocmd OptionSet relativenumber :let &number=&relativenumber   " Turn on and off number when we toggle reelative number
@@ -342,11 +339,9 @@
 	:autocmd OptionSet spell          :inoremap <silent><buffer><localleader>s <esc>:call SpellReplace()<CR>a
 	:autocmd OptionSet fo             :set fo=njq
 	:augroup END
-	:endif
-	" }}}
+	:endif " }}}
 
-	" C style formatting {{{ 
-	:augroup c_style
+	:augroup c_style " {{{ 
 	:  autocmd!
 	:  autocmd FileType c,cpp,javascript,java,perl,cs :nnoremap <silent><buffer><localleader>s :call SplitIf()<CR>
 	:  autocmd FileType c,cpp,javascript,java,perl,cs :nnoremap <silent><buffer>; :call AppendSemicolon()<CR>
@@ -365,19 +360,15 @@
 	:  autocmd FileType cpp    :autocmd CursorMoved,CursorMovedI <buffer> call HighlightAfterColumn(100)
 	:  autocmd FileType cpp    :setlocal syntax=cpp
 	:  autocmd FileType c      :autocmd CursorMoved,CursorMovedI <buffer> call HighlightAfterColumn(80)
-	:augroup END
-	" }}}
+	:augroup END " }}}
 
-	" Java {{{
-	:augroup java
+	:augroup java " {{{
 	:  autocmd!
 	:  autocmd FileType java  :silent! SyntasticToggle
 	:  autocmd FileType java  :nnoremap <localleader>c :SyntasticCheck<CR>
-	:augroup END
-	" }}}
+	:augroup END " }}}
 
-	" Web {{{
-	:augroup web
+	:augroup web " {{{
 	:  autocmd!
 	:  autocmd FileType html,php,htmldjango :setlocal tabstop=2
 	:  autocmd FileType html,php,htmldjango :setlocal expandtab
@@ -391,14 +382,11 @@
 	:let g:html_indent_script1 = "inc"
 	:let g:html_indent_style1 = "inc"
 	:let g:html_indent_inctags = "address,article,aside,audio,blockquote,canvas,dd,div,dl,fieldset,figcaption,figure,footer,form,h1,h2,h3,h4,h5,h6,header,hgroup,hr,main,nav,noscript,ol,output,p,pre,section,table,tfoot,ul,video"
-	:  autocmd FileType html,php,htmldjango :command! Preview call HTMLPreview()
 	:  autocmd FileType css,php :nnoremap <silent><buffer>; :call AppendSemicolon()<CR>
 	:  autocmd FileType css :inoremap <buffer>{} {<CR>}<esc>O
-	:augroup END
-	" }}}
+	:augroup END " }}}
 
-	" Tex {{{
-	:augroup web
+	:augroup tex " {{{
 	:  autocmd BufNewFile *.tex  :setlocal filetype=tex
 	:  autocmd BufNew *.tex  :setlocal filetype=tex
 	:  autocmd BufRead *.tex :setlocal filetype=tex
@@ -407,16 +395,13 @@
 	:  autocmd FileType tex :setlocal wrap
 	:  autocmd FileType tex :setlocal linebreak
 	:  autocmd FileType tex :setlocal indentexpr=LatexIndent()
-	:  if exists("+breakindent")
-	:    autocmd FileType tex :setlocal breakindent
-	:  endif
+	:  autocmd FileType tex :silent! setlocal breakindent
 	:  autocmd FileType tex :inoremap <buffer> \pa \pa 
 	:  autocmd FileType tex :inoremap <expr><buffer><CR> LatexCarriageReturn()
 	:  autocmd FileType tex :inoremap <expr><buffer>{ (strlen(getline('.')) + 1 == col('.')) ? "{}\<left>" : "{"
 	:  autocmd FileType tex :inoremap <expr><buffer>} (getline(".")[col(".")-1] == "}") ? "\<right>" : "}"
 	:  autocmd FileType tex :nnoremap <buffer> <leader>m mqlBi$<esc>Ea$<esc>`q
 	:  autocmd FileType tex :nnoremap <buffer>; :call LatexBackslashBeginning()<CR>
-	:  autocmd FileType tex :command! Preview call LatexPreview()
 	:  autocmd FileType tex :let g:tex_flavor = 'latex'
 	:  autocmd FileType tex :iabbrev eqiv equiv
 	:  autocmd FileType tex :inoremap \sum \sum
@@ -431,11 +416,9 @@
 	:  autocmd Filetype tex :vnoremap <silent><buffer><localleader>b :call LatexTextbf(visualmode())<CR>
 	:  autocmd Filetype tex :nnoremap <silent><buffer><localleader>c :set opfunc=LatexTextCorrection<CR>g@
 	:  autocmd Filetype tex :vnoremap <silent><buffer><localleader>c :call LatexTextCorrection(visualmode())<CR>
-	:augroup END
-	" }}}
+	:augroup END " }}}
 
-	" Python formatting {{{
-	:augroup python_
+	:augroup python_ " {{{
 	:autocmd!
 	:autocmd FileType python  :setlocal tabstop=4
 	:autocmd FileType python  :setlocal expandtab
@@ -451,21 +434,17 @@
 	:autocmd FileType python  :autocmd CursorMoved,CursorMovedI <buffer> call HighlightAfterColumn(79)
 	:autocmd BufRead .xonshrc,*.xsh :set ft=python
 	:autocmd BufRead .xonshrc,*.xsh :silent! SyntasticToggleMode
-	:augroup END
-	" }}}
+	:augroup END " }}}
 
-	" Vim file {{{
-	:augroup vim_
+	:augroup vim_ " {{{
 	:autocmd!
 	:autocmd FileType vim :setlocal foldmethod=marker
 	:autocmd FileType vim :setlocal foldenable
 	:autocmd FileType vim :setlocal foldtext=MyFold()
 	:autocmd BufWritePost .vimrc :source %
-	:augroup END
-	" }}}
+	:augroup END " }}}
 
-	" Markdown {{{
-	:augroup Markdown
+	:augroup Markdown " {{{
 	:autocmd!
 	:autocmd Filetype markdown :autocmd InsertLeave <buffer> :call MDCapitals()
 	:autocmd Filetype markdown :inoremap <buffer><tab> <c-r>=MDTab(CleverTab())<CR>
@@ -477,41 +456,29 @@
 	:autocmd Filetype markdown :setlocal wrap
 	:autocmd Filetype markdown :setlocal linebreak
 	:autocmd Filetype markdown :setlocal commentstring=<!--\ %s\ -->
-	:if exists("+breakindent")
-	:  autocmd Filetype markdown :setlocal breakindent
-	:endif
-	:autocmd FileType markdown :command! Preview call MDPreview()
+	:autocmd Filetype markdown :silent! setlocal breakindent
 	:autocmd FileType markdown :setlocal expandtab
 	:autocmd FileType markdown :setlocal tabstop=4
-	:augroup END
-	" }}}
+	:augroup END " }}}
 
-	" txt files {{{
-	:augroup Text
+	:augroup Text " {{{
 	:autocmd!
 	:autocmd FileType text :setlocal wrap
 	:autocmd FileType text :setlocal linebreak
 	:autocmd FileType text :setlocal syntax=
-	:if exists("+breakindent")
-	:  autocmd FileType text :setlocal breakindent
-	:endif
-	:augroup END
-	" }}}
+	:autocmd FileType text :silent! setlocal breakindent
+	:augroup END " }}}
 
-	" Assembly {{{
-	:augroup Assembly
+	:augroup Assembly " {{{
 	:autocmd!
-	:  autocmd FileType assembly,asm :setlocal commentstring=//\ %s
-	:  autocmd FileType assembly,asm :iunmap <tab>
-	:augroup END
-	" }}}
+	:autocmd FileType assembly,asm :setlocal commentstring=//\ %s
+	:autocmd FileType assembly,asm :iunmap <tab>
+	:augroup END " }}}
 
-	" Rust {{{
-	:augroup rust
+	:augroup rust " {{{
 	:  autocmd FileType rust :nnoremap <silent><buffer>; :call AppendSemicolon()<CR>
 	:  autocmd FileType rust :inoremap <buffer><expr>{} Cbraces()
-	:augroup END
-	" }}}
+	:augroup END " }}}
 
 " }}}
 
@@ -560,7 +527,7 @@
 
 		:function! MotionHelp(type, func) " {{{
 		:  let l:window = winsaveview()
-		:  let [ l:start_marker, l:end_marker ] = (a:type == "v" || a:type == "V" || a:type == "\<C-V>") ? ["'<", "'>"] : ["'[", "']"]
+		:  let [l:start_marker, l:end_marker] = (a:type == "v" || a:type == "V" || a:type == "\<C-V>") ? ["'<", "'>"] : ["'[", "']"]
 		:  let [l:startl, l:startc] = getpos(l:start_marker)[1:2]
 		:  let [l:endl, l:endc] = getpos(l:end_marker)[1:2]
 		:  if a:type == "line" || a:type == "V"
@@ -644,7 +611,8 @@
 		:    return "\r"
 		" If between the starter and line and can unindent then unindent
 		:  elseif l:left =~ '^\s*\('.join(l:allowable_starts, '\|').'\)\s*$' || l:left =~ '^\s*\d\+[\.)]\s*$'
-		:    return MDUnindent()
+		:    call MDUnindent()
+		:    return ""
 		" If line starts with starter then insert starter on next line
 		:  elseif l:line =~ '^\s*\('.join(l:allowable_starts, '\|').'\)\s'
 		:    let l:nextline = getline(line('.')+1)
@@ -663,14 +631,13 @@
 		:  return "\r"
 		:endfunction " }}}
 
-		:function! MDUnindent() "  {{{
+		:function! MDUnindent() " {{{
 		:  let l:diff = indent('.') - PrevIndent()
 		:  call cursor('.', col('.')-l:diff)
 		:  call setline('.', getline('.')[l:diff:])
-		:  return ""
 		:endfunction " }}}
 
-		:function! MDTab(default) "  {{{
+		:function! MDTab(default) " {{{
 		:  if &filetype == "rmd" || line('.') == 1
 		:    return a:default
 		:  endif
@@ -684,32 +651,15 @@
 		:  return a:default
 		:endfunction " }}}
 
-		:function! MDPreview() " {{{
-		:  autocmd! BufWritePost <buffer> call Compile()
-		:  write
-		:  let l:filename = substitute(expand("%"), "\.md$", ".pdf", "")
-		:  call System('xdg-open '. l:filename. ' >/dev/null 2>/dev/null &')
-		:endfunction " }}}
-
 		:function! MDCapitals() " {{{
 		:  let l:window = winsaveview()
 		:  silent %s/^\(\s*- \)\(.\)/\1\U\2/e
 		:  call winrestview(l:window)
 		:  nohlsearch
 		:endfunction " }}}
-
 	" }}}
 
 	" Latex {{{
-		:function! LatexPreview() " {{{
-		:  autocmd! BufWritePost <buffer> call Compile()
-		:  write
-		:  let l:filename = substitute(expand("%"), "\.tex$", ".pdf", "")
-		:  if filereadable(l:filename)
-		:    call System('xdg-open '. l:filename. ' >/dev/null 2>/dev/null &')
-		:  endif
-		:endfunction " }}}
-
 		:function! LatexCarriageReturn() " {{{
 		:  let l:line = getline('.')
 		:  if l:line =~ '^\s*\\begin{enumerate}$' || l:line =~ '^\s*\\begin{itemize}$'
@@ -773,7 +723,6 @@
 		:function! LatexTextbf(type) range " {{{
 		:  call MotionWrap(a:type, '\textbf{', '}')
 		:endfunction " }}}
-
 	" }}}
 
 	" C Style Function {{{
@@ -976,7 +925,15 @@
 		:endfunction " }}}
 
 		:function! MathEval(type) range "{{{
-		:  call MotionHelp(a:type, {a, b, c -> a . string(eval(b)) . c})
+		:  call MotionHelp(a:type, {a, b, c -> a . MathEvalSafe(b) . c})
+		:endfunction " }}}
+
+		:function! MathEvalSafe(str) " {{{
+		:  try
+		:    return string(eval(a:str))
+		:  catch
+		:  endtry
+		:  return a:str
 		:endfunction " }}}
 
 		:function! MoveLineUp() " {{{
