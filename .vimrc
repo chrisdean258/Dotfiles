@@ -891,7 +891,7 @@
 		:endfunction " }}}
 
 		:function! FileAge(filename) " {{{
-		:  return system("date +%s") - system("date +%s -r '".a:filename."'")
+		:  return system("date +%s") - system("date +%s -r ".a:filename)
 		:endfunction " }}}
 		
 		:function! Find(name, ...) " {{{
