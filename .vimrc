@@ -99,7 +99,7 @@
 	:  highlight spelllocal None
 	:  highlight! link texOnlyMath texMathOper
 	:  highlight Folded ctermfg=DarkGrey guifg=DarkGrey
-	:  do ColorScheme elflord
+	:  silent! do ColorScheme elflord
 	:endfunction
 
 " }}}
