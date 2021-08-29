@@ -109,6 +109,15 @@ cdls()
 	builtin cd "$@" && ls && realpath . >> "$jmp" && sed -i 1d "$jmp" 
 }
 
+pd()
+{
+	if [ $# -eq 0 ]; then
+		popd
+	else
+		pushd "$@"
+	fi
+}
+
 j()
 {
 	[ $# -ne 0 ] && pattern=".*$(echo "$@" | sed "s/\s\+/.*\/.*/g")[^\/]*$"
