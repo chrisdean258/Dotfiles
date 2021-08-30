@@ -1,5 +1,6 @@
 set bell-style none
 set completion-ignore-case on
+set completion-map-case on
 set show-all-if-ambiguous on
 set editing-mode vi
 set keymap vi-insert
