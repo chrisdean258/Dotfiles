@@ -561,7 +561,7 @@
 
 		:function! PrevIndent() " {{{
 		:  let l:indent = indent('.')
-		:  let prev = filter(map(range(line('.') - 1, 1, -1), {_, v -> indent(v)}), { v -> v < l:indent })
+		:  let prev = filter(map(range(line('.') - 1, 1, -1), {_, v -> indent(v)}), { _, v -> v < l:indent })
 		:  return len(prev) == 0 ? 0 : prev[0]
 		:endfunction " }}}
 	" }}}
