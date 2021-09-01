@@ -44,14 +44,17 @@ map L $
 nmap <leader>y "*y
 vmap <leader>y "*y
 
-function RunSH()
-	let line = Strip(getline('.'))
-	if line[0] == '$'
-		let line = Strip(line[1:])
-	endif
-	let idt = repeat(" ", indent('.'))
-	call append('.', map(systemlist(line), {_, v -> idt.v}))
-endfunction
+def RunSH()
+	var line = getline('.')->trim(" \t$", 1)
+	var idt = repeat(" ", indent('.'))
+	append('.', map(systemlist(line), (_, v) => idt .. v))
+enddef
 
 
 command! Run :call RunSH()
+
+def! MDTemplate()
+	append(0, "# " .. expand("%:t:r")->tr('-_', '  ')->substitute('\<.', '\u&', "g"))
+enddef
+
+au BufNewFile *.md :call MDTemplate()

@@ -320,7 +320,7 @@
 	:autocmd CursorHold *  :if get(g:, "hltimeout", 1) | set nohlsearch | endif " turn off search highlighting after a few seconds of nonuse
 	:autocmd InsertLeave * :setlocal nopaste            " Turn off paste when leaving insert mode
 	:autocmd BufReadPost * :if line("'\"") > 0 && line ("'\"") <= line("$") | exe "normal! g'\"" | endif " Jump to where you were in a file
-	:autocmd BufEnter *    :let &commentstring = Strip(substitute(&commentstring, '\s*%s\s*', ' %s ', ''))
+	:autocmd BufEnter *    :let &commentstring = trim(substitute(&commentstring, '\s*%s\s*', ' %s ', ''))
 	:autocmd SwapExists *  :call SwapExists()
 	:autocmd BufNewFile *  :call NewFile()
 	:autocmd VimLeave *    :call SaveSess()
@@ -486,10 +486,6 @@
 "_______________________________________________________________________________________________________
 
 	" Helpers {{{
-		:function! Strip(str) " {{{
-		:  return substitute(a:str, '^\s*\(.\{-}\)\s*$', '\1', '')
-		:endfunction " }}}
-
 		:function! LineFromCursor() " {{{
 		:  return getline('.')[col('.')-1:]
 		:endfunction " }}}
@@ -510,19 +506,19 @@
 		:endfunction " }}}
 
 		:function! TextFromCursor() " {{{
-		:  return Strip(LineFromCursor())
+		:  return trim(LineFromCursor())
 		:endfunction " }}}
 
 		:function! TextAfterCursor() " {{{
-		:  return Strip(LineAfterCursor())
+		:  return trim(LineAfterCursor())
 		:endfunction " }}}
 
 		:function! TextUntilCursor() " {{{
-		:  return Strip(LineUntilCursor())
+		:  return trim(LineUntilCursor())
 		:endfunction " }}}
 
 		:function! TextBeforeCursor() " {{{
-		:  return Strip(LineBeforeCursor())
+		:  return trim(LineBeforeCursor())
 		:endfunction " }}}
 
 		:function! MotionHelp(type, func) " {{{
@@ -642,7 +638,7 @@
 		:    return a:default
 		:  endif
 		:  let l:allowable_starts = [ '>', '\*', '-', '+', '|' , '\d\+\.', '\d\+)' ]
-		:  let l:repeat = stridx(Strip(getline(line('.') - 1)), " ") + 1
+		:  let l:repeat = stridx(trim(getline(line('.') - 1)), " ") + 1
 		:  let l:line = TextBeforeCursor()
 		:  if l:line =~ '^\s*\(' . join(l:allowable_starts, '\|') . '\)\s*$'
 		:    call setline('.', repeat(" ", l:repeat) . getline('.'))
@@ -745,7 +741,7 @@
 		:endfunction " }}}
 
 		:function! AppendSemicolon() " {{{
-		:  let l:text = Strip(getline('.'))
+		:  let l:text = trim(getline('.'))
 		:  if l:text =~ ';$'
 		:    if l:text =~ '^if' || l:text =~ '^for' || l:text =~ '^while'
 		:      call setline('.', getline('.')[:-2])
@@ -1016,9 +1012,9 @@
 
 		:function! SwapArgsInt(start, value, end) "{{{
 		:  if a:value =~ ","
-		:    let l:v = join(reverse(map(split(a:value, ","), {i, v -> Strip(v)})), ", ")
+		:    let l:v = join(reverse(map(split(a:value, ","), {i, v -> trim(v)})), ", ")
 		:  else
-		:    let l:v = join(reverse(map(split(a:value), {i, v -> Strip(v)})))
+		:    let l:v = join(reverse(map(split(a:value), {i, v -> trim(v)})))
 		:  endif
 		:  return a:start . l:v . a:end
 		:endfunction " }}}
