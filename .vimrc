@@ -601,16 +601,19 @@
 		" If line has no content remove the starter
 		:  if l:line =~ '^\('.join(l:allowable_starts, '\|').'\)\s*$' || l:line =~ '^\d\+[\.)]\s*$'
 		:    call setline('.', '')
+		:    echom 1
 		:    return ""
 		" If between the starter and line and cannot unindent insert default
 		:  elseif l:left =~ '^\('.join(l:allowable_starts, '\|').'\)\s*$'
+		:    echom 2
 		:    return "\r"
 		" If between the starter and line and can unindent then unindent
 		:  elseif l:left =~ '^\s*\('.join(l:allowable_starts, '\|').'\)\s*$' || l:left =~ '^\s*\d\+[\.)]\s*$'
 		:    call MDUnindent()
+		:    echom 3
 		:    return ""
-		" If line starts with starter then insert starter on next line
-		:  elseif l:line =~ '^\s*\('.join(l:allowable_starts, '\|').'\)\s'
+		" If line starts with starter and were at the end then insert starter on next line
+		:  elseif l:line =~ '^\s*\('.join(l:allowable_starts, '\|').'\)\s' && l:line == l:left
 		:    let l:nextline = getline(line('.')+1)
 		"    If nextline already has a starter and is more indented use its indentation and starter
 		:    if indent(line('.') + 1) > indent('.') && l:nextline =~ '^\s*\('.join(l:allowable_starts, '\|').'\)\s'
@@ -622,8 +625,10 @@
 		:  elseif l:line =~ '^\d\+[\.)]'
 		:    let l:char = substitute(l:line, '^\d\+\([\.)] \).*', '\1', '')
 		:    call append('.', l:line + 1 . l:char)
+		:    echom 5
 		:    return "\<down>\<right>"
 		:  endif
+		:    echom 6
 		:  return "\r"
 		:endfunction " }}}
 

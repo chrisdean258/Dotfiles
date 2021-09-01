@@ -7,6 +7,7 @@ _run()
 	[ -x "$(which xfce4-power-manager)" ] && xfce4-power-manager &
 	/usr/lib/notification-daemon/notification-daemon &
 	monitor --no4k
+	[ -r ~/.xsession.local ] && source ~/.xsession.local
 	xset r rate 200 75 # Repeat rate
 	xsetroot -solid black
 	exec "$1" &>> ~/.xsession-errors
