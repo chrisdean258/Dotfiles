@@ -43,3 +43,15 @@ map L $
 
 nmap <leader>y "*y
 vmap <leader>y "*y
+
+function RunSH()
+	let line = Strip(getline('.'))
+	if line[0] == '$'
+		let line = Strip(line[1:])
+	endif
+	let idt = repeat(" ", indent('.'))
+	call append('.', map(systemlist(line), {_, v -> idt.v}))
+endfunction
+
+
+command! Run :call RunSH()
