@@ -36,6 +36,7 @@ if $TERM =~ "^st"
 endif
 au ColorScheme elflord highlight tablinesel ctermfg=DarkGrey guifg=DarkGrey
 au ColorScheme elflord highlight tabline ctermfg=black guifg=black
+au VimResized * wincmd =
 call HighLightSettings()
 
 map H ^
@@ -54,9 +55,9 @@ enddef
 
 command! Run :call RunSH()
 
-def! MDTemplate()
-	append(0, "# " .. expand("%:t:r")->tr('-_', '  ')->substitute('\<.', '\u&', "g"))
-enddef
+function! MDTemplate()
+	call append(0, "# " .. expand("%:t:r")->tr('-_', '  ')->substitute('\<.', '\u&', "g"))
+endfunction
 
 au BufNewFile *.md :call MDTemplate()
 :endif
