@@ -905,7 +905,7 @@
 		
 		:function! Find(name, ...) " {{{
 		:  let [l:path, l:name] = get(a:, 1) ? [a:name, a:1] : ['.', a:name]
-		:  let l:fn = systemlist('find '.l:path.' -type f -name "'.l:name.'*"')
+		:  let l:fn = systemlist('find '.l:path.' -type f -name "*'.l:name.'*"')
 		:  if len(l:fn) != 0
 		:    execute ":e '".l:fn[0]."'"
 		:  endif
