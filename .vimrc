@@ -568,10 +568,15 @@
 		:  return l:input
 		:endfunction " }}}
 
-		:function! PrevIndent() " {{{
+		:function! PrevIndent(...) " {{{
 		:  let l:indent = indent('.')
-		:  let prev = filter(map(range(line('.') - 1, 1, -1), {_, v -> indent(v)}), { _, v -> v < l:indent })
-		:  return len(prev) == 0 ? 0 : prev[0]
+		:  let lnums = range(line('.') - 1, 1, -1)
+		:  for Filter in a:000
+		:    let lnums = filter(lnums, Filter)
+		:  endfor
+		:  let indents = map(lnums, {_, v -> indent(v)})
+		:  let prev = filter(lnums, { _, v -> v < l:indent })
+		:  return get(prev, 0, 0)
 		:endfunction " }}}
 	" }}}
 	
@@ -641,7 +646,9 @@
 		:endfunction " }}}
 
 		:function! MDUnindent() " {{{
-		:  let l:diff = indent('.') - PrevIndent()
+		:  let l:allowable_starts = [ '>', '\*', '-', '+', '\d\d*[\.)]']
+		:  let l:regex = '^\s*\('.join(l:allowable_starts, '|').'\)'
+		:  let l:diff = indent('.') - PrevIndent({_, v->getline(v)=~l:regex})
 		:  call cursor('.', col('.')-l:diff)
 		:  call setline('.', getline('.')[l:diff:])
 		:endfunction " }}}
