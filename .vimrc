@@ -459,6 +459,8 @@
 	:autocmd Filetype markdown :silent! setlocal breakindent
 	:autocmd FileType markdown :setlocal expandtab
 	:autocmd FileType markdown :setlocal tabstop=4
+	:autocmd FileType markdown :setlocal complete+=k
+	:autocmd FileType markdown :setlocal dictionary+=/usr/share/dict/words
 	:augroup END " }}}
 
 	:augroup Text " {{{
