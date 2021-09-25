@@ -1,0 +1,5 @@
+#!/bin/sh
+
+[ -t 0 ] && exec cat "$@"
+
+exec vimcat "$@"
