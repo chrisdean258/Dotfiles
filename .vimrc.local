@@ -48,7 +48,7 @@ vmap <leader>y "*y
 function! RunSH()
 	let line = getline('.')->trim(" \t$", 1)
 	let idt = repeat(" ", indent('.'))
-	call append('.', map(systemlist(line), (_, v) => idt .. v))
+	call append(line('.'), map(systemlist(line), {_, v -> idt . v}))
 endfunction
 
 

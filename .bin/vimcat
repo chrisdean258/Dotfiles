@@ -9,7 +9,7 @@
 
   [[ "${0:0:1}" == "/" ]] && script="$0" || script="$PWD/$0"
 
-  /usr/bin/vim -e -X -R "$@" -c "source $script" -c "visual" -c "bufdo call AnsiHighlight()" -c qa >/dev/null 2>/dev/null
+  /usr/bin/vim -e -X -R "$@" -c "source $script" -c "bufdo call AnsiHighlight()" -c qa >/dev/null 2>/dev/null
   exec cat <&9
 : endif
 
@@ -79,25 +79,11 @@ function! s:GroupToAnsi(groupnum)
   let bd = synIDattr(groupnum, 'bold', s:type)
   let bg = 0
 
-  " FIXME other attributes?
-
-  if rv == "" || rv == -1
-    let rv = 0
-  endif
-
-  if bd == "" || bd == -1
-    let bd = 0
-  endif
+  let rv = (rv == "" || rv == -1) ? 0 : rv
+  let bd = (bd == "" || bd == -1) ? 0 : bd
 
   if rv
-    let temp = bg
-    let bg = fg
-    let fg = temp
-  endif
-
-  if fg >= 8 && fg < 16
-    let fg -= 8
-    let bd = 1
+    let [fg, bg] = [bg, fg]
   endif
 
   if fg == "" || fg == -1
@@ -156,14 +142,23 @@ function! AnsiHighlight()
 
     exe "norm! " . lnum . "G$"
     let line = getline(lnum)
+    let included = 0
+    let parts = []
+
+    let unconsumed = 0
     for cnum in range(1, col('.'))
       if synIDtrans(synID(lnum, cnum, 1)) != last
         let last = synIDtrans(synID(lnum, cnum, 1))
-        let output .= "\<Esc>[0m".s:GroupToAnsi(last)
+	if cnum > 1
+          call add(parts, line[unconsumed:cnum-2])
+	endif
+	call add(parts, "\<Esc>[0m".s:GroupToAnsi(last))
+	let unconsumed = cnum - 1
       endif
-      let output .= line[cnum-1]
     endfor
-    let retv += [output]
+    call add(parts, line[unconsumed:])
+    let output = join(parts, "")
+    call add(retv, output)
   endfor
   " Reset the colors to default after displaying the file
   let retv[-1] .= "\<Esc>[0m"

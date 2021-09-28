@@ -85,12 +85,13 @@ alias ..="cd .."
 alias ll='ls -alF'
 alias la='ls -A'
 alias l='ls -CF'
-alias car="cat"
+alias car="ccat"
 alias matlab="matlab -nodesktop -nosplash"
 alias jn="swallow jupyter notebook"
 alias ls='ls --color=auto --group-directories-first'
 alias grep='grep --color=auto'
 alias hgrep='history | grep --color=auto'
+alias cat="ccat"
 
 exe colordiff && alias diff="colordiff"
 exe neomutt   && alias mutt="neomutt"
