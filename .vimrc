@@ -489,8 +489,9 @@
 
 	" Helpers {{{
 		:function! Trim(str, ...) " {{{
-		:  let chars = get(a:, 1, '\s')
-		:  let mode = get(a:, 2, 0)
+		:  return substitute(a:str, '^\s*\(.\{-}\)\s*$', '\1', '')
+		:  let chars = get(a:000, 1, " ")
+		:  let mode = get(a:000, 2, 0)
 		:  let rtn = a:str
 		:  if mode == 1 || mode == 0
 		:    let rtn = substitute(a:str, '^['.chars.']*', "", "")
@@ -498,6 +499,7 @@
 		:  if mode == 2 || mode == 0
 		:    let rtn = substitute(a:str, '['.chars.']*$', "", "")
 		:  endif
+		:  echom "trim returning " .rtn
 		:  return rtn
 		:endfunction " }}}
 
@@ -661,6 +663,7 @@
 		:  endif
 		:  let l:allowable_starts = [ '>', '\*', '-', '+', '|' , '\d\+\.', '\d\+)' ]
 		:  let l:repeat = stridx(Trim(getline(line('.') - 1)), " ") + 1
+		:  echom "l:repeat ". l:repeat
 		:  let l:line = TextBeforeCursor()
 		:  if l:line =~ '^\s*\(' . join(l:allowable_starts, '\|') . '\)\s*$'
 		:    call setline('.', repeat(" ", l:repeat) . getline('.'))
