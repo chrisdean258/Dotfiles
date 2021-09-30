@@ -1,0 +1,25 @@
+#!/bin/sh
+
+bold()
+{
+	tput bold
+	echo "$@"
+	tput sgr0
+}
+
+
+bold "Check out https://github.com/brightio/penelope"
+
+bold "Nmap"
+
+echo "sudo nmap -O -sS -p- <ip>"
+echo "sudo nmap -sU -p- <ip>"
+echo "sudo nmap -sC -sV <ip>"
+
+bold "Sudo"
+echo "sudo -l"
+
+bold "Dirb"
+echo "dirb <target> -r -z 10"
+
+
