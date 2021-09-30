@@ -5,12 +5,13 @@
 : if 0
   tmpfile=$(mktemp -t vimcat.XXXXXXXX)
   exec 9<>"$tmpfile"
-  rm "$tmpfile"
 
   [[ "${0:0:1}" == "/" ]] && script="$0" || script="$PWD/$0"
 
-  /usr/bin/vim -e -X -R "$@" -c "source $script" -c "bufdo call AnsiHighlight()" -c qa >/dev/null 2>/dev/null
-  exec cat <&9
+  /usr/bin/vim -e -X -R "$@" -c "source $script" -c "bufdo call AnsiHighlight('$tmpfile')" -c qa >/dev/null 2>/dev/null
+  cat "$tmpfile"
+  rm "$tmpfile"
+  exit
 : endif
 
 " AnsiHighlight: Allows for marking up a file, using ANSI color escapes when
@@ -133,7 +134,7 @@ function! s:GroupToAnsi(groupnum)
   return retv
 endfunction
 
-function! AnsiHighlight()
+function! AnsiHighlight(out)
   let retv = []
 
   for lnum in range(1, line('$'))
@@ -163,5 +164,5 @@ function! AnsiHighlight()
   " Reset the colors to default after displaying the file
   let retv[-1] .= "\<Esc>[0m"
 
-  return writefile(retv, '/proc/self/fd/9')
+  return writefile(retv, a:out)
 endfunction

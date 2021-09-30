@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 import sys
 
+"""
+Prints out file as a table
+"""
+
 
 def common_indent(lines):
     if len(lines) == 0:
@@ -14,10 +18,10 @@ def common_indent(lines):
     return common_indent
 
 
-def tablign(string):
+def tablign(string, seperator=None):
     lines = string.splitlines()
     indent = common_indent(lines)
-    lines = [line[len(indent):].split() for line in lines]
+    lines = [line[len(indent):].split(seperator) for line in lines]
     sizes = [0] * max(len(line) for line in lines)
 
     for line in lines:
@@ -35,8 +39,18 @@ def usage():
 
 
 def main():
-    s = sys.stdin.read()
-    print(tablign(s))
+    sep = None
+    if len(sys.argv) == 1:
+        s = sys.stdin.read()
+    elif len(sys.argv) == 2:
+        with open(sys.argv[1], "r") as f:
+            s = f.read()
+    elif len(sys.argv) == 3:
+        with open(sys.argv[1], "r") as f:
+            s = f.read()
+        sep = sys.argv[2]
+
+    print(tablign(s, sep))
     return 0
 
 
