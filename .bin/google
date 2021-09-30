@@ -1,3 +1,0 @@
-#!/bin/sh
-
-browser "www.google.com/search?q=$*"
