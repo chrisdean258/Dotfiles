@@ -92,6 +92,7 @@ alias ls='ls --color=auto --group-directories-first'
 alias grep='grep --color=auto'
 alias hgrep='history | grep --color=auto'
 alias cat="ccat"
+alias ping="ping -c1 -w 1"
 
 exe colordiff && alias diff="colordiff"
 exe neomutt   && alias mutt="neomutt"
@@ -150,4 +151,4 @@ if test "$(find ~/.bashrc -mmin +1000)"; then
 	touch ~/.bashrc && (ping -c 1 -w 1 8.8.8.8) &>/dev/null && dots stash-pull
 fi
 
-tmux-explain
+[ $[ $RANDOM % 2 ] == 0 ] && tmux-explain || commands
