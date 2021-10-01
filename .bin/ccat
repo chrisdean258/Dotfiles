@@ -1,5 +1,11 @@
 #!/bin/sh
 
-[ -t 1 ] && exec vimcat "$@"
-
-exec cat "$@"
+for f in "$@"; do
+	if echo "$f" | grep -q "\.txt$"; then
+		cat "$f"
+	elif [ -t 1 ]; then
+		vimcat "$f"
+	else
+		cat "$f"
+	fi
+done

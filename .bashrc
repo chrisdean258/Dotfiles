@@ -86,12 +86,12 @@ alias ll='ls -alF'
 alias la='ls -A'
 alias l='ls -CF'
 alias car="ccat"
+alias cat="ccat"
 alias matlab="matlab -nodesktop -nosplash"
 alias jn="swallow jupyter notebook"
 alias ls='ls --color=auto --group-directories-first'
 alias grep='grep --color=auto'
 alias hgrep='history | grep --color=auto'
-alias cat="ccat"
 alias ping="ping -c1 -w 1"
 
 exe colordiff && alias diff="colordiff"
