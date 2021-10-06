@@ -3,6 +3,7 @@
 import sys
 import os
 import tempfile
+import re
 
 
 def ccat(f):
@@ -26,7 +27,7 @@ with open(commands, "r") as f:
 with tempfile.NamedTemporaryFile(mode="w", suffix=".md") as f:
     for arg in sys.argv[1:]:
         for topic, lines in sections:
-            if arg.lower() in topic.lower():
+            if re.search(arg.lower(), topic.lower()):
                 f.write("".join(lines))
     f.flush()
     ccat(f.name)

