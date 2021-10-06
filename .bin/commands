@@ -1,36 +1,32 @@
-#!/bin/sh
+#!/usr/bin/env python3
 
-bold()
-{
-	tput bold
-	echo "$@"
-	tput sgr0
-}
+import sys
+import os
+import tempfile
 
-if [ $# -eq 0 ]; then
-	bold "Check out https://github.com/brightio/penelope"
-fi
 
-if [ $# -eq 0 ] || echo 'nmap' | grep -iq "$*"; then
-	bold 'Nmap'
-	echo 'sudo nmap -O -sS -p- "$target"'
-	echo 'sudo nmap -sU -p- "$target"'
-	echo 'sudo nmap -sC -sV "$target"'
-fi
+def ccat(f):
+    os.system(f"ccat {f}")
 
-if [ $# -eq 0 ] || echo 'nmap' | grep -iq "$*"; then
-	bold 'Sudo'
-	echo 'sudo -l'
-fi
 
-if [ $# -eq 0 ] || echo 'dirb' | grep -iq "$*"; then
-	bold 'Dirb'
-	echo 'dirb "http://$target" -r -z 10'
-fi
+commands = os.environ["HOME"] + "/.bin/commands.md"
 
-if [ $# -eq 0 ] || echo 'smb' | grep -iq "$*"; then
-	bold 'SMB'
-	echo 'sudo nbtscan -r "$target"'
-	echo 'nmap -v -p 139,445 --script=smb-vuln-ms08-067 --script-args=unsafe=1 "$target"'
-fi
+if len(sys.argv) == 1:
+    ccat(commands)
+    sys.exit(0)
 
+sections = []
+
+with open(commands, "r") as f:
+    for line in f:
+        if line[0] == "#":
+            sections.append((line[1:].strip(), []))
+        sections[-1][1].append(line)
+
+with tempfile.NamedTemporaryFile(mode="w", suffix=".md") as f:
+    for arg in sys.argv[1:]:
+        for topic, lines in sections:
+            if arg.lower() in topic.lower():
+                f.write("".join(lines))
+    f.flush()
+    ccat(f.name)
