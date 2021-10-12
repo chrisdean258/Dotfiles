@@ -1,7 +1,7 @@
 #!/bin/sh
 
 for f in "$@"; do
-	if echo "$f" | grep -q "\.txt$"; then
+	if echo "$f" | grep -q "\.txt$" || [ ! -f "$f" ]; then
 		cat "$f"
 	elif [ -t 1 ]; then
 		vimcat "$f"
