@@ -23,7 +23,7 @@
 " License: BSD. Completely open source, but I would like to be
 " credited if you use some of this code elsewhere.
 
-" Copyright (c) 2008, Matthew J. Wozniski {{{1
+" Copyright (c) 2008, Matthew J. Wozniski {{{
 " All rights reserved.
 "
 " Redistribution and use in source and binary forms, with or without
@@ -46,9 +46,8 @@
 " LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
 " ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 " (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-" SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+" SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. }}}
 
-" Turn off vi-compatible mode, unless it's already off {{{1
 if &cp
   set nocp
 endif
@@ -58,7 +57,7 @@ if &t_Co == 0
   let s:type = 'term'
 endif
 
-" Converts info for a highlight group to a string of ANSI color escapes {{{1
+" Converts info for a highlight group to a string of ANSI color escapes 
 function! s:GroupToAnsi(groupnum)
   if ! exists("s:ansicache")
     let s:ansicache = {}

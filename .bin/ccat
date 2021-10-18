@@ -1,7 +1,14 @@
 #!/bin/sh
 
+
 for f in "$@"; do
-	if echo "$f" | grep -q "\.txt$"; then
+	if ! [ -f "$f" ]; then
+		echo "$f: no such file" 1>&2
+		exit 1
+	elif ! [ -r "$f" ]; then
+		echo "$f: not readable by $USER" 1>&2
+		exit 1
+	elif echo "$f" | grep -q "\.txt$" || [ "$(wc -l < "$f")" -gt 500 ]; then
 		cat "$f"
 	elif [ -t 1 ]; then
 		vimcat "$f"
