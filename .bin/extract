@@ -19,4 +19,5 @@ while [ $# -gt 0 ]; do
 	else
 		echo "'$1' is not a valid file"
 	fi
+	shift
 done

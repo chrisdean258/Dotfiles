@@ -12,7 +12,7 @@ dirb "http://$target" -r -z 10
 
 # SMB
 sudo nbtscan -r "$target"
-nmap -v -p 139,445 --script=smb-vuln-ms08-067 --script-args=unsafe=1 "$target"
+nmap -v -p 139,445 --script=smb-vuln-* "$target"
 
 # Upgrading Shell
 python -c 'import pty; pty.spawn("/bin/bash")'
