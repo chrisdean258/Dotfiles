@@ -15,7 +15,7 @@ gobuster dir -k --url "$target" --wordlist /usr/share/dirb/wordlists/common.txt
 sudo nbtscan -r "$target"
 nmap -v -p 139,445 --script=smb-vuln-* "$target"
 
-# Upgrading Shell
+# Upgrading Shell (pty)
 python -c 'import pty; pty.spawn("/bin/bash")'
 
 # Powershell

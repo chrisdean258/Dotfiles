@@ -1,0 +1,177 @@
+#!/usr/bin/env python3
+
+import select
+import socket
+import sys
+import threading
+import queue
+from termcolor import colored
+# Termcolor colors blue, magenta, grey
+# Used: red, green, yellow, white, magenta, cyan
+
+DEBUG = False
+REQ_COLOR = "white"
+RESP_COLOR = "cyan"
+
+
+class ProxyConnection:
+    def __init__(self, client_sock, client_addr):
+        self.client_sock = client_sock
+        self.client_addr = client_addr
+        self.server_sock = None
+        self.request_blocks = []
+        self.response_blocks = []
+        self.request = None
+        self.server_addr = None
+        self.response = None
+
+    def __hash__(self):
+        return hash(self.client_addr)
+
+    def __eq__(self, other):
+        return self.client_addr == other.client_addr
+
+    def parse_request(self):
+        req = b''.join(self.request_blocks)
+        method, _, text = req.partition(b' ')
+        url, _, text = text.partition(b' ')
+        if not url.startswith(b'http://'):
+            url = url.decode("utf-8")
+            raise ValueError(
+                "Bad request. URL '{url}' did not start with 'http://'")
+        url, slash, rest = url[len(b'http://'):].partition(b'/')
+        host, _, port = url.partition(b':')
+        port = 80 if port == b'' else int(port)
+        self.server_addr = (host, port)
+        self.request = method + b' /' + rest + b' ' + text
+
+    def term_str(self):
+        req = colored(self.request.decode("utf-8", "ignore"), REQ_COLOR)
+        resp = colored(self.response.decode("utf-8", "ignore"), RESP_COLOR)
+        return f"{req}\n{resp}"
+
+    def fileno(self):
+        if self.server_sock is None:
+            return self.client_sock.fileno()
+        return self.server_sock.fileno()
+
+    def client_recv(self, size=1024):
+        self.request_blocks.append(self.client_sock.recv(size))
+
+    def server_recv(self, size=1024):
+        self.response_blocks.append(self.server_sock.recv(size))
+
+    def forward_req(self):
+        info(f"Recieved request from {self.client_addr}")
+        self.parse_request()
+        self.server_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.server_sock.connect(self.server_addr)
+        self.server_sock.sendall(self.request)
+
+    def close(self):
+        self.response = b''.join(self.response_blocks)
+        self.client_sock.sendall(self.response)
+        self.client_sock.close()
+        self.server_sock.close()
+
+    def abort(self):
+        self.client_sock.close()
+        if self.server_sock is not None:
+            self.server_sock.close()
+
+
+def debug(*args, file=sys.stderr, flush=True, **kwargs):
+    def c(s): return colored(s, 'magenta')
+    if not DEBUG:
+        return
+    print(c("[Debug]"), *map(c, args), file=file, flush=flush, **kwargs)
+
+
+def info(*args, file=sys.stderr, flush=True, **kwargs):
+    def c(s): return colored(s, 'green')
+    print(c("[INFO]"), *map(c, args), file=file, flush=flush, **kwargs)
+
+
+def warning(*args, file=sys.stderr, flush=True, **kwargs):
+    def c(s): return colored(s, 'yellow')
+    print(c("[WARNING]"), *map(c, args), file=file, flush=flush, **kwargs)
+
+
+def error(*args, file=sys.stderr, flush=True, **kwargs):
+    def c(s): return colored(s, 'red')
+    print(c("[ERROR]"), *map(c, args), file=file, flush=flush, **kwargs)
+
+
+def readable(socks, timeout=0.1):
+    return select.select(socks, [], [], timeout)[0]
+
+
+def handle_connections(queue):
+    needs_req = set()
+    needs_resp = set()
+    while True:
+        # get all current values on the queue. they need their requests
+        while not queue.empty() or len(needs_req) + len(needs_resp) == 0:
+            client, addr = queue.get()
+            info(f"Accepted connection from {addr}")
+            needs_req.add(ProxyConnection(client, addr))
+
+        # Let the connections that have messages from their client get them
+        needs_recv = set(readable(needs_req))
+        for record in needs_recv:
+            record.client_recv()
+
+        # if you didnt get a message we've recieved your first bit. forward it
+        recved_req = needs_req - needs_recv
+        needs_req -= recved_req
+        aborted = set()
+        for record in recved_req:
+            try:
+                record.forward_req()
+            except ValueError:
+                record.abort()
+                aborted.add(record)
+        for record in aborted:
+            error("Connection from {record.client_addr} aboorted")
+
+        recved_req -= aborted
+
+        # if we forwarded your messages you need a response from the server
+        needs_resp |= recved_req
+
+        # get those responses
+        # (we may need to segregate those who have never recieved anything)
+        needs_recv = set(readable(needs_resp))
+        for record in needs_recv:
+            record.server_recv()
+
+        # for those we didnt get anything theyre done. we can close them
+        # which forwards the server message to the client
+        completed = needs_resp - needs_recv
+        needs_resp -= completed
+        for record in completed:
+            record.close()
+            print(record.term_str())
+
+
+def accept_connections(sock, queue):
+    while True:
+        queue.put(sock.accept())
+
+
+def main(argv):
+    port = 8080
+    q = queue.Queue()
+    threading.Thread(target=handle_connections, args=(q,), daemon=True).start()
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.bind(("localhost", port))
+        s.listen()
+        try:
+            info(f"Accepting connections on port {port}")
+            accept_connections(s, q)
+        except KeyboardInterrupt:
+            warning("Recieved keyboard interrupt. Shutting down")
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))
