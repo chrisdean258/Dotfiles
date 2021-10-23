@@ -15,6 +15,14 @@ REQ_COLOR = "white"
 RESP_COLOR = "cyan"
 
 
+class ProxyAbort(Exception):
+    pass
+
+
+class ProxyRetry(Exception):
+    pass
+
+
 class ProxyConnection:
     def __init__(self, client_sock, client_addr):
         self.client_sock = client_sock
@@ -35,9 +43,9 @@ class ProxyConnection:
     def parse_request(self):
         req = b''.join(self.request_blocks)
         if req.startswith(b'CONNECT'):  # We dont support ssl yet
-            raise ValueError("HTTPS not yet supported")
+            raise ProxyAbort("HTTPS not yet supported")
         if not req:
-            return False
+            raise ProxyRetry("Request was empty")
         host, _, port = req.splitlines()[1].partition(b' ')[2].partition(b':')
         port = 80 if port == b'' else int(port)
         self.server_addr = (host, port)
@@ -71,13 +79,12 @@ class ProxyConnection:
 
     def forward_req(self):
         info(f"Recieved request from {self.client_addr}")
-        if not self.parse_request():
-            return
+        self.parse_request()
         self.server_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
             self.server_sock.connect(self.server_addr)
         except socket.gaierror:
-            raise ValueError(f"Could not connect to {self.server_addr}")
+            raise ProxyAbort(f"Could not connect to {self.server_addr}")
 
         self.server_sock.sendall(self.request)
 
@@ -141,10 +148,13 @@ def handle_connections(queue):
                     if conn.advance():
                         all_conns.remove(conn)
                         print(conn.term_str())
-                except ValueError as e:
+                except ProxyAbort as e:
                     error(f"Aborting connection from {conn.client_addr}: {e}")
                     all_conns.remove(conn)
                     conn.abort()
+                except ProxyRetry:
+                    warning(f"Retrying connection from {conn.client_addr}")
+                    pass
     finally:
         for connection in all_conns:
             connection.abort()
