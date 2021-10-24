@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 
-import select
 import socket
 import sys
 import threading
 import queue
+from select import select
 from termcolor import colored
 # Termcolor colors blue, magenta, grey
 # Used: red, green, yellow, white, magenta, cyan
@@ -113,7 +113,6 @@ class ProxyConnection:
         return False
 
     def forward_req(self):
-        info(f"Recieved request from {self.client_addr}")
         self.parse_request()
         self.server_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
@@ -138,7 +137,7 @@ class ProxyConnection:
 
 
 def cprint(*args, color=None, file=sys.stderr, flush=None, **kwargs):
-    def c(s): return colored(s, color) if COLOR else s
+    c = (lambda s: colored(s, color)) if (COLOR and color) else (lambda s: s)
     print(*map(c, args), file=file, flush=flush, **kwargs)
 
 
@@ -153,26 +152,14 @@ def print_thread():
         cprint(*args, **kwargs)
 
 
-def debug(*args, **kwargs):
-    if not DEBUG:
-        return
-    csubmit("[Debug]", *args, color="magenta", **kwargs)
+def log_level(label, color=None):
+    return lambda *a, **kw: csubmit(label, *a, color=color, **kw)
 
 
-def info(*args, **kwargs):
-    csubmit("[INFO]", *args, color="green", **kwargs)
-
-
-def warning(*args, **kwargs):
-    csubmit("[WARNING]", *args, color="yellow", **kwargs)
-
-
-def error(*args, **kwargs):
-    csubmit("[ERROR]", *args, color="red", **kwargs)
-
-
-def readable(socks, timeout=0.1):
-    return select.select(socks, [], [], timeout)[0]
+info = log_level("[INFO]", "green")
+warning = log_level("[WARNING]", "yellow")
+error = log_level("[ERROR]", "red")
+debug = log_level("[DEBUG]", "magenta")
 
 
 def handle_connections(job_q):
@@ -186,7 +173,7 @@ def handle_connections(job_q):
                 conn = ProxyConnection(client, addr)
                 all_conns.add(conn)
 
-            needs_recv = set(readable(all_conns))
+            needs_recv = set(select(all_conns, [], [], 0.1)[0])
             for conn in needs_recv:
                 conn.recv()
 
@@ -195,7 +182,7 @@ def handle_connections(job_q):
                 try:
                     if conn.advance():
                         all_conns.remove(conn)
-                        print(conn.term_str())
+                        csubmit(conn.term_str())
                 except ProxyAbort as e:
                     error(f"Aborting connection from {conn.client_addr}: {e}")
                     all_conns.remove(conn)
