@@ -13,6 +13,40 @@ DEBUG = False
 COLOR = True
 REQ_COLOR = "white"
 RESP_COLOR = "cyan"
+print_q = queue.Queue()
+
+
+class RequestParser:
+    def __init__(self, method, url, version, headers, req_lines=()):
+        self.method = method
+        self.url = url
+        self.version = version
+        self.headers = headers
+        self.req_lines = req_lines
+
+    @classmethod
+    def from_bytes(cls, data):
+        head, *lines = data.splitlines()
+        method, url, version = head.split(b' ')
+        headers = {}
+        for i, line in enumerate(lines):
+            if not line:
+                break
+            key, _, value = line.partition(b': ')
+            headers[key] = value
+        req_lines = lines[i:]
+        return cls(method, url, version, headers, req_lines)
+
+    def __getitem__(self, key):
+        return self.headers[key]
+
+    def __bytes__(self):
+        first = b' '.join((self.method, self.url, self.version))
+        headers = [k + b': ' + v for k, v in self.headers.items()]
+        return b'\r\n'.join([first] + headers + self.req_lines + [b''])
+
+    def __str__(self):
+        return bytes(self).decode("utf-8", "ignore")
 
 
 class ProxyAbort(Exception):
@@ -42,16 +76,17 @@ class ProxyConnection:
 
     def parse_request(self):
         req = b''.join(self.request_blocks)
-        if req.startswith(b'CONNECT'):  # We dont support ssl yet
-            raise ProxyAbort("HTTPS not yet supported")
         if not req:
             raise ProxyRetry("Request was empty")
-        host, _, port = req.splitlines()[1].partition(b' ')[2].partition(b':')
+        request = RequestParser.from_bytes(req)
+        if request.method == b'CONNECT':  # We dont support ssl yet
+            raise ProxyAbort("HTTPS not yet supported")
+        request.url = request.url.replace(b'http://' + request[b'Host'], b'')
+        request.url += b'' if request.url else b'/'
+        host, _, port = request[b'Host'].partition(b':')
         port = 80 if port == b'' else int(port)
         self.server_addr = (host, port)
-        self.request = req.replace(b'http://' + host + b'/', b'/')
-        self.request = self.request.replace(b'http://' + host, b'/')
-        return True
+        self.request = bytes(request)
 
     def term_str(self):
         req = colored(self.request.decode("utf-8", "ignore"), REQ_COLOR)
@@ -64,18 +99,18 @@ class ProxyConnection:
         return self.server_sock.fileno()
 
     def recv(self, size=1024):
-        if self.server_sock is not None:
-            self.response_blocks.append(self.server_sock.recv(size))
-        else:
-            self.request_blocks.append(self.client_sock.recv(size))
+        if self.server_sock is None:
+            return self.request_blocks.append(self.client_sock.recv(size))
+        return self.response_blocks.append(self.server_sock.recv(size))
 
     def advance(self):
-        if self.server_sock is None:
+        if self.server_sock is None and self.request_blocks:
             self.forward_req()
             return False
-        else:
+        elif self.response_blocks:
             self.close()
             return True
+        return False
 
     def forward_req(self):
         info(f"Recieved request from {self.client_addr}")
@@ -89,6 +124,8 @@ class ProxyConnection:
         self.server_sock.sendall(self.request)
 
     def close(self):
+        if not self.response_blocks:
+            raise ProxyRetry("Hadn't yet recieved server response")
         self.response = b''.join(self.response_blocks)
         self.client_sock.sendall(self.response)
         self.client_sock.close()
@@ -100,40 +137,51 @@ class ProxyConnection:
             self.server_sock.close()
 
 
-def cprint(*args, color=None, file=sys.stderr, flush=True, **kwargs):
+def cprint(*args, color=None, file=sys.stderr, flush=None, **kwargs):
     def c(s): return colored(s, color) if COLOR else s
     print(*map(c, args), file=file, flush=flush, **kwargs)
+
+
+def csubmit(*args, **kwargs):
+    print_q.put((args, kwargs))
+
+
+def print_thread():
+    while True:
+        args, kwargs = print_q.get()
+        kwargs.setdefault("flush", print_q.empty())
+        cprint(*args, **kwargs)
 
 
 def debug(*args, **kwargs):
     if not DEBUG:
         return
-    cprint("[Debug]", *args, color="magenta", **kwargs)
+    csubmit("[Debug]", *args, color="magenta", **kwargs)
 
 
 def info(*args, **kwargs):
-    cprint("[INFO]", *args, color="green", **kwargs)
+    csubmit("[INFO]", *args, color="green", **kwargs)
 
 
 def warning(*args, **kwargs):
-    cprint("[WARNING]", *args, color="yellow", **kwargs)
+    csubmit("[WARNING]", *args, color="yellow", **kwargs)
 
 
 def error(*args, **kwargs):
-    cprint("[ERROR]", *args, color="red", **kwargs)
+    csubmit("[ERROR]", *args, color="red", **kwargs)
 
 
 def readable(socks, timeout=0.1):
     return select.select(socks, [], [], timeout)[0]
 
 
-def handle_connections(queue):
+def handle_connections(job_q):
     all_conns = set()
     try:
         while True:
             # get all current values on the queue. they need their requests
-            while not queue.empty() or not all_conns:
-                client, addr = queue.get()
+            while not job_q.empty() or not all_conns:
+                client, addr = job_q.get()
                 info(f"Accepted connection from {addr}")
                 conn = ProxyConnection(client, addr)
                 all_conns.add(conn)
@@ -152,9 +200,9 @@ def handle_connections(queue):
                     error(f"Aborting connection from {conn.client_addr}: {e}")
                     all_conns.remove(conn)
                     conn.abort()
-                except ProxyRetry:
-                    warning(f"Retrying connection from {conn.client_addr}")
-                    pass
+                except ProxyRetry as e:
+                    warning(
+                        f"Retrying connection from {conn.client_addr}: {e}")
     finally:
         for connection in all_conns:
             connection.abort()
@@ -169,6 +217,7 @@ def main(argv):
     port = 8080
     q = queue.Queue()
     threading.Thread(target=handle_connections, args=(q,), daemon=True).start()
+    threading.Thread(target=print_thread, daemon=True).start()
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.bind(("localhost", port))
         s.listen()
