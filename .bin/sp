@@ -4,6 +4,7 @@ import socket
 import sys
 import threading
 import queue
+import curses
 from select import select
 from termcolor import colored
 # Termcolor colors blue, magenta, grey
@@ -14,6 +15,10 @@ COLOR = True
 REQ_COLOR = "white"
 RESP_COLOR = "cyan"
 print_q = queue.Queue()
+completed_connections = []
+
+CONNECTION_LIST_WIDTH = 30
+NOTIFICATION_LIST_WIDTH = 50
 
 
 class RequestParser:
@@ -135,6 +140,43 @@ class ProxyConnection:
         if self.server_sock is not None:
             self.server_sock.close()
 
+def handle_connections(job_q):
+    all_conns = set()
+    try:
+        while True:
+            # get all current values on the queue. they need their requests
+            while not job_q.empty() or not all_conns:
+                client, addr = job_q.get()
+                info(f"Accepted connection from {addr}")
+                conn = ProxyConnection(client, addr)
+                all_conns.add(conn)
+
+            needs_recv = set(select(all_conns, [], [], 0.1)[0])
+            for conn in needs_recv:
+                conn.recv()
+
+            needs_advance = all_conns - needs_recv
+            for conn in needs_advance:
+                try:
+                    if conn.advance():
+                        all_conns.remove(conn)
+                        csubmit(conn.term_str())
+                        completed_connections.append(conn)
+                except ProxyAbort as e:
+                    error(f"Aborting connection from {conn.client_addr}: {e}")
+                    all_conns.remove(conn)
+                    conn.abort()
+                except ProxyRetry as e:
+                    warning(
+                        f"Retrying connection from {conn.client_addr}: {e}")
+    finally:
+        for connection in all_conns:
+            connection.abort()
+
+
+def accept_connections(sock, queue, thread):
+    while thread.is_alive():
+        queue.put(sock.accept())
 
 def cprint(*args, color=None, file=sys.stderr, flush=None, **kwargs):
     c = (lambda s: colored(s, color)) if (COLOR and color) else (lambda s: s)
@@ -162,55 +204,64 @@ error = log_level("[ERROR]", "red")
 debug = log_level("[DEBUG]", "magenta")
 
 
-def handle_connections(job_q):
-    all_conns = set()
-    try:
-        while True:
-            # get all current values on the queue. they need their requests
-            while not job_q.empty() or not all_conns:
-                client, addr = job_q.get()
-                info(f"Accepted connection from {addr}")
-                conn = ProxyConnection(client, addr)
-                all_conns.add(conn)
+def curses_main(stdscr):
+    stdscr.clear()
+    rows = curses.LINES
+    cols = curses.COLS
+    lwidth = CONNECTION_LIST_WIDTH
+    nwidth = NOTIFICATION_LIST_WIDTH
+    curses.use_default_colors()
+    conn_win = curses.newwin(curses.LINES - 3, lwidth, 1, 1)
+    not_win = curses.newwin(curses.LINES - 3, nwidth, 1, 1)
 
-            needs_recv = set(select(all_conns, [], [], 0.1)[0])
-            for conn in needs_recv:
-                conn.recv()
+    top = "┏" + "━" * lwidth + "┯" + "━" * (cols - lwidth  - nwidth - 4) + "┯" + "━" * nwidth + "┓"
+    bot = "┗" + "━" * lwidth + "┷" + "━" * (cols - lwidth  - nwidth - 4) + "┷" + "━" * nwidth + "┛"
+    stdscr.addstr(0,0, top)
+    stdscr.addstr(rows - 2,0, bot)
+    for row in range(1, rows - 2):
+        stdscr.addstr(row, 0, "┃")
+        stdscr.addstr(row, lwidth  + 1, "│")
+        stdscr.addstr(row, cols - nwidth - 2, "│")
+        stdscr.addstr(row, cols - 1, "┃")
 
-            needs_advance = all_conns - needs_recv
-            for conn in needs_advance:
-                try:
-                    if conn.advance():
-                        all_conns.remove(conn)
-                        csubmit(conn.term_str())
-                except ProxyAbort as e:
-                    error(f"Aborting connection from {conn.client_addr}: {e}")
-                    all_conns.remove(conn)
-                    conn.abort()
-                except ProxyRetry as e:
-                    warning(
-                        f"Retrying connection from {conn.client_addr}: {e}")
-    finally:
-        for connection in all_conns:
-            connection.abort()
-
-
-def accept_connections(sock, queue):
     while True:
-        queue.put(sock.accept())
+        key = stdscr.getch()
+        if key == ord('q'):
+            break
+        # elif key == ord('j'):
+            # if selected < len(litems) - 1:
+                # selected += 1
+                # render_items(litems, win, selected)
+                # stdscr.refresh()
+                # win.refresh()
+        # elif key == ord('k'):
+            # if selected > 0:
+                # selected -= 1
+                # render_items(litems, win, selected)
+                # stdscr.refresh()
+                # win.refresh()
 
+
+
+def curses_thread():
+    curses.wrapper(curses_main)
 
 def main(argv):
     port = 8080
     q = queue.Queue()
     threading.Thread(target=handle_connections, args=(q,), daemon=True).start()
-    threading.Thread(target=print_thread, daemon=True).start()
+    if "-c" in argv or "--curses" in argv:
+        COLOR = False
+        t = threading.Thread(target=curses_thread, daemon=True)
+    else:
+        t = threading.Thread(target=print_thread, daemon=True)
+    t.start()
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.bind(("localhost", port))
         s.listen()
         try:
             info(f"Accepting connections on port {port}")
-            accept_connections(s, q)
+            accept_connections(s, q, t)
         except KeyboardInterrupt:
             warning("Recieved keyboard interrupt. Shutting down")
 
