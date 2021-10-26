@@ -1,0 +1,193 @@
+#!/usr/bin/env python3
+
+import asyncio
+import curses
+import sys
+from select import select
+from itertools import takewhile
+import concurrent.futures
+
+import io
+
+CompletedConnection = 1
+LogMessage = 2
+StdinRead = 3
+
+
+class RequestParser:
+    def __init__(self, method, url, version, headers, req_lines=()):
+        self.method = method
+        self.url = url
+        self.version = version
+        self.headers = headers
+        self.req_lines = req_lines
+
+    @classmethod
+    def from_bytes(cls, data):
+        head, *lines = data.splitlines()
+        method, url, version = head.split(b' ')
+        headers = {}
+        for i, line in enumerate(takewhile(lambda a: a, lines)):
+            key, _, value = line.partition(b': ')
+            headers[key] = value
+        req_lines = lines[i+1:]
+        return cls(method, url, version, headers, req_lines)
+
+    def __bytes__(self):
+        first = b' '.join((self.method, self.url, self.version))
+        headers = [k + b': ' + v for k, v in self.headers.items()]
+        return b'\r\n'.join([first] + headers + self.req_lines + [b''])
+
+    def fix_url(self):
+        self.url = b'/' + self.url.split(b'/', 3)[3]
+
+    def host_port(self):
+        url, _, port = self.headers[b'Host'].partition(b':')
+        port = int(port) if port else 80
+        return url, port
+
+
+async def gather_http_req(reader):
+    to = []
+    while not to or not to[-1].endswith(b'\r\n\r\n'):
+        to.append(await reader.read(1024))
+    return b''.join(to)
+
+
+async def log(queue, *args, **kwargs):
+    await queue.put((LogMessage, (args, kwargs)))
+
+
+async def log_con(queue, c_addr, s_addr, c_rec, s_rec):
+    await queue.put((CompletedConnection, (c_addr, s_addr, c_rec, s_rec)))
+
+
+async def handle_client(client_r, client_w, record):
+    try:
+        addr = client_w.get_extra_info('peername')
+        log("accept connection from", addr)
+        request = RequestParser.from_bytes(await gather_http_req(client_r))
+        request.fix_url()
+        req = bytes(request)
+        server_addr = request.host_port()
+        server_r, server_w = await asyncio.open_connection(*server_addr)
+        server_w.write(req)
+        resp = await gather_http_req(server_r)
+        client_w.write(resp)
+        await log_con(record, addr, server_addr, req, resp)
+    finally:
+        client_w.close()
+        server_w.close()
+
+
+async def record_events(event_q, stdin_queue):
+    while True:
+        etype, event = await event_q.get()
+        if etype == CompletedConnection:
+            print(f"Connection from {event[0]} to {event[1]}")
+            print(event[2].decode('utf-8', 'ignore'))
+            print(event[3].decode('utf-8', 'ignore'), flush=True)
+        elif etype == LogMessage:
+            print(*event[0], **event[1])
+        elif etype == StdinRead:
+            assert 0, "Unreachable"
+        event_q.task_done()
+
+
+def curses_setup():
+    stdscr = curses.initscr()
+    curses.noecho()
+    curses.cbreak()
+    stdscr.keypad(True)
+    return stdscr
+
+
+def curses_teardown(stdscr):
+    curses.nocbreak()
+    stdscr.keypad(False)
+    curses.echo()
+    curses.endwin()
+
+
+async def notify_stdin(event_q, ready_queue):
+    running = True
+
+    def _run():
+        nonlocal running
+        while running and sys.stdin not in select([sys.stdin], [], [], 0.1)[0]:
+            pass
+
+    loop = asyncio.get_event_loop()
+    executor = concurrent.futures.ThreadPoolExecutor(max_workers=5)
+
+    try:
+        while True:
+            await loop.run_in_executor(executor, _run)
+            await event_q.put((StdinRead, None))
+            await ready_queue.get()
+            ready_queue.task_done()
+    except asyncio.CancelledError:
+        running = False
+
+
+async def curses_main(stdscr, event_q, stdin_q):
+    row = 0
+    while True:
+        etype, event = await event_q.get()
+        if etype == CompletedConnection:
+            string = f"Connection from {event[0]} to {event[1]}"
+        elif etype == LogMessage:
+            buf = io.StringIO()
+            print(*event[0], **event[1], file=buf)
+            string = buf.get_value()
+        elif etype == StdinRead:
+            key = stdscr.getch()
+            if key == ord('q'):
+                break
+            await stdin_q.put(())
+            string = chr(key)
+
+        stdscr.addstr(row, 0, string)
+        row = (row + 1) % curses.LINES
+        stdscr.refresh()
+        event_q.task_done()
+
+
+async def first_done(*events):
+    done, pending = await asyncio.wait(
+        map(asyncio.create_task, events), return_when=asyncio.FIRST_COMPLETED)
+    for task in pending:
+        task.cancel()
+    return done
+
+
+async def curses_record(event_q):
+    try:
+        stdin_q = asyncio.Queue()
+        stdscr = curses_setup()
+        not_stdin = notify_stdin(event_q, stdin_q)
+        curses_task = curses_main(stdscr, event_q, stdin_q)
+        await first_done(not_stdin, curses_task)
+    finally:
+        curses_teardown(stdscr)
+        await stdin_q.join()
+
+
+async def main(argv):
+    asyncio.get_running_loop()
+    record = asyncio.Queue()
+    server = await asyncio.start_server(
+        lambda a, b: handle_client(a, b, record), 'localhost', 8080)
+    try:
+        await first_done(
+            server.serve_forever(),
+            # record_events(record),
+            curses_record(record),
+        )
+
+    except KeyboardInterrupt:
+        await record.join()
+
+
+if __name__ == "__main__":
+    sys.exit(asyncio.run(main(sys.argv)))
