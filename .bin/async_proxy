@@ -6,6 +6,7 @@ import sys
 from select import select
 from itertools import takewhile
 import concurrent.futures
+import traceback
 
 import io
 
@@ -65,7 +66,7 @@ async def log_con(queue, c_addr, s_addr, c_rec, s_rec):
 async def handle_client(client_r, client_w, record):
     try:
         addr = client_w.get_extra_info('peername')
-        log("accept connection from", addr)
+        await log(record, "accept connection from", addr)
         request = RequestParser.from_bytes(await gather_http_req(client_r))
         request.fix_url()
         req = bytes(request)
@@ -99,12 +100,14 @@ def curses_setup():
     curses.noecho()
     curses.cbreak()
     stdscr.keypad(True)
+    curses.curs_set(False)
     return stdscr
 
 
 def curses_teardown(stdscr):
     curses.nocbreak()
     stdscr.keypad(False)
+    curses.curs_set(True)
     curses.echo()
     curses.endwin()
 
@@ -130,27 +133,90 @@ async def notify_stdin(event_q, ready_queue):
         running = False
 
 
-async def curses_main(stdscr, event_q, stdin_q):
-    row = 0
-    while True:
-        etype, event = await event_q.get()
-        if etype == CompletedConnection:
-            string = f"Connection from {event[0]} to {event[1]}"
-        elif etype == LogMessage:
-            buf = io.StringIO()
-            print(*event[0], **event[1], file=buf)
-            string = buf.get_value()
-        elif etype == StdinRead:
-            key = stdscr.getch()
-            if key == ord('q'):
-                break
-            await stdin_q.put(())
-            string = chr(key)
+def draw_conns(lwin, nwin, cons, selected):
+    my_con = None
+    for i, con in enumerate(cons):
+        (caddr, cport), (saddr, sport), req, resp = con
+        string = saddr.decode("utf-8") + ":" + str(sport)
+        if i == selected:
+            my_con = con
+            lwin.addstr(i + 1, 1, string, curses.A_BOLD)
+        else:
+            lwin.addstr(i + 1, 1, string)
+    if my_con is not None:
+        lineno = 1
+        for line in req.splitlines():
+            nwin.addstr(lineno, 1, line)
+            lineno += 1
+        for line in resp.splitlines():
+            nwin.addstr(lineno, 1, line)
+            lineno += 1
+        nwin.refresh()
 
-        stdscr.addstr(row, 0, string)
-        row = (row + 1) % curses.LINES
+    lwin.refresh()
+
+
+def draw_nots(win, nots):
+    for i, n in enumerate(nots):
+        win.addstr(i + 1, 1, n)
+    win.refresh()
+
+
+async def curses_main(stdscr, event_q, stdin_q):
+    try:
+        COLS = curses.COLS
+        ROWS = curses.LINES
+        lwidth = min(curses.COLS // 7, 20)
+        nheight = 10
+        nots = []
+        cons = []
+
+        conn_win = curses.newwin(ROWS - 2, lwidth, 1, 1)  # noqa
+        not_win = curses.newwin(nheight, COLS - lwidth - 2,   # noqa
+                                ROWS - nheight - 1, lwidth + 1)
+        cur_con = curses.newwin(curses.LINES - nheight - 2,
+                                COLS - lwidth - 2, 1, lwidth + 1)
+        stdscr.box()
+        cur_con.box()
+        conn_win.box()
+        not_win.box()
+
         stdscr.refresh()
-        event_q.task_done()
+        cur_con.refresh()
+        conn_win.refresh()
+        not_win.refresh()
+
+        selection = 0
+        draw_conns(conn_win, cur_con, cons, selection)
+
+        while True:
+            etype, event = await event_q.get()
+            if etype == CompletedConnection:
+                cons.append(event)
+                draw_conns(conn_win, cur_con, cons, selection)
+            elif etype == LogMessage:
+                buf = io.StringIO()
+                print(*event[0], **event[1], file=buf)
+                nots.append(buf.getvalue())
+                while len(nots) > nheight - 2:
+                    del nots[0]
+                draw_nots(not_win, nots)
+            elif etype == StdinRead:
+                key = stdscr.getch()
+                if key == ord('q'):
+                    break
+                if key == ord('j'):
+                    selection = min(selection + 1, len(cons) - 1)
+                    draw_conns(conn_win, cur_con, cons, selection)
+                if key == ord('k'):
+                    selection = max(selection - 1, 0)
+                    draw_conns(conn_win, cur_con, cons, selection)
+                await stdin_q.put(())
+
+            event_q.task_done()
+    except Exception as e:
+        print(str(e), traceback.format_exc(), file=open("msg", "w"))
+        raise
 
 
 async def first_done(*events):
