@@ -11,8 +11,9 @@ import traceback
 import io
 
 CompletedConnection = 1
-LogMessage = 2
-StdinRead = 3
+CompletedTLSConnection = 2
+LogMessage = 3
+StdinRead = 4
 
 
 class RequestParser:
@@ -69,14 +70,24 @@ async def log_con(queue, c_addr, s_addr, c_rec, s_rec):
     await queue.put((CompletedConnection, (c_addr, s_addr, c_rec, s_rec)))
 
 
+async def handle_tls_client(c_r, c_w, c_addr, s_addr, con_mess, record):
+    await log_con(record, c_addr, s_addr, con_mess, b'[ABORTED]')
+
+
 async def handle_client(client_r, client_w, record):
+    server_w = None
     try:
         addr = client_w.get_extra_info('peername')
         await log(record, "accept connection from", addr)
         request = RequestParser.from_bytes(await gather_http_req(client_r))
+        # TLS
         request.fix_url()
         req = bytes(request)
         server_addr = request.host_port()
+        if request.method == b'CONNECT':
+            await handle_tls_client(
+                client_r, client_w, addr, server_addr, req, record)
+            return
         server_r, server_w = await asyncio.open_connection(*server_addr)
         server_w.write(req)
         resp = await gather_http_req(server_r)
@@ -84,7 +95,8 @@ async def handle_client(client_r, client_w, record):
         await log_con(record, addr, server_addr, req, resp)
     finally:
         client_w.close()
-        server_w.close()
+        if server_w is not None:
+            server_w.close()
 
 
 async def record_events(event_q, stdin_queue):
