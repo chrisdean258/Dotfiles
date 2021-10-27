@@ -16,7 +16,9 @@ f = open("msg", "w")
 
 
 def print(*args, **kwargs):
-    _real_print(*args, file=f, flush=True, **kwargs)
+    kwargs["file"] = f
+    kwargs["flush"] = True
+    _real_print(*args, **kwargs)
 
 
 async def asyncio_complete_one(*events):
@@ -82,7 +84,7 @@ class AsyncHTTPServer:
         self.queue = queue
         self.server = None
 
-    @ staticmethod
+    @staticmethod
     async def gather_http_req(reader):
         to = []
         while not to or b'\r\n\r\n' not in to[-1]:
@@ -100,10 +102,10 @@ class AsyncHTTPServer:
         await self.server.serve_forever(),
 
     async def log(self, *args, **kwargs):
-        await self.queue.put((LogMessage, (args, kwargs)))
+        await self.queue.put((MesgType.LogMessage, (args, kwargs)))
 
     async def log_con(self, c_addr, s_addr, c_rec, s_rec):
-        await self.queue.put((CompletedConnection, (c_addr, s_addr, c_rec, s_rec)))
+        await self.queue.put((MesgType, CompletedConnection, (c_addr, s_addr, c_rec, s_rec)))
 
     async def handle_tls_client(self, c_r, c_w, c_addr, s_addr, con_mess):
         await log_con(self.queue, c_addr, s_addr, con_mess, b'[ABORTED]')
@@ -114,11 +116,13 @@ class AsyncHTTPServer:
             addr = client_w.get_extra_info('peername')
             await self.log("accept connection from", addr)
             request = RequestParser.from_bytes(await gather_http_req(client_r))
+            print(request)
             request.fix_url()
             req = bytes(request)
             server_addr = request.host_port()
             # TLS
             if request.method == b'CONNECT':
+                print("TLS")
                 await handle_tls_client(
                     client_r, client_w, addr, server_addr, req, self.queue)
                 return
@@ -319,9 +323,8 @@ class CursesLogger(Logger):
 
     async def LogMessage(self, event):
         buf = io.StringIO()
-        print(*event[0], **event[1], file=buf)
+        _real_print(*event[0], **event[1], file=buf)
         self.nots.append(buf.getvalue())
-        nots = nots[-self.nheight + 2:]
         self.draw_nots()
 
     async def CompletedConnection(self, event):
