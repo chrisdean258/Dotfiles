@@ -1,19 +1,40 @@
 #!/usr/bin/env python3
 
 import asyncio
+import concurrent.futures
 import curses
+import enum
+import io
 import sys
+import traceback
+from contextlib import suppress, contextmanager
 from select import select
 from itertools import takewhile
-import concurrent.futures
-import traceback
 
-import io
+_real_print = print
+f = open("msg", "w")
 
-CompletedConnection = 1
-CompletedTLSConnection = 2
-LogMessage = 3
-StdinRead = 4
+
+def print(*args, **kwargs):
+    _real_print(*args, file=f, flush=True, **kwargs)
+
+
+async def asyncio_complete_one(*events):
+    done, pending = await asyncio.wait(
+        map(asyncio.create_task, events), return_when=asyncio.FIRST_COMPLETED)
+    print(done)
+    for task in pending:
+        task.cancel()
+    return done
+
+
+async def poll(condition):
+    while not condition():
+        await asyncio.sleep(0.1)
+
+
+async def file_readable(of):
+    await poll(lambda: of in select([of], [], [], 0)[0])
 
 
 class RequestParser:
@@ -49,270 +70,281 @@ class RequestParser:
         return url, port
 
 
-async def gather_http_req(reader):
-    to = []
-    while not to or b'\r\n\r\n' not in to[-1]:
-        to.append(await reader.read(1024))
-
-    req = RequestParser.from_bytes(b''.join(to))
-    if b'Content-Length' in req.headers:
-        length = int(req.headers[b'Content-Length'])
-        to.append(await reader.read(length))
-
-    return b''.join(to)
+class MesgType(enum.Enum):
+    CompletedConnection = enum.auto()
+    CompletedTLSConnection = enum.auto()
+    LogMessage = enum.auto()
+    StdinRead = enum.auto()
 
 
-async def log(queue, *args, **kwargs):
-    await queue.put((LogMessage, (args, kwargs)))
+class AsyncHTTPServer:
+    def __init__(self, queue):
+        self.queue = queue
+        self.server = None
+
+    @ staticmethod
+    async def gather_http_req(reader):
+        to = []
+        while not to or b'\r\n\r\n' not in to[-1]:
+            to.append(await reader.read(1024))
+
+        req = RequestParser.from_bytes(b''.join(to))
+        if b'Content-Length' in req.headers:
+            length = int(req.headers[b'Content-Length'])
+            to.append(await reader.read(length))
+
+        return b''.join(to)
+
+    async def run(self, host='localhost', port=8080):
+        self.server = await asyncio.start_server(self.handle_client, host, port)
+        await self.server.serve_forever(),
+
+    async def log(self, *args, **kwargs):
+        await self.queue.put((LogMessage, (args, kwargs)))
+
+    async def log_con(self, c_addr, s_addr, c_rec, s_rec):
+        await self.queue.put((CompletedConnection, (c_addr, s_addr, c_rec, s_rec)))
+
+    async def handle_tls_client(self, c_r, c_w, c_addr, s_addr, con_mess):
+        await log_con(self.queue, c_addr, s_addr, con_mess, b'[ABORTED]')
+
+    async def handle_client(self, client_r, client_w):
+        server_w = None
+        try:
+            addr = client_w.get_extra_info('peername')
+            await self.log("accept connection from", addr)
+            request = RequestParser.from_bytes(await gather_http_req(client_r))
+            request.fix_url()
+            req = bytes(request)
+            server_addr = request.host_port()
+            # TLS
+            if request.method == b'CONNECT':
+                await handle_tls_client(
+                    client_r, client_w, addr, server_addr, req, self.queue)
+                return
+            server_r, server_w = await asyncio.open_connection(*server_addr)
+            server_w.write(req)
+            resp = await gather_http_req(server_r)
+            client_w.write(resp)
+            await self.log_con(addr, server_addr, req, resp)
+        finally:
+            client_w.close()
+            if server_w is not None:
+                server_w.close()
 
 
-async def log_con(queue, c_addr, s_addr, c_rec, s_rec):
-    await queue.put((CompletedConnection, (c_addr, s_addr, c_rec, s_rec)))
+class Logger:
+    def __init__(self, queue):
+        self.queue = queue
+        self.running = False
+
+    async def run(self):
+        self.running = True
+        while self.running:
+            etype, event = await self.queue.get()
+            await {
+                MesgType.CompletedConnection: self.CompletedConnection,
+                MesgType.CompletedTLSConnection: self.CompletedTLSConnection,
+                MesgType.LogMessage: self.LogMessage,
+                MesgType.StdinRead: self.StdinRead,
+            }[etype](event)
+            self.queue.task_done()
+
+    def stop(self):
+        self.running = False
+
+    async def CompletedConnection(self, event):
+        raise NotImplemented
+
+    async def CompletedTLSConnection(self, event):
+        raise NotImplemented
+
+    async def LogMessage(self, event):
+        raise NotImplemented
+
+    async def StdinRead(self, event):
+        raise NotImplemented
 
 
-async def handle_tls_client(c_r, c_w, c_addr, s_addr, con_mess, record):
-    await log_con(record, c_addr, s_addr, con_mess, b'[ABORTED]')
+class StdoutLogger(Logger):
+    async def CompletedConnection(self, event):
+        caddr, saddr, req, resp = event
+        print(f"Connection from {caddr} to {saddr}")
+        print(req.decode('utf-8', 'ignore'))
+        print(resp.decode('utf-8', 'ignore'), flush=True)
+
+    async def LogMessage(self, event):
+        print(*event[0], **event[1])
 
 
-async def handle_client(client_r, client_w, record):
-    server_w = None
-    try:
-        addr = client_w.get_extra_info('peername')
-        await log(record, "accept connection from", addr)
-        request = RequestParser.from_bytes(await gather_http_req(client_r))
-        # TLS
-        request.fix_url()
-        req = bytes(request)
-        server_addr = request.host_port()
-        if request.method == b'CONNECT':
-            await handle_tls_client(
-                client_r, client_w, addr, server_addr, req, record)
-            return
-        server_r, server_w = await asyncio.open_connection(*server_addr)
-        server_w.write(req)
-        resp = await gather_http_req(server_r)
-        client_w.write(resp)
-        await log_con(record, addr, server_addr, req, resp)
-    finally:
-        client_w.close()
-        if server_w is not None:
-            server_w.close()
+class CursesLogger(Logger):
+    def __init__(self, queue):
+        super().__init__(queue)
+        self.stdin_q = None
+        self.selection = 0
+        self.offset = 0
+        self.selwin = None
+        self.connwin = None
+        self.notwin = None
+        self.conns = []
+        self.nots = []
+        self.COLS = 0
+        self.ROWS = 0
 
+    def setup(self):
+        self.stdscr = curses.initscr()
+        curses.noecho()
+        curses.cbreak()
+        self.stdscr.keypad(True)
+        curses.curs_set(False)
+        curses.start_color()
+        curses.use_default_colors()
+        curses.init_pair(1, curses.COLOR_WHITE, -1)
+        curses.init_pair(2, curses.COLOR_CYAN, -1)
 
-async def record_events(event_q, stdin_queue):
-    while True:
-        etype, event = await event_q.get()
-        if etype == CompletedConnection:
-            print(f"Connection from {event[0]} to {event[1]}")
-            print(event[2].decode('utf-8', 'ignore'))
-            print(event[3].decode('utf-8', 'ignore'), flush=True)
-        elif etype == LogMessage:
-            print(*event[0], **event[1])
-        elif etype == StdinRead:
-            assert 0, "Unreachable"
-        event_q.task_done()
+    def teardown(self):
+        curses.nocbreak()
+        self.stdscr.keypad(False)
+        curses.curs_set(True)
+        curses.echo()
+        curses.endwin()
 
+    def setup_windows(self):
+        self.lwidth = min(self.COLS // 7, 20)
+        self.nheight = min(self.ROWS // 10, 10)
+        self.connwin = curses.newwin(self.ROWS - 2, self.lwidth, 1, 1)
+        self.notwin = curses.newwin(
+            self.nheight,
+            self.COLS - self.lwidth - 2,
+            self.ROWS - self.nheight - 1,
+            self.lwidth + 1)
+        self.selwin = curses.newwin(
+            self.ROWS - self.nheight - 2,
+            self.COLS - self.lwidth - 2,
+            1,
+            self.lwidth + 1)
+        self.stdscr.box()
+        self.stdscr.refresh()
+        self.draw_conns()
+        self.draw_nots()
 
-def curses_setup():
-    stdscr = curses.initscr()
-    curses.noecho()
-    curses.cbreak()
-    stdscr.keypad(True)
-    curses.curs_set(False)
-    curses.start_color()
-    curses.use_default_colors()
-    curses.init_pair(1, curses.COLOR_WHITE, -1)
-    curses.init_pair(2, curses.COLOR_CYAN, -1)
-    return stdscr
+    async def detect_size_change(self):
+        def _size_changed():
+            curses.update_lines_cols()
+            return (self.COLS, self.ROWS) != (curses.COLS, curses.LINES)
+        while self.running:
+            await poll(_size_changed)
+            self.COLS, self.ROWS = curses.COLS, curses.LINES
+            self.setup_windows()
 
+    async def notify_stdin(self):
+        while self.running:
+            await file_readable(sys.stdin)
+            event = self.stdscr.getch()
+            await self.queue.put((MesgType.StdinRead, event))
 
-def curses_teardown(stdscr):
-    curses.nocbreak()
-    stdscr.keypad(False)
-    curses.curs_set(True)
-    curses.echo()
-    curses.endwin()
+    @staticmethod
+    def addstr(win, line, col, string, *args, **kwargs):
+        with suppress(curses.error):
+            if line > 0 and col > 0:
+                win.addstr(line, col, string, *args, **kwargs)
 
+    @staticmethod
+    def addstrs(win, start_line, col, strs, *args, **kwargs):
+        for i, string in enumerate(strs):
+            CursesLogger.addstr(win, i + start_line, col,
+                                string, *args, **kwargs)
 
-async def notify_stdin(event_q, ready_queue):
-    running = True
+    @contextmanager
+    def attr(win, attr):
+        winattron(attr)
+        yield
+        win.attroff(attr)
 
-    def _run():
-        nonlocal running
-        while running and sys.stdin not in select([sys.stdin], [], [], 0.1)[0]:
-            pass
-
-    loop = asyncio.get_event_loop()
-    executor = concurrent.futures.ThreadPoolExecutor(max_workers=5)
-
-    try:
-        while True:
-            await loop.run_in_executor(executor, _run)
-            await event_q.put((StdinRead, None))
-            await ready_queue.get()
-            ready_queue.task_done()
-    except asyncio.CancelledError:
-        running = False
-
-
-def draw_conns(lwin, nwin, cons, selected, offset):
-    my_con = None
-    try:
-        for i, con in enumerate(cons):
+    def draw_conns(self):
+        my_con = None
+        for i, con in enumerate(self.conns):
             (caddr, cport, *_), (saddr, sport), req, resp = con
             string = saddr.decode("utf-8") + ":" + str(sport)
-            if i == selected:
+            if i == self.selected:
                 my_con = con
-                lwin.addstr(i + 1, 1, string, curses.A_BOLD)
+                self.addstr(self.selwin, i + 1, 1, string, curses.A_BOLD)
             else:
-                lwin.addstr(i + 1, 1, string)
-    except curses.error:
-        pass
-    try:
+                self.addstr(self.selwin, i + 1, 1, string)
+        self.selwin.box()
+        self.selwin.refresh()
         if my_con is not None:
-            nwin.clear()
-            lineno = 1 - offset
-            nwin.attron(curses.color_pair(1))
-            for line in req.splitlines():
-                if lineno > 0:
-                    nwin.addstr(lineno, 1, line)
-                lineno += 1
-            nwin.attroff(curses.color_pair(1))
-            nwin.attron(curses.color_pair(2))
-            for line in resp.splitlines():
-                if lineno > 0:
-                    nwin.addstr(lineno, 1, line)
-                lineno += 1
-            nwin.attroff(curses.color_pair(2))
-    except curses.error:
-        pass
+            (caddr, cport, *_), (saddr, sport), req, resp = my_con
+            self.connwin.clear()
+            self.connwin.box()
+            offset = self.offset
+            lines = req.splitlines()[offset:]
+            with CursesLogger.attr(self.connwin, curses.color_pair(1)):
+                self.addstrs(self.connwin, 1, 1, lines[offset:])
+            start = len(lines) + 1
+            offset = max(offset - len(lines), 0)
+            lines = resp.splitlines()[offset:]
+            with CursesLogger.attr(self.connwin, curses.color_pair(2)):
+                self.addstrs(self.connwin, start, 1, lines)
+        self.connwin.box()
+        self.connwin.refresh()
 
+    def draw_nots(self):
+        self.nots = self.nots[-self.nheight + 2:]
+        self.notwin.clear()
+        self.notwin.box()
+        self.addstrs(self.notwin, 1, 1, self.nots)
+        self.notwin.refresh()
 
-def draw_nots(win, nots):
-    win.clear()
-    for i, n in enumerate(nots):
+    async def StdinRead(self, event):
+        if event == ord('q'):
+            self.stop()
+        elif event == ord('j'):
+            self.selection = min(self.selection + 1, len(self.conns) - 1)
+            self.offset = 0
+            self.draw_conns()
+        elif event == ord('k'):
+            self.selection = max(self.selection - 1, 0)
+            self.offset = 0
+            self.draw_conns()
+        elif event == curses.KEY_UP or event == ord('h'):
+            self.offset = max(0, self.offset - 1)
+            self.draw_conns()
+        elif event == curses.KEY_DOWN or event == ord('l'):
+            self.offset += 1
+            self.draw_conns()
+        else:
+            self.nots.append(repr(event))
+            self.draw_nots()
+
+    async def LogMessage(self, event):
+        buf = io.StringIO()
+        print(*event[0], **event[1], file=buf)
+        self.nots.append(buf.getvalue())
+        nots = nots[-self.nheight + 2:]
+        self.draw_nots()
+
+    async def CompletedConnection(self, event):
+        self.conns.append(event)
+        self.draw_conns()
+
+    async def run(self):
+        self.setup()
         try:
-            win.addstr(i + 1, 1, n)
-        except curses.error:
-            pass
-
-
-async def curses_main(stdscr, event_q, stdin_q):
-    try:
-        COLS = 0
-        ROWS = 0
-        nots = []
-        cons = []
-        nheight = 10
-
-        selection = 0
-        offset = 0
-
-        def box():
-            stdscr.box()
-            cur_con.box()
-            conn_win.box()
-            not_win.box()
-
-        def refresh():
-            stdscr.refresh()
-            cur_con.refresh()
-            conn_win.refresh()
-            not_win.refresh()
-
-        def draw_cons():
-            draw_conns(conn_win, cur_con, cons, selection, offset)
-
-        def draw_notifs():
-            draw_nots(not_win, nots)
-
-        while True:
-            curses.update_lines_cols()
-            if ROWS != curses.LINES or COLS != curses.COLS:
-                ROWS = curses.LINES
-                COLS = curses.COLS
-                lwidth = min(COLS // 7, 20)
-                nheight = min(ROWS // 10, 10)
-                conn_win = curses.newwin(ROWS - 2, lwidth, 1, 1)
-                not_win = curses.newwin(
-                    nheight, COLS - lwidth - 2, ROWS - nheight - 1, lwidth + 1)
-                cur_con = curses.newwin(
-                    ROWS - nheight - 2, COLS - lwidth - 2, 1, lwidth + 1)
-
-            box()
-            refresh()
-            etype, event = await event_q.get()
-            if etype == CompletedConnection:
-                cons.append(event)
-                draw_cons()
-            elif etype == LogMessage:
-                buf = io.StringIO()
-                print(*event[0], **event[1], file=buf)
-                nots.append(buf.getvalue())
-                nots = nots[-nheight + 2:]
-                draw_notifs()
-            elif etype == StdinRead:
-                key = stdscr.getch()
-                if key == ord('q'):
-                    break
-                elif key == ord('j'):
-                    selection = min(selection + 1, len(cons) - 1)
-                    offset = 0
-                    draw_cons()
-                elif key == ord('k'):
-                    selection = max(selection - 1, 0)
-                    offset = 0
-                    draw_cons()
-                elif key == curses.KEY_UP or key == ord('h'):
-                    offset = max(0, offset - 1)
-                    draw_cons()
-                elif key == curses.KEY_DOWN or key == ord('l'):
-                    offset += 1
-                    draw_cons()
-                else:
-                    nots.append(repr(key))
-                    nots = nots[-nheight + 2:]
-                    draw_notifs()
-                await stdin_q.put(())
-
-            event_q.task_done()
-    except Exception as e:
-        print(str(e), traceback.format_exc(), file=open("msg", "w"))
-        raise
-
-
-async def first_done(*events):
-    done, pending = await asyncio.wait(
-        map(asyncio.create_task, events), return_when=asyncio.FIRST_COMPLETED)
-    for task in pending:
-        task.cancel()
-    return done
-
-
-async def curses_record(event_q):
-    try:
-        stdin_q = asyncio.Queue()
-        stdscr = curses_setup()
-        not_stdin = notify_stdin(event_q, stdin_q)
-        curses_task = curses_main(stdscr, event_q, stdin_q)
-        await first_done(not_stdin, curses_task)
-    finally:
-        curses_teardown(stdscr)
-        await stdin_q.join()
+            not_stdin = self.notify_stdin()
+            size_change = self.detect_size_change()
+            curses_task = super().run()
+            await asyncio_complete_one(curses_task, size_change, not_stdin)
+        finally:
+            self.teardown()
 
 
 async def main(argv):
-    asyncio.get_running_loop()
     record = asyncio.Queue()
-    server = await asyncio.start_server(
-        lambda a, b: handle_client(a, b, record), 'localhost', 8080)
+    server = AsyncHTTPServer(record)
+    logger = CursesLogger(record)
     try:
-        await first_done(
-            server.serve_forever(),
-            # record_events(record),
-            curses_record(record),
-        )
-
+        await asyncio_complete_one(server.run(), logger.run())
     except KeyboardInterrupt:
         await record.join()
 
