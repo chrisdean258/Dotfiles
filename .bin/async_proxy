@@ -26,13 +26,13 @@ class RequestParser:
     @classmethod
     def from_bytes(cls, data):
         head, *lines = data.splitlines()
-        method, url, version = head.split(b' ')
+        method, url, rest = head.split(b' ', 2)
         headers = {}
         for i, line in enumerate(takewhile(lambda a: a, lines)):
             key, _, value = line.partition(b': ')
             headers[key] = value
         req_lines = lines[i+1:]
-        return cls(method, url, version, headers, req_lines)
+        return cls(method, url, rest, headers, req_lines)
 
     def __bytes__(self):
         first = b' '.join((self.method, self.url, self.version))
@@ -40,7 +40,7 @@ class RequestParser:
         return b'\r\n'.join([first] + headers + self.req_lines + [b''])
 
     def fix_url(self):
-        self.url = b'/' + self.url.split(b'/', 3)[3]
+        self.url = b'/' + b''.join(self.url.split(b'/', 3)[3:])
 
     def host_port(self):
         url, _, port = self.headers[b'Host'].partition(b':')
@@ -50,8 +50,14 @@ class RequestParser:
 
 async def gather_http_req(reader):
     to = []
-    while not to or not to[-1].endswith(b'\r\n\r\n'):
+    while not to or b'\r\n\r\n' not in to[-1]:
         to.append(await reader.read(1024))
+
+    req = RequestParser.from_bytes(b''.join(to))
+    if b'Content-Length' in req.headers:
+        length = int(req.headers[b'Content-Length'])
+        to.append(await reader.read(length))
+
     return b''.join(to)
 
 
