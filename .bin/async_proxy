@@ -101,6 +101,8 @@ def curses_setup():
     curses.cbreak()
     stdscr.keypad(True)
     curses.curs_set(False)
+    curses.start_color()
+    curses.use_default_colors()
     return stdscr
 
 
@@ -133,84 +135,120 @@ async def notify_stdin(event_q, ready_queue):
         running = False
 
 
-def draw_conns(lwin, nwin, cons, selected):
+def draw_conns(lwin, nwin, cons, selected, offset):
     my_con = None
-    for i, con in enumerate(cons):
-        (caddr, cport), (saddr, sport), req, resp = con
-        string = saddr.decode("utf-8") + ":" + str(sport)
-        if i == selected:
-            my_con = con
-            lwin.addstr(i + 1, 1, string, curses.A_BOLD)
-        else:
-            lwin.addstr(i + 1, 1, string)
-    if my_con is not None:
-        lineno = 1
-        for line in req.splitlines():
-            nwin.addstr(lineno, 1, line)
-            lineno += 1
-        for line in resp.splitlines():
-            nwin.addstr(lineno, 1, line)
-            lineno += 1
-        nwin.refresh()
-
-    lwin.refresh()
+    try:
+        for i, con in enumerate(cons):
+            (caddr, cport, *_), (saddr, sport), req, resp = con
+            string = saddr.decode("utf-8") + ":" + str(sport)
+            if i == selected:
+                my_con = con
+                lwin.addstr(i + 1, 1, string, curses.A_BOLD)
+            else:
+                lwin.addstr(i + 1, 1, string)
+    except curses.error:
+        pass
+    try:
+        if my_con is not None:
+            nwin.clear()
+            lineno = 1 - offset
+            for line in req.splitlines():
+                if lineno > 0:
+                    nwin.addstr(lineno, 1, line, curses.COLOR_WHITE)
+                lineno += 1
+            for line in resp.splitlines():
+                if lineno > 0:
+                    nwin.addstr(lineno, 1, line, curses.COLOR_CYAN)
+                lineno += 1
+    except curses.error:
+        pass
 
 
 def draw_nots(win, nots):
+    win.clear()
     for i, n in enumerate(nots):
-        win.addstr(i + 1, 1, n)
-    win.refresh()
+        try:
+            win.addstr(i + 1, 1, n)
+        except curses.error:
+            pass
 
 
 async def curses_main(stdscr, event_q, stdin_q):
     try:
-        COLS = curses.COLS
-        ROWS = curses.LINES
-        lwidth = min(curses.COLS // 7, 20)
-        nheight = 10
+        COLS = 0
+        ROWS = 0
         nots = []
         cons = []
-
-        conn_win = curses.newwin(ROWS - 2, lwidth, 1, 1)  # noqa
-        not_win = curses.newwin(nheight, COLS - lwidth - 2,   # noqa
-                                ROWS - nheight - 1, lwidth + 1)
-        cur_con = curses.newwin(curses.LINES - nheight - 2,
-                                COLS - lwidth - 2, 1, lwidth + 1)
-        stdscr.box()
-        cur_con.box()
-        conn_win.box()
-        not_win.box()
-
-        stdscr.refresh()
-        cur_con.refresh()
-        conn_win.refresh()
-        not_win.refresh()
+        nheight = 10
 
         selection = 0
-        draw_conns(conn_win, cur_con, cons, selection)
+        offset = 0
+
+        def box():
+            stdscr.box()
+            cur_con.box()
+            conn_win.box()
+            not_win.box()
+
+        def refresh():
+            stdscr.refresh()
+            cur_con.refresh()
+            conn_win.refresh()
+            not_win.refresh()
+
+        def draw_cons():
+            draw_conns(conn_win, cur_con, cons, selection, offset)
+
+        def draw_notifs():
+            draw_nots(not_win, nots)
 
         while True:
+            curses.update_lines_cols()
+            if ROWS != curses.LINES or COLS != curses.COLS:
+                ROWS = curses.LINES
+                COLS = curses.COLS
+                lwidth = min(COLS // 7, 20)
+                nheight = min(ROWS // 10, 10)
+                conn_win = curses.newwin(ROWS - 2, lwidth, 1, 1)
+                not_win = curses.newwin(
+                    nheight, COLS - lwidth - 2, ROWS - nheight - 1, lwidth + 1)
+                cur_con = curses.newwin(
+                    ROWS - nheight - 2, COLS - lwidth - 2, 1, lwidth + 1)
+
+            box()
+            refresh()
             etype, event = await event_q.get()
             if etype == CompletedConnection:
                 cons.append(event)
-                draw_conns(conn_win, cur_con, cons, selection)
+                draw_cons()
             elif etype == LogMessage:
                 buf = io.StringIO()
                 print(*event[0], **event[1], file=buf)
                 nots.append(buf.getvalue())
-                while len(nots) > nheight - 2:
-                    del nots[0]
-                draw_nots(not_win, nots)
+                nots = nots[-nheight + 2:]
+                draw_notifs()
             elif etype == StdinRead:
                 key = stdscr.getch()
                 if key == ord('q'):
                     break
-                if key == ord('j'):
+                elif key == ord('j'):
                     selection = min(selection + 1, len(cons) - 1)
-                    draw_conns(conn_win, cur_con, cons, selection)
-                if key == ord('k'):
+                    offset = 0
+                    draw_cons()
+                elif key == ord('k'):
                     selection = max(selection - 1, 0)
-                    draw_conns(conn_win, cur_con, cons, selection)
+                    offset = 0
+                    draw_cons()
+                elif key == curses.KEY_UP or key == ord('h'):
+                    offset = max(0, offset - 1)
+                    draw_cons()
+                elif key == curses.KEY_DOWN or key == ord('l'):
+                    offset += 1
+                    draw_cons()
+                else:
+                    nots.append(repr(key))
+                    nots = nots[-nheight + 2:]
+                    draw_notifs()
                 await stdin_q.put(())
 
             event_q.task_done()
