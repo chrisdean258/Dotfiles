@@ -152,3 +152,4 @@ if test "$(find ~/.bashrc -mmin +1000)"; then
 fi
 
 [ $[ $RANDOM % 2 ] == 0 ] && tmux-explain || commands
+. "$HOME/.cargo/env"

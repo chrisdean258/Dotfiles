@@ -10,8 +10,10 @@ let g:ale_lint_on_save = 1
 let g:ale_lint_on_text_changed = 'never'
 let g:ale_lint_on_insert_leave = 0
 let g:ale_lint_on_enter = 0
+let g:ale_rust_cargo_check_tests = 1
+let g:ale_rust_cargo_check_examples = 1
 let g:ale_fixers = {"rust": "rustfmt", "python": ["autopep8"]}
-let g:ale_linters = {"python": ["flake8", "autoimport", "isort", "black"]}
+let g:ale_linters = {"python": ["flake8", "autoimport", "isort", "black"], "rust":["cargo"]}
 nmap <silent> <C-k> <Plug>(ale_previous_wrap)
 nmap <silent> <C-j> <Plug>(ale_next_wrap)
 
