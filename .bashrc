@@ -16,9 +16,7 @@ ssource "$HOME/.bash_aliases"
 ssource "$HOME/.git-completion.bash"
 ssource "$HOME/.bash-completion.bash"
 
-HISTCONTROL=ignoreboth
-HISTSIZE=
-HISTFILESIZE=
+HISTCONTROL=ignoreboth HISTSIZE= HISTFILESIZE=
 P_RED="\[`tput setaf 1`\]" 
 P_GREEN="\[`tput setaf 2`\]" 
 P_CLEAR="\[`tput sgr0`\]"
@@ -74,6 +72,8 @@ prompt_command()
 	PS1="${rv}${battery}$PROMPT_SAVE${git}\$ "
 	stty -echo; echo -n $'\e[6n'; read -d R x; stty echo
 	[ "${x#*;}" -eq 1 ] || echo -en "\n"
+	history -a
+	history -n
 }
 
 jmp_dir="$HOME/.cache/jmp"
