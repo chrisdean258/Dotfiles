@@ -57,7 +57,11 @@ endfunction
 command! Run :call RunSH()
 
 function! MDTemplate()
-	call append(0, "# " .. expand("%:t:r")->tr('-_', '  ')->substitute('\<.', '\u&', "g"))
+	let title = expand("%:t:r")->tolower()
+	if title == "readme" || title == "notes"
+		title = expand("%:p:h:t")
+	endif
+	call append(0, "# " .. title->tr('-_', '  ')->substitute('\<.', '\u&', "g"))
 endfunction
 
 au BufNewFile *.md :call MDTemplate()
