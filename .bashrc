@@ -15,6 +15,7 @@ ssource "$HOME/.bashrc.local"
 ssource "$HOME/.bash_aliases"
 ssource "$HOME/.git-completion.bash"
 ssource "$HOME/.bash-completion.bash"
+ssource "$HOME/.cargo/env"
 
 HISTCONTROL=ignoreboth HISTSIZE= HISTFILESIZE=
 P_RED="\[`tput setaf 1`\]" 
@@ -151,5 +152,3 @@ if test "$(find ~/.bashrc -mmin +1000)"; then
 	touch ~/.bashrc && (ping -c 1 -w 1 8.8.8.8) &>/dev/null && dots stash-pull
 fi
 
-[ $[ $RANDOM % 2 ] == 0 ] && tmux-explain || commands
-. "$HOME/.cargo/env"
