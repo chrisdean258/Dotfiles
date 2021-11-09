@@ -64,4 +64,41 @@ function! MDTemplate()
 	call append(0, "# " .. title->tr('-_', '  ')->substitute('\<.', '\u&', "g"))
 endfunction
 
+function! FindLoc(loc_list, curpos)
+	let ll =  a:loc_list->mapnew({i, v-> [i, v]})
+	let [_, lnum, col, _, _] = a:curpos
+
+	for [i, v] in ll
+		if v.lnum == lnum
+			return [i - 1, (i + 1) % len(ll)]
+		elseif v.lnum > lnum
+			return [i - 1, i]
+		endif
+	endfor
+	return [-1, 0]
+endfunction
+
+"[{'lnum': 3, 'bufnr': 5, 'col': 1, 'pattern': '', 'valid': 1, 'vcol': 0, 'nr': -1, 'type': 'E', 'module': '', 'text': 'F821: undefined name ''skldjf'''}]
+function! LocListNextWrap(offset)
+	let loc_list = getloclist(0)
+	if len(loc_list) == 0
+		return
+	endif
+	let curpos = getcurpos()
+	let [p, n] = FindLoc(loc_list, curpos)
+	let selected = loc_list[a:offset < 0 ? p : n]
+	call setpos('.', [0, selected.lnum, selected.col, "^"])
+endfunction
+
+command! Lnext :call LocListNextWrap(1)
+command! Lprev :call LocListNextWrap(-1)
+cabbrev lnext <C-R>=CommandLineStart("lnext", "Lnext")<CR>
+cabbrev ln <C-R>=CommandLineStart("lnext", "Lnext")<CR>
+cabbrev lprev <C-R>=CommandLineStart("lprev", "Lprev")<CR>
+cabbrev lp <C-R>=CommandLineStart("lprev", "Lprev")<CR>
+
+nnoremap <localleader>e :call LocListNextWrap(1)<CR>
+nnoremap <localleader>E :call LocListNextWrap(-1)<CR>
+
+
 au BufNewFile *.md :call MDTemplate()
