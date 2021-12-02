@@ -2,9 +2,15 @@
 
 import base64
 import sys
+import os
 from Crypto.Cipher import AES
 from Crypto.Hash import SHA256
 from Crypto import Random
+
+
+def password():
+    data = os.urandom(200)
+    return base64.b64encode(data).decode("utf-8")[:20]
 
 
 def encrypt(key, source, encode=True):
@@ -20,8 +26,14 @@ def encrypt(key, source, encode=True):
     return base64.b64encode(data) if encode else data
 
 
-with open(sys.argv[2], "rb") as f:
-    data = encrypt(sys.argv[1].encode("utf-8"), f.read())
+pwd = sys.argv[1] if len(sys.argv) == 4 else password()
+infile = sys.argv[-2]
+outfile = sys.argv[-1]
 
-with open(sys.argv[3], "wb") as f:
+with open(infile, "rb") as f:
+    data = encrypt(pwd.encode("utf-8"), f.read())
+
+with open(outfile, "wb") as f:
     f.write(data)
+
+print(pwd)
