@@ -196,12 +196,12 @@
 	:nnoremap <silent><c-L> :nohlsearch<CR><c-L>
 	" Turn on highlighting every time you research or look for the next item
 	" Also centers found item on page
-	:nnoremap n :set hlsearch<cr>nzz
-	:nnoremap N :set hlsearch<cr>Nzz
+	:nnoremap n :set hlsearch<cr>nzzmh0`h
+	:nnoremap N :set hlsearch<cr>Nzzmh0`h
 	:nnoremap / :set hlsearch<cr>/
 	:nnoremap ? :set hlsearch<cr>?
-	:nnoremap # :set hlsearch<cr>#zz
-	:nnoremap * :set hlsearch<cr>*zz
+	:nnoremap # :set hlsearch<cr>#zzmh0`h
+	:nnoremap * :set hlsearch<cr>*zzmh0`h
 
 	" Wrapping magic 
 	" allows you to target text and wrap it in characters repeatably
@@ -261,9 +261,6 @@
 
 	" Opening files
 	:inoremap gqq <esc>gqqA
-	:nnoremap VJ Vj
-	:nnoremap VJJ Vjj
-	:nnoremap VJJJ Vjjj
 
 	:nnoremap <C-p> :vs<CR><C-]>
 	:map Q gq
@@ -749,7 +746,7 @@
 
 	" C Style Function {{{
 		:function! Cbraces() " {{{
-		:  if len(split(LineUntilCursor(), '"', 1)) % 2 == 0
+		:  if len(split(LineBeforeCursor(), '"', 1)) % 2 == 0
 		:    return "{}"
 		:  endif
 		:  return "{\<CR>}\<esc>O"

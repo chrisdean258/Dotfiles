@@ -12,8 +12,8 @@ let g:ale_lint_on_insert_leave = 0
 let g:ale_lint_on_enter = 0
 let g:ale_rust_cargo_check_tests = 1
 let g:ale_rust_cargo_check_examples = 1
-let g:ale_fixers = {"rust": "rustfmt", "python": ["autopep8"]}
-let g:ale_linters = {"python": ["flake8", "autoimport", "isort", "black"], "rust":["cargo"]}
+let g:ale_fixers = {"rust": "rustfmt", "python": ["autopep8"], }
+let g:ale_linters = {"python": ["flake8", "autoimport", "isort", "black"], "rust":["cargo"], "copper": ["copper"]}
 nmap <silent> <C-k> <Plug>(ale_previous_wrap)
 nmap <silent> <C-j> <Plug>(ale_next_wrap)
 
@@ -87,7 +87,12 @@ function! LocListNextWrap(offset)
 	let curpos = getcurpos()
 	let [p, n] = FindLoc(loc_list, curpos)
 	let selected = loc_list[a:offset < 0 ? p : n]
-	call setpos('.', [0, selected.lnum, selected.col, "^"])
+	if selected.lnum == line('.')
+		call setpos('.', [0, selected.lnum + a:offset, selected.col, "^"])
+		call LocListNextWrap(a:offset)
+	else
+		call setpos('.', [0, selected.lnum, selected.col, "^"])
+	endif
 endfunction
 
 command! Lnext :call LocListNextWrap(1)

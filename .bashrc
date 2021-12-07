@@ -73,8 +73,6 @@ prompt_command()
 	PS1="${rv}${battery}$PROMPT_SAVE${git}\$ "
 	stty -echo; echo -n $'\e[6n'; read -d R x; stty echo
 	[ "${x#*;}" -eq 1 ] || echo -en "\n"
-	history -a
-	history -n
 }
 
 jmp_dir="$HOME/.cache/jmp"
