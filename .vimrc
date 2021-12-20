@@ -428,7 +428,7 @@
 	:autocmd FileType python  :let g:pyindent_open_paren = '&sw'
 	:autocmd FileType python  :let g:pyindent_nested_paren = '&sw'
 	:autocmd FileType python  :let g:pyindent_continue = '0'
-	:autocmd FileType python  :autocmd BufEnter <buffer> :if getline(1) !~ '^#' | call append(0, "#!/usr/bin/env python3") | endif
+	:autocmd FileType python  :autocmd BufEnter <buffer> :if line('$') == 1 | call append(0, "#!/usr/bin/env python3") | endif
 	:autocmd FileType python  :autocmd CursorMoved,CursorMovedI <buffer> call HighlightAfterColumn(79)
 	:autocmd BufRead .xonshrc,*.xsh :set ft=python
 	:autocmd BufRead .xonshrc,*.xsh :silent! SyntasticToggleMode
