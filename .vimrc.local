@@ -107,7 +107,3 @@ nnoremap <localleader>E :call LocListNextWrap(-1)<CR>
 
 
 au BufNewFile *.md :call MDTemplate()
-nnoremap j <nop>
-nnoremap k <nop>
-nnoremap hh <nop>
-nnoremap ll <nop>
