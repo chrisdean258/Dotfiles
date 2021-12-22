@@ -68,6 +68,7 @@
 	:set undodir=~/.vim/undo//
 	
 	" Set up undo
+	:set backspace=indent,eol,start
 	:set undofile
 	:set undolevels=1000
 	:set undoreload=10000
