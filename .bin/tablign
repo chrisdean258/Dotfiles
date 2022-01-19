@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import sys
+from itertools import count
 
 """
 Prints out file as a table
@@ -7,15 +8,15 @@ Prints out file as a table
 
 
 def common_indent(lines):
-    if len(lines) == 0:
-        return ""
-    common_indent = lines[0]
-
-    for line in lines[1:]:
-        while not line.startswith(common_indent):
-            common_indent = common_indent[:-1]
-
-    return common_indent
+    common = ""
+    for i in count():
+        s = set(line[i:i+1] for line in lines)
+        if len(s) != 1:
+            return common
+        ch = s.pop()
+        if ch == "" or not ch.isspace():
+            return common
+        common += ch
 
 
 def tablign(string, seperator=" "):
@@ -32,24 +33,35 @@ def tablign(string, seperator=" "):
     return indent + ("\n" + indent).join(lines)
 
 
-def usage():
+def usage(msg=None):
     print("Usage: tablign [-s align-on] [file]", file=sys.stderr)
+    if msg is not None:
+        print(msg)
     sys.exit(1)
 
 
 def main():
+    i = 1
     sep = " "
-    if len(sys.argv) in (1, 3):
-        s = sys.stdin.read()
-    elif len(sys.argv) in (2, 4):
-        with open(sys.argv[-1], "r") as f:
-            s = f.read()
-    if len(sys.argv) in (3, 4):
-        if sys.argv[1] != "-s":
-            usage()
-        sep = sys.argv[2]
+    file = sys.stdin
+    try:
+        while i < len(sys.argv):
+            if sys.argv[i] == "-s":
+                i += 1
+                sep = sys.argv[i]
+            elif sys.argv[i].startswith("-"):
+                raise Exception(f"Unidentified flag {sys.argv[i]}")
+            elif file is sys.stdin:
+                file = open(sys.argv[i], "r")
+            else:
+                raise Exception(f"Unexpected argument {sys.argv[i]}")
+            i += 1
+    except IndexError:
+        usage()
+    except Exception as e:
+        usage(str(e))
 
-    print(tablign(s, sep))
+    print(tablign(file.read(), sep))
     return 0
 
 
