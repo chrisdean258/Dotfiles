@@ -27,10 +27,8 @@ def tablign(string, seperator=" "):
     for line in lines:
         for i, field in enumerate(line):
             sizes[i] = max(sizes[i], len(field))
-
     lines = [seperator.join(s.ljust(l)
                             for s, l in zip(line, sizes)) for line in lines]
-
     return indent + ("\n" + indent).join(lines)
 
 
