@@ -1,67 +1,36 @@
 #!/usr/bin/env python3
 import sys
-from itertools import count
-
-"""
-Prints out file as a table
-"""
+import fileinput
+import argparse
+import csv
 
 
-def common_indent(lines):
-    common = ""
-    for i in count():
-        s = set(line[i:i+1] for line in lines)
-        if len(s) != 1:
-            return common
-        ch = s.pop()
-        if ch == "" or not ch.isspace():
-            return common
-        common += ch
-
-
-def tablign(string, seperator=" "):
-    lines = string.splitlines()
-    indent = common_indent(lines)
-    lines = [line[len(indent):].split(seperator) for line in lines]
+def tablign(lines, sep, joiner, is_csv, header):
+    lines = list(csv.reader(lines, delimiter=sep))
     sizes = [0] * max(len(line) for line in lines)
-
     for line in lines:
         for i, field in enumerate(line):
             sizes[i] = max(sizes[i], len(field))
-    lines = [seperator.join(s.ljust(l)
-                            for s, l in zip(line, sizes)) for line in lines]
-    return indent + ("\n" + indent).join(lines)
-
-
-def usage(msg=None):
-    print("Usage: tablign [-s align-on] [file]", file=sys.stderr)
-    if msg is not None:
-        print(msg)
-    sys.exit(1)
+    lines = [joiner.join(s.ljust(l)
+                         for s, l in zip(line, sizes)) for line in lines]
+    if header:
+        lines = lines[0:1] + ["-" * len(lines[0])] + lines[1:]
+    return "\n".join(lines)
 
 
 def main():
-    i = 1
-    sep = " "
-    file = sys.stdin
-    try:
-        while i < len(sys.argv):
-            if sys.argv[i] == "-s":
-                i += 1
-                sep = sys.argv[i]
-            elif sys.argv[i].startswith("-"):
-                raise Exception(f"Unidentified flag {sys.argv[i]}")
-            elif file is sys.stdin:
-                file = open(sys.argv[i], "r")
-            else:
-                raise Exception(f"Unexpected argument {sys.argv[i]}")
-            i += 1
-    except IndexError:
-        usage()
-    except Exception as e:
-        usage(str(e))
+    parser = argparse.ArgumentParser(description='Print file as a table')
+    parser.add_argument("file", nargs="*")
+    parser.add_argument("-s", "--sep", default=None, help="What to split the file on (defaults to ' ')")  # noqa
+    parser.add_argument("-j", "--joiner", default=" ", help="What to join the file on")  # noqa
+    parser.add_argument("-c", "--csv", action="store_true", help="correctly parses csv files and uses ' | ' as table delimiter")  # noqa
+    parser.add_argument("--header", action="store_true", help="first line is a header")  # noqa
+    args = parser.parse_args()
+    if args.sep is None:
+        args.sep = "," if args.csv else " "
+    lines = [f.strip("\r\n") for f in fileinput.input(args.file)]
+    print(tablign(lines, args.sep, args.joiner, args.csv, args.header))
 
-    print(tablign(file.read(), sep))
     return 0
 
 
