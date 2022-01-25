@@ -9,7 +9,7 @@ sudo -l
 
 # Web Enumeration (Dirb|gobuster)
 dirb "http://$target" -r -z 10
-gobuster dir -k --url "$target" --wordlist /usr/share/dirb/wordlists/common.txt | tee <(sed "s/.*\r//g" > gobuster.txt)
+gobuster dir -k --url "$target" --wordlist /usr/share/dirb/wordlists/common.txt -x php,html | tee <(sed "s/.*\r//g" > gobuster.txt)
 hydra -l /usr/share/commix/src/txt/usernames.txt -p /usr/share/seclists/Passwords/cirt-default-passwords.txt "$target" -V http-form-post '/wp-login.php:log=^USER^&pwd=^PASS^&wp-submit=Log In&testcookie=1:S=Location'
 nikto -h "$target"
 
