@@ -65,6 +65,14 @@ function! MDTemplate()
 	call append(0, "# " .. title->tr('-_', '  ')->substitute('\<.', '\u&', "g"))
 endfunction
 
+function! PythonMainAbbrev()
+	if getline('.') =~ '^$'
+		let return_lines = [ "import sys", "import argparse", "", "", "def main(argv):", "parser = argparse.ArgumentParser(description='')", "parser.add_argument('name', help='')", "args = parser.parse_args(argv)", "return 0", "", "", "if __name__ == '__main__':", "sys.exit(main(sys.argv))", ]
+		return join(return_lines, "\n")
+	endif
+	return 'main'
+endfunction
+
 function! FindLoc(loc_list, curpos)
 	let ll =  a:loc_list->mapnew({i, v-> [i, v]})
 	let [_, lnum, col, _, _] = a:curpos
