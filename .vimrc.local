@@ -30,6 +30,7 @@ au ColorScheme elflord hi! link ALEError Error
 au ColorScheme elflord hi! link MarkDownError Normal
 
 autocmd FileType c :setlocal commentstring=/*\ %s\ */
+autocmd FileType markdown :vnoremap <localleader>s di[...SNIP...]<CR>
 
 if $TERM =~ "^st"
   au ColorScheme elflord highlight Folded ctermfg=Black guifg=Black
