@@ -2,7 +2,7 @@
 
 complete -d cd
 complete -o bashdefault -f -X "!*.pdf" print-paper
-complete -o bashdefault -f -X "@(*.pdf|*.log|*.aux|*.nav|*.out|*.snm|*.toc|*.jpg|*.pyc|*.png|*.mp3|*.wav|*.o|*.bin)" vim
+complete -o bashdefault -f -X "@(*.pdf|*.aux|*.nav|*.snm|*.toc|*.jpg|*.pyc|*.png|*.mp3|*.wav|*.o|*.bin)" vim
 # complete -o bashdefault -f -X "!@(*.pdf|*.jpg|*.png|*.mp3|*.wav|*.ppm|*.pgm|*.html|*.webm|*.mp4|*.mkv|*.flv|*.gif|*.svg|*.xlsx)" open
 complete -o bashdefault -f -X "!@(*.h5)" h5dump
 complete -o bashdefault -f -X "!*.ovnp" openvpn
