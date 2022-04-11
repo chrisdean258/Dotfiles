@@ -3,9 +3,13 @@ echo $- | grep -q "i" || return
 set +e
 
 if [ -z "$TMUX" ] && [ -x "$(which tmux 2>/dev/null)" ]; then
-	ID="$( tmux ls 2>/dev/null | grep -Evm1 'attached|^[A-Z_]*:' | cut -d: -f1 )"
+	ID="$( tmux "ls" 2>/dev/null | grep -Evm1 'attached|^[A-Z_]*:' | cut -d: -f1 )"
 	[ -n "$ID" ] && a="attach"
-	[ -z "$SSH_TTY" ] && exec tmux $a || export SSH_TTY
+	if [ -z "$SSH_TTY" ]; then
+		exec tmux $a
+	else
+		export SSH_TTY
+	fi
 fi
 
 exe() { [ -x "$(command -v "$1")" ]; }
@@ -17,11 +21,13 @@ ssource "$HOME/.git-completion.bash"
 ssource "$HOME/.bash-completion.bash"
 ssource "$HOME/.cargo/env"
 
-HISTCONTROL=ignoreboth HISTSIZE= HISTFILESIZE=
-P_RED="\[`tput setaf 1`\]" 
-P_GREEN="\[`tput setaf 2`\]" 
-P_CYAN="\[`tput setaf 6`\]"
-P_CLEAR="\[`tput sgr0`\]"
+HISTCONTROL=ignoreboth
+HISTSIZE=
+HISTFILESIZE=
+P_RED="\[$(tput setaf 1)\]" 
+P_GREEN="\[$(tput setaf 2)\]" 
+P_CYAN="\[$(tput setaf 6)\]"
+P_CLEAR="\[$(tput sgr0)\]"
 
 export PATH=$HOME/bin:$HOME/.bin:$PATH:$HOME/.local/bin/:
 export EDITOR=vim
@@ -45,24 +51,24 @@ shopt -s checkhash  2>/dev/null
 set -o vi
 
 if ! shopt -oq posix; then
-	if [ -f /usr/share/bash-completion/bash_completion ]; then
-		. /usr/share/bash-completion/bash_completion
-	elif [ -f /etc/bash_completion ]; then
-		. /etc/bash_completion
-	fi
+	ssource /usr/share/bash-completion/bash_completion || ssource /etc/bash_completion
 fi
 
 if exe dircolors; then
-	test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
+	if test -r ~/.dircolors; then
+		eval "$(dircolors -b ~/.dircolors)"
+	else
+		eval "$(dircolors -b)"
+	fi
 fi
 
-PS1='\u@\h:\w\$ '
+PS1='\u@\h:\w'
 if exe tput && tput setaf 1 >&/dev/null; then
-	PS1="\[\033[01;32m\]\u${SSH_TTY:+@\h}\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ "
+	PS1="\[\033[01;32m\]\u${SSH_TTY:+@\h}\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]"
 fi
 
 PROMPT_COMMAND=prompt_command
-PROMPT_SAVE="$(echo "$PS1" | sed 's/..$//g')"
+PROMPT_SAVE="$PS1"
 prompt_command()
 {
 	rv_save=$?
@@ -103,7 +109,7 @@ exe swallow   && alias audacity="swallow audacity"
 exe swallow   && alias sxiv="swallow sxiv"
 
 
--() { builtin cd -; }
+-() { builtin cd - || return; }
 
 alias cd="cdls"
 
@@ -115,9 +121,9 @@ cdls()
 pd()
 {
 	if [ $# -eq 0 ]; then
-		popd
+		popd || return
 	else
-		pushd "$@"
+		pushd "$@" || return
 	fi
 }
 
@@ -139,7 +145,7 @@ j()
 
 	[ -z "$new_dir" ] && return 1
 	if [ -d "$new_dir" ]; then 
-		builtin cd "$new_dir" && echo "$@" >> ${jmp}_complete
+		builtin cd "$new_dir" && echo "$@" >> "${jmp}_complete"
 	else
 		grep -vF "$new_dir" "$jmp" > "$jmp_dir/tmp" 
 		mv "$jmp_dir/tmp" "$jmp"
@@ -147,6 +153,13 @@ j()
 	fi
 	return $?
 }
+
+bind -m vi-command '"ciw": "lbcw"'
+bind -m vi-command '"diw": "lbdw"'
+bind -m vi-command '"yiw": "lbyw"'
+bind -m vi-command '"ciW": "lBcW"'
+bind -m vi-command '"diW": "lBdW"'
+bind -m vi-command '"yiW": "lByW"'
 
 
 if test "$(find ~/.bashrc -mmin +1000)"; then

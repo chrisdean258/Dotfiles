@@ -117,3 +117,4 @@ nnoremap <localleader>E :call LocListNextWrap(-1)<CR>
 
 
 au BufNewFile *.md :call MDTemplate()
+let g:is_posix = 1
