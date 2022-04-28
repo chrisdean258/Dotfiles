@@ -161,6 +161,18 @@ bind -m vi-command '"ciW": "lBcW"'
 bind -m vi-command '"diW": "lBdW"'
 bind -m vi-command '"yiW": "lByW"'
 
+SSH_AGENT_CACHE="$HOME/.cache/.ssh-agent"
+
+ssh-add -l &>/dev/null
+if [ "$?" == 2 ]; then
+	ssource "$SSH_AGENT_CACHE" >/dev/null
+	ssh-add -l &>/dev/null
+	if [ "$?" == 2 ]; then
+		(umask 066; ssh-agent -t 3600 > "$SSH_AGENT_CACHE")
+		ssource "$SSH_AGENT_CACHE" >/dev/null
+	fi
+fi
+
 
 if test "$(find ~/.bashrc -mmin +1000)"; then
 	touch ~/.bashrc && (ping -c 1 -w 1 8.8.8.8) &>/dev/null && dots stash-pull
