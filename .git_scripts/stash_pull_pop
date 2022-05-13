@@ -1,6 +1,9 @@
 #!/bin/bash
 
-git stash | grep -q "No local changes to save"
-rv=$?
-git pull "$@"
-[ "$rv" -ne 0 ] && git stash pop >/dev/null
+if dots stat | head -6 | tail -1 | grep  -q "^\s*modified:\s\s*"; then
+	git stash &>/dev/null
+	git pull "$@"
+	git stash pop &>/dev/null
+else 
+	git pull "$@"
+fi
