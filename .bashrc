@@ -24,8 +24,8 @@ ssource "$HOME/.cargo/env"
 HISTCONTROL=ignoreboth
 HISTSIZE=
 HISTFILESIZE=
-P_RED="\[$(tput setaf 1)\]" 
-P_GREEN="\[$(tput setaf 2)\]" 
+P_RED="\[$(tput setaf 1)\]"
+P_GREEN="\[$(tput setaf 2)\]"
 P_CYAN="\[$(tput setaf 6)\]"
 P_CLEAR="\[$(tput sgr0)\]"
 
@@ -115,7 +115,7 @@ alias cd="cdls"
 
 cdls()
 {
-	builtin cd "$@" && ls && realpath . >> "$jmp" && sed -i 1d "$jmp" 
+	builtin cd "$@" && ls && realpath . >> "$jmp" && sed -i 1d "$jmp"
 }
 
 pd()
@@ -144,10 +144,10 @@ j()
 	fi
 
 	[ -z "$new_dir" ] && return 1
-	if [ -d "$new_dir" ]; then 
+	if [ -d "$new_dir" ]; then
 		builtin cd "$new_dir" && echo "$@" >> "${jmp}_complete"
 	else
-		grep -vF "$new_dir" "$jmp" > "$jmp_dir/tmp" 
+		grep -vF "$new_dir" "$jmp" > "$jmp_dir/tmp"
 		mv "$jmp_dir/tmp" "$jmp"
 		j
 	fi
