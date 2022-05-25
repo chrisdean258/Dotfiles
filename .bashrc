@@ -2,13 +2,18 @@
 echo $- | grep -q "i" || return
 set +e
 
-if [ -z "$TMUX" ] && [ -x "$(which tmux 2>/dev/null)" ]; then
-	ID="$( tmux "ls" 2>/dev/null | grep -Evm1 'attached|^[A-Z_]*:' | cut -d: -f1 )"
-	[ -n "$ID" ] && a="attach"
-	if [ -z "$SSH_TTY" ]; then
-		exec tmux $a
+TMUX_DEFUALT_SESSION="default"
+if [ -n "$SSH_TTY" ]; then
+	export SSH_TTY
+elif [ -z "$TMUX" ] && [ -x "$(which tmux 2>/dev/null)" ]; then
+	if tmux ls | grep "$TMUX_DEFUALT_SESSION"; then
+		i=1
+		while tmux ls | grep "${TMUX_DEFUALT_SESSION}${i}"; do
+			$((i++))
+		done
+		exec tmux new-session -t "$TMUX_DEFUALT_SESSION" -s ${TMUX_DEFUALT_SESSION}${i} \; new-window
 	else
-		export SSH_TTY
+		exec tmux new-session -s "$TMUX_DEFUALT_SESSION"
 	fi
 fi
 
