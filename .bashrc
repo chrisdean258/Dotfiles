@@ -72,7 +72,7 @@ if exe tput && tput setaf 1 >&/dev/null; then
 	PS1="\[\033[01;32m\]\u${SSH_TTY:+@\h}\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]"
 fi
 
-PROMPT_COMMAND=prompt_command
+PROMPT_COMMAND="do_cwd;prompt_command"
 PROMPT_SAVE="$PS1"
 prompt_command()
 {
@@ -116,27 +116,45 @@ exe swallow   && alias sxiv="swallow sxiv"
 
 -() { builtin cd - || return; }
 
-alias cd="cdls"
-
-cdls()
-{
-	builtin cd "$@" && ls && realpath . >> "$jmp" && sed -i 1d "$jmp"
-}
-
 pd()
 {
 	if [ $# -eq 0 ]; then
-		popd || return
+		popd
 	else
-		pushd "$@" || return
+		pushd "$@"
 	fi
 }
+
+__OLD_PWD="$PWD"
+do_cwd() {
+	if [ "$__OLD_PWD" != "$PWD" ]; then __OLD_PWD="$PWD"
+		ls 
+		realpath . >> "$jmp" && sed -i 1d "$jmp"
+		venv
+	fi
+}
+
+
+venv() {
+	if [ -n "$VIRTUAL_ENV" ]; then
+		if ! realpath "$PWD/" | grep -q -F "$(dirname "$VIRTUAL_ENV")"; then
+			deactivate
+		fi
+	elif [ -r "env/bin/activate" ]; then 
+		. "env/bin/activate"
+	elif [ -r "../env/bin/activate" ]; then 
+		. "../env/bin/activate"
+	elif [ -r "../../env/bin/activate" ]; then 
+		. "../../env/bin/activate"
+	fi
+}
+
 
 j()
 {
 	[ $# -ne 0 ] && pattern=".*$(echo "$@" | sed "s/\s\+/.*\/.*/g")[^\/]*$"
 
-	if [ "$1" = "--setup" ]; then
+	if ! [ -r "$jmp" ]; then
 		mkdir -p "$jmp_dir"
 		time=$(date +%D --date="-2 month" 2>/dev/null)
 		(find "$HOME" -type d -not -path "*/\.*" -newermt "$time" && yes "") | head -n 1000 > "$jmp"
