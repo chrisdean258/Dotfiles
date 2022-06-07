@@ -8,7 +8,7 @@ complete -o bashdefault -f -X "!@(*.h5)" h5dump
 complete -o bashdefault -f -X "!*.ovnp" openvpn
 
 for exe in ~/.bin/pdf*; do
-	complete -o bashdefault -f -X "!*.pdf" "$(basename $exe)"
+	complete -o bashdefault -f -X '!*.pdf' "$(basename "$exe")"
 done
 
 
@@ -19,7 +19,7 @@ __complete_make()
 
 	cur=${COMP_WORDS[COMP_CWORD]}	
 
-	words="$(cat *akefile 2>/dev/null | grep -o "^[a-zA-Z0-9_\-]*:" | sed "s/:$//g")"
+	words="$(grep -o "^[a-zA-Z0-9_\-]*:" ./*akefile 2>/dev/null | sed "s/:$//g")"
 	COMPREPLY=( $(compgen -W "$words" -- "$cur" ) )
 
 	return 0
