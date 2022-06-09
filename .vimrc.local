@@ -120,7 +120,7 @@ nnoremap <localleader>E :call LocListNextWrap(-1)<CR>
 au BufNewFile *.md :call MDTemplate()
 let g:is_posix = 1
 
-if has_key(environ(), 'SSH_TTY')
+if '$SSH_TTY != ""
 	set lazyredraw
 	set nottyfast
 endif
