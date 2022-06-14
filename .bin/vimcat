@@ -3,14 +3,16 @@
 #! This is a bash script that executes itself as a vimscript to do its work
 
 : if 0
-  tmpfile=$(mktemp -t vimcat.XXXXXXXX)
-  exec 9<>"$tmpfile"
+  # tmpfile=$(mktemp -t vimcat.XXXXXXXX)
+  PIPE=$(mktemp -u)
+  mkfifo "$PIPE"
+  exec 9<>"$PIPE"
 
   [[ "${0:0:1}" == "/" ]] && script="$0" || script="$PWD/$0"
+  /usr/bin/vim -e -X -R "$@" -c "source $script" -c "bufdo call AnsiHighlight('$PIPE')" -c qa >/dev/null 2>/dev/null
+  rm "$PIPE"
 
-  /usr/bin/vim -e -X -R "$@" -c "source $script" -c "bufdo call AnsiHighlight('$tmpfile')" -c qa >/dev/null 2>/dev/null
-  cat "$tmpfile"
-  rm "$tmpfile"
+  cat < "$PIPE"
   exit
 : endif
 

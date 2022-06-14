@@ -6,12 +6,12 @@ TMUX_DEFUALT_SESSION="default"
 if [ -n "$SSH_TTY" ]; then
 	export SSH_TTY
 elif [ -z "$TMUX" ] && [ -x "$(which tmux 2>/dev/null)" ]; then
-	if tmux ls | grep "$TMUX_DEFUALT_SESSION"; then
+	if tmux "ls" | grep "$TMUX_DEFUALT_SESSION"; then
 		i=1
-		while tmux ls | grep "${TMUX_DEFUALT_SESSION}${i}"; do
-			$((i++))
+		while tmux "ls" | grep "${TMUX_DEFUALT_SESSION}${i}"; do
+			_=$((i++))
 		done
-		exec tmux new-session -t "$TMUX_DEFUALT_SESSION" -s ${TMUX_DEFUALT_SESSION}${i} \; new-window
+		exec tmux new-session -t "$TMUX_DEFUALT_SESSION" -s "${TMUX_DEFUALT_SESSION}${i}" \; new-window
 	else
 		exec tmux new-session -s "$TMUX_DEFUALT_SESSION"
 	fi
@@ -129,6 +129,7 @@ __OLD_PWD="$PWD"
 do_cwd() {
 	if [ "$__OLD_PWD" != "$PWD" ]; then __OLD_PWD="$PWD"
 		ls 
+		! [ -f "$jmp" ] && jsetup
 		realpath . >> "$jmp" && sed -i 1d "$jmp"
 		venv
 	fi
@@ -149,15 +150,20 @@ venv() {
 	fi
 }
 
+jsetup() {
+	mkdir -p "$jmp_dir"
+	time=$(date +%D --date="-2 month" 2>/dev/null)
+	(find "$HOME" -type d -not -path "*/\.*" -newermt "$time" && yes "") | head -n 1000 > "$jmp"
+}
 
 j()
 {
 	[ $# -ne 0 ] && pattern=".*$(echo "$@" | sed "s/\s\+/.*\/.*/g")[^\/]*$"
 
 	if ! [ -r "$jmp" ]; then
-		mkdir -p "$jmp_dir"
-		time=$(date +%D --date="-2 month" 2>/dev/null)
-		(find "$HOME" -type d -not -path "*/\.*" -newermt "$time" && yes "") | head -n 1000 > "$jmp"
+		jsetup
+	elif [ "$1" == "--setup" ]; then
+		jsetup
 		return 0
 	fi
 
