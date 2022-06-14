@@ -3,16 +3,13 @@
 #! This is a bash script that executes itself as a vimscript to do its work
 
 : if 0
-  # tmpfile=$(mktemp -t vimcat.XXXXXXXX)
-  PIPE=$(mktemp -u)
-  mkfifo "$PIPE"
-  exec 9<>"$PIPE"
+  tmpfile=$(mktemp -t vimcat.XXXXXXXX)
 
   [[ "${0:0:1}" == "/" ]] && script="$0" || script="$PWD/$0"
-  /usr/bin/vim -e -X -R "$@" -c "source $script" -c "bufdo call AnsiHighlight('$PIPE')" -c qa >/dev/null 2>/dev/null
-  rm "$PIPE"
 
-  cat < "$PIPE"
+  /usr/bin/vim -e -X -R "$@" -c "source $script" -c "bufdo call AnsiHighlight('$tmpfile')" -c qa >/dev/null 2>/dev/null
+  cat "$tmpfile"
+  rm "$tmpfile"
   exit
 : endif
 
@@ -66,11 +63,6 @@ function! s:GroupToAnsi(groupnum)
   endif
 
   let groupnum = a:groupnum
-
-  if groupnum == 0
-    let groupnum = hlID('Normal')
-  endif
-
   if has_key(s:ansicache, groupnum)
     return s:ansicache[groupnum]
   endif
@@ -140,27 +132,25 @@ function! AnsiHighlight(out)
 
   for lnum in range(1, line('$'))
     let last = hlID('Normal')
-    let output = s:GroupToAnsi(last) . "\<Esc>[K" " Clear to right
-
-    exe "norm! " . lnum . "G$"
     let line = getline(lnum)
     let included = 0
     let parts = []
 
     let unconsumed = 0
-    for cnum in range(1, col('.'))
-      if synIDtrans(synID(lnum, cnum, 1)) != last
-        let last = synIDtrans(synID(lnum, cnum, 1))
+    for cnum in range(1, strlen(line))
+      let curid = synIDtrans(synID(lnum, cnum, 1))
+      if curid != last
+        let last = curid
 	if cnum > 1
           call add(parts, line[unconsumed:cnum-2])
 	endif
-	call add(parts, "\<Esc>[0m".s:GroupToAnsi(last))
+	call add(parts, "\<Esc>[0m")
+	call add(parts, s:GroupToAnsi(last))
 	let unconsumed = cnum - 1
       endif
     endfor
     call add(parts, line[unconsumed:])
-    let output = join(parts, "")
-    call add(retv, output)
+    call add(retv, join(parts, ""))
   endfor
   " Reset the colors to default after displaying the file
   let retv[-1] .= "\<Esc>[0m"

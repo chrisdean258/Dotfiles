@@ -1,18 +1,13 @@
 #!/bin/sh
 
+if [ $# -eq 0 ] || ! [ -t 1 ]; then 
+	exec cat "$@"
+fi
 
 for f in "$@"; do
-	if ! [ -f "$f" ]; then
-		echo "$f: no such file" 1>&2
-		exit 1
-	elif ! [ -r "$f" ]; then
-		echo "$f: not readable by $USER" 1>&2
-		exit 1
-	elif echo "$f" | grep -q "\.txt$" || [ "$(wc -l < "$f")" -gt 500 ]; then
+	if echo "$f" | grep -q "\.txt$" || [ "$(wc -l < "$f")" -gt 500 ]; then
 		cat "$f"
-	elif [ -t 1 ]; then
-		vimcat "$f"
 	else
-		cat "$f"
+		vimcat "$f"
 	fi
 done
