@@ -1,4 +1,8 @@
 #!/bin/bash
 
-git fetch
-git rebase "$(dots rev-parse --abbrev-ref HEAD)" --autostash
+if git stash | grep -q "^No local changes to save$"; then
+	git pull --prune
+else 
+	git pull --prune
+	git stash pop
+fi
