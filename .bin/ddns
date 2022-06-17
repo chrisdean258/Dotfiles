@@ -4,22 +4,24 @@ from subprocess import check_output as run
 import requests
 import sys
 import time
+import os
 
 URL = "https://domains.google.com"
 HOSTNAME = "home.christopherdean.org"
-USERNAME = "NXp1UC1RFZbA6jWW"
-PASSWORD = "670sIJwRShIB8Ys7"
+USERNAME = os.environ["DDNS_USERNAME"]
+PASSWORD = os.environ["DDNS_PASSWORD"]
 
 def check_instances():
     return bool(run(r'ps aux | grep "python3.*\<[d]dns\>"', shell=True))
 
 
 def get_ip():
-    cmd = "dig +short myip.opendns.com @resolver1.opendns.com"
-    ip = run(cmd, shell=True).decode("utf-8").strip()
-    if not ip:
-        raise Exception("could not determine external ip")
-    return ip
+    cmds = ["dig +short myip.opendns.com @resolver1.opendns.com", "curl ifconfig.me"]
+    for cmd in cmds:
+        ip = run(cmd, shell=True).decode("utf-8").strip()
+        if ip:
+            return ip
+    raise Exception("could not determine external ip")
 
 
 def update_record(ip, url, hostname, username, password):
