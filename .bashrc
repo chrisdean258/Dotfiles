@@ -91,20 +91,27 @@ prompt_command()
 jmp_dir="$HOME/.cache/jmp"
 jmp="$jmp_dir/jmp"
 
-alias cd..="cd .."
-alias ..="cd .."
+norealias() {
+	arg="${1%=*}"
+	if ! alias "$arg" 2>/dev/null | grep -q "."; then
+		alias "$@"
+	fi
+}
 
-alias ll='ls -alF'
-alias la='ls -A'
-alias l='ls -CF'
-alias car="ccat"
-alias cat="ccat"
-alias matlab="matlab -nodesktop -nosplash"
-alias jn="swallow jupyter notebook"
-alias ls='ls --color=auto --group-directories-first'
-alias grep='grep --color=auto'
-alias hgrep='history | grep --color=auto'
-alias ping="ping -c1 -w 1"
+norealias cd..="cd .."
+norealias ..="cd .."
+
+norealias ll='ls -alF'
+norealias la='ls -A'
+norealias l='ls -CF'
+norealias car="ccat"
+norealias cat="ccat"
+norealias matlab="matlab -nodesktop -nosplash"
+norealias jn="swallow jupyter notebook"
+norealias ls='ls --color=auto --group-directories-first'
+norealias grep='grep --color=auto'
+norealias hgrep='history | grep --color=auto'
+norealias ping="ping -c1 -w 1"
 
 exe colordiff && alias diff="colordiff"
 exe neomutt   && alias mutt="neomutt"
