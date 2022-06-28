@@ -88,6 +88,16 @@
 	" Settings for Todo
 	:  highlight Todo None
 	:  highlight Todo ctermfg=Yellow guifg=Yellow
+
+	" for some reason these are cleared
+	:  highlight htmlitalic cterm=italic
+	:  highlight htmlBold cterm=bold
+	:  highlight htmlUnderline cterm=underline
+	:  highlight htmlBoldUnderline cterm=bold,underline
+	:  highlight htmlBoldItalic cterm=bold,italic
+	:  highlight htmlUnderlineItalic cterm=underline,italic
+	:  highlight htmlBoldUnderlineItalic cterm=bold,underline,italic
+
 	" Settings for tabline
 	:  highlight tablinefill None
 	:  highlight tablinesel None

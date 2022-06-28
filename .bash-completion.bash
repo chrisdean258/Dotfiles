@@ -29,11 +29,20 @@ complete -o bashdefault -o default -o nospace -F __complete_make make
 
 __complete_xdotool()
 {
-	cur=${COMP_WORDS[COMP_CWORD]}	
+	cur=${comp_words[comp_cword]}	
 	words="$(xdotool --help | awk '/^ / {print $1}')"
-	COMPREPLY=( $(compgen -W "$words" -- "$cur" ) )
+	compreply=( $(compgen -w "$words" -- "$cur" ) )
 
 	return 0
 }
 
 complete -o bashdefault -o default -o nospace -F __complete_xdotool xdotool
+
+__complete_j()
+{
+	cur=${comp_words[comp_cword]}	
+	words="$(cat ~/.cache/jmpp/jmp_complete)"
+	compreply=( $(compgen -w "$words" -- "$cur" ) )
+
+	return 0
+}
