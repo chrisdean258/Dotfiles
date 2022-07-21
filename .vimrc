@@ -661,7 +661,7 @@
 
 		:function! MDUnindent() " {{{
 		:  let l:allowable_starts = [ '>', '\*', '-', '+', '\d\d*[\.)]']
-		:  let l:regex = '^\s*\('.join(l:allowable_starts, '|').'\)'
+		:  let l:regex = '^\s*\('.join(l:allowable_starts, '\|').'\)'
 		:  let l:diff = indent('.') - PrevIndent({_, v->getline(v)=~l:regex})
 		:  call cursor('.', col('.')-l:diff)
 		:  call setline('.', getline('.')[l:diff:])
