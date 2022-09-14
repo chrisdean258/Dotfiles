@@ -106,8 +106,6 @@ norealias la='ls -A'
 norealias l='ls -CF'
 norealias car="ccat"
 norealias cat="ccat"
-norealias head="chead"
-norealias tail="ctail"
 norealias matlab="matlab -nodesktop -nosplash"
 norealias jn="swallow jupyter notebook"
 norealias ls='ls --color=auto --group-directories-first'
