@@ -456,9 +456,11 @@
 	:augroup Markdown " {{{
 	:autocmd!
 	:autocmd Filetype markdown :autocmd InsertLeave <buffer> :call MDCapitals()
+	:autocmd Filetype markdown :autocmd InsertLeave <buffer> :call ReIndexOrderedList(line('.'))
 	:autocmd Filetype markdown :inoremap <buffer><tab> <c-r>=MDTab(CleverTab())<CR>
 	:autocmd Filetype markdown :inoremap <silent><buffer><CR> <c-r>=MDNewline()<CR>
 	:autocmd Filetype markdown :nmap <silent><buffer>o A<CR>
+	:autocmd Filetype markdown :nmap <silent><buffer>dd dd:call ReIndexOrderedList(line('.'))<CR>
 	:autocmd Filetype markdown :inoremap <silent><buffer><localleader>s <esc>:call SpellReplace()<CR>a
 	:autocmd Filetype markdown :nnoremap <silent><buffer><localleader>s :call SpellReplace()<CR>
 	:autocmd Filetype markdown :setlocal nospell
@@ -654,6 +656,7 @@
 		:  elseif l:line =~ '^\d\+[\.)]'
 		:    let l:char = substitute(l:line, '^\d\+\([\.)] \).*', '\1', '')
 		:    call append('.', l:line + 1 . l:char)
+		:    call ReIndexOrderedList(line('.'))
 		:    return "\<down>\<right>"
 		:  endif
 		:  return "\r"
@@ -665,19 +668,24 @@
 		:  let l:diff = indent('.') - PrevIndent({_, v->getline(v)=~l:regex})
 		:  call cursor('.', col('.')-l:diff)
 		:  call setline('.', getline('.')[l:diff:])
+		:  if getline('.') =~ '^\s*\d\+[\.)]'
+		:    call ReIndexOrderedList(line('.'))
+		:  endif
 		:endfunction " }}}
 
 		:function! MDTab(default) " {{{
-		:  if &filetype == "rmd" || line('.') == 1
+		:  let lineno = line('.')
+		:  if &filetype == "rmd" || lineno == 1
 		:    return a:default
 		:  endif
-		:  let l:allowable_starts = [ '>', '\*', '-', '+', '|' , '\d\+\.', '\d\+)' ]
-		:  let l:repeat = stridx(Trim(getline(line('.') - 1)), " ") + 1
-		:  echom "l:repeat ". l:repeat
-		:  let l:line = TextBeforeCursor()
-		:  if l:line =~ '^\s*\(' . join(l:allowable_starts, '\|') . '\)\s*$'
-		:    call setline('.', repeat(" ", l:repeat) . getline('.'))
-		:    return repeat("\<right>", l:repeat)
+		:  let allowable_starts = [ '>', '\*', '-', '+', '|' , '\d\+\.', '\d\+)' ]
+		:  let repeat = stridx(Trim(getline(line('.') - 1)), " ") + 1
+		:  let line = TextBeforeCursor()
+		:  if line =~ '^\s*\(' . join(allowable_starts, '\|') . '\)\s*$'
+		:    call setline('.', repeat(" ", repeat) . getline('.'))
+		:    call ReIndexOrderedList(lineno)
+		:    call ReIndexOrderedList(lineno - 1)
+		:    return repeat("\<right>", repeat)
 		:  endif
 		:  return a:default
 		:endfunction " }}}
@@ -687,6 +695,44 @@
 		:  silent s/^\(\s*- \)\(.\)/\1\U\2/e
 		:  call winrestview(l:window)
 		:  nohlsearch
+		:endfunction " }}}
+
+		:function! LineNosOrderedList(start) " {{{
+		:  let valid_starts = '^\s*\d\+[\.)]'
+		:  if getline(a:start) !~ valid_starts
+		:    return []
+		:  endif
+		:  let linenum = a:start
+		:  let natural_indent = indent(linenum)
+		:  let reindex_lines = [linenum]
+		:  let linenum -= 1
+		:  while indent(linenum) >= natural_indent && getline(linenum) =~ valid_starts
+		:    if indent(linenum) == natural_indent
+		:      call add(reindex_lines, linenum)
+		:    endif
+		:    let linenum -= 1
+		:  endwhile
+		:  let linenum = line('.')
+		:  let linenum += 1
+		:  while indent(linenum) >= natural_indent && getline(linenum) =~ valid_starts
+		:    if indent(linenum) == natural_indent
+		:      call add(reindex_lines, linenum)
+		:    endif
+		:    let linenum += 1
+		:  endwhile
+		:  call sort(reindex_lines, {i1, i2 -> i1 - i2})
+		:  return reindex_lines
+		:endfunction " }}}
+
+		:function! ReIndexOrderedList(start) " {{{
+		:  let window = winsaveview()
+		:  let reindex_lines = LineNosOrderedList(a:start)
+		:  let i = 0
+		:  for lineno in reindex_lines
+		:    call setline(lineno, substitute(getline(lineno), '\d\d*', string(i + 1), ''))
+		:    let i += 1
+		:  endfor
+		:  call winrestview(window)
 		:endfunction " }}}
 	" }}}
 
