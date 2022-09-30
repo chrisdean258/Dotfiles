@@ -43,7 +43,7 @@ class Github:
         return self.post("user/repos", {"name": name, "private": private})
 
     def list_repos(self):
-        return self.get("user/repos")
+        return self.get("user/repos?per_page=1000")
 
     def delete_repo(self, name):
         self.delete("repos/{}/{}".format(self.username, name))
@@ -65,6 +65,7 @@ class Github:
                 print("# " + title, file=f)
 
         git("init")
+        git("co", "-b", "main")
         git("remote", "add", "origin", resp["ssh_url"])
         git("add", "-A", ".")
         git("commit", "-m", "Initial commit")
@@ -88,7 +89,8 @@ def main(args):
 
     if args[1] in ("ls", "list"):
         for repo in connection.list_repos():
-            print(repo["full_name"])
+            if repo["owner"]["login"] == username or args[2] == "-a":
+                print(repo["full_name"])
     if args[1] == "clone":
         connection.clone_repo(args[2], args[2] if len(args) <= 3 else args[3])
     if args[1] == "delete":
