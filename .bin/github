@@ -89,7 +89,7 @@ def main(args):
 
     if args[1] in ("ls", "list"):
         for repo in connection.list_repos():
-            if repo["owner"]["login"] == username or args[2] == "-a":
+            if repo["owner"]["login"] == username or (len(args) > 2 and args[2] == "-a"):
                 print(repo["full_name"])
     if args[1] == "clone":
         connection.clone_repo(args[2], args[2] if len(args) <= 3 else args[3])

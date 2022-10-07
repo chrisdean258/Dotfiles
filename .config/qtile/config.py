@@ -137,7 +137,7 @@ groups.append(
 
 class DWM(layout.Tile):
     def configure(self, *args, **kwargs):
-        expt = 2 if len(self.clients) >= 4 else 1
+        expt = 1 + (len(self.clients) >= 4)
         if self.master != expt:
             self.master = expt
             self.group.layout_all()
@@ -166,7 +166,11 @@ extension_defaults = widget_defaults.copy()
 
 
 def edit_config(qtile):
-    cmd = "st -e vim ~/.config/qtile/config.py && qtile-cmd -o cmd -f restart"
+    cmd = """cp ~/.config/qtile/config.py ~/temp_config.py
+            st -e vim ~/.config/qtile/config.py
+            diff ~/temp_config.py ~/.config/qtile/config.py || qtile-cmd -o cmd -f restart
+            rm ~/temp_config.py
+            """
     qtile.cmd_spawn(cmd, shell=True)
 
 
