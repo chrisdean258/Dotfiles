@@ -115,48 +115,6 @@
 
 " }}}
 
-" PLUGIN SETTINGS {{{
-"_______________________________________________________________________________________________________
-
-	" Function to install syntastic if it isnt already there
-	:function! SourceOrInstallSyntastic()
-	:  try
-	:    execute pathogen#infect()
-	:  catch
-	:    if executable("git") != 1 || executable("curl") != 1
-	:      echom "You need git and curl installed for the Syntastic auto install"
-	:      return
-	:    endif
-	:    silent !mkdir -p ~/.vim/autoload ~/.vim/bundle && curl -LSso ~/.vim/autoload/pathogen.vim https://tpo.pe/pathogen.vim &> /dev/null
-	:    silent !cd ~/.vim/bundle && git clone --depth=1 https://github.com/vim-syntastic/syntastic.git &> /dev/null
-	:    execute pathogen#infect()
-	:  endtry
-	:endfunction
-
-	" Linting c/c++
-	" Some of this stuff has to do with my research like anything to do with eo
-	:let g:syntastic_check_on_wq = 0
-	:let g:syntastic_cpp_compiler = "g++"
-	" :let g:syntastic_cpp_compiler_options = "-std=c++98 -Wall"
-	:let g:syntastic_c_compiler_options = "-Wall -Wextra -Wno-unused-variable -Wno-unused-but-set-variable -Wno-unused-parameter" 
-	:let g:syntastic_cpp_include_dirs = [ "../../include",  "../include", "include", ".", $HOME."/include"]
-	:let g:syntastic_rust_checkers = ["rustc", 'cargo']
-
-	" Linting python
-	:if executable("flake8")
-	:  let g:syntastic_python_checkers = [ "flake8" ]
-	:endif
-	:let g:syntastic_rust_checkers = ["cargo"]
-	:let g:syntastic_tex_checkers = []
-	:let g:syntastic_tex_chktex_args = ["--nowarn", "39"]
-	:let g:syntastic_always_populate_loc_list = 1
-	:let g:syntastic_loc_list_height= 3
-
-	" Turn off Syntastic Errors
-	:cabbrev jk SyntasticReset
-
-" }}}
-
 " UNIVERSAL MAPPINGS {{{
 "_______________________________________________________________________________________________________
 
@@ -1180,24 +1138,11 @@
 	:  source ~/.vimrc.local
 	:endif
 
-	:if exists("g:imawimp")
-	:  if !g:imawimp
-	:    call HJKL()
-	:  endif
-	:else
-	:  if !has('win32')
-	:    let s:response = confirm("I'm about to turn off the arrow keys. Use h,j,k,l for left, up, right, down respectively", "y\nn", "y")
-	:    if s:response < 2
-	:      call HJKL()
-	:      call System("echo :let g:imawimp = 0 >> ~/.vimrc.local")
-	:    else
-	:      call System("echo :let g:imawimp = 1 >> ~/.vimrc.local")
-	:    endif
-	:  endif
-	:endif
-	
 	:if get(g:, "use_syntastic", 1) && !has('win32')
-	:  call SourceOrInstallSyntastic()
+	:  try
+	:    execute pathogen#infect()
+	:  catch
+	:  endtry
 	:endif
 
 	:if get(g:,"auto_update", 1) && !has('win32')
