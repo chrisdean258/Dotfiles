@@ -304,6 +304,8 @@
 	:autocmd OptionSet spell          :syntax spell toplevel
 	:autocmd OptionSet spell          :nnoremap <silent><buffer><localleader>s :call SpellReplace()<CR>
 	:autocmd OptionSet spell          :inoremap <silent><buffer><localleader>s <esc>:call SpellReplace()<CR>a
+	:autocmd OptionSet spell          :inoremap <silent><buffer><localleader>s <esc>:call SpellReplace()<CR>a
+	:autocmd OptionSet spell          :setlocal complete+=kspell
 	:autocmd OptionSet fo             :set fo=njq
 	:augroup END
 	:endif " }}}
@@ -421,6 +423,7 @@
 	:autocmd Filetype markdown :nmap <silent><buffer>dd dd:call ReIndexOrderedList(line('.'))<CR>
 	:autocmd Filetype markdown :inoremap <silent><buffer><localleader>s <esc>:call SpellReplace()<CR>a
 	:autocmd Filetype markdown :nnoremap <silent><buffer><localleader>s :call SpellReplace()<CR>
+	:autocmd Filetype markdown :setlocal complete+=kspell
 	:autocmd Filetype markdown :setlocal nospell
 	:autocmd Filetype markdown :setlocal wrap
 	:autocmd Filetype markdown :setlocal linebreak
