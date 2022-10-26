@@ -878,13 +878,11 @@
 		:    return "\<C-P>"
 		:  endif
 		:  let l:str = LineBeforeCursor()
-		:  echom l:str
 		:  let l:words = split(l:str, " ")
 		:  let l:last_word = len(l:words) > 0 ? l:words[-1] : ""
 		:  if l:str =~ '^\s*$'
 		:    return "\<Tab>"
 		:  elseif l:str =~ '\s$'
-		:    echom "returning tab '" . l:str . "'"
 		:    return "\<Tab>"
 		:  elseif l:last_word =~ "\/" && len(glob(l:last_word . "*")) > 0 
 		:    return "\<C-X>\<C-F>"

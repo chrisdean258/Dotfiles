@@ -16,11 +16,35 @@ let g:ale_fixers = {"rust": "rustfmt", "python": ["autopep8"], }
 let g:ale_linters = {"python": ["flake8", "autoimport", "isort", "black"], "rust":["cargo"], "copper": ["copper"]}
 let g:ale_rust_rustfmt_options = "--edition 2021"
 let g:ale_rust_cargo_use_clippy = 1
+let g:ale_completion_enabled = 1
 nmap <silent> <C-k> <Plug>(ale_previous_wrap)
 nmap <silent> <C-j> <Plug>(ale_next_wrap)
 let g:markdown_fenced_languages = ['css', 'erb=eruby', 'javascript', 'js=javascript', 'json=javascript', 'ruby', 'sass', 'xml', 'c', 'python', "copper"]
 let g:markdown_fenced_languages = ['css', 'erb=eruby', 'javascript', 'js=javascript', 'json=javascript', 'ruby', 'sass', 'xml', 'c', 'python']
 :let g:netrw_browsex_viewer= "xdg-open"
+
+set omnifunc=ale#completion#OmniFunc
+function! CleverTab() " {{{
+	if pumvisible()
+		return "\<C-N>"
+	endif
+	let l:str = LineBeforeCursor()
+	let l:words = split(l:str, " ")
+	let l:last_word = len(l:words) > 0 ? l:words[-1] : ""
+	if l:str =~ '^\s*$'
+		return "\<Tab>"
+	elseif l:str =~ '\s$'
+		return "\<Tab>"
+	elseif l:str =~ '($'
+		return ""
+	elseif l:last_word =~ "\/" && len(glob(l:last_word . "*")) > 0 
+		return "\<C-X>\<C-F>"
+	elseif l:last_word =~ "^\/" && len(glob(l:last_word[1:] . "*")) > 0 
+		" TODO flesh this out
+		return "\<C-X>\<C-O>"
+	endif
+	return "\<C-X>\<C-O>"
+endfunction " }}}
 
 
 command! DndFixup :call DndFixup()
@@ -44,6 +68,14 @@ if $TERM =~ "^st"
 endif
 au ColorScheme elflord highlight tablinesel ctermfg=DarkGrey guifg=DarkGrey
 au ColorScheme elflord highlight tabline ctermfg=black guifg=black
+
+au ColorScheme elflord highlight Pmenu None
+au ColorScheme elflord highlight PmenuSel None
+au ColorScheme elflord highlight PmenuSbar None
+au ColorScheme elflord highlight PmenuThumb None
+au ColorScheme elflord highlight Pmenu ctermfg=0
+au ColorScheme elflord highlight PmenuSel ctermfg=darkgray
+
 au VimResized * wincmd =
 call HighLightSettings()
 
