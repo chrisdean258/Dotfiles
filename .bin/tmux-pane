@@ -1,0 +1,3 @@
+#!/bin/bash
+
+exec tmux split-window -h -l 85 "$@"

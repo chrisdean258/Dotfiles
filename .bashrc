@@ -112,6 +112,7 @@ norealias ls='ls --color=auto --group-directories-first'
 norealias grep='grep --color=auto'
 norealias hgrep='history | grep --color=auto'
 norealias ping="ping -c1 -w 1"
+norealias vim="vvim"
 
 exe colordiff && alias diff="colordiff"
 exe neomutt   && alias mutt="neomutt"

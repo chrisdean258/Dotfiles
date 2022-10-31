@@ -1,0 +1,28 @@
+#!/usr/bin/env python3
+
+import sys
+import os
+
+
+def parse_linenum(s):
+    try:
+        return int(s.partition(':')[0])
+    except ValueError:
+        return None
+
+
+def main(argv):
+    new_argv = ["vim"]
+    for arg in argv:
+        fname, _, line = arg.partition(':')
+        lnum = parse_linenum(line)
+        if os.path.isfile(fname) and lnum is not None:
+            new_argv += [fname, f"+{lnum}"]
+        else:
+            new_argv.append(arg)
+
+    os.execvp(new_argv[0], new_argv)
+
+
+if __name__ == '__main__':
+    sys.exit(main(sys.argv[1:]))
