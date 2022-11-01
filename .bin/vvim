@@ -16,7 +16,9 @@ def main(argv):
     for arg in argv:
         fname, _, line = arg.partition(':')
         lnum = parse_linenum(line)
-        if os.path.isfile(fname) and lnum is not None:
+        if os.path.isfile(arg):
+            new_argv.append(arg)
+        elif os.path.isfile(fname) and lnum is not None:
             new_argv += [fname, f"+{lnum}"]
         else:
             new_argv.append(arg)
