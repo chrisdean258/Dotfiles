@@ -653,7 +653,7 @@
 
 		:function! MDCapitals() " {{{
 		:  let l:window = winsaveview()
-		:  silent s/^\(\s*- \)\(.\)/\1\U\2/e
+		:  silent s/^\(\s*- \)\(\w\+[^\/]\(\s\|$\)\)/\1\u\2/e
 		:  call winrestview(l:window)
 		:  nohlsearch
 		:endfunction " }}}

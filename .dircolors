@@ -48,6 +48,7 @@ TERM xterm*
 # 40=black 41=red 42=green 43=yellow 44=blue 45=magenta 46=cyan 47=white
 
 .c 00;33
+.cc 00;33
 .h 00;37
 .cpp 00;33
 .o 01;30
