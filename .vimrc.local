@@ -73,8 +73,13 @@ au ColorScheme elflord highlight Pmenu None
 au ColorScheme elflord highlight PmenuSel None
 au ColorScheme elflord highlight PmenuSbar None
 au ColorScheme elflord highlight PmenuThumb None
-au ColorScheme elflord highlight Pmenu ctermfg=0
-au ColorScheme elflord highlight PmenuSel ctermfg=darkgray
+if $TERM =~ "^st"
+  au ColorScheme elflord highlight Pmenu ctermfg=0
+  au ColorScheme elflord highlight PmenuSel ctermfg=darkgray
+else
+  au ColorScheme elflord highlight Pmenu ctermfg=darkgray
+  au ColorScheme elflord highlight PmenuSel ctermfg=gray
+endif
 
 au VimResized * wincmd =
 call HighLightSettings()
