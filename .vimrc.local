@@ -163,6 +163,7 @@ let g:is_posix = 1
 if $SSH_TTY != ""
 	set lazyredraw
 	set nottyfast
+	set nofsync
 endif
 
 

