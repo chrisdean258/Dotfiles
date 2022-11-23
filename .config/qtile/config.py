@@ -37,7 +37,7 @@ mods = [m_, ms, mc, mcs]
 applications = {
     "Return": "st",
     "p": ("dmenu_run", "dmenu_pass"),
-    "g": ("browser", "browser --incognito"),
+    "g": ("browser", "browser --private-window"),
     "v": ("vol -5%", "vol +5%"),
     "b": ("bt", "bt -d", "bt h21", "bt wh"),
     "d": ("discord", "d"),
