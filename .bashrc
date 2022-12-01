@@ -7,10 +7,7 @@ if [ -n "$SSH_TTY" ]; then
 	export SSH_TTY
 elif [ -z "$TMUX" ] && [ -x "$(which tmux 2>/dev/null)" ]; then
 	if tmux "ls" | grep "$TMUX_DEFUALT_SESSION"; then
-		i=1
-		while tmux "ls" | grep "${TMUX_DEFUALT_SESSION}${i}"; do
-			_=$((i++))
-		done
+		i="$(tmux ls | grep -o '^default[0-9][0-9]*' | sort -rn | sed "s/default//g" | awk '{ print $1 + 1 } END { print 1 }' | head -n 1)"
 		exec tmux new-session -t "$TMUX_DEFUALT_SESSION" -s "${TMUX_DEFUALT_SESSION}${i}" \; new-window
 	else
 		exec tmux new-session -s "$TMUX_DEFUALT_SESSION"
