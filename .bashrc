@@ -124,9 +124,9 @@ exe swallow   && alias sxiv="swallow sxiv"
 pd()
 {
 	if [ $# -eq 0 ]; then
-		popd
+		popd || return;
 	else
-		pushd "$@"
+		pushd "$@" || return;
 	fi
 }
 
@@ -146,19 +146,11 @@ venv() {
 		if ! realpath "$PWD/" | grep -q -F "$(dirname "$VIRTUAL_ENV")"; then
 			deactivate
 		fi
-	elif [ -r "env/bin/activate" ]; then 
-		. "env/bin/activate"
-	elif [ -r "../env/bin/activate" ]; then 
-		. "../env/bin/activate"
-	elif [ -r "../../env/bin/activate" ]; then 
-		. "../../env/bin/activate"
+	else
+		ssource "env/bin/activate"
+		ssource "../env/bin/activate"
+		ssource "../../env/bin/activate"
 	fi
-}
-
-jsetup() {
-	mkdir -p "$jmp_dir"
-	time=$(date +%D --date="-2 month" 2>/dev/null)
-	(find "$HOME" -type d -not -path "*/\.*" -newermt "$time" && yes "") | head -n 1000 > "$jmp"
 }
 
 j()
@@ -166,10 +158,9 @@ j()
 	[ $# -ne 0 ] && pattern=".*$(echo "$@" | sed "s/\s\+/.*\/.*/g")[^\/]*$"
 
 	if ! [ -r "$jmp" ]; then
-		jsetup
-	elif [ "$1" == "--setup" ]; then
-		jsetup
-		return 0
+		mkdir -p "$jmp_dir"
+		time=$(date +%D --date="-2 month" 2>/dev/null)
+		(find "$HOME" -type d -not -path "*/\.*" -newermt "$time" && yes "") | head -n 1000 > "$jmp"
 	fi
 
 	new_dir=$(tac "$jmp" | grep -m 1 -i "$pattern")
