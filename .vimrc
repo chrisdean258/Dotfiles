@@ -313,11 +313,11 @@
 
 	:augroup c_style " {{{ 
 	:  autocmd!
-	:  autocmd FileType c,cpp,javascript,java,perl,cs,copper :nnoremap <silent><buffer><localleader>s :call SplitIf()<CR>
-	:  autocmd FileType c,cpp,javascript,java,perl,cs,copper :nnoremap <silent><buffer>; :call AppendSemicolon()<CR>
-	:  autocmd FileType c,cpp,javascript,java,perl,cs,copper :inoremap <buffer><expr>{} Cbraces()
-	:  autocmd FileType c,cpp,javascript,java,perl,cs,copper :setlocal cindent
-	:  autocmd FileType c,cpp,javascript,java,perl,cs,copper :autocmd BufRead,BufWrite <buffer> :silent call RemoveTrailingWhitespace()
+	:  autocmd FileType c,cpp,javascript,java,perl,cs :nnoremap <silent><buffer><localleader>s :call SplitIf()<CR>
+	:  autocmd FileType c,cpp,javascript,java,perl,cs :nnoremap <silent><buffer>; :call AppendSemicolon()<CR>
+	:  autocmd FileType c,cpp,javascript,java,perl,cs :inoremap <buffer><expr>{} Cbraces()
+	:  autocmd FileType c,cpp,javascript,java,perl,cs :setlocal cindent
+	:  autocmd FileType c,cpp,javascript,java,perl,cs :autocmd BufRead,BufWrite <buffer> :silent call RemoveTrailingWhitespace()
 	:  autocmd FileType c,cpp  :setlocal complete+=t
 	:  autocmd FileType c,cpp  :iabbrev <buffer> #i #include
 	:  autocmd FileType c,cpp  :iabbrev <buffer> #I #include

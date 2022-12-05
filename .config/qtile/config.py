@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 from functools import wraps
 from typing import List  # noqa: F401
-
 from libqtile import bar, hook, layout, widget
 from libqtile.config import Click, Drag, Group, Key, Screen, ScratchPad, DropDown
 from libqtile.lazy import lazy
