@@ -166,15 +166,6 @@ if $SSH_TTY != ""
 	set nofsync
 endif
 
-
-function! RefreshFile()
-       let window = winsaveview()
-       silent! e
-       call winrestview(window)
-endfunction
-
-au FocusLost,WinLeave notes.md :call Refreshfile()
-au FocusGained,BufEnter notes.md :silent! e
 autocmd FileType copper :nnoremap <silent><buffer><localleader>s :call SplitIf()<CR>
 autocmd FileType copper :nnoremap <silent><buffer>; :call AppendSemicolon()<CR>
 autocmd FileType copper :inoremap <buffer><expr>{} Cbraces()
@@ -199,6 +190,12 @@ function! Notes()
 	cabbrev WQ <C-R>=CommandLineStart("WQ", ":call NotesQuit(1)")<CR>
 	cabbrev q <C-R>=CommandLineStart("Q", ":call NotesQuit(0)")<CR>
 	cabbrev wq <C-R>=CommandLineStart("Wq", ":call NotesQuit(1)")<CR>
+endfunction
+
+function! RefreshFile()
+       let window = winsaveview()
+       silent! e
+       call winrestview(window)
 endfunction
 
 au FocusLost,WinLeave notes.md :call RefreshFile()
