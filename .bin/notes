@@ -1,22 +1,15 @@
 #!/bin/bash
 
-extension="md"
-if [ $# -gt 0 ] && [ $1 = "tex" ]; then
-	extension="tex"
-	shift
+NOTES="$HOME/notes.md"
+NOTES_DIR="$HOME/.notes"
+
+mkdir -p "$NOTES_DIR"
+if [ -t 0 ] && [ "$#" -eq 0 ]; then
+	if [ -r "$NOTES" ]; then
+		exec tmux-pane vim -o "$NOTES" "$NOTES_DIR" -c "call Notes()"
+	else 
+		exec tmux-pane vim "$NOTES_DIR" -c "call Notes()"
+	fi
+else 
+	exec cat >> "$NOTES"
 fi
-
-title="$(echo $* | sed 's/[ ]/_/g')"
-date=$(date +%Y-%m-%d)
-
-fn="$date.$extension"
-if [ -n "$title" ]; then
-	fn="$date-$title.$extension"
-elif ls | grep -v "\.pdf$" | grep "$date" -q; then
-	fn=($(ls | grep "$date" | grep -v "\.pdf$"))
-fi
-
-
-echo "$fn"
-vim "$fn"
-
