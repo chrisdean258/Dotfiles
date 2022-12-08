@@ -173,7 +173,6 @@ function! RefreshFile()
        call winrestview(window)
 endfunction
 
-<<<<<<< Updated upstream
 au FocusLost,WinLeave notes.md :call Refreshfile()
 au FocusGained,BufEnter notes.md :silent! e
 autocmd FileType copper :nnoremap <silent><buffer><localleader>s :call SplitIf()<CR>
@@ -181,7 +180,6 @@ autocmd FileType copper :nnoremap <silent><buffer>; :call AppendSemicolon()<CR>
 autocmd FileType copper :inoremap <buffer><expr>{} Cbraces()
 autocmd FileType copper :setlocal cindent
 autocmd FileType copper :autocmd BufRead,BufWrite <buffer> :silent call RemoveTrailingWhitespace()
-=======
 function! NotesQuit(write)
 	if a:write
 		w
@@ -205,6 +203,3 @@ endfunction
 
 au FocusLost,WinLeave notes.md :call RefreshFile()
 au FocusGained,BufEnter notes.md :silent! call RefreshFile()
-
-
->>>>>>> Stashed changes
