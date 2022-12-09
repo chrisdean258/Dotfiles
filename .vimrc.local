@@ -171,16 +171,23 @@ autocmd FileType copper :nnoremap <silent><buffer>; :call AppendSemicolon()<CR>
 autocmd FileType copper :inoremap <buffer><expr>{} Cbraces()
 autocmd FileType copper :setlocal cindent
 autocmd FileType copper :autocmd BufRead,BufWrite <buffer> :silent call RemoveTrailingWhitespace()
+
+function! HasNetrwBuf(notes_dir)
+	return reduce(getbufinfo(), {acc, v -> acc || v.loaded && v.name == a:notes_dir}, 0)
+endfunction
+
 function! NotesQuit(write)
-	if a:write
+	let notes_dir = expand("~/.notes")
+	if a:write && bufname() !=# notes_dir
 		w
 	endif
-	for buffer in filter(getbufinfo(), {i, v -> get(v.variables, "netrw_curdir", "") ==# expand("~/.notes")})
+	if HasNetrwBuf(notes_dir)
 		q
-		return
-	endfor
-	e ~/.notes
+	else
+		e ~/.notes
+	endif
 endfunction
+
 
 function! Notes()
 	set nohidden
