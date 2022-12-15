@@ -15,12 +15,11 @@
 	keep = !~/.git_scripts/keep
 	merge-all = !~/.git_scripts/merge_all
 	note = !~/.git_scripts/notes
-	p = !~/.git_scripts/stash_pull_pop
+	p = pull --autostash
 	rebase-all = !~/.git_scripts/rebase_all
 	reload-hooks = !~/.git_scripts/reload-hooks
 	rh = reset --hard
 	save = !~/.git_scripts/save
-	stash-pull = !~/.git_scripts/stash_pull_pop
 	stat = status
 	unignore = update-index --no-skip-worktree
 	web = !~/.git_scripts/website
