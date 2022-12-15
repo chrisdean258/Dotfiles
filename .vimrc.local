@@ -172,38 +172,60 @@ autocmd FileType copper :inoremap <buffer><expr>{} Cbraces()
 autocmd FileType copper :setlocal cindent
 autocmd FileType copper :autocmd BufRead,BufWrite <buffer> :silent call RemoveTrailingWhitespace()
 
-function! HasNetrwBuf(notes_dir)
-	return reduce(getbufinfo(), {acc, v -> acc || v.loaded && v.name == a:notes_dir}, 0)
-endfunction
-
 function! NotesQuit(write)
-	let notes_dir = expand("~/.notes")
-	if a:write && bufname() !=# notes_dir
+	let index = expand("~/.notes/index.md")
+	if a:write
 		w
 	endif
-	if HasNetrwBuf(notes_dir)
+	if reduce(getbufinfo(), {a, b -> a || (b.name ==# index && !b.hidden)}, 0)
 		q
 	else
-		e ~/.notes
+		execute "e " . index
+		silent! call GenIndex()
 	endif
+endfunction
+
+function! GenIndex()
+	let win = winsaveview()
+	/# INDEX
+	let win2 = winsaveview()
+	normal! j
+	while getline('.') !~ '^#'
+		d
+	endwhile
+	call winrestview(win2)
+	normal! o
+	r !gen-index
+	normal! o
+	w
+	call winrestview(win)
+endfunction
+
+function! RemoveFile()
+	let path = substitute(getline('.'), '\s*- \[.*\](\(.*\))', '\1', '')
+	if isdirectory(path)
+		call delete(path, "rf")
+	elseif filereadable(path) 
+		call delete(path)
+	endif
+	silent! call GenIndex()
+endfunction
+
+function! Edit(file)
+	execute "e ". a:file
+	silent! !mkdir -p %:h
+	redraw!
 endfunction
 
 
 function! Notes()
-	set nohidden
 	call chdir("~/.notes")
+	silent! call GenIndex()
 	cabbrev Q <C-R>=CommandLineStart("Q", ":call NotesQuit(0)")<CR>
 	cabbrev Wq <C-R>=CommandLineStart("Wq", ":call NotesQuit(1)")<CR>
 	cabbrev WQ <C-R>=CommandLineStart("WQ", ":call NotesQuit(1)")<CR>
 	cabbrev q <C-R>=CommandLineStart("Q", ":call NotesQuit(0)")<CR>
 	cabbrev wq <C-R>=CommandLineStart("Wq", ":call NotesQuit(1)")<CR>
+	nnoremap <leader>dd :call RemoveFile()<CR>
+	nnoremap gf :call Edit("<cfile>")<CR>
 endfunction
-
-function! RefreshFile()
-       let window = winsaveview()
-       silent! e
-       call winrestview(window)
-endfunction
-
-au FocusLost,WinLeave notes.md :call RefreshFile()
-au FocusGained,BufEnter notes.md :silent! call RefreshFile()

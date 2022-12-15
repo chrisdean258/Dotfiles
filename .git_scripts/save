@@ -10,12 +10,12 @@ comment="$*"
 if [ "$*" = "..." ]; then
 	comment="$(git log -1 --pretty=%B)"
 	echo -n "\"$comment\"? "
-	read resp
+	read -r resp
 	[ -n "$resp" ] && comment="$resp"
 fi
 
-git stash-pull
-test "$(git diff --name-only)" && git add `git diff --name-only`
+! test -n "$(git remote)" || git pull --autostash
+test -n "$(git diff --name-only)" && git add `git diff --name-only`
 git commit -m "$comment"
-!(test "$(git remote)") || git push
+! test -n "$(git remote)" || git push
 

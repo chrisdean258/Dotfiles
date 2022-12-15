@@ -1,8 +1,0 @@
-#!/bin/bash
-
-if git stash | grep -q "^No local changes to save$"; then
-	git pull --prune
-else 
-	git pull --prune
-	git stash pop
-fi

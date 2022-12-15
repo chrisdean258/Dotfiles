@@ -1,14 +1,13 @@
 #!/bin/bash
 
-NOTES="$HOME/notes.md"
 NOTES_DIR="$HOME/.notes"
+NOTES="$NOTES_DIR/index.md"
 
 mkdir -p "$NOTES_DIR"
+cd "$NOTES_DIR"
 if [ -t 0 ] && [ "$#" -eq 0 ]; then
 	if [ -r "$NOTES" ]; then
-		exec tmux-pane vim -o "$NOTES" "$NOTES_DIR" -c "call Notes()"
-	else 
-		exec tmux-pane vim "$NOTES_DIR" -c "call Notes()"
+		exec tmux-pane vim -o "$NOTES" -c "call Notes()"
 	fi
 else 
 	exec cat >> "$NOTES"
