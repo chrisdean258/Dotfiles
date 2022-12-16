@@ -200,5 +200,5 @@ fi
 
 
 if test "$(find ~/.bashrc -mmin +1000)"; then
-	touch ~/.bashrc && (ping -c 1 -w 1 8.8.8.8) &>/dev/null && dots stash-pull
+	touch ~/.bashrc && (ping -c 1 -w 1 8.8.8.8) &>/dev/null && dots pull --autostash
 fi
