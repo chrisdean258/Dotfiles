@@ -212,7 +212,13 @@ function! RemoveFile()
 endfunction
 
 function! Edit(file)
-	execute "e ". a:file
+	if getline('.') =~ '^\s*- \[.*\](\(.*\))$'
+		let ff = substitute(getline('.'), '.*\[.*\](\(.*\)).*', '\1', '')
+	else
+		let ff = a:file
+	endif
+	echom ff
+	execute "e ". ff
 	silent! !mkdir -p %:h
 	redraw!
 endfunction
