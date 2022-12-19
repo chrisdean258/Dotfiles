@@ -556,6 +556,14 @@
 		:  let prev = filter(lnums, { _, v -> v < l:indent })
 		:  return get(prev, 0, 0)
 		:endfunction " }}}
+		
+		function! RetainPosition(fun) " {{{
+			let win = winsaveview()
+			let rv = a:fun()
+			call winrestview(win)
+			return rv
+		endfunction "}}}
+
 	" }}}
 	
 	" HTML {{{

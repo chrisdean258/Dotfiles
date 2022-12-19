@@ -217,6 +217,17 @@ function! Edit(file)
 	redraw!
 endfunction
 
+function! AutoLink()
+	if &filetype !=# "markdown"
+		exit
+	endif
+	let win = winsaveview()
+	s/\([^"\[(]\)\(http\(s\)\?:\S*\)/\1[\2]()/ge
+	s/^http\(s\)\?:\S*/[&]()/e
+	call winrestview(win)
+endfunction
+
+au FileType markdown nnoremap <silent><localleader>x :call RetainPosition({ -> setline('.', substitute(getline('.'), '\[ \]', '[x]', '')) })<CR>
 
 function! Notes()
 	call chdir("~/.notes")
@@ -226,6 +237,7 @@ function! Notes()
 	cabbrev WQ <C-R>=CommandLineStart("WQ", ":call NotesQuit(1)")<CR>
 	cabbrev q <C-R>=CommandLineStart("Q", ":call NotesQuit(0)")<CR>
 	cabbrev wq <C-R>=CommandLineStart("Wq", ":call NotesQuit(1)")<CR>
+	au InsertLeave * :call RetainPosition(function("AutoLink"))
 	nnoremap <leader>dd :call RemoveFile()<CR>
 	nnoremap gf :call Edit("<cfile>")<CR>
 endfunction
