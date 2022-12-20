@@ -620,7 +620,11 @@
 		:    if indent(line('.') + 1) > indent('.') && l:nextline =~ '^\s*\('.join(l:allowable_starts, '\|').'\)\s'
 		:      let l:line = l:nextline
 		:    endif
-		:    call append('.', substitute(l:line, '^\(\s*.\{-}\)\s.*', '\1', '') . ' ')
+		:    if l:line =~ '^\s*- \[.\]'
+		:      call append('.', substitute(l:line, '^\(\s*- \[.\]\)\s.*', '\1', '') . ' ')
+		:    else
+		:      call append('.', substitute(l:line, '^\(\s*.\{-}\)\s.*', '\1', '') . ' ')
+		:    endif
 		:    return "\<down>\<right>"
 		"  Increment the number if its a number
 		:  elseif l:line =~ '^\d\+[\.)]'

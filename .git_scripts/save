@@ -16,6 +16,10 @@ fi
 
 ! test -n "$(git remote)" || git pull --autostash
 test -n "$(git diff --name-only)" && git add `git diff --name-only`
-git commit -m "$comment"
+if [ -z "$comment" ]; then
+	git commit
+else
+	git commit -m "$comment"
+fi
 ! test -n "$(git remote)" || git push
 

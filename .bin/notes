@@ -8,6 +8,8 @@ cd "$NOTES_DIR"
 if [ -t 0 ] && [ "$#" -eq 0 ]; then
 	if [ -r "$NOTES" ]; then
 		exec tmux-pane vim -o "$NOTES" -c "call Notes()"
+	else 
+		echo "$NOTES: No such file or directory"
 	fi
 else 
 	exec cat >> "$NOTES"
