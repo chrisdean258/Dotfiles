@@ -15,11 +15,10 @@ if [ "$*" = "..." ]; then
 fi
 
 ! test -n "$(git remote)" || git pull --autostash
-test -n "$(git diff --name-only)" && git add `git diff --name-only`
 if [ -z "$comment" ]; then
-	git commit
+	git commit -a
 else
-	git commit -m "$comment"
+	git commit -am "$comment"
 fi
 ! test -n "$(git remote)" || git push
 
