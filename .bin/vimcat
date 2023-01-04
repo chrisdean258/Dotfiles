@@ -7,131 +7,42 @@
 
   [[ "${0:0:1}" == "/" ]] && script="$0" || script="$PWD/$0"
 
-  /usr/bin/vim -e -X -R "$@" -c "source $script" -c "bufdo call AnsiHighlight('$tmpfile')" -c qa >/dev/null 2>/dev/null
+  /usr/bin/vim -e -X -R "$@" -c "source $script" -c "bufdo call TermHighlight('$tmpfile')" -c qa >/dev/null 2>/dev/null
   cat "$tmpfile"
   rm "$tmpfile"
   exit
 : endif
 
-" AnsiHighlight: Allows for marking up a file, using ANSI color escapes when
-" the syntax changes colors, for easy, faithful reproduction.
-" Author: Matthew Wozniski (mjw@drexel.edu)
-" Date: Fri, 01 Aug 2008 05:22:55 -0400
-" Version: 1.0 FIXME
-" History: FIXME see :help marklines-history
-" License: BSD. Completely open source, but I would like to be
-" credited if you use some of this code elsewhere.
-
-" Copyright (c) 2008, Matthew J. Wozniski {{{
-" All rights reserved.
-"
-" Redistribution and use in source and binary forms, with or without
-" modification, are permitted provided that the following conditions are met:
-" * Redistributions of source code must retain the above copyright
-" notice, this list of conditions and the following disclaimer.
-" * Redistributions in binary form must reproduce the above copyright
-" notice, this list of conditions and the following disclaimer in the
-" documentation and/or other materials provided with the distribution.
-" * The names of the contributors may not be used to endorse or promote
-" products derived from this software without specific prior written
-" permission.
-"
-" THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDER ``AS IS'' AND ANY
-" EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-" WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-" DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE FOR ANY
-" DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-" (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-" LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-" ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-" SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. }}}
-
-if &cp
-  set nocp
-endif
-
-let s:type = 'cterm'
-if &t_Co == 0
-  let s:type = 'term'
-endif
-
-" Converts info for a highlight group to a string of ANSI color escapes 
-function! s:GroupToAnsi(groupnum)
-  if ! exists("s:ansicache")
-    let s:ansicache = {}
+function! TermCode(hlgroup)
+  let s:term_codes = get(s:, "term_codes", {})
+  let hlgroup = a:hlgroup
+  if has_key(s:term_codes, hlgroup)
+    return s:term_codes[hlgroup]
   endif
 
-  let groupnum = a:groupnum
-  if has_key(s:ansicache, groupnum)
-    return s:ansicache[groupnum]
-  endif
+  let fg = synIDattr(hlgroup, 'fg', 'cterm')
+  let bg = synIDattr(hlgroup, 'bg', 'cterm')
+  let rv = synIDattr(hlgroup, 'reverse', 'cterm') == "" ? ";27" : ";7"
+  let bd = synIDattr(hlgroup, 'bold', 'cterm') == "" ? ";22" : ";1"
+  let ul = synIDattr(hlgroup, 'underline', 'cterm') == "" ? ";24" : ";4"
+  let it = synIDattr(hlgroup, 'italic', 'cterm') == "" ? ";23" : ";3"
+  let st = synIDattr(hlgroup, 'strike', 'cterm') == "" ? ";29" : ";9"
 
-  let fg = synIDattr(groupnum, 'fg', s:type)
-  let bg = synIDattr(groupnum, 'bg', s:type)
-  let rv = synIDattr(groupnum, 'reverse', s:type)
-  let bd = synIDattr(groupnum, 'bold', s:type)
-  let bg = 0
-
-  let rv = (rv == "" || rv == -1) ? 0 : rv
-  let bd = (bd == "" || bd == -1) ? 0 : bd
-
-  if rv
-    let [fg, bg] = [bg, fg]
-  endif
-
-  if fg == "" || fg == -1
-    unlet fg
-  endif
-
-  if !exists('fg') && !groupnum == hlID('Normal')
-    let fg = synIDattr(hlID('Normal'), 'fg', s:type)
-    if fg == "" || fg == -1
-      unlet fg
-    endif
-  endif
-
-  if bg == "" || bg == -1
-    unlet bg
-  endif
-
-  if !exists('bg') && !groupnum == hlID('Normal')
-    let bg = synIDattr(hlID('Normal'), 'bg', s:type)
-    if bg == "" || bg == -1
-      unlet bg
-    endif
-  endif
-
-  let retv = "\<Esc>[22;24;25;27;28"
-
-  if bd
-    let retv .= ";1"
-  endif
-
-  if exists('fg') && fg < 8
-    let retv .= ";3" . fg
-  elseif exists('fg')
-    let retv .= ";38;5;" . fg
-  endif
-
-  if exists('bg') && bg < 8
-    let retv .= ";4" . bg
-  elseif exists('bg')
-    let retv .= ";48;5;" . bg
-  endif
-
+  let retv = "\<Esc>[25;27;28" . bd . ul . it . rv . st
+  let retv .= fg == "" ? "" : ((fg < 8 ? ";3": ";38;5;" ) . fg)
+  let retv .= bg == "" ? "" : ((bg < 8 ? ";4": ";48;5;" ) . bg)
   let retv .= "m"
 
-  let s:ansicache[groupnum] = retv
+  let s:term_codes[hlgroup] = retv
 
   return retv
 endfunction
 
-function! AnsiHighlight(out)
+function! TermHighlight(out)
   let retv = []
 
+  let last = hlID('Normal')
   for lnum in range(1, line('$'))
-    let last = hlID('Normal')
     let line = getline(lnum)
     let included = 0
     let parts = []
@@ -139,20 +50,20 @@ function! AnsiHighlight(out)
     let unconsumed = 0
     for cnum in range(1, strlen(line))
       let curid = synIDtrans(synID(lnum, cnum, 1))
-      if curid != last
-        let last = curid
-	if cnum > 1
-          call add(parts, line[unconsumed:cnum-2])
-	endif
-	call add(parts, "\<Esc>[0m")
-	call add(parts, s:GroupToAnsi(last))
-	let unconsumed = cnum - 1
+      if curid == last
+        continue
       endif
+      if cnum > 1
+        call add(parts, line[unconsumed:cnum-2])
+      endif
+      call add(parts, "\<Esc>[0m")
+      call add(parts, TermCode(curid))
+      let unconsumed = cnum - 1
+      let last = curid
     endfor
     call add(parts, line[unconsumed:])
     call add(retv, join(parts, ""))
   endfor
-  " Reset the colors to default after displaying the file
   let retv[-1] .= "\<Esc>[0m"
 
   return writefile(retv, a:out)

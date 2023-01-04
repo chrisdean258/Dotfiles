@@ -4,10 +4,14 @@ NOTES_DIR="$HOME/.notes"
 NOTES="$NOTES_DIR/index.md"
 
 mkdir -p "$NOTES_DIR"
-cd "$NOTES_DIR"
+cd "$NOTES_DIR" || exit 
+
 if [ -t 0 ] && [ "$#" -eq 0 ]; then
+	md-server &>/dev/null &
+	server_pid=$!
 	if [ -r "$NOTES" ]; then
-		exec tmux-pane vim -o "$NOTES" -c "call Notes()"
+		tmux-pane vim -o "$NOTES" -c "call Notes()" -c "au VimLeave * :call system('kill ' . $server_pid)"
+		browser "http://localhost:5000"
 	else 
 		echo "$NOTES: No such file or directory"
 	fi
