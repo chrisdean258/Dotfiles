@@ -1,12 +1,8 @@
 #!/bin/bash
-#!/usr/bin/env vim
-#! This is a bash script that executes itself as a vimscript to do its work
 
 : if 0
   tmpfile=$(mktemp -t vimcat.XXXXXXXX)
-
   [[ "${0:0:1}" == "/" ]] && script="$0" || script="$PWD/$0"
-
   /usr/bin/vim -e -X -R "$@" -c "source $script" -c "bufdo call TermHighlight('$tmpfile')" -c qa >/dev/null 2>/dev/null
   cat "$tmpfile"
   rm "$tmpfile"
@@ -34,37 +30,27 @@ function! TermCode(hlgroup)
   let retv .= "m"
 
   let s:term_codes[hlgroup] = retv
-
   return retv
 endfunction
 
 function! TermHighlight(out)
-  let retv = []
-
+  let lines = []
   let last = hlID('Normal')
   for lnum in range(1, line('$'))
-    let line = getline(lnum)
-    let included = 0
+    let line = "?" . getline(lnum)
     let parts = []
-
-    let unconsumed = 0
-    for cnum in range(1, strlen(line))
-      let curid = synIDtrans(synID(lnum, cnum, 1))
-      if curid == last
-        continue
+    let unconsumed = 1
+    for cnum in range(2, strlen(line))
+      let curid = synIDtrans(synID(lnum, cnum - 1, 1))
+      if curid != last
+        call add(parts, line[unconsumed:cnum-2] . "\<Esc>[0m" . TermCode(curid))
+        let unconsumed = cnum - 1
+        let last = curid
       endif
-      if cnum > 1
-        call add(parts, line[unconsumed:cnum-2])
-      endif
-      call add(parts, "\<Esc>[0m")
-      call add(parts, TermCode(curid))
-      let unconsumed = cnum - 1
-      let last = curid
     endfor
     call add(parts, line[unconsumed:])
-    call add(retv, join(parts, ""))
+    call add(lines, join(parts, ""))
   endfor
-  let retv[-1] .= "\<Esc>[0m"
-
-  return writefile(retv, a:out)
+  let lines[-1] .= "\<Esc>[0m"
+  return writefile(lines, a:out)
 endfunction
