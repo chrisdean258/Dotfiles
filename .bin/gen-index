@@ -1,22 +1,68 @@
 #!/usr/bin/env python3
 
 import os
+import sys
 
 
-def visit(directory, indent=""):
+def file_lines_or_default(filename):
+    try:
+        first_lines = []
+        after_lines = []
+        append = first_lines
+        with open(filename) as f:
+            for line in f:
+                line = line.rstrip()
+                if line == "# Index":
+                    append = after_lines
+                    for line in f:
+                        line = line.strip()
+                        if line.startswith("#"):
+                            break
+                append.append(line)
+        return first_lines, after_lines
+    except FileNotFoundError:
+        return [], []
+
+
+def index_lines(directory, indent=""):
+    lines = ["# Index", ""]
     for f in sorted(os.listdir(directory)):
         path = os.path.join(directory, f)
+        basename, ext = os.path.splitext(f)
         if f[0] == '.':
             pass
+        elif f.endswith("index.md"):
+            continue
         elif os.path.isdir(path):
-            print(indent + f"[{f}]({path})")
-            visit(path, "  " + indent)
-        elif os.path.splitext(f)[1] == ".md":
-            with open(path, "r") as f:
-                title = f.readline().strip().partition(' ')[2]
-            print(indent + f"[{title}]({path})")
-        else:
-            print(indent + f"[{f}]({path})")
+            lines.append(indent + f"[{f}](./{f}/index.md)")
+        elif ext == ".md":
+            with open(path, "r") as ff:
+                title = ff.readline().strip().partition(' ')[2]
+            if not title.strip():
+                title = basename.replace("-", " ")
+            lines.append(indent + f"[{title}](./{f})")
+        elif ext not in (".jpg", ".png"):
+            lines.append(indent + f"[{f}](./{f})")
+    lines.append("")
+    return lines
 
 
-visit(".", "- ")
+def generate_index_for_dir(path):
+    filepath = os.path.join(path, "index.md")
+    before, after = file_lines_or_default(filepath)
+    index = index_lines(path)
+    with open(filepath, "w") as f:
+        f.write("\n".join(before + index + after))
+
+def main():
+    for root, dirs, files in os.walk("."):
+        for d in dirs:
+            if d[0] == ".":
+                continue
+            generate_index_for_dir(os.path.join(root, d))
+    generate_index_for_dir(os.path.join("."))
+
+if __name__ == "__main__":
+    if len(sys.argv) == 2:
+        os.chdir(sys.argv[1])
+    main()

@@ -186,22 +186,6 @@ function! NotesQuit(write)
 	endif
 endfunction
 
-function! GenIndex()
-	let win = winsaveview()
-	/# INDEX
-	let win2 = winsaveview()
-	normal! j
-	while getline('.') !~ '^#'
-		d
-	endwhile
-	call winrestview(win2)
-	normal! o
-	r !gen-index
-	normal! o
-	w
-	call winrestview(win)
-endfunction
-
 function! RemoveFile()
 	let path = substitute(getline('.'), '\s*- \[.*\](\(.*\))', '\1', '')
 	if isdirectory(path)
@@ -240,7 +224,7 @@ au FileType markdown nnoremap <silent><localleader>x :call RetainPosition({ -> s
 
 function! Notes()
 	call chdir("~/.notes")
-	silent! call GenIndex()
+	silent! !gen-index
 	cabbrev Q <C-R>=CommandLineStart("Q", ":call NotesQuit(0)")<CR>
 	cabbrev Wq <C-R>=CommandLineStart("Wq", ":call NotesQuit(1)")<CR>
 	cabbrev WQ <C-R>=CommandLineStart("WQ", ":call NotesQuit(1)")<CR>
