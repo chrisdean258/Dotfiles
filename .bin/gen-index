@@ -2,65 +2,62 @@
 
 import os
 import sys
+from itertools import dropwhile
+from itertools import takewhile
 
 
 def file_lines_or_default(filename):
     try:
-        first_lines = []
-        after_lines = []
-        append = first_lines
         with open(filename) as f:
-            for line in f:
-                line = line.rstrip()
-                if line == "# Index":
-                    append = after_lines
-                    for line in f:
-                        line = line.strip()
-                        if line.startswith("#"):
-                            break
-                append.append(line)
-        return first_lines, after_lines
+            lines = f.read().splitlines()
     except FileNotFoundError:
-        return [], []
+        return [], [], False
+    before = list(takewhile(lambda l: l.lower() != "# index", lines))
+    after = list(dropwhile(lambda l: not l.startswith("#"), lines[len(before) + 1:]))  # noqa
+    return before, after, lines[len(before):len(before) + 1] == ["# INDEX"]
 
 
-def index_lines(directory, indent=""):
-    lines = ["# Index", ""]
+def index_lines(directory, full, path_prefix, indent):
+    lines = []
     for f in sorted(os.listdir(directory)):
         path = os.path.join(directory, f)
         basename, ext = os.path.splitext(f)
+        pretty_path = os.path.join(path_prefix, f)
         if f[0] == '.':
             pass
         elif f.endswith("index.md"):
             continue
         elif os.path.isdir(path):
-            lines.append(indent + f"[{f}](./{f}/index.md)")
+            lines.append(indent + f"[{f}]({pretty_path}/index.md)")
+            if full:
+                lines += index_lines(path, full, pretty_path, "  " + indent)
         elif ext == ".md":
             with open(path, "r") as ff:
                 title = ff.readline().strip().partition(' ')[2]
             if not title.strip():
                 title = basename.replace("-", " ")
-            lines.append(indent + f"[{title}](./{f})")
+            lines.append(indent + f"[{title}]({pretty_path})")
         elif ext not in (".jpg", ".png"):
-            lines.append(indent + f"[{f}](./{f})")
-    lines.append("")
+            lines.append(indent + f"[{f}]({pretty_path})")
     return lines
 
 
 def generate_index_for_dir(path):
     filepath = os.path.join(path, "index.md")
-    before, after = file_lines_or_default(filepath)
-    index = index_lines(path)
+    before, after, full = file_lines_or_default(filepath)
+    index = ["# INDEX" if full else "# Index", ""]
+    index += index_lines(path, full, "./", "- ") + [""]
     with open(filepath, "w") as f:
         f.write("\n".join(before + index + after))
+
 
 def main():
     for root, dirs, files in os.walk("."):
         for d in dirs:
-            if d[0] == ".":
-                continue
-            generate_index_for_dir(os.path.join(root, d))
+            if d[0] != ".":
+                generate_index_for_dir(os.path.join(root, d))
     generate_index_for_dir(os.path.join("."))
+
 
 if __name__ == "__main__":
     if len(sys.argv) == 2:
