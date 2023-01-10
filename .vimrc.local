@@ -144,7 +144,7 @@ function! LocListNextWrap(offset)
 		call LocListNextWrap(a:offset)
 	else
 		call setpos('.', [0, selected.lnum, selected.col, "^"])
-	endif
+endif
 endfunction
 
 command! Lnext :call LocListNextWrap(1)
@@ -173,11 +173,8 @@ autocmd FileType copper :inoremap <buffer><expr>{} Cbraces()
 autocmd FileType copper :setlocal cindent
 autocmd FileType copper :autocmd BufRead,BufWrite <buffer> :silent call RemoveTrailingWhitespace()
 
-function! NotesQuit(write)
+function! NotesQuit()
 	let index = expand("~/.notes/index.md")
-	if a:write
-		w
-	endif
 	if reduce(getbufinfo(), {a, b -> a || (b.name ==# index && !b.hidden)}, 0)
 		q
 	else
@@ -208,6 +205,13 @@ function! Edit(file)
 	redraw!
 endfunction
 
+function! GenIndex()
+	let win = winsaveview()
+	silent! !gen-index
+	redraw!
+	call winrestview(win)
+endfunction
+
 function! AutoLink()
 	if &filetype !=# "markdown"
 		exit
@@ -225,11 +229,11 @@ au FileType markdown nnoremap <silent><localleader>x :call RetainPosition({ -> s
 function! Notes()
 	call chdir("~/.notes")
 	silent! !gen-index
-	cabbrev Q <C-R>=CommandLineStart("Q", ":call NotesQuit(0)")<CR>
-	cabbrev Wq <C-R>=CommandLineStart("Wq", ":call NotesQuit(1)")<CR>
-	cabbrev WQ <C-R>=CommandLineStart("WQ", ":call NotesQuit(1)")<CR>
-	cabbrev q <C-R>=CommandLineStart("Q", ":call NotesQuit(0)")<CR>
-	cabbrev wq <C-R>=CommandLineStart("Wq", ":call NotesQuit(1)")<CR>
+	cabbrev Q <C-R>=CommandLineStart("Q", ":call NotesQuit()")<CR>
+	cabbrev Wq <C-R>=CommandLineStart("Wq", ":w | call NotesQuit()")<CR>
+	cabbrev WQ <C-R>=CommandLineStart("WQ", ":w | call NotesQuit()")<CR>
+	cabbrev q <C-R>=CommandLineStart("Q", ":call NotesQuit()")<CR>
+	cabbrev wq <C-R>=CommandLineStart("Wq", ":w | call NotesQuit()")<CR>
 	au InsertLeave * :call RetainPosition(function("AutoLink"))
 	nnoremap <leader>dd :call RemoveFile()<CR>
 	nnoremap gf :call Edit("<cfile>")<CR>
