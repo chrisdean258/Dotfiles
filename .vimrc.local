@@ -173,7 +173,10 @@ autocmd FileType copper :inoremap <buffer><expr>{} Cbraces()
 autocmd FileType copper :setlocal cindent
 autocmd FileType copper :autocmd BufRead,BufWrite <buffer> :silent call RemoveTrailingWhitespace()
 
-function! NotesQuit()
+function! NotesQuit(...)
+	if len(a:)
+		write
+	endif
 	let index = expand("~/.notes/index.md")
 	if reduce(getbufinfo(), {a, b -> a || (b.name ==# index && !b.hidden)}, 0)
 		q
@@ -214,7 +217,7 @@ endfunction
 
 function! AutoLink()
 	if &filetype !=# "markdown"
-		exit
+		return
 	endif
 	let win = winsaveview()
 	s/\([^"\[(]\)\(http\(s\)\?:.*\/\)\(\S*\)/\1[\4](\2\4)/ge
@@ -230,10 +233,10 @@ function! Notes()
 	call chdir("~/.notes")
 	silent! !gen-index
 	cabbrev Q <C-R>=CommandLineStart("Q", ":call NotesQuit()")<CR>
-	cabbrev Wq <C-R>=CommandLineStart("Wq", ":w | call NotesQuit()")<CR>
-	cabbrev WQ <C-R>=CommandLineStart("WQ", ":w | call NotesQuit()")<CR>
+	cabbrev Wq <C-R>=CommandLineStart("Wq", ":call NotesQuit(1)")<CR>
+	cabbrev WQ <C-R>=CommandLineStart("WQ", ":call NotesQuit(1)")<CR>
 	cabbrev q <C-R>=CommandLineStart("Q", ":call NotesQuit()")<CR>
-	cabbrev wq <C-R>=CommandLineStart("Wq", ":w | call NotesQuit()")<CR>
+	cabbrev wq <C-R>=CommandLineStart("Wq", ":call NotesQuit(1)")<CR>
 	au InsertLeave * :call RetainPosition(function("AutoLink"))
 	nnoremap <leader>dd :call RemoveFile()<CR>
 	nnoremap gf :call Edit("<cfile>")<CR>
