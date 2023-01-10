@@ -23,7 +23,7 @@ def index_lines(directory, full, path_prefix, indent):
         path = os.path.join(directory, f)
         basename, ext = os.path.splitext(f)
         pretty_path = os.path.join(path_prefix, f)
-        if f.starswith('.') or "sync-conflict" in f or f.endswith("index.md"):
+        if f.startswith('.') or "sync-conflict" in f or f.endswith("index.md"):
             continue
         elif os.path.isdir(path):
             lines.append(indent + f"[{f}]({pretty_path}/index.md)")
