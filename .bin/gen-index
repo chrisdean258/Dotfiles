@@ -14,7 +14,7 @@ def file_lines_or_default(filename):
         return [], [], False
     before = list(takewhile(lambda l: l.lower() != "# index", lines))
     after = list(dropwhile(lambda l: not l.startswith("#"), lines[len(before) + 1:]))  # noqa
-    return before, after, lines[len(before):len(before) + 1] == ["# INDEX"]
+    return before, after, "# INDEX" in lines
 
 
 def index_lines(directory, full, path_prefix, indent):
@@ -23,9 +23,7 @@ def index_lines(directory, full, path_prefix, indent):
         path = os.path.join(directory, f)
         basename, ext = os.path.splitext(f)
         pretty_path = os.path.join(path_prefix, f)
-        if f[0] == '.':
-            pass
-        elif f.endswith("index.md"):
+        if f.starswith('.') or "sync-conflict" in f or f.endswith("index.md"):
             continue
         elif os.path.isdir(path):
             lines.append(indent + f"[{f}]({pretty_path}/index.md)")
@@ -46,16 +44,19 @@ def generate_index_for_dir(path):
     filepath = os.path.join(path, "index.md")
     before, after, full = file_lines_or_default(filepath)
     index = ["# INDEX" if full else "# Index", ""]
-    index += index_lines(path, full, "./", "- ") + [""]
+    index += index_lines(path, full, ".", "- ") + [""]
     with open(filepath, "w") as f:
         f.write("\n".join(before + index + after))
 
 
+def visible(dirs):
+    return (d for d in dirs if not d.startswith("."))
+
+
 def main():
     for root, dirs, files in os.walk("."):
-        for d in dirs:
-            if d[0] != ".":
-                generate_index_for_dir(os.path.join(root, d))
+        for d in visible(dirs):
+            generate_index_for_dir(os.path.join(root, d))
     generate_index_for_dir(os.path.join("."))
 
 
