@@ -54,7 +54,7 @@ def visible(dirs):
 
 
 def main():
-    for root, dirs, files in os.walk("."):
+    for root, dirs, files in os.walk(".", followlinks=True):
         for d in visible(dirs):
             generate_index_for_dir(os.path.join(root, d))
     generate_index_for_dir(os.path.join("."))
