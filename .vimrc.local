@@ -180,25 +180,17 @@ function! RemoveFile()
 	elseif filereadable(path) 
 		call delete(path)
 	endif
-	silent! call GenIndex()
+	silent! call system("gen-index")
 endfunction
 
 function! Edit(file)
+	let ff = a:file
 	if getline('.') =~ '^\s*- \[.*\](\(.*\))$'
 		let ff = substitute(getline('.'), '.*\[.*\](\(.*\)).*', '\1', '')
-	else
-		let ff = a:file
 	endif
 	execute "e ". shellescape(ff)
 	silent! !mkdir -p %:h
 	redraw!
-endfunction
-
-function! GenIndex()
-	let win = winsaveview()
-	silent! !gen-index
-	redraw!
-	call winrestview(win)
 endfunction
 
 function! AutoLink()
@@ -219,8 +211,11 @@ au FileType markdown nnoremap <silent><localleader>x :call RetainPosition({ -> s
 
 function! Notes()
 	call chdir("~/.notes")
-	silent! !gen-index
+	silent! call system("gen-index")
 	au InsertLeave * :call RetainPosition(function("AutoLink"))
+	autocmd FileChangedShell * let v:fcs_choice = "reload"
+	au CursorHold,CursorHoldI * checktime
+	au FocusGained,BufEnter,FocusLost * :checktime
 	nnoremap <leader>dd :call RemoveFile()<CR>
 	nnoremap gf :call Edit("<cfile>")<CR>
 endfunction
