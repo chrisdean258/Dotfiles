@@ -173,19 +173,6 @@ autocmd FileType copper :inoremap <buffer><expr>{} Cbraces()
 autocmd FileType copper :setlocal cindent
 autocmd FileType copper :autocmd BufRead,BufWrite <buffer> :silent call RemoveTrailingWhitespace()
 
-function! NotesQuit(...)
-	if len(a:)
-		write
-	endif
-	let index = expand("~/.notes/index.md")
-	if reduce(getbufinfo(), {a, b -> a || (b.name ==# index && !b.hidden)}, 0)
-		q
-	else
-		execute "e " . index
-		silent! call GenIndex()
-	endif
-endfunction
-
 function! RemoveFile()
 	let path = substitute(getline('.'), '\s*- \[.*\](\(.*\))', '\1', '')
 	if isdirectory(path)
@@ -202,8 +189,7 @@ function! Edit(file)
 	else
 		let ff = a:file
 	endif
-	echom ff
-	execute "e ". ff
+	execute "e ". shellescape(ff)
 	silent! !mkdir -p %:h
 	redraw!
 endfunction
@@ -223,7 +209,9 @@ function! AutoLink()
 	s/\([^"\[(]\)\(http\(s\)\?:.*\/\)\(\S*\)/\1[\4](\2\4)/ge
 	s/\([^"\[(]\)\(http\(s\)\?:\S*\)/\1[\2]()/ge
 	s/^\(http\(s\)\?:.*\/\)\(\S*\)/[\3](\1\3)/ge
-	s/^\(http\(s\)\?:\S*\)/[&](&)/ge
+	s/^http\(s\)\?:\S*/[&](&)/ge
+	s/\[\](\(.*\)\/\([^\/]*\))/[\2](\1\/\2)/ge
+	s/\[\](\(.\{-}\))/[\1](\1)/ge
 	call winrestview(win)
 endfunction
 
@@ -232,11 +220,6 @@ au FileType markdown nnoremap <silent><localleader>x :call RetainPosition({ -> s
 function! Notes()
 	call chdir("~/.notes")
 	silent! !gen-index
-	cabbrev Q <C-R>=CommandLineStart("Q", ":call NotesQuit()")<CR>
-	cabbrev Wq <C-R>=CommandLineStart("Wq", ":call NotesQuit(1)")<CR>
-	cabbrev WQ <C-R>=CommandLineStart("WQ", ":call NotesQuit(1)")<CR>
-	cabbrev q <C-R>=CommandLineStart("Q", ":call NotesQuit()")<CR>
-	cabbrev wq <C-R>=CommandLineStart("Wq", ":call NotesQuit(1)")<CR>
 	au InsertLeave * :call RetainPosition(function("AutoLink"))
 	nnoremap <leader>dd :call RemoveFile()<CR>
 	nnoremap gf :call Edit("<cfile>")<CR>
