@@ -15,3 +15,4 @@ esac
 shift
 tput setaf "$color"
 echo "$@"
+tput sgr0
