@@ -49,13 +49,9 @@ def generate_index_for_dir(path):
         f.write("\n".join(before + index + after))
 
 
-def visible(dirs):
-    return (d for d in dirs if not d.startswith("."))
-
-
 def main():
     for root, dirs, files in os.walk(".", followlinks=True):
-        for d in visible(dirs):
+        for d in (d for d in dirs if not d.startswith(".")):
             generate_index_for_dir(os.path.join(root, d))
     generate_index_for_dir(os.path.join("."))
 

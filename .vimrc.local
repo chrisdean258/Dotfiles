@@ -219,3 +219,26 @@ function! Notes()
 	nnoremap <leader>dd :call RemoveFile()<CR>
 	nnoremap gf :call Edit("<cfile>")<CR>
 endfunction
+
+function! s:TmuxCommand(args)
+  return system('tmux -S ' . split($TMUX, ',')[0] . ' ' . a:args)
+endfunction
+
+function! TmuxNav(direction)
+	let oldwinid = win_getid()
+	let oldwininfo = getwininfo(oldwinid)[0]
+	execute "wincmd " . a:direction
+	let newwinid = win_getid()
+	let newwininfo = getwininfo(newwinid)[0]
+	if a:direction == "w" && newwininfo.wincol <= oldwininfo.wincol && newwininfo.winrow <= oldwininfo.winrow
+		call system('[ -n "$TMUX" ] && tmux select-pane -t :.+')
+		redraw!
+	elseif a:direction == "W" && newwininfo.wincol >= oldwininfo.wincol && newwininfo.winrow >= oldwininfo.winrow
+		call system('[ -n "$TMUX" ] && tmux select-pane -t :.-')
+		redraw!
+	endif
+endfunction
+
+nnoremap <silent><c-j> :call TmuxNav("w")<CR>
+nnoremap <silent><c-k> :call TmuxNav("W")<CR>
+
