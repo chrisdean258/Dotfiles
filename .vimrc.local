@@ -220,10 +220,6 @@ function! Notes()
 	nnoremap gf :call Edit("<cfile>")<CR>
 endfunction
 
-function! s:TmuxCommand(args)
-  return system('tmux -S ' . split($TMUX, ',')[0] . ' ' . a:args)
-endfunction
-
 function! TmuxNav(direction)
 	let oldwinid = win_getid()
 	let oldwininfo = getwininfo(oldwinid)[0]
