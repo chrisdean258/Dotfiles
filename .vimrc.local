@@ -226,11 +226,13 @@ function! TmuxNav(direction)
 	execute "wincmd " . a:direction
 	let newwinid = win_getid()
 	let newwininfo = getwininfo(newwinid)[0]
+	let pane_id = system('tmux display-message -p "#{pane_index}"')
 	if a:direction == "w" && newwininfo.wincol <= oldwininfo.wincol && newwininfo.winrow <= oldwininfo.winrow
 		call system('[ -n "$TMUX" ] && tmux select-pane -t :.+')
-		redraw!
 	elseif a:direction == "W" && newwininfo.wincol >= oldwininfo.wincol && newwininfo.winrow >= oldwininfo.winrow
 		call system('[ -n "$TMUX" ] && tmux select-pane -t :.-')
+	endif
+	if pane_id != system('tmux display-message -p "#{pane_index}"')
 		redraw!
 	endif
 endfunction
