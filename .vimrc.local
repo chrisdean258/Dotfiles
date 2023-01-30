@@ -184,11 +184,10 @@ function! RemoveFile()
 endfunction
 
 function! Edit(file)
-	let ff = a:file
 	if getline('.') =~ '^\s*- \[.*\](\(.*\))$'
-		let ff = substitute(getline('.'), '.*\[.*\](\(.*\)).*', '\1', '')
+		normal! $h
 	endif
-	execute "e ". shellescape(ff)
+	e <cfile>
 	silent! !mkdir -p %:h
 	redraw!
 endfunction

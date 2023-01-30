@@ -5,11 +5,19 @@ NOTES="$NOTES_DIR/index.md"
 
 mkdir -p "$NOTES_DIR"
 cd "$NOTES_DIR" || exit 
+if [ "$1" = "--here" ]; then
+	here=1
+	shift
+fi
 
 if [ -t 0 ] && [ "$#" -eq 0 ]; then
 	server_pid=$!
 	if [ -r "$NOTES" ]; then
-		tmux-pane vim -o "$NOTES" -c "call Notes()" -c "au VimLeave * :call system('kill ' . $server_pid)"
+		if [ "$here" = 1 ]; then 
+			vim -o "$NOTES" -c "call Notes()" -c "au VimLeave * :call system('kill ' . $server_pid)"
+		else
+			tmux-pane vim -o "$NOTES" -c "call Notes()" -c "au VimLeave * :call system('kill ' . $server_pid)"
+		fi
 	else 
 		echo "$NOTES: No such file or directory"
 	fi
