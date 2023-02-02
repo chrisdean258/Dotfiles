@@ -101,6 +101,7 @@ norealias ..="cd .."
 norealias ll='ls -alF'
 norealias la='ls -A'
 norealias l='ls -CF'
+norealias namp="nmap"
 norealias car="ccat"
 norealias cat="ccat"
 norealias matlab="matlab -nodesktop -nosplash"
@@ -137,7 +138,7 @@ do_cwd() {
 	if [ "$__OLD_PWD" != "$PWD" ]; then __OLD_PWD="$PWD"
 		ls 
 		! [ -f "$jmp" ] && jsetup
-		realpath . >> "$jmp" && sed -i 1d "$jmp"
+		realpath . >> "$jmp" && [ "$(wc -l < "$jmp")" -lt 10000 ] && sed -i 1d "$jmp"
 		venv
 	fi
 }

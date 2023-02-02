@@ -238,3 +238,25 @@ endfunction
 nnoremap <silent><c-j> :call TmuxNav("w")<CR>
 nnoremap <silent><c-k> :call TmuxNav("W")<CR>
 
+let s:old_nu = "rnu"
+function! Numbers()
+	if &rnu && &nu
+		let s:old_nu = "rnu"
+		set nornu nu
+	elseif &nu
+		let s:old_nu = "nu"
+	else
+		let s:old_nu = ""
+	endif
+endfunction
+
+function! NumbersRestore()
+	if s:old_nu == "rnu"
+		set nu rnu 
+	elseif s:old_nu == "nu"
+		set nornu nu 
+	endif
+endfunction
+
+au FocusLost * :call Numbers()
+au FocusGained * :call NumbersRestore()
