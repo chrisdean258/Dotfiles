@@ -4,6 +4,7 @@ set completion-map-case on
 set show-all-if-ambiguous on
 set editing-mode vi
 set keymap vi-insert
+set enable-bracketed-paste off
 TAB:menu-complete
 "jk": "\e"
 "\b": "\eBdwa"
