@@ -4,10 +4,11 @@ import sys
 import os
 import tempfile
 import re
+import subprocess
 
 
 def ccat(f):
-    os.system(f"ccat {f}")
+    subprocess.run(("ccat", f))
 
 
 commands = os.environ["HOME"] + "/.bin/commands.md"

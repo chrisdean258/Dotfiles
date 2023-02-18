@@ -11,7 +11,7 @@ _run()
 	[ -r ~/.xsession.local ] && source ~/.xsession.local
 	xset r rate 200 75 # Repeat rate
 	xsetroot -solid black
-	exec "$1" &>> ~/.xsession-errors
+	exec "$@" &>> ~/.xsession-errors
 }
 
 root()

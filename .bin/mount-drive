@@ -28,6 +28,6 @@ case "$partitiontype" in
 	*) sudo mount "$chosen" "$MOUNT_POINT"; user="$(whoami)"; ug="$(groups | awk '{print $1}')"; sudo -A chown "$user":"$ug" "$MOUNT_POINT";;
 esac
 if [ $? -ne 0 ]; then
-	notify-send "💻 Failed USB mounting" "$chosen failed to mount to $MOUNT_POINT."
+	notify-send "Failed USB mounting" "$chosen failed to mount to $MOUNT_POINT."
 fi
 
