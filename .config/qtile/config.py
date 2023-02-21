@@ -127,8 +127,8 @@ class BatteryFmt:
     def format(self, percent, char, hour, min, *args, **kwargs):
         # {'char': 'V', 'percent': 0.46375753149534416, 'watt': 10.294998, 'hour': 2, 'min': 43}
         percent = round(percent * 100)
-        num = percent // 5
-        bat = f"[{'░'*num}{' '*(20-num)}]"
+        num = percent // 10
+        bat = f"[{'░'*num}{' '*(10-num)}]"
         if percent == 100:
             return f"{bat} {percent}%"
         time = f"{hour}:{min}"
