@@ -42,7 +42,7 @@ root()
 }
 
 if [ "$1" = "qtile" ]; then
-	_run qtile
+	_run qtile start
 else
 	root &
 	_run dwm

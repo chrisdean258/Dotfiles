@@ -56,7 +56,7 @@ keys = [
     Key([mod], "q", lazy.shutdown(), desc="Shutdown Qtile"),
     Key([mod], "p", lazy.spawn("dmenu_run"), desc="Run command launcher"),
 
-    Key([mod], "g", lazy.spawn("firefox"), desc="Run firefox"),
+    Key([mod], "g", lazy.spawn("browser"), desc="Run firefox"),
     Key([mod], "Tab", lazy.function(togglegroup), desc="Toggle group"),
     Key([mod, "shift"], "Tab", lazy.function(sendit), desc="Toggle window group"),
 ]
