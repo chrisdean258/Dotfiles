@@ -1,7 +1,7 @@
 #!/bin/bash
 
 : if 0
-  tmpfile=$(mktemp -t vimcat.XXXXXXXX)
+  tmpfile=$(mktemp -p . -t vimcat.XXXXXXXX)
   [[ "${0:0:1}" == "/" ]] && script="$0" || script="$PWD/$0"
   vim -e -X -R "$@" -c "source $script" -c "bufdo call TermHighlight('$tmpfile')" -c qa >/dev/null 2>/dev/null
   cat "$tmpfile"
@@ -9,8 +9,8 @@
   exit
 : endif
 
+let s:term_codes = {}
 function! TermCode(hlgroup)
-  let s:term_codes = get(s:, "term_codes", {})
   let hlgroup = a:hlgroup
   if has_key(s:term_codes, hlgroup)
     return s:term_codes[hlgroup]

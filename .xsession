@@ -4,7 +4,7 @@ _run()
 {
 	export PATH=$PATH:$HOME/.bin:$home/bin
 	export BROWSER=chrome
-	[ -x ~/bin/syncthing ] && ~/bin/syncthing &
+	# [ -x ~/bin/syncthing ] && ~/bin/syncthing &
 	[ -x "$(which xfce4-power-manager)" ] && xfce4-power-manager &
 	/usr/lib/notification-daemon/notification-daemon &
 	monitor --no4k
@@ -22,7 +22,7 @@ root()
 		battery_num="$(acpi | grep -oP "[0-9]*(?=%)")"
 		battery_msg="$(acpi | grep -E -m1 -o "[0-9][0-9]:[0-9][0-9]:[0-9][0-9]")"
 		nettype=$(nmcli device | awk '/connected/ {print $2}')
-		network=$(nmcli device wifi | awk '/^\*/ {print $2}')
+		network=$(nmcli device wifi | awk '/^\*/ {print $3}')
 		[ "$nettype" = "ethernet" ] && network="Connected via ethernet"
 		time=$(date +"%F %H:%M")
 		ping -c 1 -w 1 google.com &>/dev/null && netspeed="" || netspeed=" (No Access)"
