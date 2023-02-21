@@ -1,146 +1,108 @@
-#!/usr/bin/env python3
-from functools import wraps
-from typing import List  # noqa: F401
-from libqtile import bar, hook, layout, widget
-from libqtile.config import Click, Drag, Group, Key, Screen, ScratchPad, DropDown
+from libqtile import bar, layout, widget
+from libqtile.config import Click, Drag, Group, Key, Match, Screen
 from libqtile.lazy import lazy
-import os
-import subprocess
 
 mod = "mod4"
 terminal = "st"
 
-
-def matching_group(qtile, group=None):
-    group = group or qtile.current_group
-    idx = qtile.groups.index(group) ^ 1
-    return qtile.groups[idx]
-
-
-def toggle_groups(qtile):
-    other = matching_group(qtile)
+def togglegroup(qtile):
+    other = cur_group_partner(qtile)
     qtile.current_group.screen.set_group(other)
 
+def cur_group_partner(qtile):
+    return qtile.groups[int(qtile.current_group.name) ^ 1]
 
 def sendit(qtile):
-    other = matching_group(qtile)
+    other = cur_group_partner(qtile)
     qtile.current_window.togroup(other.name)
 
-
-m_ = [mod]
-ms = [mod, "shift"]
-mc = [mod, "control"]
-mcs = [mod, "control", "shift"]
-mods = [m_, ms, mc, mcs]
-
-applications = {
-    "Return": "st",
-    "p": ("dmenu_run", "dmenu_pass"),
-    "g": ("browser", "browser --private-window"),
-    "v": ("vol -5%", "vol +5%"),
-    "b": ("bt", "bt -d", "bt h21", "bt wh"),
-    "d": ("discord", "d"),
-    "a": "audio",
-}
-
-try:
-    num_screens = int(
-        subprocess.check_output(
-            "xrandr | grep ' connected' | wc -l", shell=True, timeout=1
-        )
-    )
-except Exception:
-    num_screens = 2
-
-
-groups = [Group(str(i + 1)) for i in range(num_screens * 2)]
-
 keys = [
-    Key(["mod4"], "k", lazy.layout.down()),
-    Key(m_, "j", lazy.layout.up()),
-    Key(mc, "k", lazy.layout.shuffle_down()),
-    Key(mc, "j", lazy.layout.shuffle_up()),
-    Key(m_, "Tab", lazy.function(toggle_groups)),
-    Key(ms, "Tab", lazy.function(sendit)),
-    Key(m_, "l", lazy.layout.increase_ratio()),
-    Key(m_, "h", lazy.layout.decrease_ratio()),
-    Key(ms, "Return", lazy.layout.toggle_split()),
-    Key(m_, "space", lazy.next_layout()),
-    Key(m_, "Escape", lazy.window.kill()),
-    Key(mc, "r", lazy.restart()),
-    Key(mc, "q", lazy.shutdown()),
-    Key(m_, "f", lazy.window.toggle_floating()),
-    Key([], "F11", lazy.group["scratchpad"].dropdown_toggle("calculator")),
-    Key([], "F12", lazy.group["scratchpad"].dropdown_toggle("st")),
-    Key(m_, "s", lazy.group["scratchpad"].dropdown_toggle("spotify")),
+    # A list of available commands that can be bound to keys can be found
+    # at https://docs.qtile.org/en/latest/manual/config/lazy.html
+    # Switch between windows
+    Key([mod], "h", lazy.layout.left(), desc="Move focus to left"),
+    Key([mod], "l", lazy.layout.right(), desc="Move focus to right"),
+    Key([mod], "j", lazy.layout.down(), desc="Move focus down"),
+    Key([mod], "k", lazy.layout.up(), desc="Move focus up"),
+    # Key([mod], "space", lazy.layout.next(), desc="Move window focus to other window"),
+    # Move windows between left/right columns or move up/down in current stack.
+    # Moving out of range in Columns layout will create new column.
+    Key([mod, "shift"], "h", lazy.layout.shuffle_left(), desc="Move window to the left"),
+    Key([mod, "shift"], "l", lazy.layout.shuffle_right(), desc="Move window to the right"),
+    Key([mod, "shift"], "j", lazy.layout.shuffle_down(), desc="Move window down"),
+    Key([mod, "shift"], "k", lazy.layout.shuffle_up(), desc="Move window up"),
+    # Grow windows. If current window is on the edge of screen and direction
+    # will be to screen edge - window would shrink.
+    Key([mod, "control"], "h", lazy.layout.grow_left(), desc="Grow window to the left"),
+    Key([mod, "control"], "l", lazy.layout.grow_right(), desc="Grow window to the right"),
+    Key([mod, "control"], "j", lazy.layout.grow_down(), desc="Grow window down"),
+    Key([mod, "control"], "k", lazy.layout.grow_up(), desc="Grow window up"),
+    Key([mod], "n", lazy.layout.normalize(), desc="Reset all window sizes"),
+    # Toggle between split and unsplit sides of stack.
+    # Split = all windows displayed
+    # Unsplit = 1 window displayed, like Max layout, but still with
+    # multiple stack panes
+    Key(
+        [mod, "shift"],
+        "Return",
+        lazy.layout.toggle_split(),
+        desc="Toggle between split and unsplit sides of stack",
+    ),
+    Key([mod], "Return", lazy.spawn(terminal), desc="Launch terminal"),
+    # Toggle between different layouts as defined below
+    Key([mod], "space", lazy.next_layout(), desc="Toggle between layouts"),
+    Key([mod], "Escape", lazy.window.kill(), desc="Kill focused window"),
+    Key([mod], "r", lazy.reload_config(), desc="Reload the config"),
+    Key([mod], "q", lazy.shutdown(), desc="Shutdown Qtile"),
+    Key([mod], "p", lazy.spawn("dmenu_run"), desc="Run command launcher"),
+
+    Key([mod], "g", lazy.spawn("firefox"), desc="Run firefox"),
+    Key([mod], "Tab", lazy.function(togglegroup), desc="Toggle group"),
+    Key([mod, "shift"], "Tab", lazy.function(sendit), desc="Toggle window group"),
 ]
-for k, cmds in applications.items():
-    if isinstance(cmds, str):
-        cmds = (cmds,)
-    for m, cmd in zip(mods, cmds):
-        if cmd is not None:
-            keys.append(Key(m, k, lazy.spawn(cmd)))
 
 
-for group in groups:
+groups = [Group(i) for i in "01"]
+
+for i in groups:
     keys.extend(
         [
             # mod1 + letter of group = switch to group
             Key(
                 [mod],
-                group.name,
-                lazy.group[group.name].toscreen(),
-                desc="Switch to group {}".format(group.name),
+                i.name,
+                lazy.group[i.name].toscreen(),
+                desc="Switch to group {}".format(i.name),
             ),
+            # mod1 + shift + letter of group = switch to & move focused window to group
             Key(
                 [mod, "shift"],
-                group.name,
-                lazy.window.togroup(group.name, switch_group=True),
-                desc="Switch to & move focused window to group {}".format(
-                    group.name),
+                i.name,
+                lazy.window.togroup(i.name, switch_group=True),
+                desc="Switch to & move focused window to group {}".format(i.name),
             ),
-            Key(
-                [mod, "control"],
-                group.name,
-                lazy.window.togroup(group.name),
-                desc="Move focused window to group {}".format(group.name),
-            ),
+            # Or, use below if you prefer not to switch to that group.
+            # # mod1 + shift + letter of group = move focused window to group
+            # Key([mod, "shift"], i.name, lazy.window.togroup(i.name),
+            #     desc="move focused window to group {}".format(i.name)),
         ]
     )
-
 layout_theme = {
     "border_width": 1,
     "margin": 0,
-    "border_focus": "121212",
-    "border_normal": "000000",
+    "border_focus": "002a3b",
+    "border_normal": "222222",
 }
-
-groups.append(
-    ScratchPad(
-        "scratchpad",
-        [
-            DropDown("calculator", "st -e ipython3"),
-            DropDown("st", "st"),
-            DropDown(
-                "spotify",
-                "spotify",
-                x=0.05,
-                y=0,
-                width=0.9,
-                height=0.9,
-            ),
-        ],
-    )
-)
 
 
 class DWM(layout.Tile):
-    def configure(self, *args, **kwargs):
-        expt = 1 + (len(self.clients) >= 4)
-        if self.master != expt:
-            self.master = expt
-            self.group.layout_all()
-        super().configure(*args, **kwargs)
+    @property
+    def master_length(self):
+        return 1 + (len(self.clients) >= 4)
+
+    @master_length.setter
+    def master_length(self, value):
+        pass
 
 
 class FriendlyMax(layout.Max):
@@ -149,186 +111,101 @@ class FriendlyMax(layout.Max):
         if len(self.clients) == 1:
             self.group.qtile.cmd_next_layout()
 
-
 layouts = [
     DWM(**layout_theme, ratio=0.5),
-    FriendlyMax(**layout_theme),
+    FriendlyMax(),
 ]
 
-widget_defaults = {
-    "font": "monospace",
-    "fontsize": 12,
-    "padding": 3,
-    "foreground": "#5d5d5d",
-}
+widget_defaults = dict(
+    font="sans",
+    fontsize=12,
+    padding=3,
+)
 extension_defaults = widget_defaults.copy()
 
+class BatteryFmt:
+    def format(self, percent, char, hour, min, *args, **kwargs):
+        # {'char': 'V', 'percent': 0.46375753149534416, 'watt': 10.294998, 'hour': 2, 'min': 43}
+        percent = round(percent * 100)
+        num = percent // 5
+        bat = f"[{'░'*num}{' '*(20-num)}]"
+        if percent == 100:
+            return f"{bat} {percent}%"
+        time = f"{hour}:{min}"
+        charging = "remaining" if char == 'V' else "until charged"
+        return f"{bat} {percent}% ({time} {charging})"
 
-def edit_config(qtile):
-    cmd = """cp ~/.config/qtile/config.py ~/temp_config.py
-            st -e vim ~/.config/qtile/config.py
-            diff ~/temp_config.py ~/.config/qtile/config.py || qtile-cmd -o cmd -f restart
-            rm ~/temp_config.py
-            """
-    qtile.cmd_spawn(cmd, shell=True)
-
-
-def xsession_errors(qtile):
-    cmd = "st -e tail -c+1 -f ~/.xsession-errors"
-    qtile.cmd_spawn(cmd, shell=True)
-
-
-def build_string(self, status):
-    hours = status.time // 3600
-    minutes = (status.time // 60) % 60
-    percent = status.percent
-    blocks = int(percent * 10)
-
-    time = "" if status.time <= 0 else f" ({hours}:{minutes:02})"
-    icon = "[" + ("░" * blocks).ljust(10) + "]"
-    percent = f"{int(percent * 100)}%"
-
-    return f" |  {icon} {percent}{time}  | "
-
-
-b = widget.Battery(**widget_defaults)
-b.build_string = build_string.__get__(b)
-
-
-class CScreen(Screen):
-    def __init__(self, *args, default_group=None, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.default_group = default_group
-
-    def _configure(self, *args, **kwargs):
-        super()._configure(*args, **kwargs)
-        if self.default_group is not None and self.group.name != self.default_group:
-            group = self.qtile.groups_map.get(self.default_group)
-            self.set_group(group)
-
+def CmdTextBox(cmd, *args, **kwargs):
+    rv = widget.TextBox(*args, **kwargs)
+    rv.add_callbacks( { "Button1": lazy.spawn(cmd) })
+    return rv
 
 screens = [
-    CScreen(
-        default_group="1",
+    Screen(
         bottom=bar.Bar(
-            widgets=[
-                widget.GroupBox(**widget_defaults),
-                widget.Prompt(**widget_defaults),
-                widget.WindowName(foreground="#000000"),
-                widget.TextBox(
-                    "Configure  | ",
-                    name="default",
-                    mouse_callbacks={"Button1": edit_config},
-                    **widget_defaults,
-                ),
-                widget.TextBox(
-                    "Errors  |",
-                    name="default",
-                    mouse_callbacks={"Button1": xsession_errors},
-                    **widget_defaults,
-                ),
-                widget.Backlight(
-                    backlight_name="intel_backlight", **widget_defaults),
-                b,
-                widget.Clock(format="%Y-%m-%d %a %I:%M %p", **widget_defaults),
+            [
+                widget.GroupBox(),
+                widget.WindowName(foreground="000000"),
+                # NB Systray is incompatible with Wayland, consider using StatusNotifier instead
+                # widget.StatusNotifier(),
+                widget.Systray(),
+
+                CmdTextBox("st -e vim /home/chris/.config/qtile/config.py", "Config"),
+                widget.TextBox("|"),
+                CmdTextBox("st -e tail -f /home/chris/.local/share/qtile/qtile.log", "Errors"),
+                widget.TextBox("|"),
+                widget.Battery(format=BatteryFmt(), show_short_text=False),
+                widget.TextBox("|"),
+                widget.Clock(format="%Y-%m-%d %H:%M"),
             ],
-            size=24,
+            24,
+            # border_width=[2, 0, 2, 0],  # Draw top and bottom borders
+            # border_color=["ff00ff", "000000", "ff00ff", "000000"]  # Borders are magenta
         ),
     ),
-] + [
-    CScreen(
-        default_group=str(2 * i + 3),
-        bottom=bar.Bar(
-            widgets=[
-                widget.GroupBox(**widget_defaults),
-                widget.Prompt(**widget_defaults),
-                widget.WindowName(foreground="#000000"),
-                widget.Clock(format="%Y-%m-%d %a %I:%M %p", **widget_defaults),
-            ],
-            size=24,
-        ),
-    )
-    for i in range(num_screens - 1)
 ]
 
 # Drag floating layouts.
 mouse = [
-    Drag(
-        [mod],
-        "Button1",
-        lazy.window.set_position_floating(),
-        start=lazy.window.get_position(),
-    ),
-    Drag(
-        [mod], "Button3", lazy.window.set_size_floating(), start=lazy.window.get_size()
-    ),
+    Drag([mod], "Button1", lazy.window.set_position_floating(), start=lazy.window.get_position()),
+    Drag([mod], "Button3", lazy.window.set_size_floating(), start=lazy.window.get_size()),
     Click([mod], "Button2", lazy.window.bring_to_front()),
 ]
 
-
-handled = False
-
-
-@hook.subscribe.screen_change
-def restart_on_randr(qtile, ev):
-    global handled
-    if handled:
-        return
-    handled = True
-    os.system("monitor --no4k")
-    qtile.call_soon(qtile.cmd_restart)
-
-
 dgroups_key_binder = None
-dgroups_app_rules = []  # type: List
-main = None
+dgroups_app_rules = []  # type: list
 follow_mouse_focus = True
 bring_front_click = False
 cursor_warp = False
-
-
-def log(f):
-    @wraps(f)
-    def _(*a, **kw):
-
-        print(f"{f.__name__}(*{repr(a)}, **{repr(kw)})", end=" ")
-        rtn = f(*a, **kw)
-        print("=", rtn, flush=True)
-        return rtn
-
-    return _
-
-
-def zoom(name, cls, role):
-    if name == "zoom" and cls == ("zoom", "zoom"):
-        return False
-    return "zoom" in cls and not name.startswith(("Zoom", "Settings"))
-
-
 floating_layout = layout.Floating(
     float_rules=[
         # Run the utility of `xprop` to see the wm class and name of an X client.
-        {"wmclass": "confirm"},
-        {"wmclass": "dialog"},
-        {"wmclass": "download"},
-        {"wmclass": "error"},
-        {"wmclass": "file_progress"},
-        {"wmclass": "notification"},
-        {"wmclass": "splash"},
-        {"wmclass": "toolbar"},
-        {"wmclass": "gcr-prompter"},
-        {"wmclass": "confirmreset"},  # gitk
-        {"wmclass": "makebranch"},  # gitk
-        {"wmclass": "maketag"},  # gitk
-        {"wname": "branchdialog"},  # gitk
-        {"wname": "pinentry"},  # GPG key password entry
-        {"wmclass": "ssh-askpass"},  # ssh-askpass
-        {"wname": "Discord Updater"},  # Discord
-        {"wname": "zoom"},  # Zoom
-        {"wmclass": "Zoom"},  # Zoom
-        {"match": zoom},
+        *layout.Floating.default_float_rules,
+        Match(wm_class="confirmreset"),  # gitk
+        Match(wm_class="makebranch"),  # gitk
+        Match(wm_class="maketag"),  # gitk
+        Match(wm_class="ssh-askpass"),  # ssh-askpass
+        Match(title="branchdialog"),  # gitk
+        Match(title="pinentry"),  # GPG key password entry
     ]
 )
 auto_fullscreen = True
 focus_on_window_activation = "smart"
+reconfigure_screens = True
+
+# If things like steam games want to auto-minimize themselves when losing
+# focus, should we respect this or not?
+auto_minimize = True
+
+# When using the Wayland backend, this can be used to configure input devices.
+wl_input_rules = None
+
+# XXX: Gasp! We're lying here. In fact, nobody really uses or cares about this
+# string besides java UI toolkits; you can see several discussions on the
+# mailing lists, GitHub issues, and other WM documentation that suggest setting
+# this string if your java app doesn't work correctly. We may as well just lie
+# and say that we're a working one by default.
+#
+# We choose LG3D to maximize irony: it is a 3D non-reparenting WM written in
+# java that happens to be on java's whitelist.
 wmname = "LG3D"
