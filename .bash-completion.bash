@@ -41,7 +41,7 @@ complete -o bashdefault -o default -o nospace -F __complete_xdotool xdotool
 __complete_j()
 {
 	cur=${comp_words[comp_cword]}	
-	words="$(cat ~/.cache/jmpp/jmp_complete)"
+	words="$(cat ~/.cache/jmp/jmp_complete)"
 	compreply=( $(compgen -w "$words" -- "$cur" ) )
 
 	return 0
