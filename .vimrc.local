@@ -17,6 +17,7 @@ let g:ale_linters = {"python": ["flake8", "autoimport", "isort", "black"], "rust
 let g:ale_rust_rustfmt_options = "--edition 2021"
 let g:ale_rust_cargo_use_clippy = 1
 let g:ale_completion_enabled = 1
+set smoothscroll
 nmap <silent> <C-k> <Plug>(ale_previous_wrap)
 nmap <silent> <C-j> <Plug>(ale_next_wrap)
 let g:markdown_fenced_languages = ['css', 'erb=eruby', 'javascript', 'js=javascript', 'json=javascript', 'ruby', 'sass', 'xml', 'c', 'python', "copper", "go", "cpp", "typescript"]
@@ -210,6 +211,7 @@ au FileType markdown nnoremap <silent><localleader>x :call RetainPosition({ -> s
 
 function! Notes()
 	call chdir("~/.notes")
+	setlocal nowrap
 	silent! call system("gen-index")
 	au InsertLeave * :call RetainPosition(function("AutoLink"))
 	autocmd FileChangedShell * let v:fcs_choice = "reload"
