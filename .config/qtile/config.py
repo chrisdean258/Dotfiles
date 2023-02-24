@@ -16,50 +16,49 @@ def sendit(qtile):
     other = cur_group_partner(qtile)
     qtile.current_window.togroup(other.name)
 
-keys = [
-    # A list of available commands that can be bound to keys can be found
-    # at https://docs.qtile.org/en/latest/manual/config/lazy.html
-    # Switch between windows
-    Key([mod], "h", lazy.layout.left(), desc="Move focus to left"),
-    Key([mod], "l", lazy.layout.right(), desc="Move focus to right"),
-    Key([mod], "j", lazy.layout.down(), desc="Move focus down"),
-    Key([mod], "k", lazy.layout.up(), desc="Move focus up"),
-    # Key([mod], "space", lazy.layout.next(), desc="Move window focus to other window"),
-    # Move windows between left/right columns or move up/down in current stack.
-    # Moving out of range in Columns layout will create new column.
-    Key([mod, "shift"], "h", lazy.layout.shuffle_left(), desc="Move window to the left"),
-    Key([mod, "shift"], "l", lazy.layout.shuffle_right(), desc="Move window to the right"),
-    Key([mod, "shift"], "j", lazy.layout.shuffle_down(), desc="Move window down"),
-    Key([mod, "shift"], "k", lazy.layout.shuffle_up(), desc="Move window up"),
-    # Grow windows. If current window is on the edge of screen and direction
-    # will be to screen edge - window would shrink.
-    Key([mod, "control"], "h", lazy.layout.grow_left(), desc="Grow window to the left"),
-    Key([mod, "control"], "l", lazy.layout.grow_right(), desc="Grow window to the right"),
-    Key([mod, "control"], "j", lazy.layout.grow_down(), desc="Grow window down"),
-    Key([mod, "control"], "k", lazy.layout.grow_up(), desc="Grow window up"),
-    Key([mod], "n", lazy.layout.normalize(), desc="Reset all window sizes"),
-    # Toggle between split and unsplit sides of stack.
-    # Split = all windows displayed
-    # Unsplit = 1 window displayed, like Max layout, but still with
-    # multiple stack panes
-    Key(
-        [mod, "shift"],
-        "Return",
-        lazy.layout.toggle_split(),
-        desc="Toggle between split and unsplit sides of stack",
-    ),
-    Key([mod], "Return", lazy.spawn(terminal), desc="Launch terminal"),
-    # Toggle between different layouts as defined below
-    Key([mod], "space", lazy.next_layout(), desc="Toggle between layouts"),
-    Key([mod], "Escape", lazy.window.kill(), desc="Kill focused window"),
-    Key([mod], "r", lazy.reload_config(), desc="Reload the config"),
-    Key([mod], "q", lazy.shutdown(), desc="Shutdown Qtile"),
-    Key([mod], "p", lazy.spawn("dmenu_run"), desc="Run command launcher"),
+applications = {
+    "Return": "st",
+    "p": ("dmenu_run", "dmenu_pass"),
+    "g": ("browser", "browser --private-window"),
+    "v": ("vol -5%", "vol +5%"),
+    "b": ("bt", "bt -d", "bt h21", "bt wh"),
+    "d": ("discord", "d"),
+    "a": "audio",
+}
 
-    Key([mod], "g", lazy.spawn("browser"), desc="Run firefox"),
-    Key([mod], "Tab", lazy.function(togglegroup), desc="Toggle group"),
-    Key([mod, "shift"], "Tab", lazy.function(sendit), desc="Toggle window group"),
+m_ = [mod]
+ms = [mod, "shift"]
+mc = [mod, "control"]
+mcs = [mod, "control", "shift"]
+mods = [m_, ms, mc, mcs]
+
+keys = [
+    Key(m, "k", lazy.layout.down()),
+    Key(m_, "j", lazy.layout.up()),
+    Key(mc, "k", lazy.layout.shuffle_down()),
+    Key(mc, "j", lazy.layout.shuffle_up()),
+    Key(m_, "Tab", lazy.function(togglegroup), desc="Toggle group"),
+    Key(ms, "Tab", lazy.function(sendit), desc="Toggle window group"),
+    Key(m_, "l", lazy.layout.increase_ratio()),
+    Key(m_, "h", lazy.layout.decrease_ratio()),
+    Key(ms, "Return", lazy.layout.toggle_split()),
+    Key(m_, "space", lazy.next_layout()),
+    Key(m_, "Escape", lazy.window.kill()),
+    Key(mc, "r", lazy.restart()),
+    Key(mc, "q", lazy.shutdown()),
+    Key(m_, "f", lazy.window.toggle_floating()),
+    # Key([], "F11", lazy.group["scratchpad"].dropdown_toggle("calculator")),
+    # Key([], "F12", lazy.group["scratchpad"].dropdown_toggle("st")),
+    # Key(m_, "s", lazy.group["scratchpad"].dropdown_toggle("spotify")),
 ]
+
+
+for k, cmds in applications.items():
+    if isinstance(cmds, str):
+        cmds = (cmds,)
+    for m, cmd in zip(mods, cmds):
+        if cmd is not None:
+            keys.append(Key(m, k, lazy.spawn(cmd)))
 
 
 groups = [Group(i) for i in "01"]
@@ -87,6 +86,7 @@ for i in groups:
             #     desc="move focused window to group {}".format(i.name)),
         ]
     )
+
 layout_theme = {
     "border_width": 1,
     "margin": 0,
@@ -144,13 +144,9 @@ screens = [
     Screen(
         bottom=bar.Bar(
             [
-                widget.GroupBox(),
-                widget.WindowName(foreground="000000"),
+                widget.GroupBox(width=bar.STRETCH),
                 # NB Systray is incompatible with Wayland, consider using StatusNotifier instead
-                # widget.StatusNotifier(),
-                widget.Systray(),
-
-                CmdTextBox("st -e vim /home/chris/.config/qtile/config.py", "Config"),
+                CmdTextBox("edit-qtile-config", "Config"),
                 widget.TextBox("|"),
                 CmdTextBox("st -e tail -f /home/chris/.local/share/qtile/qtile.log", "Errors"),
                 widget.TextBox("|"),
@@ -159,8 +155,6 @@ screens = [
                 widget.Clock(format="%Y-%m-%d %H:%M"),
             ],
             24,
-            # border_width=[2, 0, 2, 0],  # Draw top and bottom borders
-            # border_color=["ff00ff", "000000", "ff00ff", "000000"]  # Borders are magenta
         ),
     ),
 ]
