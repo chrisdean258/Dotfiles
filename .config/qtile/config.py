@@ -33,7 +33,7 @@ mcs = [mod, "control", "shift"]
 mods = [m_, ms, mc, mcs]
 
 keys = [
-    Key(m, "k", lazy.layout.down()),
+    Key(m_, "k", lazy.layout.down()),
     Key(m_, "j", lazy.layout.up()),
     Key(mc, "k", lazy.layout.shuffle_down()),
     Key(mc, "j", lazy.layout.shuffle_up()),
@@ -125,13 +125,13 @@ extension_defaults = widget_defaults.copy()
 
 class BatteryFmt:
     def format(self, percent, char, hour, min, *args, **kwargs):
-        # {'char': 'V', 'percent': 0.46375753149534416, 'watt': 10.294998, 'hour': 2, 'min': 43}
+        # {'char': 'V', 'percent': 0.46375, 'watt': 10.294, 'hour': 2, 'min': 43}
         percent = round(percent * 100)
         num = percent // 10
         bat = f"[{'░'*num}{' '*(10-num)}]"
         if percent == 100:
             return f"{bat} {percent}%"
-        time = f"{hour}:{min}"
+        time = f"{hour}:{min:02}"
         charging = "remaining" if char == 'V' else "until charged"
         return f"{bat} {percent}% ({time} {charging})"
 

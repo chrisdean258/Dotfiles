@@ -422,7 +422,7 @@
 	:autocmd Filetype markdown :inoremap <silent><buffer><CR> <c-r>=MDNewline()<CR>
 	:autocmd Filetype markdown :nmap <silent><buffer>o A<CR>
 	:autocmd Filetype markdown :nmap <silent><buffer>dd dd:call ReIndexOrderedList(line('.'))<CR>
-	:autocmd Filetype markdown :inoremap <silent><buffer><localleader>s <esc>:call SpellReplace()<CR>a
+	:autocmd Filetype markdown :inoremap <silent><buffer><localleader>s <esc>:call SpellReplace()<CR><left>a
 	:autocmd Filetype markdown :nnoremap <silent><buffer><localleader>s :call SpellReplace()<CR>
 	:autocmd Filetype markdown :setlocal complete+=kspell
 	:autocmd Filetype markdown :setlocal nospell
@@ -680,16 +680,21 @@
 		:  let natural_indent = indent(linenum)
 		:  let reindex_lines = [linenum]
 		:  let linenum -= 1
-		:  while indent(linenum) >= natural_indent && getline(linenum) =~ valid_starts
+		:  while indent(linenum) >= natural_indent
 		:    if indent(linenum) == natural_indent
+		:      if getline(linenum) !~ valid_starts 
+		:        break
+		:      endif
 		:      call add(reindex_lines, linenum)
 		:    endif
 		:    let linenum -= 1
 		:  endwhile
-		:  let linenum = line('.')
-		:  let linenum += 1
-		:  while indent(linenum) >= natural_indent && getline(linenum) =~ valid_starts
+		:  let linenum = line('.') + 1
+		:  while indent(linenum) >= natural_indent
 		:    if indent(linenum) == natural_indent
+		:      if getline(linenum) !~ valid_starts 
+		:        break
+		:      endif
 		:      call add(reindex_lines, linenum)
 		:    endif
 		:    let linenum += 1
