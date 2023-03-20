@@ -598,6 +598,8 @@
 	" }}}
 
 	" Markdown {{{
+		let s:markdown_list = '^\s*[>\*-+] '
+		let s:markdown_ordered_list = '^\s*\d\+[\.)]'
 		:function! MDNewline() "  {{{
 		:  let l:allowable_starts = [ '>', '\*', '-', '+', ]
 		:  let l:line = getline('.')
@@ -671,6 +673,11 @@
 		:  nohlsearch
 		:endfunction " }}}
 
+		:function! InIndentTree(linenum, valid_starts, natural_indent) " {{{
+		:  let idt = indent(a:linenum)
+		:  return idt > a:natural_indent || (idt == a:natural_indent && getline(a:linenum) =~ a:valid_starts)
+		:endfunction " }}}
+
 		:function! LineNosOrderedList(start) " {{{
 		:  let valid_starts = '^\s*\d\+[\.)]'
 		:  if getline(a:start) !~ valid_starts
@@ -680,7 +687,11 @@
 		:  let natural_indent = indent(linenum)
 		:  let reindex_lines = [linenum]
 		:  let linenum -= 1
+<<<<<<< Updated upstream
 		:  while indent(linenum) >= natural_indent
+=======
+		:  while InIndentTree(linenum, valid_starts, natural_indent)
+>>>>>>> Stashed changes
 		:    if indent(linenum) == natural_indent
 		:      if getline(linenum) !~ valid_starts 
 		:        break
@@ -690,7 +701,11 @@
 		:    let linenum -= 1
 		:  endwhile
 		:  let linenum = line('.') + 1
+<<<<<<< Updated upstream
 		:  while indent(linenum) >= natural_indent
+=======
+		:  while InIndentTree(linenum, valid_starts, natural_indent)
+>>>>>>> Stashed changes
 		:    if indent(linenum) == natural_indent
 		:      if getline(linenum) !~ valid_starts 
 		:        break
