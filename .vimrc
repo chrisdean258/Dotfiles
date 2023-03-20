@@ -598,41 +598,52 @@
 	" }}}
 
 	" Markdown {{{
-		let s:markdown_list = '^\s*[>\*-+] '
-		let s:markdown_ordered_list = '^\s*\d\+[\.)]'
+		let s:markdown_unordered_list = '^\s*[>*\-+] '
+		let s:markdown_ordered_list = '^\s*\d\+[.)] '
+		let s:markdown_list = s:markdown_ordered_list . '\|' . s:markdown_unordered_list
 		:function! MDNewline() "  {{{
 		:  let l:allowable_starts = [ '>', '\*', '-', '+', ]
 		:  let l:line = getline('.')
 		:  let l:left = LineBeforeCursor()
 		" If line has no content remove the starter
-		:  if l:line =~ '^\('.join(l:allowable_starts, '\|').'\)\s*$' || l:line =~ '^\d\+[\.)]\s*$'
+		:  if l:line =~ '^\([>*\-+]\|\d\+[.)]\)\s*$'
 		:    call setline('.', '')
 		:    return ""
 		" If between the starter and line and cannot unindent insert default
-		:  elseif l:left =~ '^\('.join(l:allowable_starts, '\|').'\)\s*$'
+		:  elseif l:left =~ '^\([>*\-+]\|\s\+[.)]\)\s*$'
 		:    return "\r"
 		" If between the starter and line and can unindent then unindent
-		:  elseif l:left =~ '^\s*\('.join(l:allowable_starts, '\|').'\)\s*$' || l:left =~ '^\s*\d\+[\.)]\s*$'
+		:  elseif l:left =~ '^\s*\([>*\-+]\|\d\+[\.)]\)\s*$'
 		:    call MDUnindent()
 		:    return ""
+		:  elseif strlen(l:left) < strlen(l:line)
+		:    return "\r"
+		:  endif
 		" If line starts with starter and were at the end then insert starter on next line
-		:  elseif l:line =~ '^\s*\('.join(l:allowable_starts, '\|').'\)\s' && l:line == l:left
+		:  let idt = indent('.')
+		:  let lineno = line('.')
+		:  if l:line !~ '^\s*\([>*\-+]\|\d\+[.)]\)\s' && idt != 0
+		:    while lineno > 0 && indent(lineno) >= idt
+		:      let lineno -= 1
+		:    endwhile
+		:    if lineno == 0
+		:      return "\r"
+		:    endif
+		:    let l:line = getline(lineno)
+		:  endif
+		:  if l:line =~ '^\s*\([>*\-+]\|\d\+[.)]\)\s'
 		:    let l:nextline = getline(line('.')+1)
 		"    If nextline already has a starter and is more indented use its indentation and starter
-		:    if indent(line('.') + 1) > indent('.') && l:nextline =~ '^\s*\('.join(l:allowable_starts, '\|').'\)\s'
+		:    if indent(line('.') + 1) > indent(lineno) && l:nextline =~ '^\s*\([>*\-+]\|\d\+[.)]\)\s'
 		:      let l:line = l:nextline
+		:      let l:lineno = line('.') + 1
 		:    endif
 		:    if l:line =~ '^\s*- \[.\]'
 		:      call append('.', substitute(l:line, '^\(\s*- \[.\]\)\s.*', '\1', '') . ' ')
 		:    else
 		:      call append('.', substitute(l:line, '^\(\s*.\{-}\)\s.*', '\1', '') . ' ')
 		:    endif
-		:    return "\<down>\<right>"
-		"  Increment the number if its a number
-		:  elseif l:line =~ '^\d\+[\.)]'
-		:    let l:char = substitute(l:line, '^\d\+\([\.)] \).*', '\1', '')
-		:    call append('.', l:line + 1 . l:char)
-		:    call ReIndexOrderedList(line('.'))
+		:    call ReIndexOrderedList(l:lineno)
 		:    return "\<down>\<right>"
 		:  endif
 		:  return "\r"
@@ -687,29 +698,15 @@
 		:  let natural_indent = indent(linenum)
 		:  let reindex_lines = [linenum]
 		:  let linenum -= 1
-<<<<<<< Updated upstream
-		:  while indent(linenum) >= natural_indent
-=======
 		:  while InIndentTree(linenum, valid_starts, natural_indent)
->>>>>>> Stashed changes
 		:    if indent(linenum) == natural_indent
-		:      if getline(linenum) !~ valid_starts 
-		:        break
-		:      endif
 		:      call add(reindex_lines, linenum)
 		:    endif
 		:    let linenum -= 1
 		:  endwhile
-		:  let linenum = line('.') + 1
-<<<<<<< Updated upstream
-		:  while indent(linenum) >= natural_indent
-=======
+		:  let linenum = a:start + 1
 		:  while InIndentTree(linenum, valid_starts, natural_indent)
->>>>>>> Stashed changes
 		:    if indent(linenum) == natural_indent
-		:      if getline(linenum) !~ valid_starts 
-		:        break
-		:      endif
 		:      call add(reindex_lines, linenum)
 		:    endif
 		:    let linenum += 1
@@ -722,6 +719,7 @@
 		:  let window = winsaveview()
 		:  let reindex_lines = LineNosOrderedList(a:start)
 		:  let i = 0
+		echom "reordering ". string(reindex_lines) . getline(a:start)
 		:  for lineno in reindex_lines
 		:    call setline(lineno, substitute(getline(lineno), '\d\d*', string(i + 1), ''))
 		:    let i += 1
