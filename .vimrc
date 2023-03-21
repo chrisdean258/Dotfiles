@@ -597,37 +597,31 @@
 	" }}}
 
 	" Markdown {{{
-		let s:markdown_unordered_list = '^\s*[>*\-+] '
-		let s:markdown_ordered_list = '^\s*\d\+[.)] '
-		let s:markdown_list = s:markdown_ordered_list . '\|' . s:markdown_unordered_list
+		let s:markdown_is_list = '^\s*\([>*\-+]\|\d\+[.)]\)\s'
+
 		:function! MDNewline() "  {{{
-		:  let l:allowable_starts = [ '>', '\*', '-', '+', ]
 		:  let l:line = getline('.')
 		:  let l:left = LineBeforeCursor()
-		" If line has no content remove the starter
-		:  if l:line =~ '^\([>*\-+]\|\d\+[.)]\)\s*$'
-		:    call setline('.', '')
-		:    return ""
-		" If between the starter and line and cannot unindent insert default
-		:  elseif l:left =~ '^\([>*\-+]\|\s\+[.)]\)\s*$'
-		:    return "\r"
+		" If left has no content remove the starter
+		:  if l:left =~ '^\([>*\-+]\|\s\+[.)]\)\s*$'
+		:    let newline = substitute(l:line, '^\s*.\{-}\s\(.*\)', '\1', '')
+		:    call setline('.', newline)
+		:    return repeat("\<left>", strlen(l:line) - strlen(newline))
 		" If between the starter and line and can unindent then unindent
 		:  elseif l:left =~ '^\s*\([>*\-+]\|\d\+[\.)]\)\s*$'
 		:    call MDUnindent()
 		:    return ""
+		" Somewhere in the middle of the line
 		:  elseif strlen(l:left) < strlen(l:line)
 		:    return "\r"
 		:  endif
-		" If line starts with starter and were at the end then insert starter on next line
+		" If target line starts with starter and were at the end then insert starter on next line
 		:  let idt = indent('.')
 		:  let lineno = line('.')
 		:  if l:line !~ '^\s*\([>*\-+]\|\d\+[.)]\)\s' && idt != 0
-		:    while lineno > 0 && indent(lineno) >= idt
+		:    while indent(lineno) >= idt
 		:      let lineno -= 1
 		:    endwhile
-		:    if lineno == 0
-		:      return "\r"
-		:    endif
 		:    let l:line = getline(lineno)
 		:  endif
 		:  if l:line =~ '^\s*\([>*\-+]\|\d\+[.)]\)\s'
