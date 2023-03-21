@@ -473,7 +473,6 @@
 		:  if mode == 2 || mode == 0
 		:    let rtn = substitute(a:str, '['.chars.']*$', "", "")
 		:  endif
-		:  echom "trim returning " .rtn
 		:  return rtn
 		:endfunction " }}}
 
@@ -719,7 +718,6 @@
 		:  let window = winsaveview()
 		:  let reindex_lines = LineNosOrderedList(a:start)
 		:  let i = 0
-		echom "reordering ". string(reindex_lines) . getline(a:start)
 		:  for lineno in reindex_lines
 		:    call setline(lineno, substitute(getline(lineno), '\d\d*', string(i + 1), ''))
 		:    let i += 1
