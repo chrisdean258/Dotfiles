@@ -549,7 +549,7 @@
 		:function! PrevIndentLine(start) " {{{
 		:  let idt = indent(a:start)
 		:  let i = a:start - 1
-		:  while indent(i) >= idt
+		:  while indent(i) >= idt && getline('.') =~ '\S'
 		:    let i -= 1
 		:  endwhile
 		:  return i
@@ -605,13 +605,17 @@
 		:  if l:left =~ '^\([>*\-+]\|\d\+[.)]\)\( \[.\]\?\s\)\?\s*$'
 		:    let newline = substitute(l:line, s:markdown_is_list, '\3', '')
 		:    call setline('.', newline)
-		:    return repeat("\<left>", strlen(l:line) - strlen(newline))
+		:    call cursor(line('.'), 1)
+		:    echom "hi"
+		:    return ""
 		" If between the starter and line and can unindent then unindent
 		:  elseif l:left =~ '^\s*\([>*\-+]\|\d\+[.)]\)\( \[.\]\)\?\s*$'
 		:    let l:diff = indent('.') - indent(PrevIndentLine(line('.')))
+		:    let column = col('.')
 		:    call setline('.', getline('.')[l:diff:])
 		:    call ReIndexOrderedList(line('.'))
-		:    return repeat("\<left>", l:diff)
+		:    call cursor('.', column - diff)
+		:    return ""
 		" Somewhere in the middle of the line
 		:  elseif strlen(l:left) < strlen(l:line)
 		:    return "\r"
@@ -642,7 +646,12 @@
 		:    return a:default
 		:  endif
 		:  let allowable_starts = [ '>', '\*', '-', '+', '|' , '\d\+\.', '\d\+)' ]
-		:  let repeat = stridx(Trim(getline(line('.') - 1)), " ") + 1
+		:  let target = line('.') - 1
+		:  let idt = indent('.')
+		:  while indent(target) > idt
+		:    let target -= 1
+		:  endwhile
+		:  let repeat = stridx(Trim(getline(target)), " ") + 1
 		:  let line = TextBeforeCursor()
 		:  if line =~ '^\s*\(' . join(allowable_starts, '\|') . '\)\s*$'
 		:    call setline('.', repeat(" ", repeat) . getline('.'))
