@@ -76,6 +76,7 @@
 	:set wildmode=longest,list,full
 	:set smartcase
 	:let g:markdown_fenced_languages = ['css', 'erb=eruby', 'javascript', 'js=javascript', 'json=javascript', 'ruby', 'sass', 'xml', 'c', 'python', "copper", "go", "cpp"]
+	:set ruler
 " }}}
 
 " HIGHLIGHT SETTINGS {{{
@@ -545,15 +546,13 @@
 		:  return l:input
 		:endfunction " }}}
 
-		:function! PrevIndent(...) " {{{
-		:  let l:indent = indent('.')
-		:  let lnums = range(line('.') - 1, 1, -1)
-		:  for Filter in a:000
-		:    let lnums = filter(lnums, Filter)
-		:  endfor
-		:  let indents = map(lnums, {_, v -> indent(v)})
-		:  let prev = filter(lnums, { _, v -> v < l:indent })
-		:  return get(prev, 0, 0)
+		:function! PrevIndentLine(start) " {{{
+		:  let idt = indent(a:start)
+		:  let i = a:start - 1
+		:  while indent(i) >= idt
+		:    let i -= 1
+		:  endwhile
+		:  return i
 		:endfunction " }}}
 		
 		function! RetainPosition(fun) " {{{
@@ -597,20 +596,22 @@
 	" }}}
 
 	" Markdown {{{
-		let s:markdown_is_list = '^\s*\([>*\-+]\|\d\+[.)]\)\s'
+		let s:markdown_is_list = '^\s*\([>*\-+]\|\d\+[.)]\)\( \[.\]\?\s\)\?\(.*\)'
 
 		:function! MDNewline() "  {{{
 		:  let l:line = getline('.')
 		:  let l:left = LineBeforeCursor()
-		" If left has no content remove the starter
-		:  if l:left =~ '^\([>*\-+]\|\s\+[.)]\)\s*$'
-		:    let newline = substitute(l:line, '^\s*.\{-}\s\(.*\)', '\1', '')
+		" If left is unindented list specifier remove it leaving the rest of the content
+		:  if l:left =~ '^\([>*\-+]\|\d\+[.)]\)\( \[.\]\?\s\)\?\s*$'
+		:    let newline = substitute(l:line, s:markdown_is_list, '\3', '')
 		:    call setline('.', newline)
 		:    return repeat("\<left>", strlen(l:line) - strlen(newline))
 		" If between the starter and line and can unindent then unindent
-		:  elseif l:left =~ '^\s*\([>*\-+]\|\d\+[\.)]\)\s*$'
-		:    call MDUnindent()
-		:    return ""
+		:  elseif l:left =~ '^\s*\([>*\-+]\|\d\+[.)]\)\( \[.\]\)\?\s*$'
+		:    let l:diff = indent('.') - indent(PrevIndentLine(line('.')))
+		:    call setline('.', getline('.')[l:diff:])
+		:    call ReIndexOrderedList(line('.'))
+		:    return repeat("\<left>", l:diff)
 		" Somewhere in the middle of the line
 		:  elseif strlen(l:left) < strlen(l:line)
 		:    return "\r"
@@ -619,9 +620,7 @@
 		:  let idt = indent('.')
 		:  let lineno = line('.')
 		:  if l:line !~ '^\s*\([>*\-+]\|\d\+[.)]\)\s' && idt != 0
-		:    while indent(lineno) >= idt
-		:      let lineno -= 1
-		:    endwhile
+		:    let lineno = PrevIndentLine(lineno)
 		:    let l:line = getline(lineno)
 		:  endif
 		:  if l:line =~ '^\s*\([>*\-+]\|\d\+[.)]\)\s'
@@ -629,28 +628,12 @@
 		"    If nextline already has a starter and is more indented use its indentation and starter
 		:    if indent(line('.') + 1) > indent(lineno) && l:nextline =~ '^\s*\([>*\-+]\|\d\+[.)]\)\s'
 		:      let l:line = l:nextline
-		:      let l:lineno = line('.') + 1
 		:    endif
-		:    if l:line =~ '^\s*- \[.\]'
-		:      call append('.', substitute(l:line, '^\(\s*- \[.\]\)\s.*', '\1', '') . ' ')
-		:    else
-		:      call append('.', substitute(l:line, '^\(\s*.\{-}\)\s.*', '\1', '') . ' ')
-		:    endif
-		:    call ReIndexOrderedList(l:lineno)
+		:    call append('.', substitute(l:line, '^\(\s*.\{-}\( \[.\]\)\?\)\s.*', '\1', '') . ' ')
+		:    call ReIndexOrderedList(line('.')  + 1)
 		:    return "\<down>\<right>"
 		:  endif
 		:  return "\r"
-		:endfunction " }}}
-
-		:function! MDUnindent() " {{{
-		:  let l:allowable_starts = [ '>', '\*', '-', '+', '\d\d*[\.)]']
-		:  let l:regex = '^\s*\('.join(l:allowable_starts, '\|').'\)'
-		:  let l:diff = indent('.') - PrevIndent({_, v->getline(v)=~l:regex})
-		:  call cursor('.', col('.')-l:diff)
-		:  call setline('.', getline('.')[l:diff:])
-		:  if getline('.') =~ '^\s*\d\+[\.)]'
-		:    call ReIndexOrderedList(line('.'))
-		:  endif
 		:endfunction " }}}
 
 		:function! MDTab(default) " {{{
