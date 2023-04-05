@@ -606,7 +606,6 @@
 		:    let newline = substitute(l:line, s:markdown_is_list, '\3', '')
 		:    call setline('.', newline)
 		:    call cursor(line('.'), 1)
-		:    echom "hi"
 		:    return ""
 		" If between the starter and line and can unindent then unindent
 		:  elseif l:left =~ '^\s*\([>*\-+]\|\d\+[.)]\)\( \[.\]\)\?\s*$'
@@ -617,6 +616,8 @@
 		:    call cursor('.', column - diff)
 		:    return ""
 		" Somewhere in the middle of the line
+		:  elseif l:left =~ '^\s*$'
+		:    return "\r"
 		:  elseif strlen(l:left) < strlen(l:line)
 		:    return "\r"
 		:  endif
