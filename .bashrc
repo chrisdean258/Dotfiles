@@ -112,7 +112,7 @@ norealias hgrep='history | grep --color=auto'
 norealias ping="ping -c1 -w 1"
 norealias vim="vvim"
 
-alias vf='vim $($(fc -nl -1))'
+alias vf='vim -O $($(fc -nl -1))'
 
 exe colordiff && alias diff="colordiff"
 exe neomutt   && alias mutt="neomutt"
