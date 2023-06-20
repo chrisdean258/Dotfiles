@@ -194,9 +194,6 @@ function! Edit(file)
 endfunction
 
 function! AutoLink()
-	if &filetype !=# "markdown"
-		return
-	endif
 	let win = winsaveview()
 	s/\([^"\[(]\)\(http\(s\)\?:.*\/\)\(\S*\)/\1[\4](\2\4)/ge
 	s/\([^"\[(]\)\(http\(s\)\?:\S*\)/\1[\2]()/ge
@@ -213,7 +210,7 @@ function! Notes()
 	call chdir("~/.notes")
 	setlocal nowrap
 	silent! call system("gen-index")
-	au InsertLeave * :call RetainPosition(function("AutoLink"))
+	au InsertLeave *.md :call RetainPosition(function("AutoLink"))
 	autocmd FileChangedShell * let v:fcs_choice = "reload"
 	au CursorHold,CursorHoldI * checktime
 	au FocusGained,BufEnter,FocusLost * :checktime
