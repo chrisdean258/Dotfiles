@@ -4,21 +4,24 @@ exe() { [ -x "$(command -v "$1")" ]; }
 
 ! exe xdg-open && exec /usr/bin/open "$@"
 
+do_open() {
+	while [ $# -gt 0 ]; do
+		xdg-open "$1"
+		shift
+	done 
+}
 
-if exe xdotool; then 
+
+if [ "$1" = "--no-swallow" ] || [ "$1" = "-ns" ]; then 
+	shift
+	do_open "$@"
+elif exe xdotool; then 
 	id=$(xdotool getactivewindow)
 	xdotool windowunmap "$id"
-	xdotool windowunmap "$id"
-	xdotool windowunmap "$id"
+	do_open "$@"
+	xdotool windowmap "$id"
+else
+	do_open "$@"
 fi
 
-while [ $# -gt 0 ]; do
-	xdg-open "$1"
-	shift
-done 
 
-if exe xdotool; then 
-	xdotool windowmap "$id"
-	xdotool windowmap "$id"
-	xdotool windowmap "$id"
-fi

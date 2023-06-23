@@ -5,16 +5,22 @@ from libqtile.lazy import lazy
 mod = "mod4"
 terminal = "st"
 
+
 def togglegroup(qtile):
     other = cur_group_partner(qtile)
+    if isinstance(qtile.current_group.layout, FriendlyMax):
+        qtile.cmd_next_layout()
     qtile.current_group.screen.set_group(other)
+
 
 def cur_group_partner(qtile):
     return qtile.groups[int(qtile.current_group.name) ^ 1]
 
+
 def sendit(qtile):
     other = cur_group_partner(qtile)
     qtile.current_window.togroup(other.name)
+
 
 applications = {
     "Return": "st",
@@ -73,12 +79,12 @@ for i in groups:
                 lazy.group[i.name].toscreen(),
                 desc="Switch to group {}".format(i.name),
             ),
-            # mod1 + shift + letter of group = switch to & move focused window to group
             Key(
                 [mod, "shift"],
                 i.name,
                 lazy.window.togroup(i.name, switch_group=True),
-                desc="Switch to & move focused window to group {}".format(i.name),
+                desc="Switch to & move focused window to group {}".format(
+                    i.name),
             ),
             # Or, use below if you prefer not to switch to that group.
             # # mod1 + shift + letter of group = move focused window to group
@@ -111,6 +117,7 @@ class FriendlyMax(layout.Max):
         if len(self.clients) == 1:
             self.group.qtile.cmd_next_layout()
 
+
 layouts = [
     DWM(**layout_theme, ratio=0.5),
     FriendlyMax(),
@@ -123,9 +130,10 @@ widget_defaults = dict(
 )
 extension_defaults = widget_defaults.copy()
 
+
 class BatteryFmt:
     def format(self, percent, char, hour, min, *args, **kwargs):
-        # {'char': 'V', 'percent': 0.46375, 'watt': 10.294, 'hour': 2, 'min': 43}
+        # noqa {'char': 'V', 'percent': 0.46375, 'watt': 10.294, 'hour': 2, 'min': 43}
         percent = round(percent * 100)
         num = percent // 10
         bat = f"[{'░'*num}{' '*(10-num)}]"
@@ -135,20 +143,22 @@ class BatteryFmt:
         charging = "remaining" if char == 'V' else "until charged"
         return f"{bat} {percent}% ({time} {charging})"
 
+
 def CmdTextBox(cmd, *args, **kwargs):
     rv = widget.TextBox(*args, **kwargs)
-    rv.add_callbacks( { "Button1": lazy.spawn(cmd) })
+    rv.add_callbacks({"Button1": lazy.spawn(cmd)})
     return rv
+
 
 screens = [
     Screen(
         bottom=bar.Bar(
             [
                 widget.GroupBox(width=bar.STRETCH),
-                # NB Systray is incompatible with Wayland, consider using StatusNotifier instead
+                # noqa NB Systray is incompatible with Wayland, consider using StatusNotifier instead
                 CmdTextBox("edit-qtile-config", "Config"),
                 widget.TextBox("|"),
-                CmdTextBox("st -e tail -f /home/chris/.local/share/qtile/qtile.log", "Errors"),
+                CmdTextBox("st -e tail -f /home/chris/.local/share/qtile/qtile.log", "Errors"),  # noqa
                 widget.TextBox("|"),
                 widget.Battery(format=BatteryFmt(), show_short_text=False),
                 widget.TextBox("|"),
@@ -161,8 +171,10 @@ screens = [
 
 # Drag floating layouts.
 mouse = [
-    Drag([mod], "Button1", lazy.window.set_position_floating(), start=lazy.window.get_position()),
-    Drag([mod], "Button3", lazy.window.set_size_floating(), start=lazy.window.get_size()),
+    Drag([mod], "Button1", lazy.window.set_position_floating(),
+         start=lazy.window.get_position()),
+    Drag([mod], "Button3", lazy.window.set_size_floating(),
+         start=lazy.window.get_size()),
     Click([mod], "Button2", lazy.window.bring_to_front()),
 ]
 
@@ -173,7 +185,7 @@ bring_front_click = False
 cursor_warp = False
 floating_layout = layout.Floating(
     float_rules=[
-        # Run the utility of `xprop` to see the wm class and name of an X client.
+        # Run the utility of `xprop` to see the wm class and name of a client
         *layout.Floating.default_float_rules,
         Match(wm_class="confirmreset"),  # gitk
         Match(wm_class="makebranch"),  # gitk
