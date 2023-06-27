@@ -9,7 +9,18 @@
   exit
 : endif
 
-let s:term_codes = {}
+let s:term_codes = {
+ '0': '[25;27;28;22;24;23;27;29m',
+ '57': '[25;27;28;22;24;23;27;29;35m',
+ '59': '[25;27;28;22;24;23;27;29;38;5;11m',
+ '71': '[25;27;28;22;24;23;27;29;38;5;15m',
+ '60': '[25;27;28;22;24;23;27;29;38;5;81m',
+ '73': '[25;27;28;22;24;23;27;29;38;5;15m',
+ '75': '[25;27;28;22;24;23;27;29;38;5;9m',
+ '55': '[25;27;28;22;24;23;27;29;36m',
+ '56': '[25;27;28;22;24;23;27;29;38;5;13m'
+}
+
 function! TermCode(hlgroup)
   let hlgroup = a:hlgroup
   if has_key(s:term_codes, hlgroup)
@@ -49,8 +60,10 @@ function! TermHighlight(out)
       endif
     endfor
     call add(parts, line[unconsumed:])
-    call add(lines, join(parts, ""))
+    call add(lines, join(parts, "")."\<Esc>[0m")
+    let last = hlID('Normal')
   endfor
   let lines[-1] .= "\<Esc>[0m"
+  call writefile([string(s:term_codes)->substitute("\e", "\\e", "g")], "temp")
   return writefile(lines, a:out)
 endfunction

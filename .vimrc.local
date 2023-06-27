@@ -194,24 +194,23 @@ function! Edit(file)
 endfunction
 
 function! AutoLink()
-	let win = winsaveview()
 	s/\([^"\[(]\)\(http\(s\)\?:.*\/\)\(\S*\)/\1[\4](\2\4)/ge
 	s/\([^"\[(]\)\(http\(s\)\?:\S*\)/\1[\2]()/ge
 	s/^\(http\(s\)\?:.*\/\)\(\S*\)/[\3](\1\3)/ge
 	s/^http\(s\)\?:\S*/[&](&)/ge
 	s/\[\](\(.*\)\/\([^\/]*\))/[\2](\1\/\2)/ge
 	s/\[\](\(.\{-}\))/[\1](\1)/ge
-	call winrestview(win)
 endfunction
 
 au FileType markdown nnoremap <silent><localleader>x :call RetainPosition({ -> setline('.', substitute(getline('.'), '\[ \]', '[x]', '')) })<CR>
+au InsertLeave *.md :call RetainPosition(function("AutoLink"))
 
 function! Notes()
 	call chdir("~/.notes")
 	setlocal nowrap
-	silent! call system("gen-index")
-	au InsertLeave *.md :call RetainPosition(function("AutoLink"))
 	autocmd FileChangedShell * let v:fcs_choice = "reload"
+	silent! call system("gen-index")
+	e
 	au CursorHold,CursorHoldI * checktime
 	au FocusGained,BufEnter,FocusLost * :checktime
 	nnoremap <leader>dd :call RemoveFile()<CR>
