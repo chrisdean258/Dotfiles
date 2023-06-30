@@ -12,16 +12,29 @@ do_open() {
 }
 
 
-if [ "$1" = "--no-swallow" ] || [ "$1" = "-ns" ]; then 
+files=()
+swallow=1
+
+while [ $# -gt 0 ]; do
+	case $1 in
+		-ns | --no-swallow)
+			swallow=0
+			;;
+		*)
+			files+=($1)
+			;;
+	esac
 	shift
-	do_open "$@"
-elif exe xdotool; then 
+done
+
+
+if exe xdotool && [ "$swallow" = 1 ]; then 
 	id=$(xdotool getactivewindow)
 	xdotool windowunmap "$id"
-	do_open "$@"
+	do_open "${files[@]}"
 	xdotool windowmap "$id"
 else
-	do_open "$@"
+	do_open "${files[@]}"
 fi
 
 

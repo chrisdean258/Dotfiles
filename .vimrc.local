@@ -94,8 +94,8 @@ vmap <leader>y "*y
 
 function! RunSH()
 	let line = getline('.')->trim(" \t$", 1)
-	let idt = repeat(" ", indent('.'))
-	call append(line('.'), map(systemlist(line), {_, v -> idt . v}))
+	let idt = " "->repeat(indent('.'))
+	call line('.')->append(systemlist(line)->map({_, v -> idt . v}))
 endfunction
 
 
@@ -209,8 +209,14 @@ function! Notes()
 	call chdir("~/.notes")
 	setlocal nowrap
 	autocmd FileChangedShell * let v:fcs_choice = "reload"
+<<<<<<< Updated upstream
 	silent! call system("gen-index")
 	e
+=======
+	call system("gen-index")
+	e
+	au InsertLeave *.md :call RetainPosition(function("AutoLink"))
+>>>>>>> Stashed changes
 	au CursorHold,CursorHoldI * checktime
 	au FocusGained,BufEnter,FocusLost * :checktime
 	nnoremap <leader>dd :call RemoveFile()<CR>

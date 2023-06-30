@@ -164,7 +164,7 @@
 	:nnoremap <leader>O O<esc>
 
 	" clear highlighting from search
-	:nnoremap <silent><c-L> :nohlsearch<CR><c-L>
+	:nnoremap <silent><c-L> :nohlsearch \| syn sync fromstart<CR><c-L>
 	" Turn on highlighting every time you research or look for the next item
 	" Also centers found item on page
 	:nnoremap n :set hlsearch<cr>nzzmh0`h
