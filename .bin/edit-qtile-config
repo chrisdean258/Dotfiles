@@ -1,0 +1,12 @@
+#!/bin/sh
+
+config='/home/chris/.config/qtile/config.py'
+tmp="$(mktemp)"
+
+cp "$config" "$tmp"
+st -e vim "$config"
+if ! diff -q "$config" "$tmp" >/dev/null 2>/dev/null; then
+	qtile cmd-obj -o cmd -f reload_config
+fi
+
+

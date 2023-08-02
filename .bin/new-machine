@@ -1,0 +1,13 @@
+#!/bin/sh
+
+cd "$HOME"
+mkdir git
+cd git
+sudo apt install xclip
+git clone --bare git@github.com:chrisdean258/dotfiles
+git clone git@github.com:chrisdean258/dwm
+git clone git@github.com:chrisdean258/st
+git clone git@github.com:chrisdean258/dmenu
+git clone git@github.com:vim/vim
+
+

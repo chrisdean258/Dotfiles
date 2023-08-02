@@ -1,0 +1,15 @@
+#!/bin/sh
+
+DOWNLOADS="$HOME/Documents/Downloads"
+[ ! -d "$DOWNLOADS" ] && DOWNLOADS="$HOME/Downloads"
+
+latest=$(ls -t "$DOWNLOADS" | head -n 1)
+
+if [ $# -eq 1 ]; then 
+	mv "$DOWNLOADS/$latest" "$1"
+elif [ $# -eq 0 ]; then 
+	echo "$latest"
+else
+	echo "Usage: $0 [where_to_move_it]" &>2
+	exit 1
+fi
