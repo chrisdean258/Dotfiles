@@ -1,12 +1,15 @@
 #!/usr/bin/env python3
-import sys
-import fileinput
 import argparse
 import csv
+import fileinput
+import sys
 
 
 def tablign(lines, sep, joiner, is_csv, header):
-    lines = list(csv.reader(lines, delimiter=sep))
+    if is_csv:
+        lines = list(csv.reader(lines, delimiter=sep))
+    else:
+        lines = [i.split(sep) for i in lines]
     sizes = [0] * max(len(line) for line in lines)
     for line in lines:
         for i, field in enumerate(line):
@@ -21,13 +24,13 @@ def tablign(lines, sep, joiner, is_csv, header):
 def main():
     parser = argparse.ArgumentParser(description='Print file as a table')
     parser.add_argument("file", nargs="*")
-    parser.add_argument("-s", "--sep", default=None, help="What to split the file on (defaults to ' ')")  # noqa
+    parser.add_argument("-s", "--sep", default=None, help="What to split the file on")  # noqa
     parser.add_argument("-j", "--joiner", default=" ", help="What to join the file on")  # noqa
     parser.add_argument("-c", "--csv", action="store_true", help="correctly parses csv files and uses ' | ' as table delimiter")  # noqa
     parser.add_argument("--header", action="store_true", help="first line is a header")  # noqa
     args = parser.parse_args()
-    if args.sep is None:
-        args.sep = "," if args.csv else " "
+    if args.csv and args.sep is None:
+        args.sep = ","
     lines = [f.strip("\r\n") for f in fileinput.input(args.file)]
     print(tablign(lines, args.sep, args.joiner, args.csv, args.header))
 

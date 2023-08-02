@@ -87,15 +87,23 @@ def main(args):
     url = "https://api.github.com/"
     connection = Github(username, token, url)
 
-    if args[1] in ("ls", "list"):
+    if len(args) == 1:
+        print("Usage: github action", file=sys.stderr)
+        print("  actions:", file=sys.stderr)
+        print("    ls,list", file=sys.stderr)
+        print("    clone repo-name", file=sys.stderr)
+        print("    delete repo-name", file=sys.stderr)
+        print("    new,new-repo repo-name", file=sys.stderr)
+
+    elif args[1] in ("ls", "list"):
         for repo in connection.list_repos():
             if repo["owner"]["login"] == username or (len(args) > 2 and args[2] == "-a"):
                 print(repo["full_name"])
-    if args[1] == "clone":
+    elif args[1] == "clone":
         connection.clone_repo(args[2], args[2] if len(args) <= 3 else args[3])
-    if args[1] == "delete":
+    elif args[1] == "delete":
         connection.delete_repo(args[2])
-    if args[1] in ("new", "new-repo"):
+    elif args[1] in ("new", "new-repo"):
         resp = connection.setup_repo(args[2], args[2], "-p" in args)
         print("SSH URL:", resp['ssh_url'])
 

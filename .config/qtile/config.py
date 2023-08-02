@@ -53,6 +53,7 @@ keys = [
     Key(mc, "r", lazy.restart()),
     Key(mc, "q", lazy.shutdown()),
     Key(m_, "f", lazy.window.toggle_floating()),
+    Key(m_, "s", lazy.hide_show_bar()),
     # Key([], "F11", lazy.group["scratchpad"].dropdown_toggle("calculator")),
     # Key([], "F12", lazy.group["scratchpad"].dropdown_toggle("st")),
     # Key(m_, "s", lazy.group["scratchpad"].dropdown_toggle("spotify")),
