@@ -209,14 +209,8 @@ function! Notes()
 	call chdir("~/.notes")
 	setlocal nowrap
 	autocmd FileChangedShell * let v:fcs_choice = "reload"
-<<<<<<< Updated upstream
 	silent! call system("gen-index")
 	e
-=======
-	call system("gen-index")
-	e
-	au InsertLeave *.md :call RetainPosition(function("AutoLink"))
->>>>>>> Stashed changes
 	au CursorHold,CursorHoldI * checktime
 	au FocusGained,BufEnter,FocusLost * :checktime
 	nnoremap <leader>dd :call RemoveFile()<CR>
