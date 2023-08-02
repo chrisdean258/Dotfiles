@@ -9,13 +9,13 @@ def tablign(lines, sep, joiner, is_csv, header):
     if is_csv:
         lines = list(csv.reader(lines, delimiter=sep))
     else:
-        lines = [i.split(sep) for i in lines]
+        lines = [line.split(sep) for line in lines]
     sizes = [0] * max(len(line) for line in lines)
     for line in lines:
         for i, field in enumerate(line):
             sizes[i] = max(sizes[i], len(field))
-    lines = [joiner.join(s.ljust(l)
-                         for s, l in zip(line, sizes)) for line in lines]
+    lines = [[s.ljust(l) for s, l in zip(line, sizes)]
+             for line in lines]
     if header:
         lines = lines[0:1] + ["-" * len(lines[0])] + lines[1:]
     return "\n".join(lines)
