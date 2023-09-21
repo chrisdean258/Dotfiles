@@ -427,7 +427,7 @@
 	:autocmd Filetype markdown :nnoremap <silent><buffer><localleader>s :call SpellReplace()<CR>
 	:autocmd Filetype markdown :setlocal complete+=kspell
 	:autocmd Filetype markdown :setlocal nospell
-	:autocmd Filetype markdown :setlocal wrap
+	:autocmd Filetype markdown :setlocal nowrap
 	:autocmd Filetype markdown :setlocal linebreak
 	:autocmd Filetype markdown :setlocal commentstring=<!--\ %s\ -->
 	:autocmd Filetype markdown :silent! setlocal breakindent
