@@ -105,7 +105,7 @@ command! Run :call RunSH()
 function! MDTemplate()
 	let title = expand("%:t:r")->tolower()
 	if title == "readme" || title == "notes"
-		title = expand("%:p:h:t")
+		let title = expand("%:p:h:t")
 	endif
 	call append(0, "# " .. title->tr('-_', '  ')->substitute('\<.', '\u&', "g"))
 endfunction
