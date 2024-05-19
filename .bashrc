@@ -69,12 +69,16 @@ if exe tput && tput setaf 1 >&/dev/null; then
 	PS1="\[\033[01;32m\]\u${SSH_TTY:+@\h}\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]"
 fi
 
-PROMPT_COMMAND="prompt_command;do_cwd"
+PROMPT_COMMAND="save_rv;do_cwd;prompt_command"
 PROMPT_SAVE="$PS1"
+RV=0
+save_rv() {
+	RV=$?
+}
+
 prompt_command()
 {
-	rv_save=$?
-	rv="$( ([ $rv_save -ne 0 ] || history -p !! | head -n 1 | grep -qE "^\[|^test") && echo -n "${P_RED}[$rv_save]$P_CLEAR ")"
+	rv="$( ([ $RV -ne 0 ] || history -p !! | head -n 1 | grep -qE "^\[|^test") && echo -n "${P_RED}[$RV]$P_CLEAR ")"
 	bat="$(low-battery 2>/dev/null && echo -en "${P_RED}[Low Battery] $P_CLEAR")"
 	gb="$(git rev-parse --abbrev-ref HEAD 2>/dev/null)"
 	gd="$(git status 2>/dev/null | grep -q "clean" || echo "*")"
