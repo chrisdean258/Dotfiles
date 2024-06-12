@@ -195,6 +195,13 @@ function! Edit(file)
 endfunction
 
 function! AutoLink()
+	if getline('.') =~ "`"
+		return
+	endif
+	let in_code = 0
+	if len(filter(range(1, line('.')), 'getline(v:val) =~ "^\s*```"')) % 2 == 1
+		return
+	endif
 	s/\([^"\[(`]\)\(http\(s\)\?:.*\/\)\(\S*\)/\1[\4](\2\4)/ge
 	s/\([^"\[(`]\)\(http\(s\)\?:\S*\)/\1[\2]()/ge
 	s/^\(http\(s\)\?:.*\/\)\(\S*\)/[\3](\1\3)/ge
