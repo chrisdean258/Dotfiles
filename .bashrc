@@ -71,6 +71,7 @@ fi
 
 PROMPT_COMMAND="save_rv;do_cwd;prompt_command"
 PROMPT_SAVE="$PS1"
+<<<<<<< Updated upstream
 RV=0
 save_rv() {
 	RV=$?
@@ -79,12 +80,22 @@ save_rv() {
 prompt_command()
 {
 	rv="$( ([ $RV -ne 0 ] || history -p !! | head -n 1 | grep -qE "^\[|^test") && echo -n "${P_RED}[$RV]$P_CLEAR ")"
+=======
+rv_save=0
+save_rv()
+{
+	rv_save=$?
+}
+prompt_command()
+{
+	rv="$( ([ $rv_save -ne 0 ] || history -p !! | head -n 1 | grep -qE "^\[|^test") && echo -n "${P_RED}[$rv_save]$P_CLEAR ")"
+>>>>>>> Stashed changes
 	bat="$(low-battery 2>/dev/null && echo -en "${P_RED}[Low Battery] $P_CLEAR")"
 	gb="$(git rev-parse --abbrev-ref HEAD 2>/dev/null)"
 	gd="$(git status 2>/dev/null | grep -q "clean" || echo "*")"
 	git="${gb:+$P_GREEN ($gb$gd)$P_CLEAR}"
 	venv="$( [ -n "$VIRTUAL_ENV" ] && echo "$P_CYAN($(basename "$VIRTUAL_ENV")) $P_CLEAR")"
-	PS1="${venv}${rv}${bat}$PROMPT_SAVE${git}\$ "
+	[ -z "$NLPROMPT" ] && PS1="${venv}${rv}${bat}$PROMPT_SAVE${git}\$ " || PS1="${venv}${rv}${bat}$PROMPT_SAVE${git}\n\$ "
 	stty -echo; echo -n $'\e[6n'; read -d R x; stty echo
 	[ "${x#*;}" -eq 1 ] || echo -en "\n"
 }
