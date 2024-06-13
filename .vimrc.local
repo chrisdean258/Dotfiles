@@ -20,7 +20,7 @@ let g:ale_rust_cargo_use_clippy = 1
 let g:ale_rust_cargo_clippy_options = "-- -W clippy::pedantic -W clippy::nursery -W clippy::unwrap_used"
 nmap <silent> <C-k> <Plug>(ale_previous_wrap)
 nmap <silent> <C-j> <Plug>(ale_next_wrap)
-let g:markdown_fenced_languages = ['css', 'erb=eruby', 'javascript', 'js=javascript', 'json=javascript', 'ruby', 'sass', 'xml', 'c', 'python', "copper", "go", "cpp", "typescript"]
+let g:markdown_fenced_languages = ['css', 'erb=eruby', 'javascript', 'js=javascript', 'json=javascript', 'ruby', 'sass', 'xml', 'c', 'python', "copper", "go", "cpp", "typescript", "php"]
 :let g:netrw_browsex_viewer= "xdg-open"
 
 set omnifunc=ale#completion#OmniFunc
@@ -195,8 +195,15 @@ function! Edit(file)
 endfunction
 
 function! AutoLink()
-	s/\([^"\[(]\)\(http\(s\)\?:.*\/\)\(\S*\)/\1[\4](\2\4)/ge
-	s/\([^"\[(]\)\(http\(s\)\?:\S*\)/\1[\2]()/ge
+	if getline('.') =~ "`"
+		return
+	endif
+	let in_code = 0
+	if len(filter(range(1, line('.')), 'getline(v:val) =~ "^\s*```"')) % 2 == 1
+		return
+	endif
+	s/\([^"\[(`]\)\(http\(s\)\?:.*\/\)\(\S*\)/\1[\4](\2\4)/ge
+	s/\([^"\[(`]\)\(http\(s\)\?:\S*\)/\1[\2]()/ge
 	s/^\(http\(s\)\?:.*\/\)\(\S*\)/[\3](\1\3)/ge
 	s/^http\(s\)\?:\S*/[&](&)/ge
 	s/\[\](\(.*\)\/\([^\/]*\))/[\2](\1\/\2)/ge

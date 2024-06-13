@@ -435,7 +435,7 @@
 	:autocmd FileType markdown :setlocal tabstop=4
 	:autocmd FileType markdown :setlocal complete+=k
 	:autocmd FileType markdown :setlocal dictionary+=/usr/share/dict/words
-	:autocmd FileType markdown :let g:markdown_fenced_languages = ['html', 'python', 'c', 'vim']
+	" :autocmd FileType markdown :let g:markdown_fenced_languages = ['html', 'python', 'c', 'vim']
 	:augroup END " }}}
 
 	:augroup Text " {{{
