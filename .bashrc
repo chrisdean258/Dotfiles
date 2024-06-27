@@ -177,9 +177,7 @@ j()
 	fi
 
 	[ -z "$new_dir" ] && return 1
-	if [ -d "$new_dir" ]; then
-		builtin cd "$new_dir" && echo "$@" >> "${jmp}_complete"
-	else
+	if ! builtin cd "$new_dir" 2>/dev/null; then
 		grep -vF "$new_dir" "$jmp" > "$jmp_dir/tmp"
 		mv "$jmp_dir/tmp" "$jmp"
 		j
