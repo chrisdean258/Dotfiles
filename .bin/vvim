@@ -13,7 +13,9 @@ def parse_linenum(s):
 
 def main(argv):
     new_argv = ["vim"]
-    for arg in argv:
+    for i, arg in enumerate(argv):
+        if i == 0 and arg == "vim" and len(argv) != 1:
+            continue
         fname, _, line = arg.partition(':')
         lnum = parse_linenum(line)
         if os.path.isfile(arg):
