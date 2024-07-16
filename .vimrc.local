@@ -264,5 +264,16 @@ function! NumbersRestore()
 	endif
 endfunction
 
+:function! MDCapitals()
+:  if expand('%') !~ "\.md$"
+:    return
+:  endif
+:  let l:window = winsaveview()
+:  silent s/^\(\s*- \)\(\w\+[^\/]\(\s\|$\)\)/\1\u\2/e
+:  call winrestview(l:window)
+:  nohlsearch
+:endfunction
+
 au FocusLost * :call Numbers()
 au FocusGained * :call NumbersRestore()
+au FileType yaml : do FileType markdown
