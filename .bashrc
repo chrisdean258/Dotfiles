@@ -143,7 +143,6 @@ __OLD_PWD="$PWD"
 do_cwd() {
 	if [ "$__OLD_PWD" != "$PWD" ]; then __OLD_PWD="$PWD"
 		ls 
-		! [ -f "$jmp" ] && j --setup
 		realpath . >> "$jmp" && [ "$(wc -l < "$jmp")" -lt 10000 ] && sed -i 1d "$jmp"
 		venv
 	fi
@@ -155,11 +154,10 @@ venv() {
 		if ! realpath "$PWD/" | grep -q -F "$(dirname "$VIRTUAL_ENV")"; then
 			deactivate
 		fi
-	else
-		ssource "env/bin/activate"
-		ssource "../env/bin/activate"
-		ssource "../../env/bin/activate"
 	fi
+	ssource "env/bin/activate"
+	ssource "../env/bin/activate"
+	ssource "../../env/bin/activate"
 }
 
 j()
