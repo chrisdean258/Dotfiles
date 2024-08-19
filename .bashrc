@@ -85,6 +85,8 @@ prompt_command()
 	git="${gb:+$P_GREEN ($gb$gd)$P_CLEAR}"
 	venv="$( [ -n "$VIRTUAL_ENV" ] && echo "$P_CYAN($(basename "$VIRTUAL_ENV")) $P_CLEAR")"
 	PS1="${venv}${rv}${bat}$PROMPT_SAVE${git}\$ "
+	plen="$(printf '%s' "${PS1@P}" | sed -e 's/\x1b\[[0-9;]*m//g' | tr -d "\1\2" | wc -c)"
+	[ "$plen" -lt "$COLUMNS" ] && [ "$plen" -gt "$((COLUMNS - 20))" ] && PS1="${venv}${rv}${bat}$PROMPT_SAVE${git}\n\$ "
 	stty -echo; echo -n $'\e[6n'; read -d R x; stty echo
 	[ "${x#*;}" -eq 1 ] || echo -en "\n"
 }
