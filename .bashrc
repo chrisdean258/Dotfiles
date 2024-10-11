@@ -141,6 +141,16 @@ pd()
 	fi
 }
 
+cd()
+{
+	builtin cd "$@" 2>/dev/null && return
+	dir="$(ls | grep -i "^$*")"
+	[ -d "$dir" ] && cd "$dir" && return
+	echo "bash: cd: $*: No such file or directory" >&2
+	return 1
+
+}
+
 __OLD_PWD="$PWD"
 do_cwd() {
 	if [ "$__OLD_PWD" != "$PWD" ]; then __OLD_PWD="$PWD"

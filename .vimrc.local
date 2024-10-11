@@ -18,6 +18,7 @@ let g:ale_linters = {"python": ["flake8", "autoimport", "isort", "black"], "rust
 let g:ale_rust_rustfmt_options = "--edition 2021"
 let g:ale_rust_cargo_use_clippy = 1
 let g:ale_rust_cargo_clippy_options = "-- -W clippy::pedantic -W clippy::nursery -W clippy::unwrap_used"
+let g:ale_python_flake8_options = "--extend-ignore=E501"
 nmap <silent> <C-k> <Plug>(ale_previous_wrap)
 nmap <silent> <C-j> <Plug>(ale_next_wrap)
 let g:markdown_fenced_languages = ['css', 'erb=eruby', 'javascript', 'js=javascript', 'json=javascript', 'ruby', 'sass', 'xml', 'c', 'python', "copper", "go", "cpp", "typescript", "php"]
@@ -112,7 +113,7 @@ endfunction
 
 function! PythonMainAbbrev()
 	if getline('.') =~ '^$'
-		let return_lines = [ "import sys", "import argparse", "", "", "def main(argv):", "parser = argparse.ArgumentParser(description='')", "parser.add_argument('name', help='')", "args = parser.parse_args(argv[1:])", "return 0", "", "", "if __name__ == '__main__':", "sys.exit(main(sys.argv))", ]
+		let return_lines = [ "import sys", "import argparse", "", "", "def main():", "parser = argparse.ArgumentParser(description='')", "parser.add_argument('name', help='')", "args = parser.parse_args()", "return 0", "", "", "if __name__ == '__main__':", "sys.exit(main(sys.argv))", ]
 		return join(return_lines, "\n")
 	endif
 	return 'main'
