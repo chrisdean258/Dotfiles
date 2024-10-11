@@ -113,7 +113,7 @@ endfunction
 
 function! PythonMainAbbrev()
 	if getline('.') =~ '^$'
-		let return_lines = [ "import sys", "import argparse", "", "", "def main():", "parser = argparse.ArgumentParser(description='')", "parser.add_argument('name', help='')", "args = parser.parse_args()", "return 0", "", "", "if __name__ == '__main__':", "sys.exit(main(sys.argv))", ]
+		let return_lines = [ "import sys", "import argparse", "", "", "def main():", "parser = argparse.ArgumentParser(description='')", "parser.add_argument('name', help='')", "args = parser.parse_args()", "return 0", "", "", "if __name__ == '__main__':", "sys.exit(main())", ]
 		return join(return_lines, "\n")
 	endif
 	return 'main'
