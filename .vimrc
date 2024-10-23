@@ -649,7 +649,7 @@
 		:  let allowable_starts = [ '>', '\*', '-', '+', '|' , '\d\+\.', '\d\+)']
 		:  let ext = []
 		:  for start in allowable_starts
-		:    call append(ext, start . ' \[.\]')
+		:    call add(ext, start . ' \[.\]')
 		:  endfor
 		:  call extend(allowable_starts, ext)
 		:  let target = line('.') - 1
