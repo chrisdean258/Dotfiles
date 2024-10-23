@@ -42,7 +42,6 @@
 	:set infercase                           " for insert completion
 	:set autoread                            " reads from disk if no modification in buffer
 	:set switchbuf=usetab                    " default to jumping to a new tab
-	:set hidden                              " hide buffers instead of closing
 	:set tabpagemax=1000                     " Vim can handle a lot of tags
 	:set pumheight=15                        " Only see 15 options on completion
 	:set shortmess+=atI                      " Make more messages short
