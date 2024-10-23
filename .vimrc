@@ -646,7 +646,12 @@
 		:  if &filetype == "rmd" || lineno == 1
 		:    return a:default
 		:  endif
-		:  let allowable_starts = [ '>', '\*', '-', '+', '|' , '\d\+\.', '\d\+)' ]
+		:  let allowable_starts = [ '>', '\*', '-', '+', '|' , '\d\+\.', '\d\+)']
+		:  let ext = []
+		:  for start in allowable_starts
+		:    call append(ext, start . ' \[.\]')
+		:  endfor
+		:  call extend(allowable_starts, ext)
 		:  let target = line('.') - 1
 		:  let idt = indent('.')
 		:  while indent(target) > idt
@@ -676,7 +681,7 @@
 		:endfunction " }}}
 
 		:function! LineNosOrderedList(start) " {{{
-		:  let valid_starts = '^\s*\d\+[\.)]'
+		:  let valid_starts = '^\s*\d\+[\.)]\( \[.\]\)\?'
 		:  if getline(a:start) !~ valid_starts
 		:    return []
 		:  endif
