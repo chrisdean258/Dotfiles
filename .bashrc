@@ -13,10 +13,13 @@ if [ -z "$TMUX" ] && [ -x "$(which tmux 2>/dev/null)" ]; then
 	else
 		exec tmux new-session -s "$TMUX_DEFUALT_SESSION"
 	fi
+	true
 fi
 
 exe() { [ -x "$(command -v "$1")" ]; }
 ssource() { [ -r "$1" ] && source "$1"; }
+
+export PATH=$HOME/bin:$HOME/.bin:$PATH:$HOME/.local/bin/
 
 ssource "$HOME/.bashrc.local"
 ssource "$HOME/.bash_aliases"
@@ -32,7 +35,6 @@ P_GREEN="\[$(tput setaf 2)\]"
 P_CYAN="\[$(tput setaf 6)\]"
 P_CLEAR="\[$(tput sgr0)\]"
 
-export PATH=$HOME/bin:$HOME/.bin:$PATH:$HOME/.local/bin/:
 export EDITOR=vim
 export VISUAL=vim
 export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'

@@ -33,12 +33,16 @@ def main():
     parser = argparse.ArgumentParser(description='Print file as a table')
     parser.add_argument("file", nargs="*")
     parser.add_argument("-s", "--sep", default=None, help="What to split the file on")  # noqa
-    parser.add_argument("-j", "--joiner", default=" ", help="What to join the file on")  # noqa
+    parser.add_argument("-j", "--joiner", default=None, help="What to join the file on")  # noqa
     parser.add_argument("-c", "--csv", action="store_true", help="correctly parses csv files and uses ' | ' as table delimiter")  # noqa
     parser.add_argument("--header", action="store_true", help="first line is a header")  # noqa
     args = parser.parse_args()
     if args.csv and args.sep is None:
         args.sep = ","
+    elif args.sep is None:
+        args.sep = " "
+    if args.joiner is None:
+        args.joiner = args.sep
     lines = [f.strip("\r\n") for f in fileinput.input(args.file)]
     print(tablign(lines, args.sep, args.joiner, args.csv, args.header))
 

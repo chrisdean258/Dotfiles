@@ -74,7 +74,7 @@
 	:set backup
 	:set wildmode=longest,list,full
 	:set smartcase
-	:let g:markdown_fenced_languages = ['css', 'erb=eruby', 'javascript', 'js=javascript', 'json=javascript', 'ruby', 'sass', 'xml', 'c', 'python', "copper", "go", "cpp"]
+	:let g:markdown_fenced_languages = ['css', 'erb=eruby', 'javascript', 'js=javascript', 'json=javascript', 'ruby', 'sass', 'xml', 'c', 'python', "copper", "go", "cpp", "proto"]
 	:set ruler
 " }}}
 
