@@ -9,7 +9,7 @@ for f in "$@"; do
 		ls --color=auto --group-directories-first "$f"
 	elif ! [ -f "$f" ]; then
 		echo "ccat: $f: no such file or directory" >&2
-	elif echo "$f" | grep -q "\.txt$" || [ "$(wc -l < "$f")" -gt 500 ] || [ "$(wc -l < "$f")" -gt 10000 ] ; then
+	elif echo "$f" | grep -q "\.txt$" || [ "$(wc -l < "$f")" -gt 500 ] || [ "$(wc -c < "$f")" -gt 5000 ] ; then
 		cat "$f"
 	else
 		vimcat "$f"

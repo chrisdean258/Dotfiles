@@ -3,16 +3,14 @@
 get_completions(){
     local completion COMP_CWORD COMP_LINE COMP_POINT COMP_WORDS COMPREPLY=()
 
-    # load bash-completion if necessary
-    declare -F _completion_loader &>/dev/null || {
-        source /usr/share/bash-completion/bash_completion
-	source $HOME/.bash-completion.bash
-    }
+    [ -f /usr/share/bash-completion/bash_completion ] && source /usr/share/bash-completion/bash_completion
+    [ -f /opt/homebrew/etc/bash_completion ] && source /opt/homebrew/etc/bash_completion
+    [ -f "$HOME/.bash-completion.bash" ] && source "$HOME/.bash-completion.bash"
 
     COMP_LINE=$*
     COMP_POINT=${#COMP_LINE}
 
-    eval set -- "$@"
+    # eval set -- "$@"
 
     COMP_WORDS=("$@")
 
@@ -24,17 +22,6 @@ get_completions(){
 
     # determine completion function
     completion=$(complete -p "$1" 2>/dev/null | awk '{print $(NF-1)}')
-
-    # run _completion_loader only if necessary
-    [[ -n $completion ]] || {
-
-        # load completion
-        _completion_loader "$1"
-
-        # detect completion
-        completion=$(complete -p "$1" 2>/dev/null | awk '{print $(NF-1)}')
-
-    }
 
     # ensure completion was detected
     [[ -n $completion ]] || return 1
