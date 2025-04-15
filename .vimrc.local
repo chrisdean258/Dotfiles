@@ -67,7 +67,7 @@ function! FoggyFix() range
 	let input = map(range(a:firstline, a:lastline + 1), { _, l -> getline(l) })
 	difft
 	vnew
-	let g:lines = system("foggy-fix", input)
+	let g:lines = system("foggy fix", input)
 	call append(0, split(g:lines, "\n"))
 	difft
 	setlocal buftype=nofile
