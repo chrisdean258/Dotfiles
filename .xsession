@@ -2,7 +2,7 @@
 
 _run()
 {
-	export PATH=$PATH:$HOME/.bin:$home/bin
+	export PATH=$PATH:$HOME/.bin:$HOME/bin
 	export BROWSER=chrome
 	[ -x ~/bin/syncthing ] && ~/bin/syncthing --no-browser &
 	[ -x "$(which xfce4-power-manager)" ] && xfce4-power-manager &
