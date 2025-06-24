@@ -7,7 +7,7 @@ _run()
 	[ -x ~/bin/syncthing ] && ~/bin/syncthing --no-browser &
 	[ -x "$(which xfce4-power-manager)" ] && xfce4-power-manager &
 	/usr/lib/notification-daemon/notification-daemon &
-	monitor --no4k
+	monitor --no-4k
 	[ -r ~/.xsession.local ] && source ~/.xsession.local
 	xset r rate 200 75 # Repeat rate
 	xsetroot -solid black

@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
-import sys
+import argparse
 import re
+import sys
 from subprocess import check_output as run
 
 
+
 def xrandr(*args):
-    return run(["xrandr"] + list(args)).decode("utf-8").splitlines()
+    print(["xrandr", *args])
+    return run(["xrandr", *args], text=True).splitlines()
 
 
 class Monitor:
@@ -18,14 +21,22 @@ class Monitor:
             return self.width, self.height
         return self.modes[0]
 
+    def get_no_4k_size(self):
+        rw, rh = self.modes[0]
+        tw = 1920
+        th = (tw * rh) // rw
+        for ww, hh in self.modes:
+            if ww <= tw and hh <= th:
+                return ww, hh
+
     @classmethod
     def getdisplays(cls):
         lines = [line for line in xrandr()[1:] if line]
         con, dcon, cur_mon = [], [], None
         for l in lines:
-            if cur_mon is not None and re.match(r"^\s*\d+x\d+", l):
-                l = l.split()[0].rstrip("i").split("x")
-                cur_mon.modes.append([int(a) for a in l])
+            match = re.match(r"^\s*(\d+)x(\d+)", l)
+            if cur_mon is not None and match is not None:
+                cur_mon.modes.append(list(map(int, match.groups())))
             elif not l[0].isspace():
                 cur_mon = cls.xrandr_parse_display(l)
                 (con if " connected" in l else dcon).append(cur_mon)
@@ -39,18 +50,22 @@ class Monitor:
 
         if loc.startswith("("):
             return cls(name)
-        w, h, offx, offy, *_ = loc.replace("x", "+").split("+") + [0, 0]
-        return cls(name, int(w), int(h), int(offx), int(offy), primary)
+        w, h, offx, offy, *_ = map(int, re.findall(r"\d+", loc) + [0, 0])
+        return cls(name, w, h, offx, offy, primary)
+
+
+    def set_primary(self, true_size=False, no4k=False):
+        w, h = self.size()
+        if no4k:
+            w, h = self.get_no_4k_size()
+        if true_size:
+            w, h = self.modes[0]
+        xrandr("--output", self.name, "--primary", "--mode", f"{w}x{h}")
 
 
 def extend(displays, true_size=False, no4k=False):
     if len(displays) == 1:
-        w, h = displays[0].size()
-        if no4k:
-            w, h = min(w, 1920), min(h, 1080)
-        if true_size:
-            w, h = displays[0].modes[0]
-        xrandr("--output", displays[0].name, "--primary", "--mode", f"{w}x{h}")
+        displays[0].set_primary(true_size, no4k)
 
     if len(displays) == 2:
         primary, second = displays
@@ -63,14 +78,14 @@ def extend(displays, true_size=False, no4k=False):
             xrandr("--output", second.name, "--scale", "1x1", "--panning",
                    f"{sw}x{sh}+{pw}+0", "--mode", f"{sw}x{sh}")
         elif no4k:
-            pw, ph = min(pw, 1920), min(ph, 1080)
-            sw, sh = min(sw, 1920), min(sh, 1080)
+            pw, ph = primary.get_no_4k_size()
+            sw, sh = second.get_no_4k_size()
             xrandr("--output", second.name, "--mode", f"{sw}x{sh}",
                    "--right-of", primary.name, "--output", primary.name,
                    "--mode", f"{pw}x{ph}")
         elif second.width < primary.width:
             xrandr("--output", second.name, "--scale", "2x2", "--panning",
-                   "{}x{}+{}+0".format(pw, ph, pw))
+                   f"{pw}x{ph}+{pw}+0")
 
 
 def mirror(displays):
@@ -87,25 +102,27 @@ def remove(displays):
         xrandr("--output", d.name, "--off")
 
 
-def main(argv):
+def main():
+    parser = argparse.ArgumentParser(description='Manage monitors')
+    parser.add_argument('--keep-dead', '-k',  action="store_true", help="Don't remove disconnected monitors") #noqa:E501
+    parser.add_argument('--true-size', action='store_true', help="revert to monitor true size") #noqa:E501
+    parser.add_argument('--no-4k', action='store_true', help="Restrice output size to something reasonable") #noqa:E501
+    sp = parser.add_subparsers(title="action", dest="mode")
+    parser.set_defaults(mode="extend")
+    sp.add_parser("extend", help="[Default] extend the monitor")
+    sp.add_parser("mirror", help="mirror the monitor")
+    args = parser.parse_args()
+
     displays, disconnected = Monitor.getdisplays()
 
-    args = set(arg for arg in argv[1:] if not arg.startswith("-"))
-    opts = set(arg for arg in argv[1:] if arg.startswith("-"))
-
-    if "--keep-dead" not in opts and "-k" not in opts:
+    if not args.keep_dead:
         remove(disconnected)
-    if len(args) == 0:
-        extend(displays, "--true-size" in opts, "--no4k" in opts)
-    elif "mirror" == args.pop():
+
+    if args.mode == "extend":
+        extend(displays, args.true_size, args.no_4k)
+    elif args.mode == "mirror":
         mirror(displays)
-    else:
-        run("arandr")
 
 
 if __name__ == "__main__":
-    main(sys.argv)
-    try:
-        pass
-    except Exception as e:
-        print(str(e))
+    main()
