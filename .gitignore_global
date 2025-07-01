@@ -4,3 +4,5 @@ __pycache__
 *.swp
 .session.vim
 *.sqlite
+.sonic_cache
+.flake8
