@@ -4,7 +4,7 @@ set +e
 
 
 TMUX_DEFUALT_SESSION="default"
-if [ -z "$TMUX" ] && [ -x "$(which tmux 2>/dev/null)" ]; then
+if [ -z "$SSH_CLIENT" ] && [ -z "$TMUX" ] && [ -x "$(which tmux 2>/dev/null)" ]; then
 	if tmux "ls" | grep '^default[0-9][0-9]*' | grep -v "attached"; then
 		exec tmux attach
 	elif tmux "ls" | grep "$TMUX_DEFUALT_SESSION"; then
