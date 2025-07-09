@@ -302,3 +302,4 @@ au FocusLost * :call Numbers()
 au FocusGained * :call NumbersRestore()
 au FileType yaml : do FileType markdown
 set clipboard^=unnamed,unnamedplus
+

@@ -234,6 +234,10 @@
 
 	:nnoremap <C-p> :vs<CR><C-]>
 	:map Q gq
+
+	" Fix up how linewise visual mode handles I and A
+	:xnoremap <expr> I  mode() ==# 'V' ? '^<C-V>I' : 'I'
+	:xnoremap <expr> A  mode() ==# 'V' ? '$<C-V>A' : 'A'
 " }}}
 
 " UNIVERSAL ABBREVIATIONS AND COMMANDS {{{
