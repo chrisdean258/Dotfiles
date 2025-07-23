@@ -132,12 +132,17 @@ exe swallow   && alias audacity="swallow audacity"
 exe swallow   && alias sxiv="swallow sxiv"
 exe rg || norealias rg="grep -rn"
 
+norealias find="set -f; __find_wrap"
+__find_wrap()
+{
+	command find "$@"
+	set +f
+}
+
 
 -() { builtin cd - || return; }
 
-pd()
-{
-	if [ $# -eq 0 ]; then
+pd() { if [ $# -eq 0 ]; then
 		popd || return;
 	else
 		pushd "$@" || return;
@@ -158,7 +163,11 @@ __OLD_PWD="$PWD"
 do_cwd() {
 	if [ "$__OLD_PWD" != "$PWD" ]; then __OLD_PWD="$PWD"
 		ls 
-		realpath . >> "$jmp" && [ "$(wc -l < "$jmp")" -lt 10000 ] && sed -i 1d "$jmp"
+		if [ "$jumped" == 0 ]; then
+			realpath . >> "$jmp" && [ "$(wc -l < "$jmp")" -lt 10000 ] && sed -i 1d "$jmp"
+		else
+			jumped=0
+		fi
 		venv
 	fi
 }
@@ -175,6 +184,7 @@ venv() {
 	ssource "../../env/bin/activate"
 }
 
+jumped=0
 j()
 {
 	[ $# -ne 0 ] && pattern=".*$(echo "$@" | sed "s/\s\+/.*\/.*/g")[^\/]*$"
@@ -195,6 +205,8 @@ j()
 		grep -vF "$new_dir" "$jmp" > "$jmp_dir/tmp"
 		mv "$jmp_dir/tmp" "$jmp"
 		j
+	else
+		jumped=1
 	fi
 	return $?
 }
