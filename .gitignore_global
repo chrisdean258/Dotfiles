@@ -7,3 +7,5 @@ __pycache__
 .sonic_cache
 .flake8
 env
+temp
+tmp

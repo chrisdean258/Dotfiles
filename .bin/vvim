@@ -13,6 +13,7 @@ def parse_linenum(s):
 
 def main(argv):
     new_argv = ["vim"]
+    add_plus = False
     for i, arg in enumerate(argv):
         if i == 0 and arg == "vim" and len(argv) != 1:
             continue
@@ -20,6 +21,11 @@ def main(argv):
         lnum = parse_linenum(line)
         if os.path.isfile(arg):
             new_argv.append(arg)
+        elif add_plus:
+            new_argv += [f"+{arg}"]
+            add_plus = False
+        elif arg == "line":
+            add_plus = True
         elif os.path.isfile(fname) and lnum is not None:
             new_argv += [fname, f"+{lnum}"]
         else:
