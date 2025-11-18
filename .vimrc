@@ -1075,12 +1075,13 @@
 		:endfunction " }}}
 
 		:function! SwapArgsInt(start, value, end) "{{{
+		:  let indent = substitute(a:value, '^\(\s*\).*', '\1', '')
 		:  if a:value =~ ","
 		:    let l:v = join(reverse(map(split(a:value, ","), {i, v -> Trim(v)})), ", ")
 		:  else
 		:    let l:v = join(reverse(map(split(a:value), {i, v -> Trim(v)})))
 		:  endif
-		:  return a:start . l:v . a:end
+		:  return a:start . indent . l:v . a:end
 		:endfunction " }}}
 
 		:function! SwapExists() " {{{

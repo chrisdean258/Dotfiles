@@ -127,6 +127,7 @@ norealias hgrep='history | grep --color=auto'
 norealias ping="ping -c1 -w 1"
 norealias vim="vvim"
 norealias ssj=ssh
+norealias tw="tmux choose-tree"
 
 alias vf='vim -O $($(fc -nl -1))'
 
