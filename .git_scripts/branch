@@ -5,7 +5,7 @@ if [ $# -eq 0 ]; then
 	git branch
 elif [ $# -eq 1 ] && [ `git branch | grep $1` ]; then
 	git co "$@"
-elif echo "$1" | grep "^-"; then
+elif echo "$1" | grep -q "^-"; then
 	git branch "$@"
 else
 	git co -b "$@"
