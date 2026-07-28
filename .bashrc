@@ -218,6 +218,12 @@ j()
 	return $?
 }
 
+venv()
+{
+	[ -d env ] || python3 -m venv env "$@"
+	. env/bin/activate
+}
+
 bind -m vi-command '"ciw": "lbcw"'
 bind -m vi-command '"diw": "lbdw"'
 bind -m vi-command '"yiw": "lbyw"'
