@@ -175,12 +175,12 @@ do_cwd() {
 		else
 			jumped=0
 		fi
-		venv
+		venv-activate
 	fi
 }
 
 
-venv() {
+venv-activate() {
 	if [ -n "$VIRTUAL_ENV" ]; then
 		if ! realpath "$PWD/" | grep -q -F "$(dirname "$VIRTUAL_ENV")"; then
 			deactivate
